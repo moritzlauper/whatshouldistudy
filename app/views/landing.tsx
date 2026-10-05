@@ -16,7 +16,7 @@ import { Blob, Burst, Pill, Ring, Sparkle, Squiggle } from '../ui/shapes.tsx'
 import { GitHubMark, TrustStickers } from '../ui/trust.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 
-const SOURCE_GLYPH = ['▶', '📦', '🎧', '📸', '👽', '🐙', '✍️']
+const SOURCE_GLYPH = ['▶', '🔎', '🎧', '📸', '👽', '🐙', '✍️']
 
 export async function Landing({ site, base }: SiteProps) {
   const k = kit(site, base)

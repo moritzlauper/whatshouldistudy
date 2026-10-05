@@ -101,7 +101,30 @@ export function StartView() {
       <section id={r.anchors.sources} className="mt-14 scroll-mt-24">
         <StepTitle n={1} color="var(--pink)" title={t.start.step1} sub={t.start.step1sub} />
         <div className="mt-7 grid gap-5 md:grid-cols-2">
-          <OAuthCard id="youtube" provider="google" title="YouTube" glyph="▶" color="var(--pink)" text={t.start.yt} summary={state.summaries.youtube} error={errors.google} onConnect={() => connect('google')} mounted={mounted} />
+          <ExportCard
+            title="YouTube"
+            glyph="▶"
+            color="var(--pink)"
+            badge={t.start.best}
+            text={t.start.yt}
+            summaries={[state.summaries.takeout, state.summaries.youtube]}
+            requests={[{ href: 'https://takeout.google.com/settings/takeout/custom/youtube', label: t.start.request.youtube }]}
+            hint={t.start.hint.takeout}
+            running={running?.source === 'takeout' ? running : null}
+            error={errors.takeout || errors.google}
+            notes={notes.takeout}
+            onFiles={(f) => onFiles(f, 'takeout')}
+            footer={
+              mounted && isConfigured('google') ? (
+                <p className="mt-4 flex flex-wrap items-center gap-2 border-t-2 border-soft-line pt-4 text-xs text-muted">
+                  {t.start.ytLogin}
+                  <button type="button" onClick={() => connect('google')} className="btn btn-ghost btn-sm">
+                    {state.summaries.youtube ? t.start.refresh : t.start.connect('YouTube')}
+                  </button>
+                </p>
+              ) : null
+            }
+          />
           <ExportCard
             title="Instagram"
             glyph="📸"
@@ -151,21 +174,17 @@ export function StartView() {
           <GitHubCard summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
           <div className="md:col-span-2">
             <ExportCard
-              title={t.start.takeoutTitle}
-              glyph="📦"
+              title={t.start.searchTitle}
+              glyph="🔎"
               color="var(--yellow)"
-              badge={t.start.best}
-              text={t.start.takeoutText}
-              summaries={[state.summaries.takeout]}
-              requests={[
-                { href: 'https://takeout.google.com/settings/takeout/custom/youtube', label: t.start.request.youtube },
-                { href: 'https://takeout.google.com/settings/takeout/custom/myactivity', label: t.start.request.search },
-              ]}
-              hint={t.start.hint.takeout}
-              running={running?.source === 'takeout' ? running : null}
-              error={errors.takeout}
-              notes={notes.takeout}
-              onFiles={(f) => onFiles(f, 'takeout')}
+              text={t.start.searchText}
+              summaries={[state.summaries['google-search']]}
+              requests={[{ href: 'https://takeout.google.com/settings/takeout/custom/myactivity', label: t.start.request.search }]}
+              hint={t.start.hint.search}
+              running={running?.source === 'search' ? running : null}
+              error={errors.search}
+              notes={notes.search}
+              onFiles={(f) => onFiles(f, 'search')}
             />
           </div>
         </div>
@@ -308,7 +327,6 @@ function OAuthCard(props: { id: SourceId; provider: Provider; title: string; gly
         ) : (
           <p className="text-xs text-muted">
             {props.mounted ? t.start.notConfigured(props.title) : ''}
-            {props.id === 'youtube' && props.mounted && t.start.takeoutInstead}
           </p>
         )}
       </div>
@@ -331,6 +349,8 @@ function ExportCard(props: {
   notes?: string[]
   onFiles: (files: File[]) => void
   children?: React.ReactNode
+  /** Below the steps, e.g. the optional sign-in. */
+  footer?: React.ReactNode
 }) {
   return (
     <Card title={props.title} text={props.text} glyph={props.glyph} color={props.color} badge={props.badge}>
@@ -364,6 +384,7 @@ function ExportCard(props: {
           ))}
         </ul>
       )}
+      {props.footer}
     </Card>
   )
 }

@@ -13,6 +13,7 @@ import { big5Label, emoji, fieldBlurb, fieldCareers, fieldName, fmtMoney, fmtNum
 import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes } from '../ui/programmes.tsx'
+import { useConfig } from '../ui/price.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 import { useSite } from '../ui/site-context.tsx'
 
@@ -23,6 +24,7 @@ export function ResultsView() {
   const k = useSite()
   const { t, r, locale, intl } = k
   const state = useAppState()
+  const config = useConfig(k.site)
   const [stats, setStats] = useState<Record<string, FieldStat>>({})
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
@@ -59,8 +61,9 @@ export function ResultsView() {
 
   const [first, ...rest] = results.fields
   const top = rest.slice(0, 9)
-  // Place 1 belongs to the paid report; the other places stay free.
-  const unlocked = !!state.unlock && state.unlock.expiresAt > Date.now()
+  // Place 1 belongs to the paid report; the other places stay free. Without
+  // payments set up on this deployment there is nothing to pay, so it's open.
+  const unlocked = (!!state.unlock && state.unlock.expiresAt > Date.now()) || config?.payments === 'off'
   const sourceList = results.sources.map((s) => t.sourceNames[s.id] ?? s.label).join(', ') || t.results.yourAnswers
 
   return (
@@ -137,7 +140,7 @@ export function ResultsView() {
         </div>
         <div className="card p-6 sm:p-8">
           <h2 className="font-display text-3xl">{t.results.big5Title}</h2>
-          {results.big5 ? (
+          {results.big5 && results.big5.from.includes('questionnaire') ? (
             <>
               <p className="mt-1 text-sm text-muted">
                 {t.results.big5Sub} {results.big5.from.includes('questionnaire') ? t.results.big5Q : t.results.big5Music}
@@ -218,7 +221,7 @@ export function ResultsView() {
         </section>
       )}
 
-      <Programmes results={results} prefs={state.prefs} />
+      <Programmes results={results} prefs={state.prefs} hideFirst={!unlocked} />
     </div>
   )
 }

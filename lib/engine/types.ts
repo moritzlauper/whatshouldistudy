@@ -3,6 +3,7 @@ import type { Big5, Big5Key, Riasec, RiasecKey, SubjectKey, ValueKey } from '../
 export type SourceId =
   | 'youtube'
   | 'takeout'
+  | 'google-search'
   | 'spotify'
   | 'spotify-export'
   | 'instagram'

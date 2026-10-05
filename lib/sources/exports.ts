@@ -403,7 +403,8 @@ export async function readExports(files: File[], onProgress: Progress = () => {}
 
 function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>): ExportResult {
   const summaries: SourceSummary[] = []
-  const youtubeItems = [...c.watch, ...c.music, ...c.youtubeSearch, ...c.googleSearch, ...c.comments, ...c.subscriptions]
+  // Google searches (My Activity) are their own source, so the two downloads don't overwrite each other.
+  const youtubeItems = [...c.watch, ...c.music, ...c.youtubeSearch, ...c.comments, ...c.subscriptions]
   if (youtubeItems.length) {
     const groupText = new Map<string, string>()
     if (channels) for (const [id, ch] of channels) groupText.set(id, ch.text)
@@ -416,7 +417,6 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>): Expo
           watchedVideos: c.watch.length,
           musicPlays: c.music.length,
           youtubeSearches: c.youtubeSearch.length,
-          googleSearches: c.googleSearch.length,
           comments: c.comments.length,
           subscriptions: c.subscriptions.length,
           channels: c.channelCounts.size,
@@ -424,6 +424,9 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>): Expo
         maker: 0,
       }),
     )
+  }
+  if (c.googleSearch.length) {
+    summaries.push(accumulate(c.googleSearch, { source: 'google-search', label: 'Google searches', stats: { googleSearches: c.googleSearch.length } }))
   }
   if (c.spotifyPlays) {
     const artists = c.spotifyTracks.size

@@ -93,7 +93,7 @@ test('reads Google searches from My Activity', async () => {
     { header: 'Suche', title: 'Besucht: example.org', titleUrl: 'https://www.google.com/url?q=https://example.org', time: '2024-04-02T10:01:00.000Z', products: ['Suche'] },
   ]
   const r = await readTexts([{ name: 'Takeout/Meine Aktivitäten/Google Suche/MeineAktivitäten.json', text: JSON.stringify(search) }])
-  const s = r.summaries.find((x) => x.source === 'takeout')!
+  const s = r.summaries.find((x) => x.source === 'google-search')!
   assert.equal(s.stats.googleSearches, 1)
   assert.ok(s.fields.physics.score > 0)
 })

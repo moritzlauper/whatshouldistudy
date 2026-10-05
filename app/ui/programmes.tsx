@@ -44,9 +44,9 @@ function requestFields(results: Results) {
 }
 
 /** Until the report is unlocked, place 1 stays hidden, also from the free teaser. */
-const teaserFields = (fields: ReturnType<typeof requestFields>) => fields.slice(1)
+const teaserFields = (fields: ReturnType<typeof requestFields>, hideFirst: boolean) => (hideFirst ? fields.slice(1) : fields)
 
-export function Programmes({ results, prefs }: { results: Results; prefs: Preferences }) {
+export function Programmes({ results, prefs, hideFirst = true }: { results: Results; prefs: Preferences; hideFirst?: boolean }) {
   const { t, r, site, locale, intl } = useSite()
   const [token, setToken] = useState<string | null>(null)
   const [teaser, setTeaser] = useState<Teaser | null>(null)
@@ -56,11 +56,11 @@ export function Programmes({ results, prefs }: { results: Results; prefs: Prefer
   useEffect(() => setToken(unlockToken()), [])
 
   useEffect(() => {
-    fetch(withBase('/api/teaser'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: teaserFields(fields), prefs }) })
+    fetch(withBase('/api/teaser'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: teaserFields(fields, hideFirst), prefs }) })
       .then((res) => res.json())
       .then(setTeaser)
       .catch(() => setTeaser(null))
-  }, [fields, prefs])
+  }, [fields, prefs, hideFirst])
 
   const noDataCountries = prefs.countries.filter((c) => !COUNTRIES[c]?.programmeData)
   const where = prefs.countries.length
@@ -80,14 +80,14 @@ export function Programmes({ results, prefs }: { results: Results; prefs: Prefer
       </p>
       {teaser?.sample && <p className="on-color mt-5 rounded-2xl border-2 border-line bg-yellow px-4 py-3 text-sm font-semibold">⚠ {t.programmes.demo}</p>}
 
-      {token ? <Explorer token={token} fields={fields} prefs={prefs} onInvalid={() => setToken(null)} /> : <Locked teaser={teaser} config={config} results={results} />}
+      {token ? <Explorer token={token} fields={fields} prefs={prefs} onInvalid={() => setToken(null)} /> : <Locked teaser={teaser} config={config} results={results} hideFirst={hideFirst} />}
 
       {noDataCountries.length > 0 && <Research token={token} fields={fields.map((f) => f.id)} countries={noDataCountries} />}
     </section>
   )
 }
 
-function Locked({ teaser, config, results }: { teaser: Teaser | null; config: Config | null; results: Results }) {
+function Locked({ teaser, config, results, hideFirst }: { teaser: Teaser | null; config: Config | null; results: Results; hideFirst: boolean }) {
   const { t, site, base, locale, intl, conf } = useSite()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -125,7 +125,7 @@ function Locked({ teaser, config, results }: { teaser: Teaser | null; config: Co
                   ))}
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="chip-soft">🔒 {t.results.lockedChip}</span>
+                {hideFirst && <span className="chip-soft">🔒 {t.results.lockedChip}</span>}
                 {Object.entries(teaser.facets.fields)
                   .sort((a, b) => b[1] - a[1])
                   .map(([id, n]) => (

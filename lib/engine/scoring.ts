@@ -27,6 +27,7 @@ import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, Source
 
 export const SOURCE_RELIABILITY: Record<SourceId, number> = {
   takeout: 1,
+  'google-search': 0.7,
   youtube: 0.9,
   reddit: 0.85,
   github: 0.8,
