@@ -11,8 +11,9 @@ import type { SiteId } from '../site/config.ts'
 
 export type Provider = 'google' | 'spotify' | 'reddit'
 
+/** Client ids are public (every visitor's browser sees them); the env vars override these defaults. */
 export const CLIENT_IDS: Record<Provider, string | undefined> = {
-  google: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+  google: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '582017329658-pbq1g4ebugb96dvc7nnav9r73bgvh407.apps.googleusercontent.com',
   spotify: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
   reddit: process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID,
 }
