@@ -1,0 +1,2777 @@
+[
+{
+"name": "Vancouver Institute of Media Arts",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"https://www.vanarts.com/"
+],
+"domains": [
+"vanarts.com"
+],
+"state-province": "British Columbia"
+},
+{
+"name": "Vancouver Film School",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"https://vfs.edu/"
+],
+"domains": [
+"vfs.edu"
+],
+"state-province": "British Columbia"
+},
+{
+"name": "Campus VFX",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"https://campusvfx.com/"
+],
+"domains": [
+"campusvfx.com"
+],
+"state-province": "British Columbia"
+},
+{
+"name": "Engineering Institute of Technology",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"https://www.eit.edu.au/"
+],
+"domains": [
+"student.eit.edu.au"
+],
+"state-province": null
+},
+{
+"name": "Toronto Baptist Seminary and Bible College",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"https://tbs.edu/"
+],
+"domains": [
+"tbs.edu"
+],
+"state-province": "Ontario"
+},
+{
+"name": "Cégep de Saint-Jérôme",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"https://www.cstj.qc.ca/",
+"https://ccmt.cstj.qc.ca/",
+"https://ccml.cstj.qc.ca/"
+],
+"domains": [
+"cstj.qc.ca"
+],
+"state-province": "Quebec"
+},
+{
+"name": "Lambton College",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"https://www.lambtoncollege.ca/"
+],
+"domains": [
+"lambtoncollege.ca",
+"mylambton.ca"
+],
+"state-province": "Ontario"
+},
+{
+"name": "Australian Correspondence Schools",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.acs.edu.au/"
+],
+"domains": [
+"acs.edu.au"
+],
+"state-province": null
+},
+{
+"name": "Australian Catholic University",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.acu.edu.au/"
+],
+"domains": [
+"acu.edu.au"
+],
+"state-province": "New South Wales"
+},
+{
+"name": "University of Adelaide",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.adelaide.edu.au/"
+],
+"domains": [
+"adelaide.edu.au"
+],
+"state-province": "South Australia"
+},
+{
+"name": "Australian Defence Force Academy",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.adfa.oz.au/"
+],
+"domains": [
+"adfa.oz.au"
+],
+"state-province": "Australian Capital Territory"
+},
+{
+"name": "Australian Lutheran College",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.alc.edu.au/"
+],
+"domains": [
+"alc.edu.au"
+],
+"state-province": "South Australia"
+},
+{
+"name": "Australian Maritime College",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.amc.edu.au/"
+],
+"domains": [
+"amc.edu.au"
+],
+"state-province": "Tasmania"
+},
+{
+"name": "Australian National University",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.anu.edu.au/"
+],
+"domains": [
+"anu.edu.au"
+],
+"state-province": "Australian Capital Territory"
+},
+{
+"name": "Avondale University",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.avondale.edu.au/"
+],
+"domains": [
+"avondale.edu.au"
+],
+"state-province": "New South Wales"
+},
+{
+"name": "Federation University Australia",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://federation.edu.au/"
+],
+"domains": [
+"federation.edu.au"
+],
+"state-province": "Victoria"
+},
+{
+"name": "Bond University",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.bond.edu.au/"
+],
+"domains": [
+"bond.edu.au"
+],
+"state-province": "Queensland"
+},
+{
+"name": "University of Canberra",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.canberra.edu.au/"
+],
+"domains": [
+"canberra.edu.au"
+],
+"state-province": "Australian Capital Territory"
+},
+{
+"name": "Charles Darwin University",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.cdu.edu.au/"
+],
+"domains": [
+"cdu.edu.au"
+],
+"state-province": "Northern Territory"
+},
+{
+"name": "Central Queensland University",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.cqu.edu.au/"
+],
+"domains": [
+"cqu.edu.au"
+],
+"state-province": "Queensland"
+},
+{
+"name": "Charles Sturt University",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.csu.edu.au/"
+],
+"domains": [
+"csu.edu.au"
+],
+"state-province": "New South Wales"
+},
+{
+"name": "Curtin University",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.curtin.edu.au/"
+],
+"domains": [
+"curtin.edu.au"
+],
+"state-province": "Western Australia"
+},
+{
+"name": "Deakin University",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.deakin.edu.au/"
+],
+"domains": [
+"deakin.edu.au"
+],
+"state-province": "Victoria"
+},
+{
+"name": "Edith Cowan University",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.ecu.edu.au/"
+],
+"domains": [
+"ecu.edu.au"
+],
+"state-province": "Western Australia"
+},
+{
+"name": "Flinders University of South Australia",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"http://www.flinders.edu.au/"
+],
+"domains": [
+"flinders.edu.au"
+],
+"state-province": "South Australia"
+},
+{
+"name": "Griffith University",
+"alpha_two_code": "AU",
+"country": "Australia",
+"web_pages": [
+"https://www.griffith.edu.au/"
+],
+"domains": [
+"griffith.edu.au"
+],
+"state-province": "Queensland"
+},
+{
+"name": "Akademie der bildenden Künste Wien",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.akbild.ac.at/"
+],
+"domains": [
+"akbild.ac.at"
+],
+"state-province": null
+},
+{
+"name": "Universität für Bodenkultur Wien",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.boku.ac.at/"
+],
+"domains": [
+"boku.ac.at"
+],
+"state-province": null
+},
+{
+"name": "Donau-Universität Krems",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.donau-uni.ac.at/"
+],
+"domains": [
+"donau-uni.ac.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Burgenland",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fh-burgenland.at/"
+],
+"domains": [
+"fh-burgenland.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschulstudiengänge Hagenberg",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fh-hagenberg.at/"
+],
+"domains": [
+"fh-hagenberg.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule JOANNEUM",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fh-joanneum.at/"
+],
+"domains": [
+"fh-joanneum.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Kärnten",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fh-kaernten.ac.at/"
+],
+"domains": [
+"fh-kaernten.ac.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Krems",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fh-krems.ac.at/"
+],
+"domains": [
+"fh-krems.ac.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Kufstein (Tirol)",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fh-kufstein.ac.at/"
+],
+"domains": [
+"fh-kufstein.ac.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Salzburg",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fh-sbg.ac.at/"
+],
+"domains": [
+"fh-sbg.ac.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschulstudiengänge Steyr",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fh-steyr.at/"
+],
+"domains": [
+"fh-steyr.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule St. Pölten",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fh-stpoelten.ac.at/"
+],
+"domains": [
+"fh-stpoelten.ac.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Vorarlberg",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fhv.at/"
+],
+"domains": [
+"fhv.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule für Bank- und Finanzwirtschaft",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fh-vie.ac.at/"
+],
+"domains": [
+"fh-vie.ac.at"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschulstudiengänge der Wiener Wirtschaft",
+"alpha_two_code": "AT",
+"country": "Austria",
+"web_pages": [
+"http://www.fhw.at/"
+],
+"domains": [
+"fhw.at"
+],
+"state-province": null
+},
+{
+"name": "Acadia University",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.acadiau.ca/"
+],
+"domains": [
+"acadiau.ca"
+],
+"state-province": "Nova Scotia"
+},
+{
+"name": "Algonquin College",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.algonquincollege.com/"
+],
+"domains": [
+"algonquincollege.com"
+],
+"state-province": "Ontario"
+},
+{
+"name": "Ashton College",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.ashtoncollege.com/"
+],
+"domains": [
+"ashtoncollege.com"
+],
+"state-province": "British Columbia"
+},
+{
+"name": "Assumption University",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.assumptionu.ca/"
+],
+"domains": [
+"assumptionu.ca"
+],
+"state-province": "Ontario"
+},
+{
+"name": "Athabasca University",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.athabascau.ca/"
+],
+"domains": [
+"athabascau.ca"
+],
+"state-province": "Alberta"
+},
+{
+"name": "Augustana University College",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.augustana.ab.ca/"
+],
+"domains": [
+"augustana.ab.ca"
+],
+"state-province": "Alberta"
+},
+{
+"name": "British Columbia Institute of Technology",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.bcit.ca/"
+],
+"domains": [
+"bcit.ca"
+],
+"state-province": "British Columbia"
+},
+{
+"name": "British Columbia Open University",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.bcou.ca/"
+],
+"domains": [
+"bcou.ca"
+],
+"state-province": "British Columbia"
+},
+{
+"name": "William and Catherine Booth College",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.boothcollege.ca/"
+],
+"domains": [
+"boothcollege.ca"
+],
+"state-province": "Manitoba"
+},
+{
+"name": "Collège Boréal",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.borealc.on.ca/"
+],
+"domains": [
+"borealc.on.ca"
+],
+"state-province": "Ontario"
+},
+{
+"name": "Bow Valley College",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.bowvalleycollege.ca/"
+],
+"domains": [
+"bowvalleycollege.ca"
+],
+"state-province": "Alberta"
+},
+{
+"name": "Brandon University",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.brandonu.ca/"
+],
+"domains": [
+"brandonu.ca"
+],
+"state-province": "Manitoba"
+},
+{
+"name": "Brock University",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.brocku.ca/"
+],
+"domains": [
+"brocku.ca"
+],
+"state-province": "Ontario"
+},
+{
+"name": "DeVry Institute of Technology",
+"alpha_two_code": "CA",
+"country": "Canada",
+"web_pages": [
+"http://www.cal.devry.ca/"
+],
+"domains": [
+"cal.devry.ca"
+],
+"state-province": "Alberta"
+},
+{
+"name": "IU Internationale Hochschule GmbH",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"https://www.iu-fernstudium.de/"
+],
+"domains": [
+"iubh-fernstudium.de"
+],
+"state-province": "Thuringia"
+},
+{
+"name": "AKAD Hochschulen für Berufstätige, Fachhochschule Leipzig",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.akad.de/"
+],
+"domains": [
+"akad.de"
+],
+"state-province": null
+},
+{
+"name": "Alice-Salomon-Fachhochschule für Sozialarbeit und Sozialpädagogik Berlin",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.asfh-berlin.de/"
+],
+"domains": [
+"asfh-berlin.de"
+],
+"state-province": null
+},
+{
+"name": "Augustana Hochschule Neuendettelsau",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.augustana.de/"
+],
+"domains": [
+"augustana.de"
+],
+"state-province": null
+},
+{
+"name": "Kirchliche Hochschule Bethel",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.bethel.de/"
+],
+"domains": [
+"bethel.de"
+],
+"state-province": null
+},
+{
+"name": "BiTS - Business and Information Technology School gGmbH",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.bits-iserlohn.de/"
+],
+"domains": [
+"bits-iserlohn.de"
+],
+"state-province": null
+},
+{
+"name": "Cologne Business School",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.cbs.de/"
+],
+"domains": [
+"cbs.de"
+],
+"state-province": null
+},
+{
+"name": "Charité – Universitätsmedizin Berlin",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"https://www.charite.de/"
+],
+"domains": [
+"charite.de"
+],
+"state-province": "Berlin"
+},
+{
+"name": "CODE University of Applied Sciences Berlin",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://code.berlin/"
+],
+"domains": [
+"code.berlin"
+],
+"state-province": null
+},
+{
+"name": "Deutsche Hochschule für Verwaltungswissenschaften Speyer",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.dhv-speyer.de/"
+],
+"domains": [
+"dhv-speyer.de"
+],
+"state-province": null
+},
+{
+"name": "DIPLOMA-Fachhochschule Ölsnitz/Vogtland",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.diploma.de/"
+],
+"domains": [
+"diploma.de"
+],
+"state-province": null
+},
+{
+"name": "Deutsche Sporthochschule Köln",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.dshs-koeln.de/"
+],
+"domains": [
+"dshs-koeln.de"
+],
+"state-province": null
+},
+{
+"name": "E.A.P. Europäische Wirtschaftshochschule Berlin",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.eap.net/"
+],
+"domains": [
+"eap.net"
+],
+"state-province": null
+},
+{
+"name": "Europäische Betriebswirtschafts-Akademie",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.eba-muenchen.de/"
+],
+"domains": [
+"eba-muenchen.de"
+],
+"state-province": null
+},
+{
+"name": "European Business School Schloß Reichartshausen",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.ebs.de/"
+],
+"domains": [
+"ebs.de"
+],
+"state-province": null
+},
+{
+"name": "European College of Liberal Arts",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.ecla.de/"
+],
+"domains": [
+"ecla.de"
+],
+"state-province": null
+},
+{
+"name": "Evangelische Fachhochschule Rheinland-Westfalen-Lippe",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.efh-bochum.de/"
+],
+"domains": [
+"efh-bochum.de"
+],
+"state-province": null
+},
+{
+"name": "Evangelische Fachhochschule Darmstadt",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"https://www.eh-darmstadt.de/"
+],
+"domains": [
+"eh-darmstadt.de"
+],
+"state-province": null
+},
+{
+"name": "Evangelische Fachhochschule Freiburg, Hochschule für Soziale Arbeit, Diakonie und Religionspädagogik",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.efh-freiburg.de/"
+],
+"domains": [
+"efh-freiburg.de"
+],
+"state-province": null
+},
+{
+"name": "Evangelische Fachhochschule Hannover",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.efh-hannover.de/"
+],
+"domains": [
+"efh-hannover.de"
+],
+"state-province": null
+},
+{
+"name": "Evangelische Fachhochschule Ludwigshafen Hochschule für Sozial- und Gesundheitswesen",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.efhlu.de/"
+],
+"domains": [
+"efhlu.de"
+],
+"state-province": null
+},
+{
+"name": "Evangelische Fachhochschule Reutlingen-Ludwigsburg, Hochschule für Soziale Arbeit, Religionspädagogik und Diakonie",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.efh-reutlingen-ludwigsburg.de/"
+],
+"domains": [
+"efh-reutlingen-ludwigsburg.de"
+],
+"state-province": null
+},
+{
+"name": "Evangelische Hochschule für Soziale Arbeit Dresden (FH)",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.ehs-dresden.de/"
+],
+"domains": [
+"ehs-dresden.de"
+],
+"state-province": null
+},
+{
+"name": "European Management School",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.ems-mainz.de/"
+],
+"domains": [
+"ems-mainz.de"
+],
+"state-province": null
+},
+{
+"name": "Europäische Fachhochschule",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.eufh.de/"
+],
+"domains": [
+"eufh.de"
+],
+"state-province": null
+},
+{
+"name": "Europa-Universität Viadrina Frankfurt (Oder)",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.euv-frankfurt-o.de/"
+],
+"domains": [
+"euv-frankfurt-o.de"
+],
+"state-province": null
+},
+{
+"name": "Evangelische Fachhochschule Berlin, Fachhochschule für Sozialarbeit und Sozialpädagogik",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.evfh-berlin.de/"
+],
+"domains": [
+"evfh-berlin.de"
+],
+"state-province": null
+},
+{
+"name": "Evangelische Fachhochschule Nürnberg",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.evfh-nuernberg.de/"
+],
+"domains": [
+"evfh-nuernberg.de"
+],
+"state-province": null
+},
+{
+"name": "Fern-Fachhochschule Hamburg",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.fern-fh.de/"
+],
+"domains": [
+"fern-fh.de"
+],
+"state-province": null
+},
+{
+"name": "Fernuniversität Gesamthochschule Hagen",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.fernuni-hagen.de/"
+],
+"domains": [
+"fernuni-hagen.de"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Aachen",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.fh-aachen.de/"
+],
+"domains": [
+"fh-aachen.de"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Aschaffenburg",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.fh-aschaffenburg.de/"
+],
+"domains": [
+"fh-aschaffenburg.de"
+],
+"state-province": null
+},
+{
+"name": "Technical University of Applied Sciences Augsburg",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"https://www.tha.de/"
+],
+"domains": [
+"fh-augsburg.de",
+"tha.de"
+],
+"state-province": null
+},
+{
+"name": "Internationale Fachhochschule Bad Honnef",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.fh-bad-honnef.de/"
+],
+"domains": [
+"fh-bad-honnef.de"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Biberach, Hochschule für Bauwesen und Wirtschaft",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.fh-biberach.de/"
+],
+"domains": [
+"fh-biberach.de"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Bielefeld",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.fh-bielefeld.de/"
+],
+"domains": [
+"fh-bielefeld.de"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Bingen",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.fh-bingen.de/"
+],
+"domains": [
+"fh-bingen.de"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Bochum",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.fh-bochum.de/"
+],
+"domains": [
+"fh-bochum.de"
+],
+"state-province": null
+},
+{
+"name": "Hochschule Bonn-Rhein-Sieg",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.hochschule-bonn-rhein-sieg.de/"
+],
+"domains": [
+"hochschule-bonn-rhein-sieg.de",
+"h-brs.de"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Brandenburg",
+"alpha_two_code": "DE",
+"country": "Germany",
+"web_pages": [
+"http://www.fh-brandenburg.de/"
+],
+"domains": [
+"fh-brandenburg.de"
+],
+"state-province": null
+},
+{
+"name": "Pontificia Università S. Tommaso",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.angelicum.org/"
+],
+"domains": [
+"angelicum.org"
+],
+"state-province": null
+},
+{
+"name": "Pontificio Ateneo Antonianum",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.antonianum.ofm.org/"
+],
+"domains": [
+"antonianum.ofm.org"
+],
+"state-province": null
+},
+{
+"name": "University of Modena",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.casa.unimo.it/"
+],
+"domains": [
+"casa.unimo.it"
+],
+"state-province": null
+},
+{
+"name": "Abdus Salam international centre for theoretical physics",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.ictp.trieste.it/"
+],
+"domains": [
+"ictp.trieste.it"
+],
+"state-province": null
+},
+{
+"name": "Institute for Advanced Studies Lucca",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.imtlucca.it/"
+],
+"domains": [
+"imtlucca.it"
+],
+"state-province": null
+},
+{
+"name": "University Institute of Architecture Venice",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.iuav.unive.it/"
+],
+"domains": [
+"iuav.unive.it"
+],
+"state-province": null
+},
+{
+"name": "European University Institute",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.iue.it/"
+],
+"domains": [
+"iue.it"
+],
+"state-province": null
+},
+{
+"name": "University Institute of Modern Languages",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.iulm.it/"
+],
+"domains": [
+"iulm.it"
+],
+"state-province": null
+},
+{
+"name": "Dutch University Institute for Art History (DUIA)",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.iuoart.org/"
+],
+"domains": [
+"iuoart.org"
+],
+"state-province": null
+},
+{
+"name": "University Institute of Oriental Studies",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.iuo.it/"
+],
+"domains": [
+"iuo.it"
+],
+"state-province": null
+},
+{
+"name": "Istituto Universitario di Studi Superiori",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.iusspavia.it/"
+],
+"domains": [
+"iusspavia.it"
+],
+"state-province": null
+},
+{
+"name": "Johns Hopkins University, SAIS Bologna Center",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.jhubc.it/"
+],
+"domains": [
+"jhubc.it"
+],
+"state-province": null
+},
+{
+"name": "John Cabot University",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.johncabot.edu/"
+],
+"domains": [
+"johncabot.edu"
+],
+"state-province": null
+},
+{
+"name": "Free University Institute \"Carlo Cattaneo\"",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.liuc.it/"
+],
+"domains": [
+"liuc.it"
+],
+"state-province": null
+},
+{
+"name": "Free University \"Maria Santissima Assunta\"",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.lumsa.it/"
+],
+"domains": [
+"lumsa.it"
+],
+"state-province": null
+},
+{
+"name": "NABA - Nuova Accademia di Belle Arti, Milan",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.naba.it/"
+],
+"domains": [
+"naba.it"
+],
+"state-province": null
+},
+{
+"name": "Yorker International University, Milano",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.nyuniversity.net/"
+],
+"domains": [
+"nyuniversity.net"
+],
+"state-province": null
+},
+{
+"name": "Pontificio Istituto Orientale",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.pio.urbe.it/"
+],
+"domains": [
+"pio.urbe.it"
+],
+"state-province": null
+},
+{
+"name": "Polytechnic Institute of Bari",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.poliba.it/"
+],
+"domains": [
+"poliba.it"
+],
+"state-province": null
+},
+{
+"name": "Polytechnic Institute of Milan",
+"alpha_two_code": "IT",
+"country": "Italy",
+"web_pages": [
+"http://www.polimi.it/"
+],
+"domains": [
+"polimi.it",
+"mail.polimi.it"
+],
+"state-province": null
+},
+{
+"name": "Aichi Shukutoku University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aasa.ac.jp/"
+],
+"domains": [
+"aasa.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aichi Bunkyo University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.abu.ac.jp/"
+],
+"domains": [
+"abu.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aichi University of Education",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aichi-edu.ac.jp/"
+],
+"domains": [
+"aichi-edu.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aichi Prefectural University of Fine Arts & Music",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aichi-fam-u.ac.jp/"
+],
+"domains": [
+"aichi-fam-u.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aichi Gakuin University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aichi-gakuin.ac.jp/"
+],
+"domains": [
+"aichi-gakuin.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aichi Medical University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aichi-med-u.ac.jp/"
+],
+"domains": [
+"aichi-med-u.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aichi Prefectural University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aichi-pu.ac.jp/"
+],
+"domains": [
+"aichi-pu.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aichi University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aichi-u.ac.jp/"
+],
+"domains": [
+"aichi-u.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aikoku Gakuen University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aikoku-u.ac.jp/"
+],
+"domains": [
+"aikoku-u.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aichi Institute of Technology",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aitech.ac.jp/"
+],
+"domains": [
+"aitech.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Akita University of Economics and Law",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.akeihou-u.ac.jp/"
+],
+"domains": [
+"akeihou-u.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Akita University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.akita-u.ac.jp/"
+],
+"domains": [
+"akita-u.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "St. Andrew's University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.andrew.ac.jp/"
+],
+"domains": [
+"andrew.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aomori Chuoh Gakuin University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aomoricgu.ac.jp/"
+],
+"domains": [
+"aomoricgu.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aomori University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aomori-u.ac.jp/"
+],
+"domains": [
+"aomori-u.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Aoyama Gakuin University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.aoyama.ac.jp/"
+],
+"domains": [
+"aoyama.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Ritsumeikan Asia Pacific University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.apu.ac.jp/"
+],
+"domains": [
+"apu.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Asahikawa Medical College",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.asahikawa-med.ac.jp/"
+],
+"domains": [
+"asahikawa-med.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "Asahikawa University",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"http://www.asahikawa-u.ac.jp/"
+],
+"domains": [
+"asahikawa-u.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "National Institute of Technology, Asahikawa College",
+"alpha_two_code": "JP",
+"country": "Japan",
+"web_pages": [
+"https://asahikawa-nct.ac.jp/"
+],
+"domains": [
+"edu.asahikawa-nct.ac.jp",
+"asahikawa-nct.ac.jp"
+],
+"state-province": null
+},
+{
+"name": "University of Sint Eustatius School of Medicine",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.eustatiusmed.edu/"
+],
+"domains": [
+"eustatiusmed.edu"
+],
+"state-province": null
+},
+{
+"name": "International University School of Medicine (IUSOM)",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.internationaluniversity-schoolofmedicine.org/"
+],
+"domains": [
+"internationaluniversity-schoolofmedicine.org"
+],
+"state-province": null
+},
+{
+"name": "St.James's School of Medicine, Bonaire",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.sjsm.org/"
+],
+"domains": [
+"sjsm.org"
+],
+"state-province": null
+},
+{
+"name": "University of the Netherlands Antilles, Curacao",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.una.an/"
+],
+"domains": [
+"una.an"
+],
+"state-province": null
+},
+{
+"name": "Dutch Delta University",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.ddu.nl/"
+],
+"domains": [
+"ddu.nl"
+],
+"state-province": null
+},
+{
+"name": "De Haagse Hogeschool",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.dehaagsehogeschool.nl/"
+],
+"domains": [
+"dehaagsehogeschool.nl"
+],
+"state-province": null
+},
+{
+"name": "Erasmus University Rotterdam",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.eur.nl/"
+],
+"domains": [
+"eur.nl"
+],
+"state-province": null
+},
+{
+"name": "Rotterdam School of Management",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"https://www.rsm.nl/"
+],
+"domains": [
+"rsm.nl"
+],
+"state-province": null
+},
+{
+"name": "European Open University",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.europeanopenuniversity.com/"
+],
+"domains": [
+"europeanopenuniversity.com"
+],
+"state-province": null
+},
+{
+"name": "Fontys University of Applied Sciences",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.fontys.edu/"
+],
+"domains": [
+"fontys.edu"
+],
+"state-province": null
+},
+{
+"name": "Foundation University",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.foundationuniversity.com/"
+],
+"domains": [
+"foundationuniversity.com"
+],
+"state-province": null
+},
+{
+"name": "Hanze University Groningen",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.hanze.nl/"
+],
+"domains": [
+"hanze.nl"
+],
+"state-province": null
+},
+{
+"name": "Hogeschool voor de Kunsten Utrecht (HKU)",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.hku.nl/"
+],
+"domains": [
+"hku.nl"
+],
+"state-province": null
+},
+{
+"name": "Hotelschool The Hague",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.hotelschool.nl/"
+],
+"domains": [
+"hotelschool.nl"
+],
+"state-province": null
+},
+{
+"name": "Hogeschool Rotterdam",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.hro.nl/"
+],
+"domains": [
+"hro.nl",
+"hr.nl"
+],
+"state-province": null
+},
+{
+"name": "Hogeschool Leiden",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.hsleiden.nl/"
+],
+"domains": [
+"hsleiden.nl"
+],
+"state-province": null
+},
+{
+"name": "Hogeschool Utrecht",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.hu.nl/"
+],
+"domains": [
+"hu.nl"
+],
+"state-province": null
+},
+{
+"name": "Hogeschool van Amsterdam",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.hva.nl/"
+],
+"domains": [
+"hva.nl"
+],
+"state-province": null
+},
+{
+"name": "Hogeschool Inholland",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.inholland.nl/"
+],
+"domains": [
+"inholland.nl"
+],
+"state-province": null
+},
+{
+"name": "Islamic University of Rotterdam",
+"alpha_two_code": "NL",
+"country": "Netherlands",
+"web_pages": [
+"http://www.islamicuniversity.nl/"
+],
+"domains": [
+"islamicuniversity.nl"
+],
+"state-province": null
+},
+{
+"name": "Barcelona Graduate School of Economics",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.barcelonagse.eu/"
+],
+"domains": [
+"barcelonagse.eu"
+],
+"state-province": null
+},
+{
+"name": "Bircham International University",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.bircham.edu/"
+],
+"domains": [
+"bircham.edu"
+],
+"state-province": null
+},
+{
+"name": "Universidad de San Pablo CEU",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.ceu.es/"
+],
+"domains": [
+"ceu.es"
+],
+"state-province": null
+},
+{
+"name": "Universidad de Deusto",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.deusto.es/"
+],
+"domains": [
+"deusto.es"
+],
+"state-province": null
+},
+{
+"name": "Universidad del País Vasco",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.ehu.es/"
+],
+"domains": [
+"ehu.es",
+"ehu.eus"
+],
+"state-province": null
+},
+{
+"name": "Escuela Superior de Gestion Comercial y Marketing (ESIC)",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.esic.es/"
+],
+"domains": [
+"esic.es"
+],
+"state-province": null
+},
+{
+"name": "Global Business School Barcelona",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.global-business-school.org/"
+],
+"domains": [
+"global-business-school.org"
+],
+"state-province": null
+},
+{
+"name": "IE University",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.ie.edu/"
+],
+"domains": [
+"ie.edu"
+],
+"state-province": null
+},
+{
+"name": "International University of Southern Europe",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.iuse.edu.es/"
+],
+"domains": [
+"iuse.edu.es"
+],
+"state-province": null
+},
+{
+"name": "La Salle Universities - International Programmes",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.lasalleuniversities.net/"
+],
+"domains": [
+"lasalleuniversities.net"
+],
+"state-province": null
+},
+{
+"name": "Mondragon Univertsitatea",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.muni.es/"
+],
+"domains": [
+"muni.es",
+"mundragon.edu"
+],
+"state-province": null
+},
+{
+"name": "La Salle - Universitat Ramon Llull",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.salleurl.edu/"
+],
+"domains": [
+"salleurl.edu"
+],
+"state-province": null
+},
+{
+"name": "Schiller International University, Madrid",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.schillermadrid.edu/"
+],
+"domains": [
+"schillermadrid.edu"
+],
+"state-province": null
+},
+{
+"name": "Universitat Autónoma de Barcelona",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.uab.es/"
+],
+"domains": [
+"uab.es"
+],
+"state-province": null
+},
+{
+"name": "Universidad de Alicante",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.ua.es/"
+],
+"domains": [
+"ua.es"
+],
+"state-province": null
+},
+{
+"name": "Universidad de Alcalá de Henares",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.uah.es/"
+],
+"domains": [
+"uah.es"
+],
+"state-province": null
+},
+{
+"name": "Universidad de Almería",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.ualm.es/"
+],
+"domains": [
+"ualm.es"
+],
+"state-province": null
+},
+{
+"name": "Universidad Autónoma de Madrid",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.uam.es/"
+],
+"domains": [
+"uam.es"
+],
+"state-province": null
+},
+{
+"name": "Universidad Alfonso X El Sabio",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.uax.es/"
+],
+"domains": [
+"uax.es"
+],
+"state-province": null
+},
+{
+"name": "Universitat de Barcelona",
+"alpha_two_code": "ES",
+"country": "Spain",
+"web_pages": [
+"http://www.ub.es/"
+],
+"domains": [
+"ub.es"
+],
+"state-province": null
+},
+{
+"name": "Blekinge Institute of Technology",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.bth.se/"
+],
+"domains": [
+"bth.se"
+],
+"state-province": null
+},
+{
+"name": "Chalmers University of Technology",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.chalmers.se/"
+],
+"domains": [
+"chalmers.se"
+],
+"state-province": null
+},
+{
+"name": "Dalarna University College",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.du.se/"
+],
+"domains": [
+"du.se"
+],
+"state-province": null
+},
+{
+"name": "Göteborg University",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.gu.se/"
+],
+"domains": [
+"gu.se"
+],
+"state-province": null
+},
+{
+"name": "University College of Borås",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.hb.se/"
+],
+"domains": [
+"hb.se"
+],
+"state-province": null
+},
+{
+"name": "School of Design and Crafts",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.hdk.gu.se/"
+],
+"domains": [
+"hdk.gu.se"
+],
+"state-province": null
+},
+{
+"name": "Gotland University College",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.hgo.se/"
+],
+"domains": [
+"hgo.se"
+],
+"state-province": null
+},
+{
+"name": "Halmstad University College",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.hh.se/"
+],
+"domains": [
+"hh.se"
+],
+"state-province": null
+},
+{
+"name": "Stockholm School of Economics",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.hhs.se/"
+],
+"domains": [
+"hhs.se"
+],
+"state-province": null
+},
+{
+"name": "University College of Gävle",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.hig.se/"
+],
+"domains": [
+"hig.se"
+],
+"state-province": null
+},
+{
+"name": "Kalmar University College",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.hik.se/"
+],
+"domains": [
+"hik.se"
+],
+"state-province": null
+},
+{
+"name": "University College of Skövde",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.his.se/"
+],
+"domains": [
+"his.se"
+],
+"state-province": null
+},
+{
+"name": "Jönköping University College",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.hj.se/"
+],
+"domains": [
+"hj.se"
+],
+"state-province": null
+},
+{
+"name": "University College of Kristianstad",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.hkr.se/"
+],
+"domains": [
+"hkr.se"
+],
+"state-province": null
+},
+{
+"name": "University College of Trollhättan/Uddevalla",
+"alpha_two_code": "SE",
+"country": "Sweden",
+"web_pages": [
+"http://www.htu.se/"
+],
+"domains": [
+"htu.se"
+],
+"state-province": null
+},
+{
+"name": "Schiller International University, American College of Switzerland",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.american-college.com/"
+],
+"domains": [
+"american-college.com"
+],
+"state-province": null
+},
+{
+"name": "Business and Hotel Management School",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.bhms.ch/"
+],
+"domains": [
+"bhms.ch"
+],
+"state-province": null
+},
+{
+"name": "Business School Lausanne (BSL)",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.bsl-lausanne.ch/"
+],
+"domains": [
+"bsl-lausanne.ch"
+],
+"state-province": null
+},
+{
+"name": "Cubidor University Switzerland",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.cubidor.com/"
+],
+"domains": [
+"cubidor.com"
+],
+"state-province": null
+},
+{
+"name": "DCT International Hotel & Business Management School",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.dct.ch/"
+],
+"domains": [
+"dct.ch"
+],
+"state-province": null
+},
+{
+"name": "European Graduate School, Media & Communications",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.egs.edu/"
+],
+"domains": [
+"egs.edu"
+],
+"state-province": null
+},
+{
+"name": "Lausanne Hotel School (EHL)",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.ehl.ch/"
+],
+"domains": [
+"ehl.ch"
+],
+"state-province": null
+},
+{
+"name": "European University",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.euruni.edu/"
+],
+"domains": [
+"euruni.edu"
+],
+"state-province": null
+},
+{
+"name": "Franklin College Switzerland",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.fc.edu/"
+],
+"domains": [
+"fc.edu"
+],
+"state-province": null
+},
+{
+"name": "University of Applied Sciences Aargau",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.fh-aargau.ch/"
+],
+"domains": [
+"fh-aargau.ch"
+],
+"state-province": null
+},
+{
+"name": "University of Applied Sciences Basel (FHBB )",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.fhbb.ch/"
+],
+"domains": [
+"fhbb.ch"
+],
+"state-province": null
+},
+{
+"name": "University of Applied Sciences Chur",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.fh-htachur.ch/"
+],
+"domains": [
+"fh-htachur.ch"
+],
+"state-province": null
+},
+{
+"name": "University of Applied Sciences Solothurn Northwestern Switzerland",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.fhso.ch/"
+],
+"domains": [
+"fhso.ch"
+],
+"state-province": null
+},
+{
+"name": "Geneva Business School",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.gbs-ge.ch/"
+],
+"domains": [
+"gbs-ge.ch"
+],
+"state-province": null
+},
+{
+"name": "Glion Institute of Higher Education",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.glion.edu/"
+],
+"domains": [
+"glion.edu"
+],
+"state-province": null
+},
+{
+"name": "Graduate School of Business Administration Zurich (GSBA Zurich)",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.gsba.ch/"
+],
+"domains": [
+"gsba.ch"
+],
+"state-province": null
+},
+{
+"name": "Hochschule für Gestaltung und Kunst Zürich",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.hgkz.ch/"
+],
+"domains": [
+"hgkz.ch"
+],
+"state-province": null
+},
+{
+"name": "International Culinary Institute (ICI)",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.ici-luzern.com/"
+],
+"domains": [
+"ici-luzern.com"
+],
+"state-province": null
+},
+{
+"name": "International Hotel Management Institute",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.imi-luzern.com/"
+],
+"domains": [
+"imi-luzern.com"
+],
+"state-province": null
+},
+{
+"name": "International School of Business Management",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.isbm-school.com/"
+],
+"domains": [
+"isbm-school.com"
+],
+"state-province": null
+},
+{
+"name": "International University in Geneva",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.iun.ch/"
+],
+"domains": [
+"iun.ch"
+],
+"state-province": null
+},
+{
+"name": "Les Roches International School of Hotel Management",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.lesroches.edu/"
+],
+"domains": [
+"lesroches.edu"
+],
+"state-province": null
+},
+{
+"name": "Les Roches Gruyère University of Applied Sciences",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.lrguas.ch/"
+],
+"domains": [
+"lrguas.ch"
+],
+"state-province": null
+},
+{
+"name": "Fachhochschule Pur",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.phw.info/"
+],
+"domains": [
+"phw.info"
+],
+"state-province": null
+},
+{
+"name": "Swiss Business School Zurich (SBS)",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.sbs.edu/"
+],
+"domains": [
+"sbs.edu"
+],
+"state-province": null
+},
+{
+"name": "Swiss Management Center",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.swissmc.ch/"
+],
+"domains": [
+"swissmc.ch"
+],
+"state-province": null
+},
+{
+"name": "University of Switzerland",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.swissu.org/"
+],
+"domains": [
+"swissu.org"
+],
+"state-province": null
+},
+{
+"name": "University Center \"César Ritz\"",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.uccr.edu/"
+],
+"domains": [
+"uccr.edu"
+],
+"state-province": null
+},
+{
+"name": "Libera Università degli Studi di Scienze Umane e Tecnologiche",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.uniludes.ch/"
+],
+"domains": [
+"uniludes.ch"
+],
+"state-province": null
+},
+{
+"name": "Victoria University",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.victoria-uni.ch/"
+],
+"domains": [
+"victoria-uni.ch"
+],
+"state-province": null
+},
+{
+"name": "Webster University Geneva",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.webster.ch/"
+],
+"domains": [
+"webster.ch"
+],
+"state-province": null
+},
+{
+"name": "Zurich University of Applied Sciences Winterthur",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.zhwin.ch/"
+],
+"domains": [
+"zhwin.ch"
+],
+"state-province": null
+},
+{
+"name": "EPFL - EPF Lausanne",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.epfl.ch/",
+"http://www.epfl.edu/"
+],
+"domains": [
+"epfl.ch",
+"epfl.edu"
+],
+"state-province": null
+},
+{
+"name": "ETHZ - ETH Zurich",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.ethz.ch/",
+"http://www.eth.edu/"
+],
+"domains": [
+"ethz.ch",
+"eth.edu"
+],
+"state-province": null
+},
+{
+"name": "Universita della Svizzera Italiana",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.usi.ch/"
+],
+"domains": [
+"usi.ch"
+],
+"state-province": null
+},
+{
+"name": "University of Basel",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.unibas.ch/"
+],
+"domains": [
+"unibas.ch"
+],
+"state-province": null
+},
+{
+"name": "University of Fribourg",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.unifr.ch/"
+],
+"domains": [
+"unifr.ch"
+],
+"state-province": null
+},
+{
+"name": "University of Geneva",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.unige.ch/"
+],
+"domains": [
+"unige.ch"
+],
+"state-province": null
+},
+{
+"name": "Universität Zürich",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"https://www.uzh.ch/"
+],
+"domains": [
+"uzh.ch",
+"unizh.ch"
+],
+"state-province": null
+},
+{
+"name": "Universität Bern",
+"alpha_two_code": "CH",
+"country": "Switzerland",
+"web_pages": [
+"http://www.unibe.ch/"
+],
+"domains": [
+"unibe.ch"
+],
+"state-province": null
+}
+]

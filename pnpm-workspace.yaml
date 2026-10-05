@@ -1,0 +1,5 @@
+# Own workspace root, so this project installs independently of the angebunden
+# app one directory up (and keeps working unchanged once it moves to its own repo).
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver

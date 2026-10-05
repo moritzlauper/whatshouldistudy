@@ -1,0 +1,12 @@
+/node_modules
+/.next/
+/out/
+*.tsbuildinfo
+next-env.d.ts
+.env*
+!.env.example
+.vercel
+# raw scraper downloads and intermediate output (the GitHub Action publishes the
+# result to the data branch)
+/scrapers/out
+/scrapers/cache

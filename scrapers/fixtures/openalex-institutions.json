@@ -1,0 +1,758 @@
+[
+ {
+  "id": "https://openalex.org/I35440088",
+  "display_name": "ETH Zurich",
+  "country_code": "CH",
+  "homepage_url": "https://ethz.ch",
+  "works_count": 142400,
+  "geo": {
+   "city": "Zurich"
+  },
+  "topics": [
+   {
+    "count": 9000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3104"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/31"
+    }
+   },
+   {
+    "count": 7000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1702"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/17"
+    }
+   },
+   {
+    "count": 5000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2210"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 4000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2205"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 3500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1907"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/19"
+    }
+   },
+   {
+    "count": 3000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2602"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/26"
+    }
+   },
+   {
+    "count": 2600,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1605"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/16"
+    }
+   },
+   {
+    "count": 1500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2216"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   }
+  ]
+ },
+ {
+  "id": "https://openalex.org/I5124864",
+  "display_name": "EPFL",
+  "country_code": "CH",
+  "homepage_url": "https://www.epfl.ch",
+  "works_count": 82800,
+  "geo": {
+   "city": "Lausanne"
+  },
+  "topics": [
+   {
+    "count": 6000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1702"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/17"
+    }
+   },
+   {
+    "count": 5200,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2208"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 2500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2204"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 1800,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2805"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/28"
+    }
+   },
+   {
+    "count": 1200,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2216"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 4000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3104"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/31"
+    }
+   }
+  ]
+ },
+ {
+  "id": "https://openalex.org/I202697423",
+  "display_name": "University of Zurich",
+  "country_code": "CH",
+  "homepage_url": "https://www.uzh.ch",
+  "works_count": 70000,
+  "geo": {
+   "city": "Zurich"
+  },
+  "topics": [
+   {
+    "count": 8000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2701"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/27"
+    }
+   },
+   {
+    "count": 3500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3205"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/32"
+    }
+   },
+   {
+    "count": 2500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2002"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/20"
+    }
+   },
+   {
+    "count": 1500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3308"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/33"
+    }
+   },
+   {
+    "count": 1100,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1202"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/12"
+    }
+   },
+   {
+    "count": 900,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1211"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/12"
+    }
+   }
+  ]
+ },
+ {
+  "id": "https://openalex.org/I62916508",
+  "display_name": "Technical University of Munich",
+  "country_code": "DE",
+  "homepage_url": "https://www.tum.de",
+  "works_count": 112000,
+  "geo": {
+   "city": "Munich"
+  },
+  "topics": [
+   {
+    "count": 7000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2210"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 3000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2202"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 5500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1702"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/17"
+    }
+   },
+   {
+    "count": 5000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2208"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 1500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1102"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/11"
+    }
+   },
+   {
+    "count": 6000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2701"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/27"
+    }
+   }
+  ]
+ },
+ {
+  "id": "https://openalex.org/I8204097",
+  "display_name": "Ludwig Maximilian University of Munich",
+  "country_code": "DE",
+  "homepage_url": "https://www.lmu.de",
+  "works_count": 76000,
+  "geo": {
+   "city": "Munich"
+  },
+  "topics": [
+   {
+    "count": 9000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2701"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/27"
+    }
+   },
+   {
+    "count": 3000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3104"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/31"
+    }
+   },
+   {
+    "count": 2500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3205"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/32"
+    }
+   },
+   {
+    "count": 1800,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1202"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/12"
+    }
+   },
+   {
+    "count": 1200,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3308"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/33"
+    }
+   },
+   {
+    "count": 1500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2002"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/20"
+    }
+   }
+  ]
+ },
+ {
+  "id": "https://openalex.org/I223822909",
+  "display_name": "Heidelberg University",
+  "country_code": "DE",
+  "homepage_url": "https://www.uni-heidelberg.de",
+  "works_count": 72800,
+  "geo": {
+   "city": "Heidelberg"
+  },
+  "topics": [
+   {
+    "count": 8500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2701"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/27"
+    }
+   },
+   {
+    "count": 3500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3103"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/31"
+    }
+   },
+   {
+    "count": 4000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1312"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/13"
+    }
+   },
+   {
+    "count": 700,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1211"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/12"
+    }
+   },
+   {
+    "count": 1500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1202"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/12"
+    }
+   }
+  ]
+ },
+ {
+  "id": "https://openalex.org/I98358874",
+  "display_name": "Delft University of Technology",
+  "country_code": "NL",
+  "homepage_url": "https://www.tudelft.nl",
+  "works_count": 86000,
+  "geo": {
+   "city": "Delft"
+  },
+  "topics": [
+   {
+    "count": 6000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2205"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 4000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2202"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 2500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2216"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 4500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2208"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 3000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2102"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/21"
+    }
+   },
+   {
+    "count": 1500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3322"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/33"
+    }
+   }
+  ]
+ },
+ {
+  "id": "https://openalex.org/I887064364",
+  "display_name": "University of Amsterdam",
+  "country_code": "NL",
+  "homepage_url": "https://www.uva.nl",
+  "works_count": 52400,
+  "geo": {
+   "city": "Amsterdam"
+  },
+  "topics": [
+   {
+    "count": 2800,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3315"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/33"
+    }
+   },
+   {
+    "count": 3000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3205"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/32"
+    }
+   },
+   {
+    "count": 2500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2002"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/20"
+    }
+   },
+   {
+    "count": 2000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3312"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/33"
+    }
+   },
+   {
+    "count": 1500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1202"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/12"
+    }
+   },
+   {
+    "count": 1300,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3308"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/33"
+    }
+   }
+  ]
+ },
+ {
+  "id": "https://openalex.org/I74801974",
+  "display_name": "The University of Tokyo",
+  "country_code": "JP",
+  "homepage_url": "https://www.u-tokyo.ac.jp",
+  "works_count": 114000,
+  "geo": {
+   "city": "Tokyo"
+  },
+  "topics": [
+   {
+    "count": 12000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3104"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/31"
+    }
+   },
+   {
+    "count": 6000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1312"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/13"
+    }
+   },
+   {
+    "count": 4000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2210"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 3500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1702"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/17"
+    }
+   },
+   {
+    "count": 3000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3103"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/31"
+    }
+   }
+  ]
+ },
+ {
+  "id": "https://openalex.org/I22299242",
+  "display_name": "Kyoto University",
+  "country_code": "JP",
+  "homepage_url": "https://www.kyoto-u.ac.jp",
+  "works_count": 66800,
+  "geo": {
+   "city": "Kyoto"
+  },
+  "topics": [
+   {
+    "count": 5000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1605"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/16"
+    }
+   },
+   {
+    "count": 6000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3104"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/31"
+    }
+   },
+   {
+    "count": 4500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1312"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/13"
+    }
+   },
+   {
+    "count": 1200,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1103"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/11"
+    }
+   }
+  ]
+ },
+ {
+  "id": "https://openalex.org/I86987016",
+  "display_name": "KTH Royal Institute of Technology",
+  "country_code": "SE",
+  "homepage_url": "https://www.kth.se",
+  "works_count": 47200,
+  "geo": {
+   "city": "Stockholm"
+  },
+  "topics": [
+   {
+    "count": 3500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2210"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 3000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2208"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/22"
+    }
+   },
+   {
+    "count": 2500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1702"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/17"
+    }
+   },
+   {
+    "count": 2000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2102"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/21"
+    }
+   },
+   {
+    "count": 800,
+    "subfield": {
+     "id": "https://openalex.org/subfields/3322"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/33"
+    }
+   }
+  ]
+ },
+ {
+  "id": "https://openalex.org/I28166907",
+  "display_name": "Karolinska Institutet",
+  "country_code": "SE",
+  "homepage_url": "https://ki.se",
+  "works_count": 114000,
+  "geo": {
+   "city": "Stockholm"
+  },
+  "topics": [
+   {
+    "count": 15000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2701"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/27"
+    }
+   },
+   {
+    "count": 4000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2713"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/27"
+    }
+   },
+   {
+    "count": 5000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1312"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/13"
+    }
+   },
+   {
+    "count": 3000,
+    "subfield": {
+     "id": "https://openalex.org/subfields/2805"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/28"
+    }
+   },
+   {
+    "count": 1500,
+    "subfield": {
+     "id": "https://openalex.org/subfields/29"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/29"
+    }
+   }
+  ]
+ }
+]

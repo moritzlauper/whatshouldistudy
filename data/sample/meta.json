@@ -1,0 +1,328 @@
+{
+  "updated": "2026-01-01T00:00:00.000Z",
+  "sources": [
+    {
+      "id": "us-college-scorecard",
+      "name": "College Scorecard (U.S. Department of Education)",
+      "countries": [
+        "US"
+      ],
+      "url": "https://collegescorecard.ed.gov/data/",
+      "licence": "Public domain",
+      "ok": true,
+      "count": 469,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "uk-discover-uni",
+      "name": "Discover Uni dataset (Office for Students, HESA)",
+      "countries": [
+        "GB"
+      ],
+      "url": "https://www.hesa.ac.uk/support/tools-and-downloads/unistats",
+      "licence": "CC BY 4.0",
+      "ok": true,
+      "count": 43,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "fr-parcoursup",
+      "name": "Parcoursup open data (Ministère de l’Enseignement supérieur)",
+      "countries": [
+        "FR"
+      ],
+      "url": "https://data.enseignementsup-recherche.gouv.fr/",
+      "licence": "Licence Ouverte 2.0",
+      "ok": true,
+      "count": 40,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "global-openalex",
+      "name": "OpenAlex institution research profiles",
+      "countries": [
+        "*"
+      ],
+      "url": "https://openalex.org/",
+      "licence": "CC0",
+      "ok": true,
+      "count": 12,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "global-directory",
+      "name": "University Domains List (Hipo)",
+      "countries": [
+        "*"
+      ],
+      "url": "https://github.com/Hipo/university-domains-list",
+      "licence": "MIT",
+      "ok": true,
+      "count": 230,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "fx": {
+    "EUR": 1,
+    "USD": 0.92,
+    "GBP": 1.17,
+    "CHF": 1.06,
+    "SEK": 0.087,
+    "DKK": 0.134,
+    "NOK": 0.086,
+    "PLN": 0.23,
+    "CZK": 0.04,
+    "HUF": 0.0025,
+    "CAD": 0.67,
+    "AUD": 0.6,
+    "JPY": 0.0061
+  },
+  "counts": {
+    "mathematics": {
+      "FR": 3,
+      "GB": 1,
+      "US": 16
+    },
+    "statistics-data-science": {
+      "GB": 1,
+      "US": 18
+    },
+    "computer-science": {
+      "FR": 4,
+      "GB": 3,
+      "US": 18
+    },
+    "artificial-intelligence": {},
+    "cybersecurity": {},
+    "information-systems": {},
+    "computer-engineering": {
+      "US": 10
+    },
+    "physics": {
+      "FR": 3,
+      "GB": 1,
+      "US": 24
+    },
+    "astronomy": {
+      "GB": 1,
+      "US": 8
+    },
+    "chemistry": {
+      "FR": 2,
+      "GB": 1,
+      "US": 24
+    },
+    "biology": {
+      "FR": 3,
+      "GB": 1,
+      "US": 14
+    },
+    "molecular-biology": {
+      "FR": 1,
+      "US": 6
+    },
+    "neuroscience": {
+      "GB": 1,
+      "US": 12
+    },
+    "cognitive-science": {
+      "US": 6
+    },
+    "environmental-science": {
+      "GB": 2,
+      "US": 8
+    },
+    "earth-sciences": {
+      "FR": 2,
+      "GB": 1
+    },
+    "marine-biology": {},
+    "zoology": {
+      "GB": 1
+    },
+    "geography": {
+      "FR": 1
+    },
+    "mechanical-engineering": {
+      "FR": 3,
+      "GB": 1,
+      "US": 14
+    },
+    "electrical-engineering": {
+      "FR": 2,
+      "GB": 1,
+      "US": 14
+    },
+    "civil-engineering": {
+      "FR": 1,
+      "GB": 1,
+      "US": 14
+    },
+    "aerospace-engineering": {
+      "GB": 2,
+      "US": 12
+    },
+    "automotive-engineering": {},
+    "chemical-engineering": {
+      "GB": 1,
+      "US": 12
+    },
+    "biomedical-engineering": {
+      "GB": 1,
+      "US": 12
+    },
+    "materials-science": {},
+    "robotics-mechatronics": {},
+    "energy-engineering": {},
+    "industrial-engineering": {
+      "US": 6
+    },
+    "architecture": {
+      "GB": 1,
+      "US": 12
+    },
+    "urban-planning": {
+      "US": 10
+    },
+    "industrial-design": {},
+    "game-design": {},
+    "ux-design": {},
+    "medicine": {
+      "FR": 1,
+      "GB": 3,
+      "US": 3
+    },
+    "nursing": {
+      "FR": 1,
+      "GB": 1,
+      "US": 10
+    },
+    "pharmacy": {},
+    "dentistry": {},
+    "veterinary-medicine": {
+      "GB": 1
+    },
+    "physiotherapy": {},
+    "sports-science": {
+      "FR": 1,
+      "GB": 1,
+      "US": 6
+    },
+    "nutrition": {
+      "GB": 1
+    },
+    "public-health": {},
+    "psychology": {
+      "FR": 1,
+      "GB": 1,
+      "US": 21
+    },
+    "economics": {
+      "FR": 1,
+      "GB": 1,
+      "US": 24
+    },
+    "business-management": {
+      "FR": 1,
+      "US": 16
+    },
+    "finance-accounting": {
+      "GB": 1,
+      "US": 16
+    },
+    "marketing": {
+      "GB": 1,
+      "US": 8
+    },
+    "entrepreneurship": {},
+    "logistics": {},
+    "hospitality-tourism": {
+      "FR": 2
+    },
+    "political-science": {
+      "FR": 1,
+      "GB": 1,
+      "US": 10
+    },
+    "law": {
+      "FR": 2,
+      "GB": 1,
+      "US": 5
+    },
+    "criminology": {
+      "GB": 1
+    },
+    "sociology": {
+      "FR": 1
+    },
+    "anthropology": {
+      "GB": 1
+    },
+    "social-work": {
+      "GB": 1
+    },
+    "education": {},
+    "journalism": {
+      "GB": 1,
+      "US": 8
+    },
+    "media-communication": {},
+    "history": {
+      "FR": 1,
+      "GB": 1,
+      "US": 10
+    },
+    "archaeology": {},
+    "philosophy": {
+      "FR": 1,
+      "GB": 1,
+      "US": 12
+    },
+    "religious-studies": {},
+    "linguistics": {
+      "GB": 1,
+      "US": 12
+    },
+    "languages": {
+      "FR": 1
+    },
+    "literature": {
+      "FR": 1,
+      "US": 10
+    },
+    "liberal-arts": {
+      "FR": 1
+    },
+    "fine-arts": {
+      "US": 10
+    },
+    "graphic-design": {
+      "GB": 1
+    },
+    "fashion-design": {},
+    "film-production": {
+      "GB": 1,
+      "US": 6
+    },
+    "animation-vfx": {},
+    "music": {
+      "FR": 1,
+      "GB": 1,
+      "US": 12
+    },
+    "music-production": {},
+    "performing-arts": {
+      "GB": 1
+    },
+    "culinary-arts": {},
+    "agriculture": {},
+    "aviation": {}
+  },
+  "totals": {
+    "programmes": 552,
+    "countries": 3,
+    "institutions": 23,
+    "newLast90Days": 0
+  },
+  "unclassified": 0
+}

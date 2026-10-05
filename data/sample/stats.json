@@ -1,0 +1,394 @@
+{
+  "mathematics": {
+    "programmes": 20,
+    "countries": 3,
+    "usMedianEarnings": 76196,
+    "salaryPercentile": 0.77
+  },
+  "statistics-data-science": {
+    "programmes": 19,
+    "countries": 2,
+    "usMedianEarnings": 76349,
+    "salaryPercentile": 0.8
+  },
+  "computer-science": {
+    "programmes": 25,
+    "countries": 3,
+    "usMedianEarnings": 91517,
+    "salaryPercentile": 1
+  },
+  "artificial-intelligence": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "cybersecurity": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "information-systems": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "computer-engineering": {
+    "programmes": 10,
+    "countries": 1,
+    "usMedianEarnings": 72453,
+    "salaryPercentile": 0.69
+  },
+  "physics": {
+    "programmes": 28,
+    "countries": 3,
+    "usMedianEarnings": 54048.5,
+    "salaryPercentile": 0.4
+  },
+  "astronomy": {
+    "programmes": 9,
+    "countries": 2,
+    "usMedianEarnings": 54162.5,
+    "salaryPercentile": 0.49
+  },
+  "chemistry": {
+    "programmes": 27,
+    "countries": 3,
+    "usMedianEarnings": 57094.5,
+    "salaryPercentile": 0.51
+  },
+  "biology": {
+    "programmes": 18,
+    "countries": 3,
+    "usMedianEarnings": 40645,
+    "salaryPercentile": 0.29
+  },
+  "molecular-biology": {
+    "programmes": 7,
+    "countries": 2
+  },
+  "neuroscience": {
+    "programmes": 13,
+    "countries": 2,
+    "usMedianEarnings": 43196.5,
+    "salaryPercentile": 0.34
+  },
+  "cognitive-science": {
+    "programmes": 6,
+    "countries": 1,
+    "usMedianEarnings": 80865,
+    "salaryPercentile": 0.86
+  },
+  "environmental-science": {
+    "programmes": 10,
+    "countries": 2,
+    "usMedianEarnings": 36533,
+    "salaryPercentile": 0.2
+  },
+  "earth-sciences": {
+    "programmes": 3,
+    "countries": 2
+  },
+  "marine-biology": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "zoology": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "geography": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "mechanical-engineering": {
+    "programmes": 18,
+    "countries": 3,
+    "usMedianEarnings": 78883,
+    "salaryPercentile": 0.83
+  },
+  "electrical-engineering": {
+    "programmes": 17,
+    "countries": 3,
+    "usMedianEarnings": 74611,
+    "salaryPercentile": 0.71
+  },
+  "civil-engineering": {
+    "programmes": 16,
+    "countries": 3,
+    "usMedianEarnings": 75360,
+    "salaryPercentile": 0.74
+  },
+  "aerospace-engineering": {
+    "programmes": 14,
+    "countries": 2,
+    "usMedianEarnings": 89428.5,
+    "salaryPercentile": 0.97
+  },
+  "automotive-engineering": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "chemical-engineering": {
+    "programmes": 13,
+    "countries": 2,
+    "usMedianEarnings": 82669,
+    "salaryPercentile": 0.89
+  },
+  "biomedical-engineering": {
+    "programmes": 13,
+    "countries": 2,
+    "usMedianEarnings": 87779.5,
+    "salaryPercentile": 0.94
+  },
+  "materials-science": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "robotics-mechatronics": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "energy-engineering": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "industrial-engineering": {
+    "programmes": 6,
+    "countries": 1,
+    "usMedianEarnings": 87321,
+    "salaryPercentile": 0.91
+  },
+  "architecture": {
+    "programmes": 13,
+    "countries": 2,
+    "usMedianEarnings": 53891,
+    "salaryPercentile": 0.37
+  },
+  "urban-planning": {
+    "programmes": 10,
+    "countries": 1,
+    "usMedianEarnings": 54117,
+    "salaryPercentile": 0.46
+  },
+  "industrial-design": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "game-design": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "ux-design": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "medicine": {
+    "programmes": 7,
+    "countries": 3
+  },
+  "nursing": {
+    "programmes": 12,
+    "countries": 3,
+    "usMedianEarnings": 69821,
+    "salaryPercentile": 0.66
+  },
+  "pharmacy": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "dentistry": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "veterinary-medicine": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "physiotherapy": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "sports-science": {
+    "programmes": 8,
+    "countries": 3,
+    "usMedianEarnings": 36379,
+    "salaryPercentile": 0.17
+  },
+  "nutrition": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "public-health": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "psychology": {
+    "programmes": 23,
+    "countries": 3,
+    "usMedianEarnings": 34836,
+    "salaryPercentile": 0.06
+  },
+  "economics": {
+    "programmes": 26,
+    "countries": 3,
+    "usMedianEarnings": 57424.5,
+    "salaryPercentile": 0.54
+  },
+  "business-management": {
+    "programmes": 17,
+    "countries": 2,
+    "usMedianEarnings": 62757.5,
+    "salaryPercentile": 0.63
+  },
+  "finance-accounting": {
+    "programmes": 17,
+    "countries": 2,
+    "usMedianEarnings": 61728.5,
+    "salaryPercentile": 0.6
+  },
+  "marketing": {
+    "programmes": 9,
+    "countries": 2,
+    "usMedianEarnings": 61000,
+    "salaryPercentile": 0.57
+  },
+  "entrepreneurship": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "logistics": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "hospitality-tourism": {
+    "programmes": 2,
+    "countries": 1
+  },
+  "political-science": {
+    "programmes": 12,
+    "countries": 3,
+    "usMedianEarnings": 54114,
+    "salaryPercentile": 0.43
+  },
+  "law": {
+    "programmes": 8,
+    "countries": 3
+  },
+  "criminology": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "sociology": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "anthropology": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "social-work": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "education": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "journalism": {
+    "programmes": 9,
+    "countries": 2,
+    "usMedianEarnings": 40642,
+    "salaryPercentile": 0.26
+  },
+  "media-communication": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "history": {
+    "programmes": 12,
+    "countries": 3,
+    "usMedianEarnings": 34017,
+    "salaryPercentile": 0
+  },
+  "archaeology": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "philosophy": {
+    "programmes": 14,
+    "countries": 3,
+    "usMedianEarnings": 42216,
+    "salaryPercentile": 0.31
+  },
+  "religious-studies": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "linguistics": {
+    "programmes": 13,
+    "countries": 2,
+    "usMedianEarnings": 38372,
+    "salaryPercentile": 0.23
+  },
+  "languages": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "literature": {
+    "programmes": 11,
+    "countries": 2,
+    "usMedianEarnings": 36229,
+    "salaryPercentile": 0.14
+  },
+  "liberal-arts": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "fine-arts": {
+    "programmes": 10,
+    "countries": 1,
+    "usMedianEarnings": 35664,
+    "salaryPercentile": 0.11
+  },
+  "graphic-design": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "fashion-design": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "film-production": {
+    "programmes": 7,
+    "countries": 2,
+    "usMedianEarnings": 35639,
+    "salaryPercentile": 0.09
+  },
+  "animation-vfx": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "music": {
+    "programmes": 14,
+    "countries": 3,
+    "usMedianEarnings": 34306,
+    "salaryPercentile": 0.03
+  },
+  "music-production": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "performing-arts": {
+    "programmes": 1,
+    "countries": 1
+  },
+  "culinary-arts": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "agriculture": {
+    "programmes": 0,
+    "countries": 0
+  },
+  "aviation": {
+    "programmes": 0,
+    "countries": 0
+  }
+}
