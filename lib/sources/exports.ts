@@ -383,8 +383,13 @@ async function readEntry(c: Collected, name: string, text: string): Promise<void
     } else if (/\.html$/i.test(name)) {
       // Takeout's table of contents: remember which products the archive holds.
       if (/archive_browser\.html$/i.test(name)) {
-        const block = text.slice(text.search(/Products in Archive|Produkte im Archiv/i))
-        const products = [...block.matchAll(/id="service-tile-[^"]+"[\s\S]*?alt="([^"]+)"/g)].map((m) => m[1].trim())
+        const block = text.slice(Math.max(0, text.search(/Products in Archive|Produkte im Archiv/i)))
+        const tiles = block.split(/id="service-tile-/).slice(1)
+        const products = tiles.map((tile) => {
+          const name = /alt="([^"]+)"/.exec(tile)?.[1]?.trim() ?? '?'
+          const words = tile.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ')
+          return /no data found|keine daten/i.test(words.slice(0, 400)) ? `${name}: no data` : name
+        })
         c.takeoutProducts = products.length ? [...new Set(products)] : ['?']
         return
       }

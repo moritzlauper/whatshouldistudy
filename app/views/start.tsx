@@ -61,7 +61,10 @@ export function StartView() {
           // Optional enrichment.
         }
       }
-      if (!result.summaries.length) throw new Error(result.takeoutProducts ? t.start.emptyTakeout(result.takeoutProducts.filter((x) => x !== '?').join(', ')) : t.start.noHistory)
+      if (!result.summaries.length) {
+        const skipped = result.skipped.length ? ` ${t.start.unread(result.skipped.length, result.skipped.slice(0, 3).join(', '))}` : ''
+        throw new Error((result.takeoutProducts ? t.start.emptyTakeout(result.takeoutProducts.filter((x) => x !== '?').join(', ')) : t.start.noHistory) + skipped)
+      }
       for (const s of result.summaries) setSummary(s)
       setNotes((n) => ({ ...n, [card]: result.recognised.map(t.tr) }))
     } catch (e) {

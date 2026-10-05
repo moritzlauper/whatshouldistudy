@@ -102,7 +102,7 @@ test('a Takeout archive without history says what it holds', async () => {
   const index = '<div>Products in Archive (1)</div><div id="service-tile-SEARCH_CREATORPROFILE" class="service_wrapper"><img src="x" alt="Search profile"></div>'
   const r = await readTexts([{ name: 'Takeout/archive_browser.html', text: index }])
   assert.equal(r.summaries.length, 0)
-  assert.deepEqual(r.takeoutProducts, ['Search profile'])
+  assert.deepEqual(r.takeoutProducts, ["Search profile"])
 })
 
 test('reads the rest of My Activity: pages, Maps, apps, without double-counting YouTube', async () => {
