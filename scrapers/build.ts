@@ -148,7 +148,15 @@ function previousFirstSeen(dir: string | undefined): Map<string, string> {
 function carryOver(inputs: Inputs, dir: string) {
   const prevMeta = readJson<DataMeta>(join(dir, 'meta.json'))
   for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup']) {
-    if (inputs.outputs.some((o) => o.source === id && o.programmes.length)) continue
+    const fresh = inputs.outputs.find((o) => o.source === id && o.programmes.length)
+    const prevCount = prevMeta?.sources.find((s) => s.id === id)?.count ?? 0
+    // A source that suddenly shrinks by half is more likely broken than real.
+    if (fresh && fresh.programmes.length >= prevCount * 0.5) continue
+    if (fresh) {
+      log(`Shrink guard: ${id} has ${fresh.programmes.length} programmes, previously ${prevCount}; keeping the previous data`)
+      inputs.outputs.splice(inputs.outputs.indexOf(fresh), 1)
+      inputs.status.set(id, { ok: false, error: `only ${fresh.programmes.length} programmes this run` })
+    }
     if (!existsSync(join(dir, 'programmes'))) continue
     const byId = new Map<string, Programme>()
     for (const f of readdirSync(join(dir, 'programmes'))) {

@@ -23,7 +23,8 @@ export async function fetchRetry(url: string, init: RequestInit = {}, tries = 4)
       const res = await fetch(url, { ...init, headers: { 'User-Agent': UA, ...(init.headers ?? {}) } })
       if (res.ok) return res
       if (res.status === 429 || res.status >= 500) {
-        const wait = Number(res.headers.get('retry-after')) || 2 ** i * 2
+        // Some APIs answer an hourly limit with retry-after: 3600; don't sit on that.
+        const wait = Math.min(Number(res.headers.get('retry-after')) || 2 ** i * 2, 60)
         log(`HTTP ${res.status} for ${redact(url)}, retrying in ${wait}s`)
         await sleep(wait * 1000)
         lastErr = new Error(`HTTP ${res.status}`)

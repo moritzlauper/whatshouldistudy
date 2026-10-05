@@ -146,7 +146,9 @@ async function main() {
   // Operating institutions that award at least a bachelor's degree.
   const base = `${API}?api_key=${key}&school.operating=1&school.degrees_awarded.highest__range=3..4&fields=${FIELDS}&per_page=100`
   let total = Infinity
-  for (let page = 0; page * 100 < total; page++) {
+  // DEMO_KEY allows 30 requests an hour: enough for a partial trial run only.
+  const maxPages = key === 'DEMO_KEY' ? 25 : Infinity
+  for (let page = 0; page * 100 < total && page < maxPages; page++) {
     const res = await getJson<{ metadata: { total: number }; results: RawSchool[] }>(`${base}&page=${page}`)
     total = res.metadata.total
     schools.push(...res.results)

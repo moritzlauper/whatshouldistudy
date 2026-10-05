@@ -31,7 +31,10 @@ async function load<T>(path: string): Promise<{ value: T | null; sample: boolean
   const base = remoteBase()
   if (base) {
     try {
-      const res = await fetch(`${base}/${path}`, { next: { revalidate: TTL / 1000 } })
+      // Programme shards can exceed the 2 MB limit of Next's fetch cache; they
+      // only serve API routes and live in the in-memory cache above instead.
+      const big = path.startsWith('programmes/')
+      const res = await fetch(`${base}/${path}`, big ? { cache: 'no-store' } : { next: { revalidate: TTL / 1000 } })
       if (res.ok) {
         const value = (await res.json()) as T
         cache.set(path, { at: Date.now(), value, sample: false })
