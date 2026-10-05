@@ -4,7 +4,7 @@ import { truncate } from '../engine/text.ts'
 import type { SignalItem, SourceSummary } from '../engine/types.ts'
 import type { ChannelInfo } from './youtube.ts'
 import type { Progress } from './oauth.ts'
-import { newSocial, parseInstagram, parseTikTok, parseTikTokText } from './social-exports.ts'
+import { newSocial, parseInstagram, parseInstagramHtml, parseTikTok, parseTikTokText } from './social-exports.ts'
 import type { SocialCollected } from './social-exports.ts'
 
 /**
@@ -329,7 +329,13 @@ async function readEntry(c: Collected, name: string, text: string): Promise<void
       if (social) c.recognised.push(social)
       else c.skipped.push(short)
     } else if (/\.html$/i.test(name)) {
-      if (!/content-cell/.test(text) || !parseActivityHtml(c, short, text)) c.skipped.push(short)
+      if (/content-cell/.test(text)) {
+        if (!parseActivityHtml(c, short, text)) c.skipped.push(short)
+        return
+      }
+      const social = parseInstagramHtml(c.social, name, text)
+      if (social) c.recognised.push(social)
+      else c.skipped.push(short)
     } else if (/\.csv$/i.test(name)) {
       if (!parseCsvFile(c, short, text)) c.skipped.push(short)
     }

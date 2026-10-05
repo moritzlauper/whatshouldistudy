@@ -117,7 +117,7 @@ const en = {
       search: 'Request Google searches',
     },
     hint: {
-      instagram: 'Pick «Download to device», «All time» and the format JSON. Meta emails you, often within an hour.',
+      instagram: 'Pick «Download to device» and «All time»; HTML or JSON both work. Meta emails you, often within an hour.',
       tiktok: 'Choose «All data» and JSON. TikTok tells you when it’s ready, often within a few hours.',
       spotify: 'Ask for «Account data» (faster) or «Extended streaming history». Spotify emails you a .zip within a few days.',
       takeout: 'Leave everything as it is and click «Create export». Google emails you, usually within minutes.',
@@ -549,7 +549,7 @@ const deCH: Dict = {
       search: 'Google-Suchen anfordern',
     },
     hint: {
-      instagram: '«Auf Gerät herunterladen», «Gesamter Zeitraum» und das Format JSON wählen. Meta schickt dir ein E-Mail, oft innert einer Stunde.',
+      instagram: '«Auf Gerät herunterladen» und «Gesamter Zeitraum» wählen, HTML oder JSON geht beides. Meta schickt dir ein E-Mail, oft innert einer Stunde.',
       tiktok: '«Alle Daten» und JSON wählen. TikTok meldet sich, wenn es bereit ist, oft innert ein paar Stunden.',
       spotify: '«Kontodaten» (schneller) oder «Erweiterter Streaming-Verlauf» anfordern. Spotify schickt dir innert ein paar Tagen ein .zip.',
       takeout: 'Alles so lassen und «Export erstellen» klicken. Google schickt dir meist innert Minuten ein E-Mail.',

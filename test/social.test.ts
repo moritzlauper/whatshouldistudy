@@ -53,3 +53,27 @@ test('reads TikTok TXT searches', async () => {
   const s = r.summaries.find((x) => x.source === 'tiktok')!
   assert.equal(s.stats.entries, 2)
 })
+
+test('reads the HTML version of an Instagram download', async () => {
+  const box = (inner: string) => `<div class="pam _3-95 _2ph- _a6-g uiBoxWhite noborder">${inner}</div>`
+  const post = (caption: string, user: string, tags: string[], date: string) =>
+    box(
+      `<div class="_3-95 _a6-p">${box(`<div class="_a6-p"><table style="table-layout: fixed;"><tr><td colspan="2" class="_a6_q">URL<div><a target="_blank" href="https://www.instagram.com/reel/x/">https://www.instagram.com/reel/x/</a></div></td></tr><tr><td class="_a6_q">Caption</td><td class="_2piu _a6_r">${caption}</td></tr><tr><td colspan="2" class="_a6_q"><div>${box(`<h2 class="_3-95 _2pim _a6-h _a6-i">Hashtags</h2><div class="_a6-p"><div><div class="_2ph_ _a6_q">Name</div>${tags.map((t) => box(`<div class="_a6-p">${t}</div>`)).join('')}</div></div>`)}${box(`<h2 class="_3-95 _2pim _a6-h _a6-i">Owner</h2><div class="_a6-p"><table><tr><td class="_a6_q">Username</td><td class="_2piu _a6_r">${user}</td></tr></table></div>`)}</div></td></tr></table></div>`)}</div><div class="_3-94 _a6-o">${date}</div>`,
+    )
+  const watched = `<html><body><main class="_a706" role="main">${post('How black holes bend light', 'astro.daily', ['astronomy', 'physics'], 'Oct 04, 2026 12:49 pm')}${post('Orbital mechanics in 60 seconds', 'space.facts', ['space'], 'Oct 03, 2026 9:10 am')}</main></body></html>`
+  const following = `<html><body><main class="_a706" role="main">${box('<h2 class="_3-95 _2pim _a6-h _a6-i">nasa</h2><div class="_a6-p"><div><div><a target="_blank" href="https://www.instagram.com/_u/nasa">https://www.instagram.com/_u/nasa</a></div><div>Oct 05, 2026 7:19 am</div></div></div>')}</main></body></html>`
+  const searches = `<html><body><main class="_a706" role="main">${box('<div class="_a6-p"><table style="table-layout: fixed;"><tr><td colspan="2" class="_2pin _a6_q">Search<div><div>telescope for beginners</div></div></td></tr><tr><td class="_2pin _a6_q">Time</td><td class="_2pin _2piu _a6_r">Sep 29, 2026 1:39 am</td></tr></table></div>')}</main></body></html>`
+  const chat = `<html><body><main class="_a706" role="main"><div>secret</div></main></body></html>`
+  const r = await readTexts([
+    { name: 'ig/ads_information/ads_and_topics/videos_watched.html', text: watched },
+    { name: 'ig/connections/followers_and_following/following.html', text: following },
+    { name: 'ig/logged_information/recent_searches/word_or_phrase_searches.html', text: searches },
+    { name: 'ig/your_instagram_activity/messages/chats.html', text: chat },
+  ])
+  const s = r.summaries.find((x) => x.source === 'instagram')!
+  assert.equal(s.stats.seen, 2)
+  assert.equal(s.stats.following, 1)
+  assert.equal(s.stats.searches, 1)
+  assert.ok(s.fields.astronomy.score > 0)
+  assert.ok(!JSON.stringify(s).includes('secret'))
+})

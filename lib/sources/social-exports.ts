@@ -260,3 +260,121 @@ export function parseTikTokText(c: SocialCollected, name: string, text: string):
   bump(c.tiktokStats, 'entries', n)
   return `${name}: TikTok, ${n.toLocaleString('en-US')} entries`
 }
+
+// ── Instagram, HTML version ────────────────────────────────────────────────
+// Meta's default download format. Each entry is a block of label/value table
+// cells; the file path says what the file holds. Labels follow the account
+// language, so they are matched loosely.
+
+const decodeHtml = (s: string) =>
+  s
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+const CAPTION = /caption|bildunterschrift|beschriftung|légende|didascalia|descripci|bijschrift|legenda/i
+const USER_LABEL = /user ?name|benutzername|nom d.utilisateur|nome utente|nombre de usuario|gebruikersnaam/i
+const COMMENT = /^(comment|kommentar|commentaire|commento|comentario|reactie)$/i
+const URL_LABEL = /^(url|link)$/i
+const TIME_LABEL = /^(time|zeit|date|datum|heure|ora|hora|tijd)$/i
+
+/** «Label | value» pairs, in both layouts Meta uses. */
+function igPairs(html: string): Array<[string, string]> {
+  const out: Array<[string, string]> = []
+  const side = /<td class="[^"]*_a6_q[^"]*">([^<]+)<\/td><td class="[^"]*_a6_r[^"]*">([\s\S]*?)<\/td>/g
+  const stacked = /<td colspan="2" class="[^"]*_a6_q[^"]*">([^<]+)<div><div>([\s\S]*?)<\/div><\/div><\/td>/g
+  for (const m of html.matchAll(side)) out.push([decodeHtml(m[1]), decodeHtml(m[2])])
+  for (const m of html.matchAll(stacked)) out.push([decodeHtml(m[1]), decodeHtml(m[2])])
+  return out
+}
+
+function igHashtags(chunk: string): string[] {
+  const i = chunk.search(/>\s*Hashtags\s*<\/h2>/i)
+  if (i < 0) return []
+  const rest = chunk.slice(i)
+  const end = rest.slice(5).search(/<h2/)
+  const part = end >= 0 ? rest.slice(0, end + 5) : rest
+  return [...part.matchAll(/<div class="_a6-p">([^<]+)<\/div>/g)].map((m) => decodeHtml(m[1])).filter((x) => x && !/^name$/i.test(x))
+}
+
+type IgHtmlKind = 'follow' | 'like' | 'saved' | 'seen' | 'search' | 'profileSearch' | 'comment'
+
+function igHtmlKind(path: string): IgHtmlKind | null {
+  if (/threads\//.test(path)) return null
+  if (/followers_and_following\/following\.html$/.test(path)) return 'follow'
+  if (/likes\/liked_posts\.html$/.test(path)) return 'like'
+  if (/saved\/saved_posts\.html$/.test(path)) return 'saved'
+  if (/ads_and_topics\/(posts_viewed|videos_watched)\.html$/.test(path)) return 'seen'
+  if (/recent_searches\/word_or_phrase_searches\.html$/.test(path)) return 'search'
+  if (/recent_searches\/profile_searches\.html$/.test(path)) return 'profileSearch'
+  if (/comments\/post_comments_\d+\.html$/.test(path)) return 'comment'
+  return null
+}
+
+const POST_WEIGHT: Record<'like' | 'saved' | 'seen', number> = { like: 0.5, saved: 1, seen: 0.25 }
+
+export function parseInstagramHtml(c: SocialCollected, path: string, html: string): string | null {
+  const kind = igHtmlKind(path)
+  if (!kind || !/uiBoxWhite|_a706/.test(html)) return null
+  const name = path.split('/').pop() ?? path
+  const main = html.slice(Math.max(0, html.indexOf('<main')))
+  const before = c.instagram.length
+
+  if (kind === 'follow') {
+    const users = new Set([...main.matchAll(/href="https?:\/\/(?:www\.)?instagram\.com\/(?:_u\/)?([a-z0-9._]{2,30})\/?"/gi)].map((m) => m[1]))
+    for (const u of users) c.instagram.push({ kind: 'subscription', text: handleText(u), label: `@${u}`, group: u, weight: 1.5 })
+  } else if (kind === 'search' || kind === 'profileSearch' || kind === 'comment') {
+    // One table per entry: the value, then its time.
+    for (const table of main.split('<table').slice(1)) {
+      const pairs = igPairs('<table' + table)
+      const time = pairs.find(([l]) => TIME_LABEL.test(l))?.[1]
+      const t = time ? Date.parse(time) : NaN
+      const at = Number.isFinite(t) ? t : undefined
+      for (const [label, value] of pairs) {
+        if (!value || TIME_LABEL.test(label) || URL_LABEL.test(label)) continue
+        if (kind === 'comment') {
+          if (COMMENT.test(label) && value.length >= 3) c.instagram.push({ kind: 'comment', text: value, label: `“${truncate(value, 60)}”`, weight: 0.8, time: at })
+        } else if (kind === 'profileSearch') {
+          if (USERNAME.test(value)) c.instagram.push({ kind: 'search', text: handleText(value), label: `@${value}`, group: value, weight: 0.4, time: at })
+        } else c.instagram.push({ kind: 'search', text: value, label: `«${truncate(value, 60)}»`, weight: 0.6, time: at })
+      }
+    }
+  } else {
+    // Posts: each entry ends with its date in a footer div.
+    const parts = main.split(/<div class="_3-94 _a6-o">/)
+    for (let i = 0; i < parts.length - 1; i++) {
+      const chunk = parts[i]
+      const date = decodeHtml(/^([^<]*)<\/div>/.exec(parts[i + 1])?.[1] ?? '')
+      const t = Date.parse(date)
+      const pairs = igPairs(chunk)
+      const captions = [...new Set(pairs.filter(([l]) => CAPTION.test(l)).map(([, v]) => v).filter(Boolean))]
+      const user = pairs.find(([l, v]) => USER_LABEL.test(l) && USERNAME.test(v))?.[1]
+      const tags = igHashtags(chunk)
+      const text = [captions.join(' '), tags.join(' '), user ? handleText(user) : ''].join(' \n ').trim()
+      if (!text) continue
+      const label = captions[0] ? truncate(captions[0], 60) : user ? `@${user}` : `#${tags[0]}`
+      c.instagram.push({
+        kind: kind === 'like' ? 'like' : kind === 'saved' ? 'saved' : 'watch',
+        text,
+        label,
+        group: user,
+        weight: POST_WEIGHT[kind],
+        time: Number.isFinite(t) ? t : undefined,
+        splitCamel: true,
+      })
+    }
+  }
+
+  const n = c.instagram.length - before
+  if (!n) return null
+  const stat = { follow: 'following', like: 'likes', saved: 'savedPosts', seen: 'seen', search: 'searches', profileSearch: 'profileSearches', comment: 'comments' }[kind]
+  bump(c.instagramStats, stat, n)
+  const label = { follow: 'accounts you follow', like: 'likes', saved: 'saved posts', seen: 'posts and videos seen', search: 'searches', profileSearch: 'profile searches', comment: 'comments' }[kind]
+  return `${name}: Instagram, ${n.toLocaleString('en-US')} ${label}`
+}
