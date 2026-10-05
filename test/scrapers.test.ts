@@ -45,7 +45,7 @@ test('Parcoursup records: levels, fees and fields', () => {
   assert.deepEqual(info.fields, ['computer-science'])
   assert.equal(info.tuition?.eu, 178)
   assert.equal(programmes.find((p) => p.name === 'CPGE - MPSI')!.fields[0], 'mathematics')
-  assert.equal(programmes.find((p) => p.name === "Diplôme d'Etat d'infirmier")!.fields[0], 'nursing')
+  assert.equal(programmes.find((p) => p.name.endsWith("Diplôme d'Etat d'infirmier"))!.fields[0], 'nursing')
 })
 
 test('UK award labels map to levels', () => {

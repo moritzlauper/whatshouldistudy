@@ -67,24 +67,46 @@ function tuitionFor(level: Level, name: string, isPublic: boolean | undefined): 
   return { currency: 'EUR', domestic: 178, eu: 178, international: 2895, estimated: true }
 }
 
+/** Level from anywhere in the text, for names that don't start with the type. */
+function frenchLevelLoose(text: string): { level: Level; years?: number } | null {
+  const t = text.toLowerCase()
+  if (/\bbts\b|brevet de technicien/.test(t)) return { level: 'short', years: 2 }
+  if (/\bcpge\b|classe pr[ée]paratoire/.test(t)) return { level: 'short', years: 2 }
+  if (/\bbut\b|bachelor universitaire de technologie/.test(t)) return { level: 'bachelor', years: 3 }
+  if (/\blicence\b|\bl\.as\b|\bpass\b/.test(t)) return { level: 'bachelor', years: 3 }
+  if (/ing[ée]nieur/.test(t)) return { level: 'integrated', years: 5 }
+  if (/\bbachelor\b|\bdn made\b|dipl[oô]me d.[ée]tat|\bdeust\b|\bdcg\b/.test(t)) return { level: 'bachelor', years: 3 }
+  if (/certificat de sp[ée]cialisation|mention compl[ée]mentaire|\bcs\b|\bmc\b/.test(t)) return { level: 'short', years: 1 }
+  if (/formation d.[ée]cole|[ée]cole/.test(t)) return { level: 'bachelor', years: 3 }
+  return null
+}
+
+export const samples = { noLevel: [] as string[], noField: [] as string[] }
+
 export function parseRecords(records: Rec[], fetchedAt: string): { programmes: Programme[]; unclassified: number } {
   const programmes: Programme[] = []
   let unclassified = 0
   const seen = new Set<string>()
   for (const r of records) {
-    const fili = pick(r, ['fili', 'fil_lib_voe_acc', 'tf', 'type_formation']) ?? ''
-    const name = cleanTitle(
-      pick(r, ['nm', 'nmc', 'lib_for_voe_ins', 'libelle_formation', 'tf']) ??
-        [pick(r, ['fil_lib_voe_acc']), pick(r, ['form_lib_voe_acc'])].filter(Boolean).join(' - '),
-    )
+    // Cartographie: tf = type of programme, nm/nmc = name, fl = specialisation.
+    // Admissions dataset: fili, lib_for_voe_ins, form_lib_voe_acc.
+    const fili = pick(r, ['fili', 'tf', 'fil_lib_voe_acc', 'type_formation']) ?? ''
+    const rawName =
+      pick(r, ['nm', 'lib_for_voe_ins', 'libelle_formation', 'nmc']) ??
+      [pick(r, ['fil_lib_voe_acc']), pick(r, ['form_lib_voe_acc'])].filter(Boolean).join(' - ')
+    const spec = pick(r, ['fl', 'form_lib_voe_acc', 'detail_forma', 'lib_comp_voe_ins']) ?? ''
+    // Some names omit the type ("Informatique"); prefix it so the level shows.
+    const name = cleanTitle(rawName && fili && !rawName.toLowerCase().includes(fili.toLowerCase().slice(0, 4)) ? `${fili} - ${rawName}` : rawName || [fili, spec].filter(Boolean).join(' - '))
     const institution = pick(r, ['etab_nom', 'g_ea_lib_vx', 'etablissement', 'lib_etab'])
     if (!name || !institution) continue
-    const level = frenchLevel(name) ?? frenchLevel(fili)
+    const all = [fili, name, spec, pick(r, ['nmc']) ?? ''].join(' ')
+    const level = frenchLevel(fili) ?? frenchLevel(name) ?? frenchLevelLoose(all)
     if (!level) {
       unclassified++
+      if (samples.noLevel.length < 8) samples.noLevel.push(`${fili} | ${name}`)
       continue
     }
-    const detail = pick(r, ['detail_forma', 'form_lib_voe_acc', 'lib_comp_voe_ins', 'nmc']) ?? ''
+    const detail = [spec, pick(r, ['nmc']) ?? ''].join(' ')
     let { fields, confidence } = fieldsForTitle(`${name} ${detail}`)
     if (!fields.length) {
       // Families whose names don't say the subject.
@@ -98,6 +120,7 @@ export function parseRecords(records: Rec[], fetchedAt: string): { programmes: P
     }
     if (!fields.length) {
       unclassified++
+      if (samples.noField.length < 12) samples.noField.push(`${fili} | ${name} | ${spec}`)
       continue
     }
     const uai = pick(r, ['etab_uai', 'cod_uai', 'uai'])
@@ -173,8 +196,11 @@ async function main() {
   }
   if (!records.length) throw new Error('No Parcoursup dataset could be read')
   log(`FR: ${records.length} records from ${used}; columns: ${Object.keys(records[0]).join(', ')}`)
+  for (const r of records.slice(0, 3)) log(`FR sample: ${JSON.stringify(r).slice(0, 600)}`)
   const { programmes, unclassified } = parseRecords(records, fetchedAt)
   log(`FR: ${programmes.length} programmes, ${unclassified} unclassified`)
+  log(`FR without level: ${samples.noLevel.join(' || ')}`)
+  log(`FR without field: ${samples.noField.join(' || ')}`)
   const out: ScrapeOutput = { source: 'fr-parcoursup', fetchedAt, programmes, notes: [`dataset ${used}`, `${unclassified} unclassified`] }
   writeJson(join(OUT, 'fr-parcoursup.json'), out)
 }

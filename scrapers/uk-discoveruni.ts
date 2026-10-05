@@ -13,7 +13,10 @@ import type { Level, Programme } from '../lib/programmes.ts'
 import { OUT, cleanTitle, csvObjects, fetchRetry, fieldsForCah, fieldsForTitle, isMain, log, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
 
-const PAGE = 'https://www.hesa.ac.uk/support/tools-and-downloads/unistats'
+const PAGES = [
+  'https://www.officeforstudents.org.uk/for-providers/student-protection-and-choice/discover-uni-and-the-discover-uni-dataset/discover-uni-dataset/',
+  'https://www.hesa.ac.uk/support/tools-and-downloads/unistats',
+]
 
 /** Award → level, from the aim label ("BSc (Hons)", "MEng", "Foundation Degree"). */
 export function ukLevel(aim: string, title: string): { level: Level; years?: number } {
@@ -120,11 +123,22 @@ function findTable(files: Record<string, Uint8Array>, name: string): Array<Recor
 async function main() {
   const fetchedAt = new Date().toISOString()
   let zipUrl = process.env.UK_DISCOVERUNI_URL
+  for (const page of PAGES) {
+    if (zipUrl) break
+    try {
+      const html = await (await fetchRetry(page, {}, 2)).text()
+      const links = [...html.matchAll(/href="([^"]+\.zip[^"]*)"/gi)].map((m) => new URL(m[1].replace(/&amp;/g, '&'), page).toString())
+      zipUrl = links.find((l) => /discover|unistats|kis/i.test(l)) ?? links[0]
+      if (!zipUrl) log(`UK: no .zip link on ${page}`)
+    } catch (e) {
+      log(`UK: ${page} not readable (${(e as Error).message.slice(0, 80)})`)
+    }
+  }
   if (!zipUrl) {
-    const html = await (await fetchRetry(PAGE)).text()
-    const links = [...html.matchAll(/href="([^"]+\.zip[^"]*)"/gi)].map((m) => new URL(m[1].replace(/&amp;/g, '&'), PAGE).toString())
-    zipUrl = links.find((l) => /discover|unistats|kis/i.test(l)) ?? links[0]
-    if (!zipUrl) throw new Error('No dataset link found on the HESA page')
+    // Both sites sit behind a bot challenge at times. We don't work around it: the
+    // dataset changes once a year, so download it by hand and point to a copy
+    // (e.g. a GitHub release asset) with the repository variable UK_DISCOVERUNI_URL.
+    throw new Error('Discover Uni download page not reachable; set UK_DISCOVERUNI_URL to the dataset .zip')
   }
   log(`UK: downloading ${zipUrl}`)
   const buf = new Uint8Array(await (await fetchRetry(zipUrl)).arrayBuffer())

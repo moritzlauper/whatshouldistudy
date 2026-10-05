@@ -149,7 +149,15 @@ async function main() {
   // DEMO_KEY allows 30 requests an hour: enough for a partial trial run only.
   const maxPages = key === 'DEMO_KEY' ? 25 : Infinity
   for (let page = 0; page * 100 < total && page < maxPages; page++) {
-    const res = await getJson<{ metadata: { total: number }; results: RawSchool[] }>(`${base}&page=${page}`)
+    let res: { metadata: { total: number }; results: RawSchool[] }
+    try {
+      res = await getJson(`${base}&page=${page}`)
+    } catch (e) {
+      // Partial data beats none; the build's shrink guard protects a full previous run.
+      if (!schools.length) throw e
+      log(`US: stopped at page ${page + 1} (${(e as Error).message}); keeping ${schools.length} schools`)
+      break
+    }
     total = res.metadata.total
     schools.push(...res.results)
     log(`US: page ${page + 1}/${Math.ceil(total / 100)}, ${schools.length} schools`)
