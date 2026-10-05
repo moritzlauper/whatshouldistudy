@@ -64,11 +64,11 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     licence: 'Öffentliche Schnittstelle der Bundesagentur für Arbeit',
   },
   {
-    id: 'at-statistik',
-    name: 'Studien an österreichischen Hochschulen (Statistik Austria, unidata)',
+    id: 'at-studienwahl',
+    name: 'studienwahl.at (Bundesministerium für Frauen, Wissenschaft und Forschung, OeAD)',
     countries: ['AT'],
-    url: 'https://data.statistik.gv.at/',
-    licence: 'CC BY 4.0',
+    url: 'https://www.studienwahl.at/',
+    licence: 'Öffentliches Studienportal',
   },
   {
     id: 'global-openalex',
@@ -111,7 +111,7 @@ interface Inputs {
 function readOutputs(): Inputs {
   const status = new Map<string, Partial<SourceStatus>>()
   const outputs: ScrapeOutput[] = []
-  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'de-studiensuche', 'at-statistik']) {
+  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'de-studiensuche', 'at-studienwahl']) {
     const o = readJson<ScrapeOutput>(join(OUT, `${id}.json`))
     if (o) {
       outputs.push(o)
@@ -175,7 +175,7 @@ function previousFirstSeen(dir: string | undefined): Map<string, string> {
  */
 function carryOver(inputs: Inputs, dir: string) {
   const prevMeta = readJson<DataMeta>(join(dir, 'meta.json'))
-  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'de-studiensuche', 'at-statistik']) {
+  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'de-studiensuche', 'at-studienwahl']) {
     const fresh = inputs.outputs.find((o) => o.source === id && o.programmes.length)
     const prevCount = prevMeta?.sources.find((s) => s.id === id)?.count ?? 0
     // A source that suddenly shrinks by half is more likely broken than real.

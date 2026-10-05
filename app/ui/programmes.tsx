@@ -223,7 +223,7 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
         {p.earnings && <Item k={t.programmes.row.earnings(p.earnings.yearsAfter)} v={fmtMoney(p.earnings.median, p.earnings.currency, intl)} />}
         {p.debt && <Item k={t.programmes.row.debt} v={fmtMoney(p.debt.median, p.debt.currency, intl)} />}
         {p.admissionRate !== undefined && <Item k={t.programmes.row.admission} v={`${Math.round(p.admissionRate * 100)} %`} />}
-        {p.capacity && <Item k={p.source === 'ch-bfs' || p.source === 'at-statistik' ? t.programmes.row.students : t.programmes.row.places} v={fmtNumber(p.capacity, intl)} />}
+        {p.capacity && <Item k={p.source === 'ch-bfs' ? t.programmes.row.students : t.programmes.row.places} v={fmtNumber(p.capacity, intl)} />}
         {p.languages?.length ? <Item k={t.programmes.row.language} v={p.languages.map((l) => l.toUpperCase()).join(', ')} /> : null}
       </dl>
       {p.admission && (

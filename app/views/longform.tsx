@@ -40,7 +40,7 @@ function LocalData({ k }: { k: Kit }) {
   if (k.site === 'at')
     return (
       <p>
-        Die österreichischen Studien stammen von Statistik Austria und aus unidata, dem Datenangebot des Wissenschaftsministeriums (CC BY 4.0): öffentliche Universitäten, Fachhochschulen, Pädagogische Hochschulen und Privatuniversitäten. Öffentliche Universitäten sind für Studierende aus der EU innerhalb der Regelstudienzeit plus zwei Toleranzsemestern gratis, Studierende aus Drittstaaten zahlen 726.72 Euro pro Semester. Fachhochschulen verlangen meist bis 363.36 Euro pro Semester.
+        Die österreichischen Studien stammen von studienwahl.at, dem Studienportal des Wissenschaftsministeriums: jedes Bachelor-, Master- und Diplomstudium an öffentlichen Universitäten, Fachhochschulen, Pädagogischen Hochschulen und Privatuniversitäten, mit Link zur Seite des Studiums. Öffentliche Universitäten sind für Studierende aus der EU innerhalb der Regelstudienzeit plus zwei Toleranzsemestern gratis, Studierende aus Drittstaaten zahlen 726.72 Euro pro Semester. Fachhochschulen verlangen meist bis 363.36 Euro pro Semester.
       </p>
     )
   return (
@@ -373,7 +373,7 @@ export function TermsView({ site, base }: SiteProps) {
         <p>Die Schnittstelle für Studiengänge ist nicht zum automatischen Auslesen oder Weiterverkaufen gedacht. Die offenen Daten dahinter bleiben bei ihren Herausgebern unter deren Lizenzen frei verfügbar.</p>
         <h2>Datenquellen</h2>
         <p>
-          Schweiz: Bundesamt für Statistik (BFS), freie Nutzung mit Quellenangabe. Deutschland: Studiensuche der Bundesagentur für Arbeit. Österreich: Statistik Austria und unidata (CC BY 4.0). Weitere Länder: College Scorecard des US-Bildungsministeriums (gemeinfrei), Discover Uni (Office for Students, CC BY 4.0), Parcoursup (Licence Ouverte 2.0), OpenAlex (CC0), University Domains List (MIT).
+          Schweiz: Bundesamt für Statistik (BFS), freie Nutzung mit Quellenangabe. Deutschland: Studiensuche der Bundesagentur für Arbeit. Österreich: studienwahl.at (BMFWF). Weitere Länder: College Scorecard des US-Bildungsministeriums (gemeinfrei), Discover Uni (Office for Students, CC BY 4.0), Parcoursup (Licence Ouverte 2.0), OpenAlex (CC0), University Domains List (MIT).
         </p>
         {k.site !== 'ch' && (
           <>

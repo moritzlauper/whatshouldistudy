@@ -849,7 +849,7 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
     fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du sie in Deutschland studieren kannst.`,
     howDesc: `Das Modell hinter ${DE_NAME}: was wir aus jeder Quelle lesen, wie wir Interesse messen, welche Psychologie drinsteckt und woher die Studiengänge kommen.`,
   },
-  misc: { dataCredit: 'Studiengänge: Studiensuche der Bundesagentur für Arbeit, dazu Statistik Austria, BFS, Parcoursup, Discover Uni, College Scorecard, OpenAlex' },
+  misc: { dataCredit: 'Studiengänge: Studiensuche der Bundesagentur für Arbeit, dazu studienwahl.at, BFS, Parcoursup, Discover Uni, College Scorecard, OpenAlex' },
 }
 
 /** Austria: the Swiss texts in Austrian spelling, plus what differs in substance. */
@@ -861,7 +861,7 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
     faq: [
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
       ['Ist das ein richtiger psychologischer Test?', 'Der Fragebogen nutzt etablierte Instrumente: das RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, und den Mini-IPIP, eine geprüfte Big-Five-Skala mit 20 Fragen. Die Analyse deines Verlaufs ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
-      ['Welche Hochschulen sind drin?', 'Öffentliche Universitäten, Fachhochschulen, Pädagogische Hochschulen und Privathochschulen in Österreich, nach den Zahlen von Statistik Austria. Fürs Ausland kommen Deutschland, die Schweiz, Frankreich, UK und die USA Studiengang für Studiengang dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
+      ['Welche Hochschulen sind drin?', 'Jedes Studium an öffentlichen Universitäten, Fachhochschulen, Pädagogischen Hochschulen und Privatuniversitäten in Österreich, laut studienwahl.at, dem Studienportal des Wissenschaftsministeriums. Fürs Ausland kommen Deutschland, die Schweiz, Frankreich, UK und die USA Studiengang für Studiengang dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
       ['Was bringt der volle Report?', 'Jedes passende Studium mit Studienbeitrag, Aufnahmeverfahren und Link, sortiert nach deinem Profil. Einmal zahlen, 12 Monate gültig, die Daten werden wöchentlich aktualisiert.'],
       ['Geht das auch ohne Verbindungen?', 'Ja. Der Fragebogen allein gibt schon ein brauchbares Ergebnis. Jede Quelle macht es genauer, und das Vertrauens-Badge beim Ergebnis zeigt, worauf es beruht.'],
     ],
@@ -877,7 +877,7 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
   fields: {
     tracked: (n: string) => `${n} Studien in Österreich`,
     whereLocal: (f: string) => `Wo du ${f} in Österreich studieren kannst`,
-    whereLocalSub: 'Hochschulen mit Studierenden in diesem Fach, laut Statistik Austria.',
+    whereLocalSub: 'Hochschulen mit Studien in diesem Fach, laut studienwahl.at.',
   },
   meta: {
     title: `${AT_NAME}: Welches Studium passt zu mir?`,
@@ -888,7 +888,7 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
     fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du sie in Österreich studieren kannst.`,
     howDesc: `Das Modell hinter ${AT_NAME}: was wir aus jeder Quelle lesen, wie wir Interesse messen, welche Psychologie drinsteckt und woher die Studien kommen.`,
   },
-  misc: { dataCredit: 'Studien: Statistik Austria (CC BY 4.0), dazu Bundesagentur für Arbeit, BFS, Parcoursup, Discover Uni, College Scorecard, OpenAlex' },
+  misc: { dataCredit: 'Studien: studienwahl.at (BMFWF), dazu Bundesagentur für Arbeit, BFS, Parcoursup, Discover Uni, College Scorecard, OpenAlex' },
 }
 
 const deDE = mergeDeep(regionalizeDeep(deCH, 'de-DE'), regionalizeDeep(DE_OVERRIDES, 'de-DE'))
