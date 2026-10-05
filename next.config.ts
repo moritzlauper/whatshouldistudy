@@ -5,7 +5,7 @@ import type { NextConfig } from 'next'
  * angebunden rewrites that path to this deployment (Next.js multi-zones). On its
  * own domain set WSIS_BASE_PATH=/ to serve it at the root.
  */
-const basePath = (process.env.WSIS_BASE_PATH ?? '/whatshouldistudy').replace(/\/+$/, '')
+const basePath = (process.env.WSIS_BASE_PATH || '/whatshouldistudy').replace(/\/+$/, '')
 
 const nextConfig: NextConfig = {
   basePath: basePath || undefined,

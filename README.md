@@ -4,13 +4,18 @@ Find what to study from what you actually watch, read and build. The site reads
 thousands of signals from a person's YouTube, Google Takeout, Spotify, Reddit and
 GitHub, adds a short validated questionnaire (RIASEC interests, Mini-IPIP Big
 Five, school subjects, values), matches them to 80 fields of study and then to
-real programmes in Switzerland, the US, the UK, France and, through research
-profiles and a university directory, 60+ more countries.
+real programmes in Switzerland, Germany, Austria, the US, the UK, France and,
+through research profiles and a university directory, 60+ more countries.
 
-Two sites from one codebase: the global English site, and a Swiss German site
-(working name `wasstudiere`) with every Bachelor and Master at Swiss
-universities, ETH, universities of applied sciences (FH) and teacher education
-(PH). The Swiss site lives at `/schweiz` until it gets its own domain.
+Four sites from one codebase: the global English site and three German-language
+country sites for Switzerland (`wasstudiere`), Germany (`wassollichstudieren`)
+and Austria (`wasstudierich`), all working names. Each country site lists the
+degree programmes of its own universities and universities of applied sciences
+and leads with them. Until they get their own domains they live at `/schweiz`,
+`/deutschland` and `/oesterreich`.
+
+The whole app runs under the base path `/whatshouldistudy`, so it can sit inside
+angebunden.ch as a second Vercel project (see *Deploy on Vercel*).
 
 The field results are free. The full programme list (every matching programme
 with the fee for the student's citizenship, earnings, admission rates, filters,
@@ -41,39 +46,56 @@ Without any configuration you get the questionnaire, file exports (Takeout,
 Spotify), GitHub, the demo dataset in `data/sample` and free unlocks in
 development. `.env.example` lists everything else.
 
-## Two sites
+## Four sites
 
-| | Global | Switzerland |
-| --- | --- | --- |
-| Language | English | Swiss Standard German |
-| Routes | `app/(global)/…`: `/start`, `/results`, `/fields`, `/how-it-works`, … | `app/(ch)/[mount]/…`: `/start`, `/resultat`, `/faecher`, `/so-funktionierts`, `/datenschutz`, `/agb`, … |
-| Default filter | anywhere | Switzerland, Swiss citizenship |
-| Price | 15 in the visitor's currency | CHF 15 |
-| Browser storage | `wsis:v1` | `wsis:v1:ch` |
+| | Global | Switzerland | Germany | Austria |
+| --- | --- | --- | --- | --- |
+| Path | `/` | `/schweiz` | `/deutschland` | `/oesterreich` |
+| Language | English | Swiss Standard German | German (Germany) | German (Austria) |
+| Default filter | anywhere | Switzerland, Swiss citizenship | Germany, EU citizenship | Austria, EU citizenship |
+| Price | 15 in the visitor's currency | CHF 15 | EUR 15 | EUR 15 |
+| Accent | violet | red | orange | magenta |
+| Browser storage | `wsis:v1` | `wsis:v1:ch` | `wsis:v1:de` | `wsis:v1:at` |
 
-Both sites render the same views (`app/views/`, `app/ui/`); text comes from
-`lib/site/dict.ts` (EN and DE) and `lib/site/labels.ts` / `fields-de.ts`, links
-from `routes()` in `lib/site/config.ts`.
+All four render the same views (`app/views/`, `app/ui/`). The global routes are
+in `app/(global)/…` (`/start`, `/results`, `/fields`, `/how-it-works`, …), the
+country routes once in `app/(local)/[mount]/…` (`/start`, `/resultat`,
+`/faecher`, `/so-funktionierts`, `/datenschutz`, `/agb`, `/impressum`, …).
+Configuration per site is in `lib/site/config.ts`.
 
-**Domains.** The Swiss pages are mounted twice: `/schweiz/…` on the global
-domain, and `/ch-site/…` internally. `proxy.ts` rewrites every request on a
-Swiss host to `/ch-site/…`, so the Swiss domain serves them at its root with
-plain links. To give the Swiss site its own domain:
+**Language.** The German texts in `lib/site/dict.ts`, `labels.ts` and
+`fields-de.ts` are written once in Swiss Standard German. `lib/site/regional.ts`
+turns them into German and Austrian German: ß where it belongs, „…“ quotes,
+10.000 instead of 10’000, and a short word list (Lohn → Gehalt, Resultat →
+Ergebnis, innert → innerhalb von, Spital → Krankenhaus, Doktorat → Promotion).
+What differs in substance (data sources, institution types, admission, consumer
+law) is in `DE_OVERRIDES` and `AT_OVERRIDES` in `dict.ts` and in
+`lib/institutions.ts`.
 
-1. Add the domain (e.g. `wasstudiere.ch`, and `www.`) to the same Vercel project.
-2. Set `NEXT_PUBLIC_CH_URL=https://wasstudiere.ch`. Its host (with and without
-   `www.`) is then treated as Swiss; more hosts via `WSIS_CH_HOSTS`. Old
-   `/schweiz/…` links redirect to the new domain.
-3. Optionally rename it: `NEXT_PUBLIC_CH_NAME=…` (default `wasstudiere`).
-4. Register `https://wasstudiere.ch/callback/google` (and spotify, reddit) with
+**Domains.** Each country site is mounted twice: publicly at `/schweiz`,
+`/deutschland`, `/oesterreich`, and internally at `/ch-site`, `/de-site`,
+`/at-site`. `proxy.ts` rewrites every request on a country host to its internal
+mount, so a country domain serves the pages at its root with plain links. To
+give a country site its own domain:
+
+1. Add the domain (e.g. `wasstudiere.ch`, and `www.`) to the whatshouldistudy
+   Vercel project.
+2. Set `NEXT_PUBLIC_CH_URL=https://wasstudiere.ch` (`_DE_URL`, `_AT_URL` for the
+   others). Its host with and without `www.` is then that country's; more hosts
+   via `WSIS_CH_HOSTS` / `WSIS_DE_HOSTS` / `WSIS_AT_HOSTS`. Old `/schweiz/…`
+   links redirect to the new domain.
+3. Set `WSIS_BASE_PATH=/` if the project should serve at the domain root
+   instead of under `/whatshouldistudy`.
+4. Optionally rename it: `NEXT_PUBLIC_CH_NAME` / `_DE_NAME` / `_AT_NAME`.
+5. Register `https://wasstudiere.ch/callback/google` (and spotify, reddit) with
    the OAuth providers.
 
 Sitemap and robots.txt answer per host.
 
 **Design.** Cream paper, ink outlines, hard offset shadows, sticker colours
 (pink, lime, yellow, sky, orange, violet) and Bricolage Grotesque
-(`app/fonts/`, SIL OFL). The Swiss site swaps the violet accent for red via
-`data-site="ch"`. Tokens and components (`.card`, `.btn`, `.chip`,
+(`app/fonts/`, SIL OFL). The country sites swap the violet accent via
+`data-site="ch|de|at"`. Tokens and components (`.card`, `.btn`, `.chip`,
 `.sticker`, `.hl`) are in `app/globals.css`; light and dark mode.
 
 ## How the matching works
@@ -128,6 +150,8 @@ TikTok and Instagram data downloads (topics/interests files); Strava (sports).
 | `uk-discoveruni.ts` | every UK undergraduate course (Discover Uni), with award, mode, URL, subject | CC BY 4.0 |
 | `fr-parcoursup.ts` | every French first-year programme on Parcoursup, statutory fees, capacity, admission rate | Licence Ouverte 2.0 |
 | `ch-bfs.ts` | every Swiss Bachelor and Master: students per institution, subject (Fachrichtung) and level, from the BFS PXWeb tables (universities, FH, PH); institution type, fees, languages and admission from `lib/ch-institutions.ts` | open use, «Quelle: BFS» |
+| `de-studiensuche.ts` | German degree programmes (Bachelor, Master, Staatsexamen, Diplom, Lehramt) at universities, HAW/FH, dual and art colleges, from the Studiensuche API of the Bundesagentur für Arbeit (`rest.arbeitsagentur.de/infosysbub/studisu`, documented at bund.dev); further-education programmes are skipped | no licence stated; public API, credited on the site |
+| `at-hochschulen.ts` | every Austrian degree programme at universities, FH, PH and private universities from studienwahl.at (BMFWF/OeAD), one page per second; institutions, fees and admission from `lib/at-institutions.ts` and `lib/institutions.ts` | no open licence stated; robots.txt allows crawling, each programme links back to its page there |
 | `global-openalex.ts` | research profiles of universities in ~65 countries → strongest universities per field and country | CC0 |
 | `global-directory.ts` | ~10,000 universities worldwide with websites | MIT |
 
@@ -159,9 +183,15 @@ when a publisher renames something the run log shows it. `pnpm data:all` runs
 everything locally; `pnpm data:sample` rebuilds the demo dataset from
 `scrapers/fixtures` (CI checks it is up to date).
 
+Before launching the German and Austrian sites commercially, ask the
+Bundesagentur für Arbeit and OeAD (studienwahl.at) for written permission, or
+switch Germany to the Hochschulkompass export (on request from HRK). For
+Austria, `unidata.gv.at` publishes student numbers per public university and
+ISCED field under CC BY; it lacks programme names but could add student counts.
+
 Next countries with official open data to add: Netherlands (Studiekeuzedatabase,
-licence on request), Germany (Hochschulkompass, export on request from HRK),
-Italy (Universitaly), Spain (QEDU), Australia (QILT), Canada.
+licence on request), Italy (Universitaly), Spain (QEDU), Australia (QILT),
+Canada.
 
 ## Paywall
 
@@ -181,10 +211,31 @@ Stripe dashboard (payment methods); Checkout shows it automatically for CHF.
 
 ## Deploy on Vercel
 
-New Vercel project from this repository with **Root Directory**
-`whatshouldistudy`. Set the variables from `.env.example`. With the system
-environment variables exposed (Vercel default), the data branch is found
-automatically, also after moving the repository.
+whatshouldistudy is its own Vercel project and joins angebunden.ch as a
+[multi-zone](https://nextjs.org/docs/app/guides/multi-zones) app:
+
+1. New Vercel project from this repository, **Root Directory**
+   `whatshouldistudy`, project name `whatshouldistudy`. `vercel.json` skips
+   builds when nothing in this folder changed and never deploys the data and
+   bot branches.
+2. Settings → Deployment Protection: switch *Vercel Authentication* off for
+   production, otherwise angebunden's rewrite gets a login page.
+3. Set the variables from `.env.example`, at least `NEXT_PUBLIC_SITE_URL`
+   (`https://angebunden.ch`).
+4. angebunden's `next.config.ts` rewrites `/whatshouldistudy/*` to
+   `https://whatshouldistudy-laupermoritz-3127s-projects.vercel.app`, the
+   production alias Vercel gives a project named `whatshouldistudy` in this
+   team. With another name or team, set `WHATSHOULDISTUDY_URL` in the
+   **angebunden** project to this project's production URL (no trailing slash).
+   Once both are deployed from `main`, the site is at
+   `angebunden.ch/whatshouldistudy`.
+
+Before that, every preview deployment of this project works on its own at
+`<preview-url>/whatshouldistudy`.
+
+With the system environment variables exposed (Vercel default), the data branch
+is found automatically, also after moving the repository. When the site moves to
+its own domain, set `WSIS_BASE_PATH=/` and drop the rewrite in angebunden.
 
 ## Next: whatshouldiwork
 
