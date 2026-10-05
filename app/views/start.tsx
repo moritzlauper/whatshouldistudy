@@ -61,7 +61,7 @@ export function StartView() {
           // Optional enrichment.
         }
       }
-      if (!result.summaries.length) throw new Error(t.start.noHistory)
+      if (!result.summaries.length) throw new Error(result.takeoutProducts ? t.start.emptyTakeout(result.takeoutProducts.filter((x) => x !== '?').join(', ')) : t.start.noHistory)
       for (const s of result.summaries) setSummary(s)
       setNotes((n) => ({ ...n, [card]: result.recognised.map(t.tr) }))
     } catch (e) {

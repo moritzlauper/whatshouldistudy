@@ -31,6 +31,8 @@ export interface ExportResult {
   topChannelIds: string[]
   recognised: string[]
   skipped: string[]
+  /** Products listed in a Takeout archive that held no history we read (e.g. only «Search profile»). */
+  takeoutProducts?: string[]
   /** Re-runs the analysis with channel descriptions fetched from the YouTube API. */
   rebuild: (channels: Map<string, ChannelInfo>) => ExportResult
 }
@@ -59,6 +61,7 @@ interface Collected {
   social: SocialCollected
   recognised: string[]
   skipped: string[]
+  takeoutProducts?: string[]
 }
 
 const WATCH_PREFIX = /^(watched|vous avez regardé|has visto|hai guardato|assistiu a|bekeken|obejrzano|ha visto|se vio|visto)\s*:?\s+/i
@@ -329,6 +332,13 @@ async function readEntry(c: Collected, name: string, text: string): Promise<void
       if (social) c.recognised.push(social)
       else c.skipped.push(short)
     } else if (/\.html$/i.test(name)) {
+      // Takeout's table of contents: remember which products the archive holds.
+      if (/archive_browser\.html$/i.test(name)) {
+        const block = text.slice(text.search(/Products in Archive|Produkte im Archiv/i))
+        const products = [...block.matchAll(/id="service-tile-[^"]+"[\s\S]*?alt="([^"]+)"/g)].map((m) => m[1].trim())
+        c.takeoutProducts = products.length ? [...new Set(products)] : ['?']
+        return
+      }
       if (/content-cell/.test(text)) {
         if (!parseActivityHtml(c, short, text)) c.skipped.push(short)
         return
@@ -471,6 +481,7 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>): Expo
     topChannelIds,
     recognised: c.recognised,
     skipped: c.skipped,
+    takeoutProducts: c.takeoutProducts,
     rebuild: (ch) => buildSummaries(c, ch),
   }
 }

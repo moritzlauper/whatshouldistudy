@@ -82,7 +82,7 @@ test('reads Spotify streaming history and keeps podcasts as topics', async () =>
 })
 
 test('ignores unrelated files', async () => {
-  const r = await readTexts([{ name: 'archive_browser.html', text: '<html><body>Hello</body></html>' }])
+  const r = await readTexts([{ name: 'notes.html', text: '<html><body>Hello</body></html>' }])
   assert.equal(r.summaries.length, 0)
   assert.equal(r.skipped.length, 1)
 })
@@ -96,4 +96,11 @@ test('reads Google searches from My Activity', async () => {
   const s = r.summaries.find((x) => x.source === 'google-search')!
   assert.equal(s.stats.googleSearches, 1)
   assert.ok(s.fields.physics.score > 0)
+})
+
+test('a Takeout archive without history says what it holds', async () => {
+  const index = '<div>Products in Archive (1)</div><div id="service-tile-SEARCH_CREATORPROFILE" class="service_wrapper"><img src="x" alt="Search profile"></div>'
+  const r = await readTexts([{ name: 'Takeout/archive_browser.html', text: index }])
+  assert.equal(r.summaries.length, 0)
+  assert.deepEqual(r.takeoutProducts, ['Search profile'])
 })
