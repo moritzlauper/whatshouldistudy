@@ -198,22 +198,25 @@ export function ResultsView() {
         <section className="card mt-16 p-6 sm:p-8">
           <h2 className="font-display text-3xl">{t.results.timelineTitle}</h2>
           <p className="mt-1 text-sm text-muted">{t.results.timelineSub}</p>
-          <ol className="mt-6 grid gap-3">
+          <ol className="mt-6 grid gap-5">
             {results.timeline.map((y) => (
               <li key={y.year} className="grid grid-cols-[4rem_1fr] items-center gap-3">
                 <span className="font-display text-xl">{y.year}</span>
                 <div className="flex flex-wrap gap-2">
-                  {y.fields.map((f) =>
-                    f.id === first.id && !unlocked ? (
-                      <span key={f.id} className="chip">
-                        🔒 {t.results.lockedChip}
+                  {y.fields.map((f, i) => (
+                    <span key={f.id} className="chip">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-extrabold text-accent-ink" title={t.results.yearRank(i + 1)}>
+                        {i + 1}
                       </span>
-                    ) : (
-                      <span key={f.id} className="chip">
-                        <span aria-hidden="true">{emoji(f.id)}</span> {fieldName(f.id, locale)}
-                      </span>
-                    ),
-                  )}
+                      {f.id === first.id && !unlocked ? (
+                        <>🔒 {t.results.lockedChip}</>
+                      ) : (
+                        <>
+                          <span aria-hidden="true">{emoji(f.id)}</span> {fieldName(f.id, locale)}
+                        </>
+                      )}
+                    </span>
+                  ))}
                 </div>
               </li>
             ))}

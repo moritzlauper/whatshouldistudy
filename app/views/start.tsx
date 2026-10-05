@@ -158,7 +158,7 @@ export function StartView() {
             glyph="🎧"
             color="var(--lime)"
             text={t.start.spotify}
-            summaries={[state.summaries.spotify, state.summaries['spotify-export']]}
+            summaries={[state.summaries['spotify-export'], state.summaries.spotify]}
             requests={[{ href: 'https://www.spotify.com/account/privacy/', label: t.start.request.spotify }]}
             hint={t.start.hint.spotify}
             running={running?.source === 'spotify' ? running : null}
@@ -354,29 +354,42 @@ function ExportCard(props: {
   /** Below the steps, e.g. the optional sign-in. */
   footer?: React.ReactNode
 }) {
+  const { t } = useSite()
+  // Once the file is in (the first summary), the steps fold away.
+  const done = !!props.summaries[0]
+  const steps = (
+    <div className="mt-5 grid gap-4">
+      <div className="flex gap-3">
+        <StepDot n={1} />
+        <div className="min-w-0">
+          <div className="flex flex-wrap gap-2">
+            {props.requests.map((q) => (
+              <a key={q.href} href={q.href} target="_blank" rel="noreferrer" className="btn btn-ink btn-sm">
+                {q.label} ↗
+              </a>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-muted">{props.hint}</p>
+        </div>
+      </div>
+      <div className="flex gap-3">
+        <StepDot n={2} />
+        <DropZone onFiles={props.onFiles} />
+      </div>
+    </div>
+  )
   return (
     <Card title={props.title} text={props.text} glyph={props.glyph} color={props.color} badge={props.badge}>
       {props.summaries.map((x) => x && <Connected key={x.source} summary={x} onRemove={() => removeSummary(x.source)} />)}
       {props.children}
-      <div className="mt-5 grid gap-4">
-        <div className="flex gap-3">
-          <StepDot n={1} />
-          <div className="min-w-0">
-            <div className="flex flex-wrap gap-2">
-              {props.requests.map((q) => (
-                <a key={q.href} href={q.href} target="_blank" rel="noreferrer" className="btn btn-ink btn-sm">
-                  {q.label} ↗
-                </a>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-muted">{props.hint}</p>
-          </div>
-        </div>
-        <div className="flex gap-3">
-          <StepDot n={2} />
-          <DropZone onFiles={props.onFiles} />
-        </div>
-      </div>
+      {done ? (
+        <details className="mt-4 text-sm">
+          <summary className="cursor-pointer font-semibold text-accent">{t.start.addAnother}</summary>
+          {steps}
+        </details>
+      ) : (
+        steps
+      )}
       {props.running && <RunningLine running={props.running} />}
       {props.error && <p className="mt-3 text-sm font-semibold text-bad">{props.error}</p>}
       {props.notes && props.notes.length > 0 && (
