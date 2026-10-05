@@ -18,7 +18,7 @@ import { useSite } from '../ui/site-context.tsx'
 type Running = { source: string; message: string; count?: number } | null
 
 export function StartView() {
-  const { t, r, intl } = useSite()
+  const { t, r, intl, site, base } = useSite()
   const state = useAppState()
   const [running, setRunning] = useState<Running>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -37,7 +37,7 @@ export function StartView() {
   async function connect(p: Provider) {
     setErrors((x) => ({ ...x, [p]: '' }))
     try {
-      await startAuth(p)
+      await startAuth(p, { site, base })
     } catch (e) {
       fail(p, e)
     }

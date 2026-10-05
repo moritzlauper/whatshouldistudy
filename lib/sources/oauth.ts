@@ -6,7 +6,8 @@
  */
 
 import { BASE_PATH } from '../site.ts'
-import { LOCAL_SITES, SITES } from '../site/config.ts'
+import { SITES } from '../site/config.ts'
+import type { SiteId } from '../site/config.ts'
 
 export type Provider = 'google' | 'spotify' | 'reddit'
 
@@ -33,15 +34,32 @@ export function isConfigured(p: Provider): boolean {
 }
 
 /**
- * Each site gets its own callback: /callback/x on the global site and on a
- * country's own domain, /schweiz/callback/x (and /deutschland, /oesterreich)
- * under the global domain, all behind the app's base path. Every one of them
- * must be registered with the provider.
+ * One callback per provider and domain: <origin><base path>/callback/x. Reddit
+ * accepts a single redirect URI per app, so the country sites under the global
+ * domain share it; startAuth remembers which site the sign-in came from and
+ * the callback page answers in that site's language and store.
  */
 export function redirectUri(p: Provider): string {
-  const path = window.location.pathname.slice(BASE_PATH.length)
-  const mount = LOCAL_SITES.map((s) => SITES[s].mount!).find((m) => path === `/${m}` || path.startsWith(`/${m}/`))
-  return `${window.location.origin}${BASE_PATH}${mount ? `/${mount}` : ''}/callback/${p}`
+  return `${window.location.origin}${BASE_PATH}/callback/${p}`
+}
+
+export interface AuthOrigin {
+  site: SiteId
+  base: string
+}
+
+const ORIGIN_KEY = 'wsis:oauth-from'
+
+/** The site a pending sign-in started on, if it is one we know. */
+export function authOrigin(): AuthOrigin | null {
+  try {
+    const o = JSON.parse(session()?.getItem(ORIGIN_KEY) ?? 'null') as AuthOrigin | null
+    if (!o || !(o.site in SITES)) return null
+    const mount = SITES[o.site].mount
+    return o.base === '' || (mount && o.base === `/${mount}`) ? o : null
+  } catch {
+    return null
+  }
 }
 
 function randomString(bytes = 32): string {
@@ -69,11 +87,12 @@ function session(): Storage | null {
   }
 }
 
-export async function startAuth(p: Provider): Promise<void> {
+export async function startAuth(p: Provider, from: AuthOrigin): Promise<void> {
   const clientId = CLIENT_IDS[p]
   if (!clientId) throw new Error(`${p} is not configured on this deployment`)
   const state = randomString(16)
   session()?.setItem(`wsis:oauth-state:${p}`, state)
+  session()?.setItem(ORIGIN_KEY, JSON.stringify({ site: from.site, base: from.base }))
   const params = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri(p), state, scope: SCOPES[p] })
 
   let url: string

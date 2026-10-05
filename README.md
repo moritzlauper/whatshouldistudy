@@ -87,8 +87,9 @@ give a country site its own domain:
 3. Set `WSIS_BASE_PATH=/` if the project should serve at the domain root
    instead of under `/whatshouldistudy`.
 4. Optionally rename it: `NEXT_PUBLIC_CH_NAME` / `_DE_NAME` / `_AT_NAME`.
-5. Register `https://wasstudiere.ch/callback/google` (and spotify, reddit) with
-   the OAuth providers.
+5. Register `https://wasstudiere.ch/callback/google` (and spotify) with the
+   OAuth providers. Reddit takes a single redirect URI per app, so Reddit
+   sign-in works on one domain only (or with a second Reddit app).
 
 Sitemap and robots.txt answer per host.
 

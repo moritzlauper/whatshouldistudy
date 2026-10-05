@@ -3,19 +3,39 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { finishAuth } from '@/lib/sources/oauth.ts'
-import type { Provider } from '@/lib/sources/oauth.ts'
+import { authOrigin, finishAuth } from '@/lib/sources/oauth.ts'
+import type { AuthOrigin, Provider } from '@/lib/sources/oauth.ts'
 import { collectYouTube } from '@/lib/sources/youtube.ts'
 import { collectSpotify } from '@/lib/sources/spotify.ts'
 import { collectReddit } from '@/lib/sources/reddit.ts'
 import { setSummary } from '@/lib/store.ts'
 import { fmtNumber } from '@/lib/site/labels.ts'
-import { useSite } from '../ui/site-context.tsx'
+import { SiteProvider, useSite } from '../ui/site-context.tsx'
 import { Sparkle } from '../ui/shapes.tsx'
 
 const NAMES: Record<Provider, string> = { google: 'YouTube', spotify: 'Spotify', reddit: 'Reddit' }
 
+/**
+ * The country sites under the global domain share the global callback URL, so
+ * the page switches to the site the sign-in started on: its language, links
+ * and, above all, its store.
+ */
 export function CallbackView({ provider }: { provider: string }) {
+  const { site, base } = useSite()
+  const [from, setFrom] = useState<AuthOrigin | null | undefined>(undefined)
+  useEffect(() => setFrom(authOrigin()), [])
+  if (from === undefined) return <div className="min-h-[60vh]" aria-busy="true" />
+  if (from && (from.site !== site || from.base !== base)) {
+    return (
+      <SiteProvider site={from.site} base={from.base}>
+        <Finish provider={provider} />
+      </SiteProvider>
+    )
+  }
+  return <Finish provider={provider} />
+}
+
+function Finish({ provider }: { provider: string }) {
   const { t, r, intl } = useSite()
   const router = useRouter()
   const [message, setMessage] = useState(t.callback.finishing)
