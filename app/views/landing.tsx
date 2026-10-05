@@ -12,7 +12,7 @@ import { emoji, fieldName, fmtNumber } from '@/lib/site/labels.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Marquee } from '../ui/marquee.tsx'
 import { Price } from '../ui/price.tsx'
-import { Blob, Burst, Pill, Ring, SiteFlag, Sparkle, Squiggle } from '../ui/shapes.tsx'
+import { Blob, Burst, Pill, Ring, Sparkle, Squiggle } from '../ui/shapes.tsx'
 
 const SOURCE_GLYPH = ['▶', '📦', '🎧', '👽', '🐙', '✍️']
 
@@ -37,7 +37,7 @@ export async function Landing({ site, base }: SiteProps) {
         <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pb-20 pt-12 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:pt-20">
           <div>
             <p className="sticker" style={{ background: 'var(--lime)' }}>
-              {local ? <SiteFlag site={site} size={18} /> : <span aria-hidden="true">✦</span>} {t.landing.badge}
+              <span aria-hidden="true">✦</span> {t.landing.badge}
             </p>
             <h1 className="mt-7 font-display text-[2.7rem] sm:text-6xl lg:text-7xl">
               <span className="block text-accent">{t.landing.h1a}</span>

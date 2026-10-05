@@ -54,7 +54,6 @@ development. `.env.example` lists everything else.
 | Language | English | Swiss Standard German | German (Germany) | German (Austria) |
 | Default filter | anywhere | Switzerland, Swiss citizenship | Germany, EU citizenship | Austria, EU citizenship |
 | Price | 15 in the visitor's currency | CHF 15 | EUR 15 | EUR 15 |
-| Accent | violet | red | orange | magenta |
 | Browser storage | `wsis:v1` | `wsis:v1:ch` | `wsis:v1:de` | `wsis:v1:at` |
 
 All four render the same views (`app/views/`, `app/ui/`). The global routes are
@@ -95,8 +94,8 @@ Sitemap and robots.txt answer per host.
 
 **Design.** Cream paper, ink outlines, hard offset shadows, sticker colours
 (pink, lime, yellow, sky, orange, violet) and Bricolage Grotesque
-(`app/fonts/`, SIL OFL). The country sites swap the violet accent via
-`data-site="ch|de|at"`. Tokens and components (`.card`, `.btn`, `.chip`,
+(`app/fonts/`, SIL OFL). All four sites share the violet accent and the
+sparkle logo; only name and language differ. Tokens and components (`.card`, `.btn`, `.chip`,
 `.sticker`, `.hl`) are in `app/globals.css`; light and dark mode.
 
 ## How the matching works

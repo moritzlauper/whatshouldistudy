@@ -17,7 +17,7 @@ export function Shell({ site, base, children }: SiteProps & { children: React.Re
       <header className="sticky top-0 z-30 border-b-2 border-line bg-bg/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link href={r.home} className="flex min-w-0 items-center gap-2" aria-label={t.misc.home(conf.name)}>
-            <Logo site={site} />
+            <Logo />
             <span className="truncate">
               <Wordmark parts={conf.wordmark} />
             </span>
@@ -41,7 +41,7 @@ export function Shell({ site, base, children }: SiteProps & { children: React.Re
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 text-sm sm:grid-cols-[1.4fr_1fr_1fr] sm:px-6">
           <div>
             <div className="flex items-center gap-2">
-              <Logo site={site} />
+              <Logo />
               <span className="font-display text-xl">{conf.name}</span>
             </div>
             <p className="mt-4 max-w-xs opacity-75">{t.footer.about}</p>

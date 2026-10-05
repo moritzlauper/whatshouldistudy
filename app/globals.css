@@ -2,10 +2,8 @@
 
 /*
  * Loud, colourful, a bit chunky: cream paper, ink outlines, hard offset
- * shadows and sticker colours. Each country site has its own accent
- * (data-site on <html>): red for Switzerland, orange for Germany, raspberry
- * for Austria. Dark mode keeps the colours and turns the
- * shadows into glowing accent blocks.
+ * shadows and sticker colours. All four sites share the violet accent.
+ * Dark mode keeps the colours and turns the shadows into glowing accent blocks.
  */
 
 :root {
@@ -38,19 +36,6 @@
   color-scheme: light;
 }
 
-:root[data-site="ch"] {
-  --accent: #ff2b3a;
-  --accent-soft: #ffe2e4;
-}
-:root[data-site="de"] {
-  --accent: #e8590c;
-  --accent-soft: #ffe8d9;
-}
-:root[data-site="at"] {
-  --accent: #e0115f;
-  --accent-soft: #ffe0ec;
-}
-
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #130c28;
@@ -69,27 +54,6 @@
     --warn: #ffbf4d;
     --bad: #ff6b78;
     color-scheme: dark;
-  }
-  :root[data-site="ch"] {
-    --accent: #ff5562;
-    --accent-ink: #130c28;
-    --accent-soft: #48183a;
-    --shadow: #ff5562;
-    --hl: rgba(255, 85, 98, 0.4);
-  }
-  :root[data-site="de"] {
-    --accent: #ff8a3d;
-    --accent-ink: #130c28;
-    --accent-soft: #4a2418;
-    --shadow: #ff8a3d;
-    --hl: rgba(255, 138, 61, 0.4);
-  }
-  :root[data-site="at"] {
-    --accent: #ff4d8d;
-    --accent-ink: #130c28;
-    --accent-soft: #4a1838;
-    --shadow: #ff4d8d;
-    --hl: rgba(255, 77, 141, 0.4);
   }
 }
 

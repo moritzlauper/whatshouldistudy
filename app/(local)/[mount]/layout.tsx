@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ mount: st
     description: t.meta.description,
     applicationName: c.name,
     keywords: t.meta.keywords,
-    icons: { icon: withBase(`/icon-${site}.svg`) },
+    icons: { icon: withBase('/icon.svg') },
     openGraph: { type: 'website', siteName: c.name, title: t.meta.title, description: t.meta.description, url: siteUrl(site), locale: c.ogLocale },
     twitter: { card: 'summary_large_image', title: c.name, description: t.meta.description },
     alternates: { canonical: siteUrl(site) },
