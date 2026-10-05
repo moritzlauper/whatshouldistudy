@@ -100,6 +100,17 @@ Runs on other branches only upload the result as an artifact.
 
 Secrets for the workflow: `SCORECARD_API_KEY` (free at api.data.gov/signup,
 strongly recommended), optionally `OPENALEX_API_KEY` and `OPENALEX_EMAIL`.
+Repository variable `UK_DISCOVERUNI_URL`: the Discover Uni dataset .zip.
+
+State of the first live runs (October 2026):
+
+| Source | Result |
+| --- | --- |
+| France (Parcoursup cartographie) | 25,805 programmes read, ~22,300+ classified |
+| United States | with `DEMO_KEY` only ~1,000 of ~2,700 institutions (≈45,000 programmes) before the rate limit; complete with a free API key |
+| OpenAlex | 14,657 universities in 65 countries |
+| Directory | 10,268 universities in 200 countries |
+| United Kingdom | HESA's download page answers bots with a Cloudflare challenge, which we don't work around. Download the dataset once a year by hand (it is published annually), attach the .zip to a GitHub release and put its URL in `UK_DISCOVERUNI_URL`. |
 
 The scrapers read column names defensively and log the columns they find, so
 when a publisher renames something the run log shows it. `pnpm data:all` runs

@@ -46,6 +46,9 @@ export function frenchLevel(name: string): { level: Level; years?: number } | nu
   if (/^bts|brevet de technicien|^dts|^dma/.test(n)) return { level: 'short', years: 2 }
   if (/^cpge|classe préparatoire|classe preparatoire/.test(n)) return { level: 'short', years: 2 }
   if (/^dut|^deust/.test(n)) return { level: 'short', years: 2 }
+  if (/^[ée]tudes de sant[ée].*\bdts\b|\bdts\b/.test(n)) return { level: 'short', years: 3 }
+  if (/mise [àa] niveau|classe de mise/.test(n)) return { level: 'short', years: 1 }
+  if (/^formations d.architecture|dipl[oô]me d.[ée]tudes en architecture/.test(n)) return { level: 'bachelor', years: 3 }
   if (/^but|bachelor universitaire de technologie/.test(n)) return { level: 'bachelor', years: 3 }
   if (/^licence|^l\.as|^las\b|^pass|parcours d.acc[eè]s sp[ée]cifique sant[ée]|licence acc[eè]s sant[ée]/.test(n)) return { level: 'bachelor', years: 3 }
   if (/^dn made|diplôme national des métiers d.art|^dnmade/.test(n)) return { level: 'bachelor', years: 3 }
