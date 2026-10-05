@@ -106,6 +106,7 @@ export function ResultsView() {
                   <div className="text-3xl" aria-hidden="true">{emoji(m.id)}</div>
                   <div className="mt-2 text-xs font-bold uppercase tracking-wider text-muted">{groupLabel(f.group, locale)}</div>
                   <div className="mt-1 hyphens-auto break-words font-display text-xl">{fieldName(m.id, locale)}</div>
+                  <div className="mt-1 text-xs font-bold text-accent">{t.results.matchPct(m.score)}</div>
                   <p className="mt-2 text-sm text-muted">{why.map((x) => reasonText(x, k)).join(' ') || fieldBlurb(m.id, locale)}</p>
                 </Link>
               )
@@ -383,7 +384,7 @@ function FieldCard({ m, rank, stat, color }: { m: FieldMatch; rank: number; stat
     <article className="card card-pop flex flex-col overflow-hidden">
       <div className="on-color flex items-center justify-between border-b-2 border-line px-5 py-2.5" style={{ background: color }}>
         <span className="font-display text-xl">#{rank}</span>
-        <span className="rounded-full border-2 border-line bg-surface px-2.5 py-0.5 text-sm font-extrabold text-ink">{m.score}</span>
+        <span className="rounded-full border-2 border-line bg-surface px-2.5 py-0.5 text-sm font-extrabold text-ink">{t.results.matchPct(m.score)}</span>
       </div>
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-start gap-3">
@@ -437,8 +438,9 @@ function ScoreRing({ value }: { value: number }) {
       <circle cx={46} cy={46} r={rad + 7} fill="var(--lime)" stroke="var(--line)" strokeWidth={2.5} />
       <circle cx={46} cy={46} r={rad - 1} fill="var(--surface)" stroke="var(--line)" strokeWidth={2} />
       <circle cx={46} cy={46} r={rad + 3} fill="none" stroke="var(--accent)" strokeWidth={6} strokeLinecap="round" strokeDasharray={`${(c * value) / 100} ${c * 2}`} transform="rotate(-90 46 46)" />
-      <text x={46} y={47} textAnchor="middle" dominantBaseline="central" fontSize={26} fontWeight={800} fill="var(--ink)">
+      <text x={46} y={47} textAnchor="middle" dominantBaseline="central" fontSize={24} fontWeight={800} fill="var(--ink)">
         {value}
+        <tspan fontSize={13}>%</tspan>
       </text>
     </svg>
   )

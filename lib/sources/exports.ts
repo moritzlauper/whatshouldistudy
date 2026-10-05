@@ -73,6 +73,9 @@ interface Collected {
 
 const WATCH_PREFIX = /^(watched|vous avez regardé|has visto|hai guardato|assistiu a|bekeken|obejrzano|ha visto|se vio|visto)\s*:?\s+/i
 const WATCH_SUFFIX = /\s+(angesehen|angeschaut|bekeken)$/i
+/** Titles and channels of songs: official videos, lyrics, VEVO and auto-generated «Topic» channels. */
+const MUSIC_TITLE = /official (music |lyric )?(video|audio|visuali[sz]er)|\blyrics?\b|lyric video|music video|musikvideo|clip officiel|\(audio\)|\[audio\]|\bvisuali[sz]er\b|\b(ft|feat)\.\s|\bremix\b|\(live\)|\blive (at|from|in)\b|\bslowed\b|sped up|nightcore|8d audio|\(official\)|\bmv\b/i
+const MUSIC_CHANNEL = /vevo$|\s-\s(topic|thema|sujet|tema)$|\b(records|recordings)$/i
 const WANTED = /\.(json|html|csv|txt)$/i
 
 function channelIdFromUrl(url?: string): string | undefined {
@@ -149,7 +152,8 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
       cc.n++
       c.channelCounts.set(group, cc)
     }
-    const music = /music/i.test(a.header ?? '') || a.products?.some((p) => /music/i.test(p))
+    // Songs on plain YouTube are listening too, not an interest in studying music.
+    const music = /music/i.test(a.header ?? '') || a.products?.some((p) => /music/i.test(p)) || MUSIC_TITLE.test(title) || MUSIC_CHANNEL.test(channel)
     ;(music ? c.music : c.watch).push({
       kind: 'watch',
       text: `${title} \n ${channel}`,

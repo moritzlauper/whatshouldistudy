@@ -288,7 +288,7 @@
     "countries": 4
   },
   "education": {
-    "programmes": 20,
+    "programmes": 22,
     "countries": 2
   },
   "journalism": {
@@ -302,7 +302,7 @@
     "countries": 2
   },
   "history": {
-    "programmes": 19,
+    "programmes": 20,
     "countries": 6,
     "usMedianEarnings": 34017,
     "salaryPercentile": 0
