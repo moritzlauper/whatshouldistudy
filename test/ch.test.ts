@@ -90,3 +90,11 @@ test('the newest year is chosen by its label, BFS short codes are matched', asyn
   assert.equal(findChInstitution('Kal FH')?.id, 'kalaidos')
   assert.equal(findChInstitution('XY'), undefined)
 })
+
+test('only Bachelor and Master are requested; catch-all subjects get readable names', async () => {
+  const { pxQuery, chProgrammeName } = await import('../scrapers/ch-bfs.ts')
+  const q = pxQuery([{ code: 'S', text: 'Studienstufe', values: ['1', '2', '3', '4'], valueTexts: ['Lizenziat/Diplom', 'Bachelor', 'Master', 'Doktorat'] }])
+  assert.deepEqual(q.query[0].selection.values, ['2', '3'])
+  assert.equal(chProgrammeName('bachelor', 'Theologie übergreifend/übrige'), 'Bachelor Theologie (fächerübergreifend)')
+  assert.equal(findChInstitution('TH CHUR')?.id, 'fhgr')
+})

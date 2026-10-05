@@ -17,7 +17,7 @@ import { CH_ADMISSION, CH_INSTITUTIONS, findChInstitution } from '../lib/ch-inst
 import type { ChInstitution } from '../lib/ch-institutions.ts'
 import { programmeId } from '../lib/programmes.ts'
 import type { Level, Programme } from '../lib/programmes.ts'
-import { OUT, fieldsForTitle, getJson, isMain, log, writeJson } from './lib/common.ts'
+import { OUT, fieldsForTitle, getJson, isMain, log, sleep, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
 
 const CKAN = 'https://ckan.opendata.swiss/api/3/action'
@@ -88,6 +88,21 @@ const BFS_FIELDS: Record<string, string[]> = {
   'schul- und kirchenmusik': ['music', 'education'],
   'theaterschaffen in den darstellenden künsten': ['performing-arts'],
   'angewandte sprachen': ['languages', 'linguistics'],
+  'klassische sprachen europas': ['languages', 'literature'],
+  recht: ['law'],
+  'exakte wissenschaften übergreifend/übrige': ['mathematics', 'physics'],
+  'naturwissenschaften übergreifend/übrige': ['biology', 'environmental-science'],
+  'exakte und naturwissenschaften übergreifend/übrige': ['physics', 'biology'],
+  kommunikationssysteme: ['electrical-engineering', 'computer-engineering'],
+  'betriebs- und produktionswissenschaften': ['industrial-engineering', 'mechanical-engineering'],
+  'technische wissenschaften übergreifend/übrige': ['industrial-engineering', 'materials-science'],
+  militärwissenschaften: ['political-science'],
+}
+
+/** «Theologie übergreifend/übrige» reads badly as a programme name. */
+export function chProgrammeName(level: Level, field: string): string {
+  const name = field.replace(/\s*übergreifend\/übrige$/i, ' (fächerübergreifend)')
+  return `${level === 'bachelor' ? 'Bachelor' : 'Master'} ${name}`
 }
 
 const ARTS = new Set(['fine-arts', 'graphic-design', 'fashion-design', 'film-production', 'animation-vfx', 'music', 'music-production', 'performing-arts', 'game-design'])
@@ -156,7 +171,7 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
     const fee = institution.feeCh * 2
     programmes.push({
       id: programmeId(['ch', institution.id, field, level]),
-      name: `${level === 'bachelor' ? 'Bachelor' : 'Master'} ${field}`,
+      name: chProgrammeName(level, field),
       institution: institution.name,
       country: 'CH',
       city: institution.city,
@@ -210,7 +225,11 @@ export function pxQuery(vars: PxVariable[]) {
       // Codes are often just indexes ("0" … "45"); the newest year is the highest text.
       const latest = v.valueTexts.reduce((best, t, i) => (t > v.valueTexts[best] ? i : best), 0)
       query.push({ code: v.code, selection: { filter: 'item', values: [v.values[latest]] } })
-    } else if (/hochschule|fachrichtung|studienstufe|institution/i.test(name)) {
+    } else if (/studienstufe/i.test(name)) {
+      // Only Bachelor and Master: smaller answers, fewer rate limits.
+      const wanted = v.values.filter((_, i) => /bachelor|master/i.test(v.valueTexts[i]))
+      query.push({ code: v.code, selection: wanted.length ? { filter: 'item', values: wanted } : { filter: 'all', values: ['*'] } })
+    } else if (/hochschule|fachrichtung|institution/i.test(name)) {
       query.push({ code: v.code, selection: { filter: 'all', values: ['*'] } })
     } else {
       const total = v.valueTexts.findIndex((t) => /total|insgesamt/i.test(t))
@@ -250,7 +269,7 @@ async function tableIds(): Promise<string[]> {
     for (const p of found.values()) {
       const t = de(p.title)
       if (!/^studierende/i.test(t) || !/fachrichtung/i.test(t) || !/studienstufe/i.test(t) || !/hochschule$/i.test(t)) continue
-      if (/geschlecht|staatsangeh|bildungsherkunft|alter/i.test(t)) continue
+      if (/geschlecht|staatsangeh|bildungsherkunft|alter|ohne ph/i.test(t)) continue
       for (const r of p.resources) {
         const id = (r.url ?? '').match(/(px-x-\d+_\d+)/)?.[1]
         if (id) ids.add(id)
@@ -264,27 +283,46 @@ async function tableIds(): Promise<string[]> {
   return [...ids]
 }
 
+/** Retries a rate-limited call after longer and longer pauses. */
+async function patiently<T>(fn: () => Promise<T>): Promise<T> {
+  for (let round = 1; ; round++) {
+    try {
+      return await fn()
+    } catch (e) {
+      if (round >= 4 || !/429/.test((e as Error).message)) throw e
+      log(`CH: rate limited, waiting ${round} min`)
+      await sleep(round * 60_000)
+    }
+  }
+}
+
 async function main() {
   const fetchedAt = new Date().toISOString()
   const programmes: Programme[] = []
   const seen = new Set<string>()
   const unmatched = new Set<string>()
   const unclassified = new Set<string>()
-  for (const id of await tableIds()) {
+  const ids = await tableIds()
+  for (const [n, id] of ids.entries()) {
     const url = `${PXWEB}/${id}/${id}.px`
+    // PXWeb limits requests per address; give it room between tables.
+    if (n > 0) await sleep(20_000)
     try {
-      const meta = await getJson<{ title: string; variables: PxVariable[] }>(url)
+      const meta = await patiently(() => getJson<{ title: string; variables: PxVariable[] }>(url))
       log(`CH ${id}: ${meta.title}`)
       for (const v of meta.variables) {
         const all = /hochschule|institution/i.test(v.text) || v.values.length <= 8
         log(`CH ${id} variable ${v.code} «${v.text}»: ${v.values.length} values: ${(all ? v.valueTexts : v.valueTexts.slice(0, 6)).join(' | ')}`)
       }
       const body = pxQuery(meta.variables)
-      const res = await getJson<Parameters<typeof pxRows>[1]>(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
+      await sleep(3_000)
+      const res = await patiently(() =>
+        getJson<Parameters<typeof pxRows>[1]>(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      )
       const rows = pxRows(meta.variables, res)
       log(`CH ${id}: ${rows.length} rows; columns ${JSON.stringify(detectColumns(Object.keys(rows[0] ?? {})))}`)
       for (const r of rows.slice(0, 3)) log(`CH sample: ${JSON.stringify(r)}`)
