@@ -30,23 +30,53 @@ async function page(url: string) {
   }
 }
 
-async function main() {
-  const found = new Map<string, Pkg>()
-  for (const q of QUERIES) {
-    try {
-      const res = await getJson<{ result: { count: number; results: Pkg[] } }>(`${CKAN}/package_search?q=${encodeURIComponent(q)}&rows=30`)
-      log(`AT CKAN «${q}»: ${res.result.count} results`)
-      for (const p of res.result.results) found.set(p.name, p)
-    } catch (e) {
-      log(`AT CKAN «${q}» failed: ${(e as Error).message}`)
+async function search(url: string) {
+  try {
+    const j = (await getJson<{ result?: { count?: number; results?: Array<Record<string, unknown>> } }>(url)) ?? {}
+    const results = j.result?.results ?? []
+    log(`AT search ${url}: ${j.result?.count ?? '?'} results`)
+    for (const r of results.slice(0, 25)) {
+      const title = txt(r.title)
+      const dists = ((r.distributions as Array<Record<string, unknown>>) ?? []).map((d) => `${txt((d.format as Record<string, unknown>)?.id ?? d.format)}:${String(d.access_url ?? d.download_url ?? '').slice(0, 160)}`)
+      log(`AT ds: ${title} | ${txt((r.publisher as Record<string, unknown>)?.name)} | ${dists.join(' ').slice(0, 700)}`)
     }
+  } catch (e) {
+    log(`AT search ${url} failed: ${(e as Error).message}`)
   }
-  for (const p of found.values())
-    log(`AT dataset: ${p.name} | ${txt(p.title)} | ${p.organization?.title ?? ''} | ${(p.resources ?? []).map((r) => `${r.format}:${r.url}`).join(' ').slice(0, 600)}`)
-  for (const u of ['https://www.studienwahl.at/', 'https://www.studienwahl.at/studien', 'https://unidata.gv.at/', 'https://www.data.gv.at/'] ) await page(u)
-  throw new Error('Austria: exploration only')
 }
 
+async function main() {
+  for (const q of ['Studierende Universität Studium', 'Studienangebot', 'Fachhochschul-Studiengänge', 'Studierende Fachhochschulen', 'Pädagogische Hochschulen Studierende', 'unidata']) {
+    await search(`https://data.europa.eu/api/hub/search/search?q=${encodeURIComponent(q)}&filter=dataset&limit=25&facets=${encodeURIComponent(JSON.stringify({ country: ['at'] }))}`)
+    await search(`https://www.data.gv.at/api/hub/search/search?q=${encodeURIComponent(q)}&filter=dataset&limit=25`)
+  }
+  // studienwahl.at: how a result list and a programme page look.
+  for (const u of ['https://www.studienwahl.at/robots.txt', 'https://www.studienwahl.at/studien?page=2']) {
+    try {
+      const html = await (await fetchRetry(u, {}, 2)).text()
+      log(`AT ${u}: ${html.length} chars`)
+      const i = html.search(/class="[^"]*(result|studium|list-item|search-result)[^"]*"/i)
+      log(`AT ${u} around results: ${html.slice(Math.max(0, i - 200), i + 3500).replace(/\s+/g, ' ')}`)
+      const links = [...new Set(html.match(/href="\/studien?\/[^"]+"/g) ?? [])].slice(0, 20)
+      log(`AT ${u} links: ${links.join(' ')}`)
+      const pages = html.match(/page=(\d+)/g)?.slice(-3)
+      log(`AT ${u} paging: ${pages?.join(' ')}`)
+    } catch (e) {
+      log(`AT ${u} failed: ${(e as Error).message}`)
+    }
+  }
+  try {
+    const home = await (await fetchRetry('https://unidata.gv.at/', {}, 2)).text()
+    const js = home.match(/src="([^"]+main-[^"]+\.js)"/)?.[1]
+    if (js) {
+      const code = await (await fetchRetry(js, {}, 2)).text()
+      log(`AT unidata js ${code.length} chars; api: ${[...new Set(code.match(/["'`][^"'`]*\/api\/[^"'`]{0,80}["'`]/g) ?? [])].slice(0, 20).join(' | ')}`)
+    }
+  } catch (e) {
+    log(`AT unidata failed: ${(e as Error).message}`)
+  }
+  throw new Error('Austria: exploration only')
+}
 if (isMain(import.meta.url)) {
   main().catch((e) => {
     console.error(e)

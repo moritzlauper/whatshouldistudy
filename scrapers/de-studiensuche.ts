@@ -35,14 +35,28 @@ async function probe(path: string) {
 
 async function main() {
   for (const p of [
-    '/pc/v1/studienangebote?sw=Informatik',
-    '/pc/v1/studienangebote?sw=Informatik&pg=2',
-    '/pc/v1/studienangebote',
-    '/pc/v1/studienfelder',
-    '/pc/v1/studienfeldgruppen',
-    '/ed/v1/studienangebote?sw=Informatik',
+    '/pc/v1/studienangebote?sfa=2101',
+    '/pc/v1/studienangebote?sfa=93701',
+    '/pc/v1/studienangebote?sw=Informatik&size=100',
+    '/pc/v1/studienangebote?sw=Informatik&pg=1&anzahl=100',
+    '/pc/v1/studienangebote/10850096',
+    '/pc/v1/studienangebot/10850096',
+    '/pc/v1/studienangebote?sw=a',
   ])
     await probe(p)
+  // Full items: links, degrees, models.
+  try {
+    const res = await fetchRetry(`${API}/pc/v1/studienangebote?sw=Psychologie`, { headers: HEADERS }, 2)
+    const j = (await res.json()) as { items: Array<{ studienangebot: Record<string, unknown> }> }
+    for (const it of j.items.slice(0, 3)) {
+      const a = { ...it.studienangebot, studiInhalt: undefined, studienanbieter: { ...(it.studienangebot.studienanbieter as object), logo: undefined } }
+      log(`DE item: ${JSON.stringify(a).slice(0, 2500)}`)
+    }
+    const fields = await (await fetchRetry(`${API}/pc/v1/studienfelder`, { headers: HEADERS }, 2)).json()
+    log(`DE studienfelder: ${JSON.stringify(fields).slice(0, 7600)}`)
+  } catch (e) {
+    log(`DE items failed: ${(e as Error).message}`)
+  }
   throw new Error('Germany: exploration only')
 }
 
