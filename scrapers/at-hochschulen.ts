@@ -45,38 +45,31 @@ async function search(url: string) {
   }
 }
 
-async function main() {
-  for (const q of ['Studierende Universität Studium', 'Studienangebot', 'Fachhochschul-Studiengänge', 'Studierende Fachhochschulen', 'Pädagogische Hochschulen Studierende', 'unidata']) {
-    await search(`https://data.europa.eu/api/hub/search/search?q=${encodeURIComponent(q)}&filter=dataset&limit=25&facets=${encodeURIComponent(JSON.stringify({ country: ['at'] }))}`)
-    await search(`https://www.data.gv.at/api/hub/search/search?q=${encodeURIComponent(q)}&filter=dataset&limit=25`)
-  }
-  // studienwahl.at: how a result list and a programme page look.
-  for (const u of ['https://www.studienwahl.at/robots.txt', 'https://www.studienwahl.at/studien?page=2']) {
-    try {
-      const html = await (await fetchRetry(u, {}, 2)).text()
-      log(`AT ${u}: ${html.length} chars`)
-      const i = html.search(/class="[^"]*(result|studium|list-item|search-result)[^"]*"/i)
-      log(`AT ${u} around results: ${html.slice(Math.max(0, i - 200), i + 3500).replace(/\s+/g, ' ')}`)
-      const links = [...new Set(html.match(/href="\/studien?\/[^"]+"/g) ?? [])].slice(0, 20)
-      log(`AT ${u} links: ${links.join(' ')}`)
-      const pages = html.match(/page=(\d+)/g)?.slice(-3)
-      log(`AT ${u} paging: ${pages?.join(' ')}`)
-    } catch (e) {
-      log(`AT ${u} failed: ${(e as Error).message}`)
-    }
-  }
+async function head(url: string, lines = 6) {
   try {
-    const home = await (await fetchRetry('https://unidata.gv.at/', {}, 2)).text()
-    const js = home.match(/src="([^"]+main-[^"]+\.js)"/)?.[1]
-    if (js) {
-      const code = await (await fetchRetry(js, {}, 2)).text()
-      log(`AT unidata js ${code.length} chars; api: ${[...new Set(code.match(/["'`][^"'`]*\/api\/[^"'`]{0,80}["'`]/g) ?? [])].slice(0, 20).join(' | ')}`)
-    }
+    const raw = await (await fetchRetry(url, {}, 2)).arrayBuffer()
+    let text = new TextDecoder('utf-8').decode(raw)
+    if (text.includes('\uFFFD')) text = new TextDecoder('latin1').decode(raw)
+    const rows = text.split(/\r?\n/)
+    log(`AT ${url}: ${rows.length} lines`)
+    for (const r of rows.slice(0, lines)) log(`AT   ${r.slice(0, 600)}`)
   } catch (e) {
-    log(`AT unidata failed: ${(e as Error).message}`)
+    log(`AT ${url} failed: ${(e as Error).message.slice(0, 200)}`)
   }
+}
+
+async function main() {
+  const D = 'https://data.statistik.gv.at/data'
+  for (const id of ['OGD_ordstud_ext_ORD_STUDIEN_1', 'OGD_unistud1_ext_UNI_STUD1_1', 'OGD_fhsstud_ext_FHS_S_1', 'OGD_phsstud_ext_PHS_S_1', 'OGD_uptstud_ext_UPT_S_1']) {
+    await head(`${D}/${id}_HEADER.csv`, 40)
+    await head(`${D}/${id}.csv`, 6)
+  }
+  for (const c of ['OGD_ordstud_ext_ORD_STUDIEN_1_C-BER_ZEIT-0', 'OGD_fhsstud_ext_FHS_S_1_C-SEMESTER-0', 'OGD_unistud1_ext_UNI_STUD1_1_C-SEMESTER-0']) await head(`${D}/${c}.csv`, 8)
+  await head('https://unidata.gv.at/opendata/universitaeten/studierende', 8)
+  await head('https://extapp.noc-science.at/apex/shibb/api/v1/hochschulen', 3)
   throw new Error('Austria: exploration only')
 }
+
 if (isMain(import.meta.url)) {
   main().catch((e) => {
     console.error(e)

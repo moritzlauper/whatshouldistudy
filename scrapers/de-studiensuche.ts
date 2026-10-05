@@ -33,30 +33,62 @@ async function probe(path: string) {
   }
 }
 
-async function main() {
-  for (const p of [
-    '/pc/v1/studienangebote?sfa=2101',
-    '/pc/v1/studienangebote?sfa=93701',
-    '/pc/v1/studienangebote?sw=Informatik&size=100',
-    '/pc/v1/studienangebote?sw=Informatik&pg=1&anzahl=100',
-    '/pc/v1/studienangebote/10850096',
-    '/pc/v1/studienangebot/10850096',
-    '/pc/v1/studienangebote?sw=a',
-  ])
-    await probe(p)
-  // Full items: links, degrees, models.
+async function count(q: string) {
   try {
-    const res = await fetchRetry(`${API}/pc/v1/studienangebote?sw=Psychologie`, { headers: HEADERS }, 2)
-    const j = (await res.json()) as { items: Array<{ studienangebot: Record<string, unknown> }> }
-    for (const it of j.items.slice(0, 3)) {
-      const a = { ...it.studienangebot, studiInhalt: undefined, studienanbieter: { ...(it.studienangebot.studienanbieter as object), logo: undefined } }
-      log(`DE item: ${JSON.stringify(a).slice(0, 2500)}`)
-    }
-    const fields = await (await fetchRetry(`${API}/pc/v1/studienfelder`, { headers: HEADERS }, 2)).json()
-    log(`DE studienfelder: ${JSON.stringify(fields).slice(0, 7600)}`)
+    const res = await fetchRetry(`${API}/pc/v1/studienangebote?${q}`, { headers: HEADERS }, 2)
+    const j = (await res.json()) as { maxErgebnisse?: number; items?: Array<{ studienangebot: { studiBezeichnung: string } }> }
+    log(`DE count ${q}: ${j.maxErgebnisse} (${j.items?.[0]?.studienangebot.studiBezeichnung ?? '-'})`)
   } catch (e) {
-    log(`DE items failed: ${(e as Error).message}`)
+    log(`DE count ${q} failed: ${(e as Error).message.slice(0, 200)}`)
   }
+}
+
+async function main() {
+  for (const q of [
+    'sw=Informatik&sfa=93970',
+    'sfa=93701,93796',
+    'sfa=93701%7C93796',
+    'sfa=2101',
+    'studienfelder=2101',
+    'sf=93701',
+    'sfg=21',
+    'sw=Bachelor',
+    'sw=Master',
+    'sw=Studium',
+    'sw=*',
+    'sw=ab',
+    'sw=Wissenschaft',
+    'sw=Informatik&abg=bachelor',
+    'sw=Informatik&abg=2',
+    'sw=Informatik&hsa=108',
+    'sw=Informatik&re=BY',
+    'sw=Informatik&pg=31',
+  ])
+    await count(q)
+  // Degree and institution labels across a broad query.
+  const degrees = new Map<string, number>()
+  const kinds = new Map<string, number>()
+  let links = 0
+  for (let pg = 1; pg <= 15; pg++) {
+    try {
+      const res = await fetchRetry(`${API}/pc/v1/studienangebote?sw=Wirtschaft&pg=${pg}`, { headers: HEADERS }, 2)
+      const j = (await res.json()) as { items: Array<{ studienangebot: { abschlussgrad?: { label: string }; hochschulart?: { label: string }; externalLinks?: unknown[] } }> }
+      for (const it of j.items) {
+        const a = it.studienangebot
+        degrees.set(a.abschlussgrad?.label ?? '-', (degrees.get(a.abschlussgrad?.label ?? '-') ?? 0) + 1)
+        kinds.set(a.hochschulart?.label ?? '-', (kinds.get(a.hochschulart?.label ?? '-') ?? 0) + 1)
+        if (a.externalLinks?.length) {
+          links++
+          if (links < 4) log(`DE externalLinks: ${JSON.stringify(a.externalLinks).slice(0, 400)}`)
+        }
+      }
+    } catch (e) {
+      log(`DE page ${pg} failed: ${(e as Error).message.slice(0, 200)}`)
+    }
+  }
+  log(`DE degrees: ${JSON.stringify([...degrees])}`)
+  log(`DE kinds: ${JSON.stringify([...kinds])}`)
+  log(`DE items with links: ${links}`)
   throw new Error('Germany: exploration only')
 }
 
