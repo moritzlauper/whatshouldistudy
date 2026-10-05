@@ -303,6 +303,9 @@ export function PrivacyView({ site, base }: SiteProps) {
         <p>
           Die Nutzung und Weitergabe von Informationen aus Google-Schnittstellen hält sich an die <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, einschliesslich der Anforderungen zur eingeschränkten Nutzung (Limited Use). Wir verlangen nur den Lesezugriff <code>youtube.readonly</code>, um deine Abos, gelikten Videos, Playlists und Uploads zu lesen, und nutzen ihn nur, um dein Fächerprofil in deinem Browser zu berechnen. Die Daten gehen weder an uns noch an Dritte, werden nicht für Werbung genutzt und nicht zum Trainieren von KI-Modellen. Du kannst den Zugriff jederzeit unter <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a> widerrufen.
         </p>
+        <p>
+          Diese Seite nutzt die YouTube API Services. Wenn du YouTube verbindest, gelten zusätzlich die <a href="https://www.youtube.com/t/terms">Nutzungsbedingungen von YouTube</a> und die <a href="https://policies.google.com/privacy">Datenschutzerklärung von Google</a>.
+        </p>
 
         <h2>Cookies und Analyse</h2>
         <p>Wir setzen keine Tracking-Cookies und nutzen keine Analyse-Tools. Der Speicher im Browser dient nur den oben genannten Daten.</p>
@@ -343,6 +346,9 @@ export function PrivacyView({ site, base }: SiteProps) {
       <p>
         whatshouldistudy’s use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements. We request the read-only scope <code>youtube.readonly</code> to read your subscriptions, liked videos, playlists and uploads, and use it only to compute your field-of-study profile in your browser. The data is not transferred to us or to third parties, not used for advertising, and not used to train AI models. You can revoke access at any time at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.
       </p>
+      <p>
+        This site uses YouTube API Services. When you connect YouTube, the <a href="https://www.youtube.com/t/terms">YouTube Terms of Service</a> and the <a href="https://policies.google.com/privacy">Google Privacy Policy</a> also apply.
+      </p>
 
       <h2>Cookies and analytics</h2>
       <p>We set no tracking cookies. Browser storage is used only for the data described above.</p>
@@ -368,6 +374,10 @@ export function TermsView({ site, base }: SiteProps) {
         <h2>Der volle Report</h2>
         <p>
           Eine einmalige Zahlung schaltet den vollen Report frei, in dem Browser, in dem du bezahlt hast, für 12 Monate. Die wöchentlichen Aktualisierungen in dieser Zeit sind inbegriffen. Der Preis steht vor der Zahlung in deiner Währung. Klappt etwas nicht, melde dich innert 14 Tagen, dann gibt es das Geld zurück.
+        </p>
+        <h2>YouTube</h2>
+        <p>
+          Wenn du YouTube verbindest, akzeptierst du die <a href="https://www.youtube.com/t/terms">Nutzungsbedingungen von YouTube</a>. Was wir mit den Daten machen, steht in der Datenschutzerklärung.
         </p>
         <h2>Faire Nutzung</h2>
         <p>Die Schnittstelle für Studiengänge ist nicht zum automatischen Auslesen oder Weiterverkaufen gedacht. Die offenen Daten dahinter bleiben bei ihren Herausgebern unter deren Lizenzen frei verfügbar.</p>
@@ -401,11 +411,15 @@ export function TermsView({ site, base }: SiteProps) {
       <p>
         A one-time payment unlocks the full programme report in the browser you used to pay, for 12 months, including the weekly data updates during that time. If something doesn’t work, contact us within 14 days for a refund.
       </p>
+      <h2>YouTube</h2>
+      <p>
+        By connecting YouTube you agree to be bound by the <a href="https://www.youtube.com/t/terms">YouTube Terms of Service</a>. What we do with the data is described in the privacy policy.
+      </p>
       <h2>Fair use</h2>
       <p>Don’t scrape the programme API or resell its output. The underlying open data remains available from its original publishers under their licences.</p>
       <h2>Data sources</h2>
       <p>
-        Programme data: U.S. Department of Education College Scorecard (public domain), Discover Uni dataset (Office for Students, CC BY 4.0), Parcoursup open data (Licence Ouverte 2.0), Swiss Federal Statistical Office (BFS, open use with attribution), OpenAlex (CC0), University Domains List (MIT).
+        Programme data: U.S. Department of Education College Scorecard (public domain), Discover Uni dataset (Office for Students, CC BY 4.0), Parcoursup open data (Licence Ouverte 2.0), Swiss Federal Statistical Office (BFS, open use with attribution), Studiensuche of the German Federal Employment Agency, studienwahl.at (Austrian Federal Ministry of Science), OpenAlex (CC0), University Domains List (MIT).
       </p>
       <h2>Contact</h2>
       <p>
