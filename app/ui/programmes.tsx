@@ -176,6 +176,33 @@ function Locked({ teaser, config, results }: { teaser: Teaser | null; config: Co
   )
 }
 
+/** A URL that is just a homepage, not the programme's own page. */
+function isHomepage(url: string): boolean {
+  try {
+    return new URL(url).pathname.replace(/\/+$/, '') === ''
+  } catch {
+    return true
+  }
+}
+
+/**
+ * The programme's own page. Where the data only knows the institution (Swiss
+ * statistics, US Scorecard), DuckDuckGo's «\» search jumps straight to the
+ * first result on the institution's site, usually the programme page.
+ */
+function programmeLink(p: RankedProgramme): string {
+  if (p.url && p.url !== p.institutionUrl && !isHomepage(p.url)) return p.url
+  const home = p.institutionUrl ?? p.url
+  let site = ''
+  try {
+    if (home) site = ` site:${new URL(home).hostname.replace(/^www\./, '')}`
+  } catch {
+    site = ''
+  }
+  const query = `\\${p.name}${site || ` ${p.institution}`}`
+  return `https://duckduckgo.com/?q=${encodeURIComponent(query)}`
+}
+
 function ProgrammeRow({ p }: { p: RankedProgramme }) {
   const { t, locale, intl, site } = useSite()
   // Switzerland, Germany and Austria talk about fees per semester.
@@ -188,13 +215,9 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h4 className="font-bold leading-snug">
-            {p.url ? (
-              <a href={p.url} target="_blank" rel="noreferrer" className="hover:text-accent">
-                {p.name}
-              </a>
-            ) : (
-              p.name
-            )}
+            <a href={programmeLink(p)} target="_blank" rel="noreferrer" className="hover:text-accent" title={t.programmes.row.openPage}>
+              {p.name} <span className="text-xs text-muted" aria-hidden="true">↗</span>
+            </a>
             {p.isNew && <span className="on-color ml-2 rounded-full border-2 border-line bg-lime px-2 py-0.5 text-xs font-bold">{t.programmes.row.isNew}</span>}
           </h4>
           <div className="mt-0.5 text-sm text-muted">

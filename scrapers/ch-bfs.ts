@@ -211,7 +211,6 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
       },
       durationYears: level === 'bachelor' ? 3 : 2,
       mode: 'full-time',
-      url: institution.url,
       institutionUrl: institution.url,
       capacity: shared ? undefined : students,
       public: institution.type !== 'fh' || !['ffhs', 'kalaidos'].includes(institution.id),
