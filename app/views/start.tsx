@@ -14,6 +14,8 @@ import { fmtNumber } from '@/lib/site/labels.ts'
 import { Questionnaire } from '../ui/questionnaire.tsx'
 import { PrefsForm } from '../ui/prefs-form.tsx'
 import { useSite } from '../ui/site-context.tsx'
+import { GitHubMark } from '../ui/trust.tsx'
+import { SOURCE_URL } from '@/lib/site.ts'
 
 type Running = { source: string; message: string; count?: number } | null
 
@@ -85,6 +87,15 @@ export function StartView() {
         <span className="hl">{t.start.title}</span>
       </h1>
       <p className="mt-5 max-w-2xl text-lg text-muted">{t.start.lead}</p>
+      <div className="card-sm mt-6 flex max-w-3xl flex-col gap-3 bg-surface-2 p-5 sm:flex-row sm:items-center">
+        <span className="text-3xl" aria-hidden="true">🔒</span>
+        <p className="flex-1 text-sm">
+          <strong>{t.trust.nothingStored}.</strong> {t.trust.startNote}{' '}
+          <a href={SOURCE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-bold text-accent underline">
+            <GitHubMark size={14} /> {t.trust.viewCode}
+          </a>
+        </p>
+      </div>
 
       <section id={r.anchors.sources} className="mt-14 scroll-mt-24">
         <StepTitle n={1} color="var(--pink)" title={t.start.step1} sub={t.start.step1sub} />

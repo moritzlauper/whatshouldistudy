@@ -21,6 +21,12 @@ The field results are free. The full programme list (every matching programme
 with the fee for the student's citizenship, earnings, admission rates, filters,
 CSV) is a one-time payment.
 
+**Open source, nothing stored.** The code is public under the MIT licence
+(`LICENSE`), and the site says so on the landing page, the start page, in the
+footer and in the privacy policy, with a link here
+(`NEXT_PUBLIC_SOURCE_URL`, default this folder on GitHub). There is no
+database and no account; keep it that way.
+
 **Privacy model:** the analysis runs entirely in the browser. OAuth tokens stay
 in the tab, exports are unpacked on the device, raw history is discarded after
 analysis. The server only ever receives field ids, scores and filters.

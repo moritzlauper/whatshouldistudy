@@ -53,7 +53,7 @@ const en = {
     privacyTitle: 'Your data stays yours.',
     privacyBody:
       'The analysis runs in your browser. Sign-ins are read-only and their tokens never touch our server. Exports are unpacked on your device. What’s kept is a summary, in your browser, deleted with one click. To find programmes we only send your top fields and filters.',
-    privacyPoints: ['No account, no email, no tracking cookies', 'Read-only access you can revoke anytime', 'Raw history is thrown away after the analysis', 'Every step of the model is documented'],
+    privacyPoints: ['We store nothing: no database, no account, no email', 'No tracking cookies', 'Read-only access you can revoke anytime', 'Raw history is thrown away after the analysis', 'Every step of the model is documented'],
     priceTitle: 'Free result. Full report when you’re ready.',
     free: 'Free',
     freeList: ['Your fields from place 2 down, with the evidence behind each', 'Hidden matches you’d never have checked', 'Interest profile (RIASEC) and Big Five', 'How your interests moved over the years', 'How many programmes match, and where'],
@@ -331,6 +331,14 @@ const en = {
     whereLocal: (f: string) => `Where to study ${f}`,
     whereLocalSub: 'Universities that teach this field, from official statistics.',
   },
+  trust: {
+    openSource: 'Open source',
+    nothingStored: 'We store nothing',
+    viewCode: 'See the code on GitHub',
+    startNote: 'Your data is read here in your browser and none of it reaches us. To look up programmes we only send the names of your fields, and we don’t keep those either. The site is open source, so anyone can check.',
+    point: 'Open source: every line of code is public',
+    footer: 'Open source (MIT) on GitHub',
+  },
   sourceNames: {
     youtube: 'YouTube', takeout: 'Google Takeout', spotify: 'Spotify', 'spotify-export': 'Spotify export', instagram: 'Instagram', tiktok: 'TikTok', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Questionnaire',
   } as Record<string, string>,
@@ -482,7 +490,7 @@ const deCH: Dict = {
     privacyTitle: 'Deine Daten bleiben deine.',
     privacyBody:
       'Die Analyse läuft in deinem Browser. Anmeldungen sind nur lesend, die Schlüssel landen nie auf unserem Server. Exporte werden auf deinem Gerät entpackt. Übrig bleibt eine Zusammenfassung in deinem Browser, mit einem Klick gelöscht. Für die Studiengänge schicken wir nur deine Top-Fächer und Filter.',
-    privacyPoints: ['Kein Konto, keine E-Mail, keine Tracking-Cookies', 'Nur Lesezugriff, jederzeit widerrufbar', 'Der Rohverlauf wird nach der Analyse verworfen', 'Jeder Schritt des Modells ist offengelegt'],
+    privacyPoints: ['Wir speichern nichts: keine Datenbank, kein Konto, keine E-Mail', 'Keine Tracking-Cookies', 'Nur Lesezugriff, jederzeit widerrufbar', 'Der Rohverlauf wird nach der Analyse verworfen', 'Jeder Schritt des Modells ist offengelegt'],
     priceTitle: 'Resultat gratis. Den vollen Report, wenn du so weit bist.',
     free: 'Gratis',
     freeList: ['Deine Fächer ab Platz 2, mit den Belegen dazu', 'Versteckte Treffer, an die du nie gedacht hättest', 'Interessenprofil (RIASEC) und Big Five', 'Wie sich deine Interessen über die Jahre verschoben haben', 'Wie viele Studiengänge passen, und wo'],
@@ -799,6 +807,14 @@ const deCH: Dict = {
     metaTitle: (f: string) => `${f} studieren: passt das zu mir?`,
     whereLocal: (f: string) => `Wo du ${f} in der Schweiz studieren kannst`,
     whereLocalSub: 'Hochschulen mit Bachelor- oder Master-Studierenden in diesem Fach, laut Bundesamt für Statistik.',
+  },
+  trust: {
+    openSource: 'Open Source',
+    nothingStored: 'Wir speichern nichts',
+    viewCode: 'Code auf GitHub ansehen',
+    startNote: 'Deine Daten werden hier in deinem Browser gelesen, nichts davon kommt bei uns an. Für die Suche nach Studiengängen schicken wir nur die Namen deiner Fächer, und auch die behalten wir nicht. Die Seite ist Open Source, jede:r kann das nachprüfen.',
+    point: 'Open Source: jede Zeile Code ist öffentlich',
+    footer: 'Open Source (MIT) auf GitHub',
   },
   sourceNames: {
     youtube: 'YouTube', takeout: 'Google Takeout', spotify: 'Spotify', 'spotify-export': 'Spotify-Export', instagram: 'Instagram', tiktok: 'TikTok', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Fragebogen',

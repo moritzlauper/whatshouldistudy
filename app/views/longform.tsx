@@ -5,7 +5,7 @@ import { regionalize } from '@/lib/site/regional.ts'
 import type { Locale } from '@/lib/site/config.ts'
 import { getMeta } from '@/lib/server/data.ts'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
-import { CONTACT } from '@/lib/site.ts'
+import { CONTACT, SOURCE_URL } from '@/lib/site.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { Kit } from '@/lib/site/kit.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
@@ -277,10 +277,20 @@ export function PrivacyView({ site, base }: SiteProps) {
   const k = kit(site, base)
   if (k.locale !== 'en') {
     return rz(
-      <Page title="Datenschutz" lead="Kurz: Dein Verlauf kommt nie bei uns an. Die Analyse läuft in deinem Browser, und was sie behält, bleibt dort.">
+      <Page title="Datenschutz" lead="Kurz: Wir speichern nichts. Dein Verlauf kommt nie bei uns an, die Analyse läuft in deinem Browser, und was sie behält, bleibt dort. Der ganze Code ist Open Source.">
         <h2>Wer verantwortlich ist</h2>
         <p>
           {OPERATOR ? `${OPERATOR}. ` : ''}Erreichbar unter <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. {k.site === 'ch' ? 'Massgebend ist das Schweizer Datenschutzgesetz (DSG). Für Nutzer:innen aus der EU gilt zusätzlich die DSGVO.' : 'Massgebend ist die Datenschutz-Grundverordnung (DSGVO), dazu das Schweizer Datenschutzgesetz (DSG).'}
+        </p>
+
+        <h2>Was wir speichern: nichts</h2>
+        <p>
+          Bei uns gibt es keine Datenbank, kein Konto und keine Kopie deiner Daten. Was die Analyse behält, eine Zusammenfassung, liegt nur im Speicher deines Browsers. Ein Klick auf «Alle meine Daten löschen» entfernt es. Zwei Dinge liegen nicht bei uns: Der Hoster Vercel führt kurz technische Protokolle, und wenn du bezahlst, speichert Stripe die Zahlung.
+        </p>
+
+        <h2>Open Source</h2>
+        <p>
+          Der ganze Code dieser Seite ist öffentlich, unter der MIT-Lizenz: <a href={SOURCE_URL}>{SOURCE_URL.replace(/^https:\/\//, '')}</a>. Dort kannst du nachlesen, welche Daten wohin gehen, und es selbst prüfen.
         </p>
 
         <h2>Was mit deinen Daten passiert</h2>
@@ -325,7 +335,17 @@ export function PrivacyView({ site, base }: SiteProps) {
     )
   }
   return (
-    <Page title="Privacy" lead="Short version: your history never reaches us. The analysis runs in your browser, and what it keeps stays there.">
+    <Page title="Privacy" lead="Short version: we store nothing. Your history never reaches us, the analysis runs in your browser, and what it keeps stays there. All of the code is open source.">
+      <h2>What we store: nothing</h2>
+      <p>
+        There is no database, no account and no copy of your data on our side. What the analysis keeps, a summary, lives only in your browser’s storage, and «Delete all my data» removes it. Two things are outside our hands: our host Vercel keeps short-lived technical logs, and if you pay, Stripe stores the payment.
+      </p>
+
+      <h2>Open source</h2>
+      <p>
+        All of this site’s code is public under the MIT licence: <a href={SOURCE_URL}>{SOURCE_URL.replace(/^https:\/\//, '')}</a>. You can read exactly which data goes where and check it yourself.
+      </p>
+
       <h2>What happens to your data</h2>
       <ul>
         <li>

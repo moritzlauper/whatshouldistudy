@@ -13,6 +13,8 @@ import { Hexagon } from '../ui/hexagon.tsx'
 import { Marquee } from '../ui/marquee.tsx'
 import { Price } from '../ui/price.tsx'
 import { Blob, Burst, Pill, Ring, Sparkle, Squiggle } from '../ui/shapes.tsx'
+import { GitHubMark, TrustStickers } from '../ui/trust.tsx'
+import { SOURCE_URL } from '@/lib/site.ts'
 
 const SOURCE_GLYPH = ['▶', '📦', '🎧', '📸', '👽', '🐙', '✍️']
 
@@ -36,9 +38,12 @@ export async function Landing({ site, base }: SiteProps) {
         <Sparkle className="float-slow absolute left-[46%] top-8 hidden lg:block" size={44} color="var(--pink)" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pb-20 pt-12 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:pt-20">
           <div>
-            <p className="sticker" style={{ background: 'var(--lime)' }}>
-              <span aria-hidden="true">✦</span> {t.landing.badge}
-            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="sticker" style={{ background: 'var(--lime)' }}>
+                <span aria-hidden="true">✦</span> {t.landing.badge}
+              </p>
+              <TrustStickers stored={t.trust.nothingStored} openSource={t.trust.openSource} />
+            </div>
             <h1 className="mt-7 font-display text-[2.7rem] sm:text-6xl lg:text-7xl">
               <span className="block text-accent">{t.landing.h1a}</span>
               {t.landing.h1b} <span className="hl">{t.landing.h1c}</span> {t.landing.h1d}
@@ -133,6 +138,14 @@ export async function Landing({ site, base }: SiteProps) {
                   {x}
                 </li>
               ))}
+              <li>
+                <a href={SOURCE_URL} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-2xl border-2 border-bg/25 bg-bg/5 px-5 py-4 font-semibold hover:border-bg">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-bg/40 bg-bg text-ink">
+                    <GitHubMark />
+                  </span>
+                  {t.trust.point} · <span className="underline">{t.trust.viewCode} ↗</span>
+                </a>
+              </li>
             </ul>
           </div>
         </div>

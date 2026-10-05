@@ -5,6 +5,8 @@ import type { SiteId, SiteProps } from '@/lib/site/config.ts'
 import { Logo, Wordmark } from './logo.tsx'
 import { SiteProvider } from './site-context.tsx'
 import { SiteFlag, Sparkle } from './shapes.tsx'
+import { GitHubMark } from './trust.tsx'
+import { SOURCE_URL } from '@/lib/site.ts'
 
 const ALL: SiteId[] = ['global', 'ch', 'de', 'at']
 
@@ -26,7 +28,7 @@ export function Shell({ site, base, children }: SiteProps & { children: React.Re
             <Link href={r.how} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 sm:inline-block">
               {t.nav.how}
             </Link>
-            <Link href={r.fields} className="rounded-full px-3 py-2 hover:bg-surface-2">
+            <Link href={r.fields} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 sm:inline-block">
               {t.nav.fields}
             </Link>
             <Link href={r.start} className="btn btn-primary btn-sm ml-1">
@@ -64,6 +66,10 @@ export function Shell({ site, base, children }: SiteProps & { children: React.Re
             <Link href={r.privacy} className="opacity-80 hover:opacity-100">{t.footer.privacy}</Link>
             <Link href={r.terms} className="opacity-80 hover:opacity-100">{t.footer.terms}</Link>
             <Link href={r.imprint} className="opacity-80 hover:opacity-100">{t.footer.imprint}</Link>
+            <a href={SOURCE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-semibold opacity-90 hover:opacity-100">
+              <GitHubMark /> {t.trust.footer}
+            </a>
+            <span className="font-semibold">🔒 {t.trust.nothingStored}.</span>
             <span className="opacity-60">{t.footer.local}</span>
           </div>
         </div>
