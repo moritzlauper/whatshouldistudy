@@ -29,8 +29,14 @@ export function isConfigured(p: Provider): boolean {
   return !!CLIENT_IDS[p]
 }
 
+/**
+ * Each site gets its own callback: /callback/x on the global site and on the
+ * Swiss domain, /schweiz/callback/x under the global domain. All three must be
+ * registered with the provider.
+ */
 export function redirectUri(p: Provider): string {
-  return `${window.location.origin}/callback/${p}`
+  const base = /^\/schweiz(\/|$)/.test(window.location.pathname) ? '/schweiz' : ''
+  return `${window.location.origin}${base}/callback/${p}`
 }
 
 function randomString(bytes = 32): string {

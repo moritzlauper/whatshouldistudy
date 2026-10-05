@@ -12,8 +12,8 @@
     "salaryPercentile": 0.8
   },
   "computer-science": {
-    "programmes": 25,
-    "countries": 3,
+    "programmes": 40,
+    "countries": 4,
     "usMedianEarnings": 91517,
     "salaryPercentile": 1
   },
@@ -26,8 +26,8 @@
     "countries": 0
   },
   "information-systems": {
-    "programmes": 0,
-    "countries": 0
+    "programmes": 7,
+    "countries": 1
   },
   "computer-engineering": {
     "programmes": 10,
@@ -36,8 +36,8 @@
     "salaryPercentile": 0.69
   },
   "physics": {
-    "programmes": 28,
-    "countries": 3,
+    "programmes": 36,
+    "countries": 4,
     "usMedianEarnings": 54048.5,
     "salaryPercentile": 0.4
   },
@@ -54,8 +54,8 @@
     "salaryPercentile": 0.51
   },
   "biology": {
-    "programmes": 18,
-    "countries": 3,
+    "programmes": 24,
+    "countries": 4,
     "usMedianEarnings": 40645,
     "salaryPercentile": 0.29
   },
@@ -98,14 +98,14 @@
     "countries": 1
   },
   "mechanical-engineering": {
-    "programmes": 19,
-    "countries": 3,
+    "programmes": 23,
+    "countries": 4,
     "usMedianEarnings": 78883,
     "salaryPercentile": 0.83
   },
   "electrical-engineering": {
-    "programmes": 17,
-    "countries": 3,
+    "programmes": 21,
+    "countries": 4,
     "usMedianEarnings": 74611,
     "salaryPercentile": 0.71
   },
@@ -156,8 +156,8 @@
     "salaryPercentile": 0.91
   },
   "architecture": {
-    "programmes": 13,
-    "countries": 2,
+    "programmes": 21,
+    "countries": 3,
     "usMedianEarnings": 53891,
     "salaryPercentile": 0.37
   },
@@ -168,8 +168,8 @@
     "salaryPercentile": 0.46
   },
   "industrial-design": {
-    "programmes": 0,
-    "countries": 0
+    "programmes": 4,
+    "countries": 1
   },
   "game-design": {
     "programmes": 0,
@@ -180,12 +180,12 @@
     "countries": 0
   },
   "medicine": {
-    "programmes": 7,
-    "countries": 3
+    "programmes": 13,
+    "countries": 4
   },
   "nursing": {
-    "programmes": 12,
-    "countries": 3,
+    "programmes": 18,
+    "countries": 4,
     "usMedianEarnings": 69821,
     "salaryPercentile": 0.66
   },
@@ -220,20 +220,20 @@
     "countries": 0
   },
   "psychology": {
-    "programmes": 23,
-    "countries": 3,
+    "programmes": 27,
+    "countries": 4,
     "usMedianEarnings": 34836,
     "salaryPercentile": 0.06
   },
   "economics": {
-    "programmes": 26,
-    "countries": 3,
+    "programmes": 32,
+    "countries": 4,
     "usMedianEarnings": 57424.5,
     "salaryPercentile": 0.54
   },
   "business-management": {
-    "programmes": 19,
-    "countries": 2,
+    "programmes": 26,
+    "countries": 3,
     "usMedianEarnings": 62757.5,
     "salaryPercentile": 0.63
   },
@@ -284,12 +284,12 @@
     "countries": 1
   },
   "social-work": {
-    "programmes": 1,
-    "countries": 1
+    "programmes": 9,
+    "countries": 2
   },
   "education": {
-    "programmes": 0,
-    "countries": 0
+    "programmes": 11,
+    "countries": 1
   },
   "journalism": {
     "programmes": 9,
@@ -302,8 +302,8 @@
     "countries": 0
   },
   "history": {
-    "programmes": 12,
-    "countries": 3,
+    "programmes": 16,
+    "countries": 4,
     "usMedianEarnings": 34017,
     "salaryPercentile": 0
   },
@@ -348,16 +348,16 @@
     "salaryPercentile": 0.11
   },
   "graphic-design": {
-    "programmes": 1,
-    "countries": 1
+    "programmes": 5,
+    "countries": 2
   },
   "fashion-design": {
     "programmes": 0,
     "countries": 0
   },
   "film-production": {
-    "programmes": 7,
-    "countries": 2,
+    "programmes": 11,
+    "countries": 3,
     "usMedianEarnings": 35639,
     "salaryPercentile": 0.09
   },
@@ -366,8 +366,8 @@
     "countries": 0
   },
   "music": {
-    "programmes": 14,
-    "countries": 3,
+    "programmes": 19,
+    "countries": 4,
     "usMedianEarnings": 34306,
     "salaryPercentile": 0.03
   },

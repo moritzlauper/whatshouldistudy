@@ -38,6 +38,18 @@
       "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
+      "id": "ch-bfs",
+      "name": "Studierende nach Hochschule und Fachrichtung (Bundesamt für Statistik)",
+      "countries": [
+        "CH"
+      ],
+      "url": "https://opendata.swiss/de/organization/bundesamt-fur-statistik-bfs",
+      "licence": "Open use, Quelle: BFS",
+      "ok": true,
+      "count": 117,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
       "id": "global-openalex",
       "name": "OpenAlex institution research profiles",
       "countries": [
@@ -88,17 +100,21 @@
       "US": 18
     },
     "computer-science": {
+      "CH": 15,
       "FR": 4,
       "GB": 3,
       "US": 18
     },
     "artificial-intelligence": {},
     "cybersecurity": {},
-    "information-systems": {},
+    "information-systems": {
+      "CH": 7
+    },
     "computer-engineering": {
       "US": 10
     },
     "physics": {
+      "CH": 8,
       "FR": 3,
       "GB": 1,
       "US": 24
@@ -113,6 +129,7 @@
       "US": 24
     },
     "biology": {
+      "CH": 6,
       "FR": 3,
       "GB": 1,
       "US": 14
@@ -144,11 +161,13 @@
       "FR": 1
     },
     "mechanical-engineering": {
+      "CH": 4,
       "FR": 4,
       "GB": 1,
       "US": 14
     },
     "electrical-engineering": {
+      "CH": 4,
       "FR": 2,
       "GB": 1,
       "US": 14
@@ -178,21 +197,26 @@
       "US": 6
     },
     "architecture": {
+      "CH": 8,
       "GB": 1,
       "US": 12
     },
     "urban-planning": {
       "US": 10
     },
-    "industrial-design": {},
+    "industrial-design": {
+      "CH": 4
+    },
     "game-design": {},
     "ux-design": {},
     "medicine": {
+      "CH": 6,
       "FR": 1,
       "GB": 3,
       "US": 3
     },
     "nursing": {
+      "CH": 6,
       "FR": 1,
       "GB": 1,
       "US": 10
@@ -213,16 +237,19 @@
     },
     "public-health": {},
     "psychology": {
+      "CH": 4,
       "FR": 1,
       "GB": 1,
       "US": 21
     },
     "economics": {
+      "CH": 6,
       "FR": 1,
       "GB": 1,
       "US": 24
     },
     "business-management": {
+      "CH": 7,
       "FR": 3,
       "US": 16
     },
@@ -259,15 +286,19 @@
       "GB": 1
     },
     "social-work": {
+      "CH": 8,
       "GB": 1
     },
-    "education": {},
+    "education": {
+      "CH": 11
+    },
     "journalism": {
       "GB": 1,
       "US": 8
     },
     "media-communication": {},
     "history": {
+      "CH": 4,
       "FR": 1,
       "GB": 1,
       "US": 10
@@ -297,15 +328,18 @@
       "US": 10
     },
     "graphic-design": {
+      "CH": 4,
       "GB": 1
     },
     "fashion-design": {},
     "film-production": {
+      "CH": 4,
       "GB": 1,
       "US": 6
     },
     "animation-vfx": {},
     "music": {
+      "CH": 5,
       "FR": 1,
       "GB": 1,
       "US": 12
@@ -319,9 +353,9 @@
     "aviation": {}
   },
   "totals": {
-    "programmes": 555,
-    "countries": 3,
-    "institutions": 26,
+    "programmes": 672,
+    "countries": 4,
+    "institutions": 40,
     "newLast90Days": 0
   },
   "unclassified": 0

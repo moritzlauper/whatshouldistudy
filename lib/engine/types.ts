@@ -1,4 +1,4 @@
-import type { Big5, Big5Key, Riasec, SubjectKey, ValueKey } from '../taxonomy/fields.ts'
+import type { Big5, Big5Key, Riasec, RiasecKey, SubjectKey, ValueKey } from '../taxonomy/fields.ts'
 
 export type SourceId =
   | 'youtube'
@@ -102,18 +102,26 @@ export interface FieldMatch {
   components: Partial<Record<'interest' | 'riasec' | 'personality' | 'subjects' | 'values', number>>
   /** Interest strength before squashing (log-lift, shrunk); for debugging and ranking. */
   interest?: number
-  reasons: string[]
+  reasons: Reason[]
   evidence: Array<{ label: string; kind: string; source: SourceId; url?: string }>
   terms: string[]
   persistence?: number
   sources: SourceId[]
 }
 
+/** Why a field matches; rendered per language by the site. */
+export type Reason =
+  | { k: 'interest'; items: number; months: number }
+  | { k: 'riasec'; types: RiasecKey[] }
+  | { k: 'subjects'; subjects: SubjectKey[] }
+  | { k: 'subjectsLow'; subjects: SubjectKey[] }
+  | { k: 'values'; values: ValueKey[] }
+  | { k: 'personality'; trait: Big5Key; high: boolean }
+  | { k: 'hidden' }
+
 export interface Insight {
-  id: string
-  title: string
-  value: string
-  detail: string
+  id: 'datapoints' | 'learning' | 'breadth' | 'consistency' | 'rhythm' | 'maker'
+  data: Record<string, number | string | boolean>
 }
 
 export interface Results {

@@ -55,9 +55,9 @@ export function bearer(req: Request): string | null {
   return h.startsWith('Bearer ') ? h.slice(7) : null
 }
 
-export const PRICE = {
-  cents: Number(process.env.WSIS_PRICE_CENTS ?? 900),
-  currency: (process.env.WSIS_CURRENCY ?? 'eur').toLowerCase(),
+/** Visitor's country from Vercel's edge (absent locally). */
+export function visitorCountry(req: Request): string | null {
+  return req.headers.get('x-vercel-ip-country') ?? req.headers.get('cf-ipcountry')
 }
 
 /** Payments are optional in development; in production they need Stripe, or an explicit free mode. */

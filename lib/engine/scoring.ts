@@ -1,18 +1,8 @@
-import {
-  BIG5_KEYS,
-  BIG5_LABELS,
-  FIELDS,
-  RIASEC_KEYS,
-  RIASEC_LABELS,
-  SUBJECT_KEYS,
-  SUBJECT_LABELS,
-  VALUE_KEYS,
-  VALUE_LABELS,
-} from '../taxonomy/fields.ts'
-import type { Big5, Field, Riasec } from '../taxonomy/fields.ts'
+import { BIG5_KEYS, FIELDS, SUBJECT_KEYS, VALUE_KEYS } from '../taxonomy/fields.ts'
+import type { Big5, Field, Riasec, RiasecKey, SubjectKey } from '../taxonomy/fields.ts'
 import { musicBig5 } from './music.ts'
 import { riasecCode, scoreBig5, scoreRiasec } from './questionnaire.ts'
-import type { FieldMatch, Insight, QuestionnaireAnswers, Results, SourceId, SourceSummary } from './types.ts'
+import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, SourceId, SourceSummary } from './types.ts'
 
 /**
  * The matching model. Five components per field, each in 0..1:
@@ -205,7 +195,7 @@ export function score(input: ScoreInput): Results {
   const matches: FieldMatch[] = FIELDS.map((f) => {
     const comp: FieldMatch['components'] = {}
     const w: Record<string, number> = {}
-    const reasons: string[] = []
+    const reasons: Reason[] = []
     const it = interest.get(f.id)
 
     if (footprintConf > 0 && it) {
@@ -278,43 +268,33 @@ export function score(input: ScoreInput): Results {
       for (const [t, n] of Object.entries(ev.terms)) terms.set(t, (terms.get(t) ?? 0) + n)
     }
     if (comp.interest !== undefined && comp.interest > 0.55 && items > 0) {
-      reasons.push(
-        months.size > 1
-          ? `${items} things you watched, followed or saved are about this, spread over ${months.size} months.`
-          : `${items} things you watched, followed or saved are about this.`,
-      )
+      reasons.push({ k: 'interest', items, months: months.size })
     }
     if (comp.riasec !== undefined && comp.riasec > 0.75 && riasec) {
       const code = riasecCode(riasec)
       const fieldCode = riasecCode(f.riasec)
       const shared = [...code].filter((c) => fieldCode.includes(c))
-      if (shared.length) {
-        reasons.push(
-          `Fits your ${joinList(shared.map((c) => RIASEC_LABELS[c as keyof typeof RIASEC_LABELS].name))} side.`,
-        )
-      }
+      if (shared.length) reasons.push({ k: 'riasec', types: shared as RiasecKey[] })
     }
     if (comp.subjects !== undefined && comp.subjects > 0.62) {
       const liked = Object.entries(f.subjects)
         .filter(([k, d]) => (d ?? 0) >= 0.6 && (subj[k] ?? 0) > 0.3)
-        .map(([k]) => SUBJECT_LABELS[k as keyof typeof SUBJECT_LABELS])
-      if (liked.length) reasons.push(`Builds on ${joinList(liked)}, which you enjoy.`)
+        .map(([k]) => k as SubjectKey)
+      if (liked.length) reasons.push({ k: 'subjects', subjects: liked })
     }
     if (comp.subjects !== undefined && comp.subjects < 0.4) {
       const disliked = Object.entries(f.subjects)
         .filter(([k, d]) => (d ?? 0) >= 0.7 && (subj[k] ?? 0) < -0.3)
-        .map(([k]) => SUBJECT_LABELS[k as keyof typeof SUBJECT_LABELS])
-      if (disliked.length) reasons.push(`Leans heavily on ${joinList(disliked)}, which you don't enjoy much.`)
+        .map(([k]) => k as SubjectKey)
+      if (disliked.length) reasons.push({ k: 'subjectsLow', subjects: disliked })
     }
     if (comp.values !== undefined && comp.values > 0.7) {
-      const offered = VALUE_KEYS.filter((k) => (valueWeights[k] ?? 0) >= 0.75 && f.values[k] >= 0.75).map(
-        (k) => VALUE_LABELS[k].toLowerCase(),
-      )
-      if (offered.length) reasons.push(`Offers ${joinList(offered)}, which matter to you.`)
+      const offered = VALUE_KEYS.filter((k) => (valueWeights[k] ?? 0) >= 0.75 && f.values[k] >= 0.75)
+      if (offered.length) reasons.push({ k: 'values', values: offered })
     }
     if (comp.personality !== undefined && comp.personality > 0.62 && big5) {
       const k = BIG5_KEYS.filter((k) => (f.big5[k] ?? 0) * (big5![k] ?? 0) > 0.15)[0]
-      if (k) reasons.push(`Suits your ${big5[k] > 0 ? 'high' : 'low'} ${BIG5_LABELS[k].name.toLowerCase()}.`)
+      if (k) reasons.push({ k: 'personality', trait: k, high: big5[k] > 0 })
     }
 
     evidence.sort((a, b) => b.w - a.w)
@@ -355,7 +335,7 @@ export function score(input: ScoreInput): Results {
     .filter((x) => x.fit > 0.6)
     .sort((a, b) => b.fit - a.fit)
     .slice(0, 4)
-    .map((x) => ({ ...x.m, reasons: ['You rarely watch or read about this, but your profile fits it.', ...x.m.reasons] }))
+    .map((x) => ({ ...x.m, reasons: [{ k: 'hidden' } as Reason, ...x.m.reasons] }))
 
   const dataPoints = summaries.reduce((s, x) => s + x.dataPoints, 0)
   const answeredQ = !!(qRiasec || qBig5 || hasSubjects)
@@ -384,10 +364,6 @@ function dedupe<T extends { label: string }>(xs: T[]): T[] {
   return xs.filter((x) => (seen.has(x.label) ? false : (seen.add(x.label), true)))
 }
 
-function joinList(xs: string[]): string {
-  if (xs.length <= 1) return xs[0] ?? ''
-  return xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1]
-}
 
 function timeline(summaries: SourceSummary[]): Results['timeline'] {
   const years = new Map<string, Map<string, number>>()
@@ -428,28 +404,8 @@ function insights(
   const total = summaries.reduce((s, x) => s + x.totalWeight, 0)
   const learn = summaries.reduce((s, x) => s + x.learningWeight, 0)
   const points = summaries.reduce((s, x) => s + x.dataPoints, 0)
-  if (points) {
-    out.push({
-      id: 'datapoints',
-      title: 'Signals analysed',
-      value: points.toLocaleString('en-US'),
-      detail: `From ${summaries.length} source${summaries.length === 1 ? '' : 's'}, entirely in your browser.`,
-    })
-  }
-  if (total > 0) {
-    const share = learn / total
-    out.push({
-      id: 'learning',
-      title: 'Learning share',
-      value: `${Math.round(share * 100)}%`,
-      detail:
-        share > 0.45
-          ? 'A large part of what you consume is about understanding things. That bodes well for academic study.'
-          : share > 0.25
-            ? 'A healthy mix of learning and entertainment.'
-            : 'Most of what you consume is entertainment, so your questionnaire answers carry extra weight.',
-    })
-  }
+  if (points) out.push({ id: 'datapoints', data: { points, sources: summaries.length } })
+  if (total > 0) out.push({ id: 'learning', data: { share: Math.round((learn / total) * 100) } })
 
   const pos = [...interest.entries()].filter(([, d]) => d.value > 0.3)
   if (pos.length >= 3) {
@@ -460,19 +416,9 @@ function insights(
       h -= p * Math.log(p)
     }
     const breadth = h / Math.log(Math.max(2, Math.min(pos.length, 25)))
-    const top3 = sorted.slice(0, 3).map((m) => FIELDS.find((f) => f.id === m.id)!.group)
-    const spread = new Set(top3).size
-    out.push({
-      id: 'breadth',
-      title: 'Curiosity style',
-      value: pos.length >= 12 && breadth > 0.8 ? 'Explorer' : pos.length <= 6 ? 'Specialist' : 'Focused explorer',
-      detail:
-        pos.length >= 12 && breadth > 0.8
-          ? `You follow ${pos.length} distinct academic areas. Interdisciplinary programmes (liberal arts, cognitive science, PPE) deserve a look.`
-          : pos.length <= 6
-            ? 'Your interests are concentrated in a few areas. A specialised programme will likely keep you engaged.'
-            : `You go deep on a few areas and dip into ${pos.length} overall.${spread === 3 ? ' Your top matches sit in three different families, so double majors are worth considering.' : ''}`,
-    })
+    const groups = new Set(sorted.slice(0, 3).map((m) => FIELDS.find((f) => f.id === m.id)!.group)).size
+    const style = pos.length >= 12 && breadth > 0.8 ? 'explorer' : pos.length <= 6 ? 'specialist' : 'focused'
+    out.push({ id: 'breadth', data: { style, areas: pos.length, spread: groups === 3 } })
   }
 
   const pers = sorted
@@ -481,17 +427,7 @@ function insights(
     .filter((x): x is number => x !== undefined)
   if (pers.length >= 2) {
     const avgP = pers.reduce((s, x) => s + x, 0) / pers.length
-    out.push({
-      id: 'consistency',
-      title: 'Staying power',
-      value: avgP > 0.6 ? 'Long-term' : avgP > 0.3 ? 'Recurring' : 'Recent',
-      detail:
-        avgP > 0.6
-          ? 'Your top interests show up month after month, not just in phases. A strong sign they are real.'
-          : avgP > 0.3
-            ? 'Your top interests come back regularly.'
-            : 'Your top interests are fairly recent. Worth checking they last before committing.',
-    })
+    out.push({ id: 'consistency', data: { level: avgP > 0.6 ? 'long' : avgP > 0.3 ? 'recurring' : 'recent' } })
   }
 
   const hours = new Array(24).fill(0)
@@ -500,22 +436,10 @@ function insights(
   if (hTotal > 200) {
     const night = (hours[0] + hours[1] + hours[2] + hours[3] + hours[4]) / hTotal
     const peak = hours.indexOf(Math.max(...hours))
-    out.push({
-      id: 'rhythm',
-      title: 'Daily rhythm',
-      value: night > 0.2 ? 'Night owl' : peak < 12 ? 'Early bird' : 'Daytime',
-      detail: `Your activity peaks around ${peak}:00${night > 0.2 ? `, and ${Math.round(night * 100)}% happens between midnight and 5 am` : ''}. Just for fun: it doesn't affect your matches.`,
-    })
+    out.push({ id: 'rhythm', data: { type: night > 0.2 ? 'owl' : peak < 12 ? 'early' : 'day', peak, night: Math.round(night * 100) } })
   }
 
   const maker = summaries.reduce((s, x) => s + (x.maker ?? 0), 0)
-  if (maker > 0) {
-    out.push({
-      id: 'maker',
-      title: 'Maker',
-      value: maker >= 10 ? 'Builder' : 'Creator',
-      detail: `You don't only consume: ${maker} things you published or built. Hands-on, project-based programmes will suit you.`,
-    })
-  }
+  if (maker > 0) out.push({ id: 'maker', data: { count: maker } })
   return out
 }

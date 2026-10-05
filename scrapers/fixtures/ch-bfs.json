@@ -1,0 +1,803 @@
+{
+ "_note": "Real rows from the BFS PXWeb tables, 2025/26, a small slice for the demo dataset. Quelle: BFS.",
+ "tables": {
+  "px-x-1502040100_105": [
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Geschichte",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BE",
+    "Wert": "284"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Geschichte",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "UZH",
+    "Wert": "478"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Geschichte",
+    "Studienstufe": "Master",
+    "Hochschule": "BE",
+    "Wert": "124"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Geschichte",
+    "Studienstufe": "Master",
+    "Hochschule": "UZH",
+    "Wert": "265"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Psychologie",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BE",
+    "Wert": "1094"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Psychologie",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "UZH",
+    "Wert": "1431"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Psychologie",
+    "Studienstufe": "Master",
+    "Hochschule": "BE",
+    "Wert": "846"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Psychologie",
+    "Studienstufe": "Master",
+    "Hochschule": "UZH",
+    "Wert": "709"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Volkswirtschaftslehre",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BE",
+    "Wert": "178"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Volkswirtschaftslehre",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "SG",
+    "Wert": "428"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Volkswirtschaftslehre",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "UZH",
+    "Wert": "337"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Volkswirtschaftslehre",
+    "Studienstufe": "Master",
+    "Hochschule": "BE",
+    "Wert": "133"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Volkswirtschaftslehre",
+    "Studienstufe": "Master",
+    "Hochschule": "SG",
+    "Wert": "253"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Volkswirtschaftslehre",
+    "Studienstufe": "Master",
+    "Hochschule": "UZH",
+    "Wert": "165"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BE",
+    "Wert": "236"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "SG",
+    "Wert": "107"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "UZH",
+    "Wert": "536"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "EPFL",
+    "Wert": "930"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ETHZ",
+    "Wert": "1428"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Master",
+    "Hochschule": "BE",
+    "Wert": "151"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Master",
+    "Hochschule": "SG",
+    "Wert": "100"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Master",
+    "Hochschule": "UZH",
+    "Wert": "694"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Master",
+    "Hochschule": "EPFL",
+    "Wert": "571"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Master",
+    "Hochschule": "ETHZ",
+    "Wert": "1755"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Physik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BE",
+    "Wert": "129"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Physik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "UZH",
+    "Wert": "205"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Physik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "EPFL",
+    "Wert": "618"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Physik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ETHZ",
+    "Wert": "799"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Physik",
+    "Studienstufe": "Master",
+    "Hochschule": "BE",
+    "Wert": "56"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Physik",
+    "Studienstufe": "Master",
+    "Hochschule": "UZH",
+    "Wert": "70"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Physik",
+    "Studienstufe": "Master",
+    "Hochschule": "EPFL",
+    "Wert": "267"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Physik",
+    "Studienstufe": "Master",
+    "Hochschule": "ETHZ",
+    "Wert": "561"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Biologie",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BE",
+    "Wert": "413"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Biologie",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "UZH",
+    "Wert": "575"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Biologie",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ETHZ",
+    "Wert": "209"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Biologie",
+    "Studienstufe": "Master",
+    "Hochschule": "BE",
+    "Wert": "213"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Biologie",
+    "Studienstufe": "Master",
+    "Hochschule": "UZH",
+    "Wert": "313"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Biologie",
+    "Studienstufe": "Master",
+    "Hochschule": "ETHZ",
+    "Wert": "259"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Humanmedizin",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BE",
+    "Wert": "1002"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Humanmedizin",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "UZH",
+    "Wert": "1274"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Humanmedizin",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ETHZ",
+    "Wert": "314"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Humanmedizin",
+    "Studienstufe": "Master",
+    "Hochschule": "BE",
+    "Wert": "974"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Humanmedizin",
+    "Studienstufe": "Master",
+    "Hochschule": "SG",
+    "Wert": "111"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Humanmedizin",
+    "Studienstufe": "Master",
+    "Hochschule": "UZH",
+    "Wert": "882"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Maschineningenieurwesen",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "EPFL",
+    "Wert": "1238"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Maschineningenieurwesen",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ETHZ",
+    "Wert": "2307"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Maschineningenieurwesen",
+    "Studienstufe": "Master",
+    "Hochschule": "EPFL",
+    "Wert": "383"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Maschineningenieurwesen",
+    "Studienstufe": "Master",
+    "Hochschule": "ETHZ",
+    "Wert": "968"
+   }
+  ],
+  "px-x-1502040400_135": [
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Architektur",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BFH",
+    "Wert": "166"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Architektur",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "FHNW",
+    "Wert": "140"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Architektur",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "HSLU",
+    "Wert": "336"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Architektur",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ZHAW",
+    "Wert": "229"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Architektur",
+    "Studienstufe": "Master",
+    "Hochschule": "BFH",
+    "Wert": "21"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Architektur",
+    "Studienstufe": "Master",
+    "Hochschule": "FHNW",
+    "Wert": "49"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Architektur",
+    "Studienstufe": "Master",
+    "Hochschule": "HSLU",
+    "Wert": "52"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Architektur",
+    "Studienstufe": "Master",
+    "Hochschule": "ZHAW",
+    "Wert": "72"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Elektrotechnik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BFH",
+    "Wert": "106"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Elektrotechnik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "FHNW",
+    "Wert": "177"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Elektrotechnik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "HSLU",
+    "Wert": "160"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Elektrotechnik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ZHAW",
+    "Wert": "159"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BFH",
+    "Wert": "374"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "FHNW",
+    "Wert": "619"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "HSLU",
+    "Wert": "995"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ZHAW",
+    "Wert": "764"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Informatik",
+    "Studienstufe": "Master",
+    "Hochschule": "HSLU",
+    "Wert": "74"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Betriebsökonomie",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BFH",
+    "Wert": "497"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Betriebsökonomie",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "FHNW",
+    "Wert": "1733"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Betriebsökonomie",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "HSLU",
+    "Wert": "986"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Betriebsökonomie",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ZHAW",
+    "Wert": "2166"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Betriebsökonomie",
+    "Studienstufe": "Master",
+    "Hochschule": "BFH",
+    "Wert": "210"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Betriebsökonomie",
+    "Studienstufe": "Master",
+    "Hochschule": "HSLU",
+    "Wert": "373"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Betriebsökonomie",
+    "Studienstufe": "Master",
+    "Hochschule": "ZHAW",
+    "Wert": "535"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Wirtschaftsinformatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BFH",
+    "Wert": "259"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Wirtschaftsinformatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "FHNW",
+    "Wert": "550"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Wirtschaftsinformatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "HSLU",
+    "Wert": "246"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Wirtschaftsinformatik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ZHAW",
+    "Wert": "605"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Wirtschaftsinformatik",
+    "Studienstufe": "Master",
+    "Hochschule": "BFH",
+    "Wert": "59"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Wirtschaftsinformatik",
+    "Studienstufe": "Master",
+    "Hochschule": "HSLU",
+    "Wert": "67"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Wirtschaftsinformatik",
+    "Studienstufe": "Master",
+    "Hochschule": "ZHAW",
+    "Wert": "132"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Film",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "HSLU",
+    "Wert": "130"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Film",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ZHdK",
+    "Wert": "89"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Film",
+    "Studienstufe": "Master",
+    "Hochschule": "HSLU",
+    "Wert": "51"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Film",
+    "Studienstufe": "Master",
+    "Hochschule": "ZHdK",
+    "Wert": "50"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Design",
+    "Studienstufe": "Master",
+    "Hochschule": "BFH",
+    "Wert": "93"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Design",
+    "Studienstufe": "Master",
+    "Hochschule": "FHNW",
+    "Wert": "46"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Design",
+    "Studienstufe": "Master",
+    "Hochschule": "HSLU",
+    "Wert": "94"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Design",
+    "Studienstufe": "Master",
+    "Hochschule": "ZHdK",
+    "Wert": "84"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Musik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BFH",
+    "Wert": "186"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Musik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "FHNW",
+    "Wert": "244"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Musik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "HSLU",
+    "Wert": "230"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Musik",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ZHdK",
+    "Wert": "228"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Musik",
+    "Studienstufe": "Master",
+    "Hochschule": "HSLU",
+    "Wert": "228"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Soziale Arbeit",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BFH",
+    "Wert": "853"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Soziale Arbeit",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "FHNW",
+    "Wert": "1497"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Soziale Arbeit",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "HSLU",
+    "Wert": "807"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Soziale Arbeit",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ZHAW",
+    "Wert": "801"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Soziale Arbeit",
+    "Studienstufe": "Master",
+    "Hochschule": "BFH",
+    "Wert": "72"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Soziale Arbeit",
+    "Studienstufe": "Master",
+    "Hochschule": "FHNW",
+    "Wert": "102"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Soziale Arbeit",
+    "Studienstufe": "Master",
+    "Hochschule": "HSLU",
+    "Wert": "40"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Soziale Arbeit",
+    "Studienstufe": "Master",
+    "Hochschule": "ZHAW",
+    "Wert": "197"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Pflege",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "BFH",
+    "Wert": "449"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Pflege",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "HSLU",
+    "Wert": "124"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Pflege",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "ZHAW",
+    "Wert": "361"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Pflege",
+    "Studienstufe": "Master",
+    "Hochschule": "BFH",
+    "Wert": "172"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Pflege",
+    "Studienstufe": "Master",
+    "Hochschule": "HSLU",
+    "Wert": "13"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Pflege",
+    "Studienstufe": "Master",
+    "Hochschule": "ZHAW",
+    "Wert": "194"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Vorschul- und Primarstufe",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "FHNW",
+    "Wert": "2242"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Sekundarstufe I",
+    "Studienstufe": "Bachelor",
+    "Hochschule": "FHNW",
+    "Wert": "364"
+   }
+  ],
+  "px-x-1502040300_191": [
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Vorschul- und Primarstufe",
+    "Hochschule": "PHBern",
+    "Wert": "1022"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Vorschul- und Primarstufe",
+    "Hochschule": "PHLU",
+    "Wert": "900"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Vorschul- und Primarstufe",
+    "Hochschule": "PH Zürich",
+    "Wert": "2456"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Sekundarstufe I",
+    "Hochschule": "PHBern",
+    "Wert": "1134"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Sekundarstufe I",
+    "Hochschule": "PHLU",
+    "Wert": "726"
+   },
+   {
+    "Jahr": "2025/26",
+    "Fachrichtung": "Sekundarstufe I",
+    "Hochschule": "PH Zürich",
+    "Wert": "1015"
+   }
+  ]
+ }
+}

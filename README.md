@@ -4,8 +4,13 @@ Find what to study from what you actually watch, read and build. The site reads
 thousands of signals from a person's YouTube, Google Takeout, Spotify, Reddit and
 GitHub, adds a short validated questionnaire (RIASEC interests, Mini-IPIP Big
 Five, school subjects, values), matches them to 80 fields of study and then to
-real programmes in the US, UK, France and, through research profiles and a
-university directory, 60+ more countries.
+real programmes in Switzerland, the US, the UK, France and, through research
+profiles and a university directory, 60+ more countries.
+
+Two sites from one codebase: the global English site, and a Swiss German site
+(working name `wasstudiere`) with every Bachelor and Master at Swiss
+universities, ETH, universities of applied sciences (FH) and teacher education
+(PH). The Swiss site lives at `/schweiz` until it gets its own domain.
 
 The field results are free. The full programme list (every matching programme
 with the fee for the student's citizenship, earnings, admission rates, filters,
@@ -35,6 +40,41 @@ pnpm build
 Without any configuration you get the questionnaire, file exports (Takeout,
 Spotify), GitHub, the demo dataset in `data/sample` and free unlocks in
 development. `.env.example` lists everything else.
+
+## Two sites
+
+| | Global | Switzerland |
+| --- | --- | --- |
+| Language | English | Swiss Standard German |
+| Routes | `app/(global)/…`: `/start`, `/results`, `/fields`, `/how-it-works`, … | `app/(ch)/[mount]/…`: `/start`, `/resultat`, `/faecher`, `/so-funktionierts`, `/datenschutz`, `/agb`, … |
+| Default filter | anywhere | Switzerland, Swiss citizenship |
+| Price | 15 in the visitor's currency | CHF 15 |
+| Browser storage | `wsis:v1` | `wsis:v1:ch` |
+
+Both sites render the same views (`app/views/`, `app/ui/`); text comes from
+`lib/site/dict.ts` (EN and DE) and `lib/site/labels.ts` / `fields-de.ts`, links
+from `routes()` in `lib/site/config.ts`.
+
+**Domains.** The Swiss pages are mounted twice: `/schweiz/…` on the global
+domain, and `/ch-site/…` internally. `proxy.ts` rewrites every request on a
+Swiss host to `/ch-site/…`, so the Swiss domain serves them at its root with
+plain links. To give the Swiss site its own domain:
+
+1. Add the domain (e.g. `wasstudiere.ch`, and `www.`) to the same Vercel project.
+2. Set `NEXT_PUBLIC_CH_URL=https://wasstudiere.ch`. Its host (with and without
+   `www.`) is then treated as Swiss; more hosts via `WSIS_CH_HOSTS`. Old
+   `/schweiz/…` links redirect to the new domain.
+3. Optionally rename it: `NEXT_PUBLIC_CH_NAME=…` (default `wasstudiere`).
+4. Register `https://wasstudiere.ch/callback/google` (and spotify, reddit) with
+   the OAuth providers.
+
+Sitemap and robots.txt answer per host.
+
+**Design.** Cream paper, ink outlines, hard offset shadows, sticker colours
+(pink, lime, yellow, sky, orange, violet) and Bricolage Grotesque
+(`app/fonts/`, SIL OFL). The Swiss site swaps the violet accent for red via
+`data-site="ch"`. Tokens and components (`.card`, `.btn`, `.chip`,
+`.sticker`, `.hl`) are in `app/globals.css`; light and dark mode.
 
 ## How the matching works
 
@@ -87,6 +127,7 @@ TikTok and Instagram data downloads (topics/interests files); Strava (sports).
 | `us-scorecard.ts` | every US college: programmes by CIP and level, in-/out-of-state tuition, median earnings and debt per programme, admission rate | public domain |
 | `uk-discoveruni.ts` | every UK undergraduate course (Discover Uni), with award, mode, URL, subject | CC BY 4.0 |
 | `fr-parcoursup.ts` | every French first-year programme on Parcoursup, statutory fees, capacity, admission rate | Licence Ouverte 2.0 |
+| `ch-bfs.ts` | every Swiss Bachelor and Master: students per institution, subject (Fachrichtung) and level, from the BFS PXWeb tables (universities, FH, PH); institution type, fees, languages and admission from `lib/ch-institutions.ts` | open use, «Quelle: BFS» |
 | `global-openalex.ts` | research profiles of universities in ~65 countries → strongest universities per field and country | CC0 |
 | `global-directory.ts` | ~10,000 universities worldwide with websites | MIT |
 
@@ -106,6 +147,7 @@ State of the first live runs (October 2026):
 
 | Source | Result |
 | --- | --- |
+| Switzerland (BFS) | 1,069 programmes for 2025/26: 536 university, 75 ETH/EPFL, 373 FH, 85 PH, at 43 institutions |
 | France (Parcoursup cartographie) | 25,805 programmes read, ~22,300+ classified |
 | United States | with `DEMO_KEY` only ~1,000 of ~2,700 institutions (≈45,000 programmes) before the rate limit; complete with a free API key |
 | OpenAlex | 14,657 universities in 65 countries |
@@ -119,7 +161,7 @@ everything locally; `pnpm data:sample` rebuilds the demo dataset from
 
 Next countries with official open data to add: Netherlands (Studiekeuzedatabase,
 licence on request), Germany (Hochschulkompass, export on request from HRK),
-Switzerland, Italy (Universitaly), Spain (QEDU), Australia (QILT), Canada.
+Italy (Universitaly), Spain (QEDU), Australia (QILT), Canada.
 
 ## Paywall
 
@@ -128,6 +170,14 @@ Switzerland, Italy (Universitaly), Spain (QEDU), Australia (QILT), Canada.
 (`lib/server/token.ts`, valid 12 months) stored in the browser; `/api/programmes`
 and `/api/research` require it. No database. Free tier: `/api/teaser` (counts
 plus the top 3 programmes).
+
+Price: 15 in the visitor's currency (`lib/pricing.ts`, country from Vercel's
+`x-vercel-ip-country`): CHF 15, EUR 15, USD 15, GBP 13, CAD 20, AUD 22, SEK 169,
+NOK 169, DKK 109, PLN 65, JPY 2,300, INR 999 and more. Without
+`STRIPE_PRICE_ID` the amount is sent as `price_data`, so nothing has to be set
+up in Stripe besides the key. With a Price, give it a currency option for each
+currency in `lib/pricing.ts`. For TWINT on the Swiss site, enable it in the
+Stripe dashboard (payment methods); Checkout shows it automatically for CHF.
 
 ## Deploy on Vercel
 

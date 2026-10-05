@@ -6,10 +6,11 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // The demo dataset is read from disk by the API routes when no data branch is reachable.
   outputFileTracingIncludes: {
-    '/api/**': ['./data/sample/**/*'],
-    '/fields/**': ['./data/sample/**/*'],
-    '/how-it-works': ['./data/sample/**/*'],
-    '/': ['./data/sample/**/*'],
+    '/**': ['./data/sample/**/*'],
+  },
+  // Two sites with their own root layouts share one 404 page.
+  experimental: {
+    globalNotFound: true,
   },
   async headers() {
     return [

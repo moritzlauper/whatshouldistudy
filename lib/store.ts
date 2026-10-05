@@ -16,8 +16,6 @@ export interface State {
   unlock?: { token: string; expiresAt: number }
 }
 
-const KEY = 'wsis:v1'
-
 export const DEFAULT_PREFS: Preferences = {
   level: 'bachelor',
   countries: [],
@@ -26,11 +24,24 @@ export const DEFAULT_PREFS: Preferences = {
   englishOnly: false,
 }
 
-const EMPTY: State = { summaries: {}, answers: {}, prefs: DEFAULT_PREFS }
+// Each site keeps its own state: the Swiss site starts with Switzerland selected.
+let KEY = 'wsis:v1'
+let defaults: Preferences = DEFAULT_PREFS
+let EMPTY: State = { summaries: {}, answers: {}, prefs: defaults }
 
 let current: State = EMPTY
 let loaded = false
 const listeners = new Set<() => void>()
+
+/** Picks the storage key and default preferences; call before the first read. */
+export function configureStore(key: string, prefs: Preferences): void {
+  if (key === KEY && prefs === defaults) return
+  KEY = key
+  defaults = prefs
+  EMPTY = { summaries: {}, answers: {}, prefs }
+  current = EMPTY
+  loaded = false
+}
 
 function load(): State {
   if (loaded) return current
@@ -39,7 +50,7 @@ function load(): State {
     const raw = window.localStorage.getItem(KEY)
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<State>
-      current = { ...EMPTY, ...parsed, prefs: { ...DEFAULT_PREFS, ...parsed.prefs } }
+      current = { ...EMPTY, ...parsed, prefs: { ...defaults, ...parsed.prefs } }
     }
   } catch {
     current = EMPTY

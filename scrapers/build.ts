@@ -24,6 +24,7 @@ import { parseTables } from './uk-discoveruni.ts'
 import { rankInstitutions } from './global-openalex.ts'
 import type { RawInstitution } from './global-openalex.ts'
 import { buildDirectory } from './global-directory.ts'
+import { parseRows as parseChRows } from './ch-bfs.ts'
 import type { DirectoryEntry, RawUniversity } from './global-directory.ts'
 
 const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>> = [
@@ -123,10 +124,16 @@ function readFixtures(): Inputs {
     { courses: csv('KISCOURSE'), institutions: csv('INSTITUTION'), subjects: csv('SBJ'), aims: csv('KISAIM'), locations: csv('LOCATION'), courseLocations: csv('COURSELOCATION') },
     at,
   ).programmes
+  const chTables = readJson<{ tables: Record<string, Array<Record<string, string>>> }>(join(FIXTURES, 'ch-bfs.json'))!.tables
+  const seen = new Set<string>()
+  const ch = Object.values(chTables)
+    .flatMap((rows) => parseChRows(rows, at).programmes)
+    .filter((p) => !seen.has(p.id) && seen.add(p.id))
   const outputs = [
     { source: 'us-college-scorecard', fetchedAt: at, programmes: us },
     { source: 'uk-discover-uni', fetchedAt: at, programmes: uk },
     { source: 'fr-parcoursup', fetchedAt: at, programmes: fr },
+    { source: 'ch-bfs', fetchedAt: at, programmes: ch },
   ]
   for (const o of outputs) status.set(o.source, { ok: true, count: o.programmes.length, fetchedAt: at })
   const research = rankInstitutions(readJson<RawInstitution[]>(join(FIXTURES, 'openalex-institutions.json'))!)

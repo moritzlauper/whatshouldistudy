@@ -123,11 +123,11 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
   }
   const q = searchQuery(url)
   if (q && isYouTube) {
-    c.youtubeSearch.push({ kind: 'search', text: q, label: `You searched "${truncate(q, 60)}"`, weight: 0.6, time })
+    c.youtubeSearch.push({ kind: 'search', text: q, label: `«${truncate(q, 60)}»`, weight: 0.6, time })
     return 'search'
   }
   if (q && /google\./.test(url)) {
-    c.googleSearch.push({ kind: 'search', text: q, label: `You googled "${truncate(q, 60)}"`, weight: 0.4, time })
+    c.googleSearch.push({ kind: 'google', text: q, label: `«${truncate(q, 60)}»`, weight: 0.4, time })
     return 'google'
   }
   return null
