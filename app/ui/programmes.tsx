@@ -1,10 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { unlockToken } from '@/lib/store.ts'
 import { isLocal } from '@/lib/site/config.ts'
-import type { Preferences, Results } from '@/lib/engine/types.ts'
+import type { FieldMatch, Preferences, Results } from '@/lib/engine/types.ts'
+import { normalize } from '@/lib/engine/text.ts'
+import { reasonText } from '@/lib/site/explain.ts'
 import { COUNTRIES, flag } from '@/lib/countries.ts'
 import type { Level, ResearchInstitution } from '@/lib/programmes.ts'
 import type { RankResult, RankedProgramme } from '@/lib/server/rank.ts'
@@ -70,24 +72,26 @@ export function Programmes({ results, prefs, hideFirst = true }: { results: Resu
     : t.programmes.anywhere
 
   return (
-    <section id={r.anchors.programmes} className="mt-20 scroll-mt-24">
-      <h2 className="font-display text-4xl sm:text-5xl">{t.programmes.title}</h2>
-      <p className="mt-3 max-w-2xl text-muted">
-        {t.programmes.sub(where, t.programmes.levelText[prefs.level])}{' '}
-        <Link href={`${r.start}#${r.anchors.prefs}`} className="font-bold text-accent underline-offset-2 hover:underline">
-          {t.programmes.change}
-        </Link>
-      </p>
-      {teaser?.sample && <p className="on-color mt-5 rounded-2xl border-2 border-line bg-yellow px-4 py-3 text-sm font-semibold">⚠ {t.programmes.demo}</p>}
+    <ResultsContext.Provider value={results}>
+      <section id={r.anchors.programmes} className="mt-20 scroll-mt-24">
+        <h2 className="font-display text-4xl sm:text-5xl">{t.programmes.title}</h2>
+        <p className="mt-3 max-w-2xl text-muted">
+          {t.programmes.sub(where, t.programmes.levelText[prefs.level])}{' '}
+          <Link href={`${r.start}#${r.anchors.prefs}`} className="font-bold text-accent underline-offset-2 hover:underline">
+            {t.programmes.change}
+          </Link>
+        </p>
+        {teaser?.sample && <p className="on-color mt-5 rounded-2xl border-2 border-line bg-yellow px-4 py-3 text-sm font-semibold">⚠ {t.programmes.demo}</p>}
 
-      {token || config?.payments === 'off' ? (
-        <Explorer token={token} fields={fields} prefs={prefs} onInvalid={() => setToken(null)} />
-      ) : (
-        <Locked teaser={teaser} config={config} results={results} hideFirst={hideFirst} />
-      )}
+        {token || config?.payments === 'off' ? (
+          <Explorer token={token} fields={fields} prefs={prefs} onInvalid={() => setToken(null)} />
+        ) : (
+          <Locked teaser={teaser} config={config} results={results} hideFirst={hideFirst} />
+        )}
 
-      {noDataCountries.length > 0 && <Research token={token} fields={fields.map((f) => f.id)} countries={noDataCountries} />}
-    </section>
+        {noDataCountries.length > 0 && <Research token={token} fields={fields.map((f) => f.id)} countries={noDataCountries} />}
+      </section>
+    </ResultsContext.Provider>
   )
 }
 
@@ -207,8 +211,115 @@ function programmeLink(p: RankedProgramme): string {
   return `https://duckduckgo.com/?q=${encodeURIComponent(query)}`
 }
 
+/** The person's results, so each programme can say why it fits. */
+const ResultsContext = createContext<Results | null>(null)
+
+/** What in the person's own data points to this programme. */
+function fitFor(p: RankedProgramme, results: Results) {
+  const rank = results.fields.findIndex((f) => f.id === p.matchedField)
+  const m: FieldMatch | undefined = results.fields[rank]
+  if (!m) return null
+  const name = ` ${normalize(p.name)} `
+  const named = new Set<string>()
+  for (const f of results.fields.slice(0, 12)) {
+    for (const term of f.terms) {
+      const core = normalize(term.replace(/…/g, ''))
+      if (core.length >= 4 && (term.includes('…') ? name.includes(core) : name.includes(` ${core} `))) named.add(term.replace(/…/g, ''))
+    }
+  }
+  const also = p.fields
+    .filter((id) => id !== p.matchedField)
+    .map((id) => ({ id, rank: results.fields.findIndex((f) => f.id === id) + 1 }))
+    .filter((x) => x.rank > 0 && x.rank <= 12)
+  const interest = m.reasons.find((r) => r.k === 'interest') as { items: number; months: number } | undefined
+  return { m, rank: rank + 1, named: [...named].slice(0, 5), also, interest }
+}
+
+const SOURCE_NAMES: Record<string, string> = {
+  'ch-bfs': 'Bundesamt für Statistik (BFS)',
+  'de-studiensuche': 'Studiensuche der Hochschulrektorenkonferenz',
+  'at-studienwahl': 'studienwahl.at',
+  'us-college-scorecard': 'College Scorecard (US Department of Education)',
+  'uk-discover-uni': 'Discover Uni',
+  'fr-parcoursup': 'Parcoursup',
+}
+
+function ProgrammeDetails({ p }: { p: RankedProgramme }) {
+  const kit = useSite()
+  const { t, locale, intl } = kit
+  const results = useContext(ResultsContext)
+  const fit = results ? fitFor(p, results) : null
+  const d = t.programmes.details
+  const home = p.institutionUrl ?? (p.url && isHomepage(p.url) ? p.url : undefined)
+  return (
+    <div className="mt-4 grid gap-5 border-t-2 border-soft-line pt-4 text-sm">
+      {fit && (
+        <div>
+          <h5 className="font-display text-lg">{d.why}</h5>
+          <ul className="mt-2 grid gap-1.5">
+            <li>✓ {d.rank(fit.rank, fieldName(p.matchedField, locale))}</li>
+            {fit.interest && <li>✓ {d.items(fmtNumber(fit.interest.items, intl), fit.interest.months)}</li>}
+            {fit.named.length > 0 && <li>✓ {d.named(fit.named)}</li>}
+            {fit.also.length > 0 && <li>✓ {d.also(fit.also.map((a) => d.alsoRank(fieldName(a.id, locale), a.rank)))}</li>}
+            {fit.m.reasons
+              .filter((r) => r.k !== 'interest' && r.k !== 'hidden')
+              .map((r) => (
+                <li key={r.k}>
+                  {r.k === 'subjectsLow' ? '△' : '✓'} {reasonText(r, kit)}
+                </li>
+              ))}
+          </ul>
+          {fit.m.terms.length > 0 && (
+            <p className="mt-3 text-muted">
+              {d.topics}: <span className="font-semibold text-ink">{fit.m.terms.slice(0, 8).map((x) => x.replace(/…/g, '')).join(' · ')}</span>
+            </p>
+          )}
+          {fit.m.evidence.length > 0 && (
+            <>
+              <p className="mt-3 text-muted">{d.seen}:</p>
+              <ul className="mt-1.5 flex flex-wrap gap-1.5">
+                {fit.m.evidence.slice(0, 6).map((e) => (
+                  <li key={e.label} className="chip-soft max-w-full truncate" title={`${e.label} (${t.sourceNames[e.source] ?? e.source})`}>
+                    <span className="text-muted">{t.results.kinds[e.kind] ?? e.kind}:</span>&nbsp;{e.label}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
+      <div>
+        <h5 className="font-display text-lg">{d.facts}</h5>
+        <dl className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+          <Item k={d.institution} v={p.institution} />
+          <Item k={d.place} v={[p.city, p.region, countryLabel(p.country, intl)].filter(Boolean).join(', ')} />
+          <Item k={d.fields} v={p.fields.map((id) => `${emoji(id)} ${fieldName(id, locale)}`).join(', ')} />
+          <Item k={t.programmes.row.level} v={levelLabel(p.level as Level, locale)} />
+          {p.mode && <Item k={d.mode} v={d.modes[p.mode]} />}
+          {p.public !== undefined && <Item k={d.sector} v={p.public ? d.public : d.private} />}
+          <Item k={d.source} v={`${SOURCE_NAMES[p.source] ?? p.source}, ${new Date(p.updated).toLocaleDateString(intl, { dateStyle: 'medium' })}`} />
+        </dl>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <a href={programmeLink(p)} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">
+          {d.page} ↗
+        </a>
+        {home && (
+          <a href={home} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+            {d.website} ↗
+          </a>
+        )}
+        <a href={`https://www.google.com/search?q=${encodeURIComponent(`${p.name} ${p.institution}`)}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+          {d.search} ↗
+        </a>
+      </div>
+    </div>
+  )
+}
+
 function ProgrammeRow({ p }: { p: RankedProgramme }) {
   const { t, locale, intl, site } = useSite()
+  const [open, setOpen] = useState(false)
   // Switzerland, Germany and Austria talk about fees per semester.
   const perSemester = isLocal(site)
   const feeAmount = p.fee ? (perSemester ? Math.round(p.fee.amount / 2) : p.fee.amount) : 0
@@ -266,6 +377,10 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
           🎟️ {t.programmes.row.entry}: {admissionText(p.country, type, lang) ?? p.admission}
         </p>
       )}
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="mt-3 text-sm font-bold text-accent hover:underline">
+        {open ? `▴ ${t.programmes.details.close}` : `▾ ${t.programmes.details.open}`}
+      </button>
+      {open && <ProgrammeDetails p={p} />}
     </article>
   )
 }
