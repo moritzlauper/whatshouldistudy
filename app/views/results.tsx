@@ -1,5 +1,6 @@
 'use client'
 
+import { withBase } from '@/lib/site.ts'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { useAppState } from '@/lib/store.ts'
@@ -25,7 +26,7 @@ export function ResultsView() {
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
-    fetch('/api/stats')
+    fetch(withBase('/api/stats'))
       .then((res) => res.json())
       .then((j: { stats: Record<string, FieldStat> }) => setStats(j.stats ?? {}))
       .catch(() => {})

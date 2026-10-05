@@ -1,12 +1,9 @@
-import type { Metadata } from 'next'
-import { chUrl } from '@/lib/site.ts'
-import { dict } from '@/lib/site/dict.ts'
-import { chBase } from '@/lib/site/kit.ts'
+import { mountInfo } from '@/lib/site/kit.ts'
+import { localMeta } from '@/lib/site/meta.ts'
 import { PrivacyView } from '../../../views/longform.tsx'
 
-export const metadata: Metadata = { title: dict('de').meta.privacy, alternates: { canonical: chUrl('/datenschutz') } }
+export const generateMetadata = ({ params }: { params: Promise<{ mount: string }> }) => localMeta(params, '/datenschutz', (t) => ({ title: t.meta.privacy }))
 
-export default async function Datenschutz({ params }: { params: Promise<{ mount: string }> }) {
-  const { mount } = await params
-  return <PrivacyView site="ch" base={chBase(mount)} />
+export default async function Page({ params }: { params: Promise<{ mount: string }> }) {
+  return <PrivacyView {...mountInfo((await params).mount)} />
 }

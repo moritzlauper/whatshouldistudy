@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { SITE_NAME, SITE_URL } from '@/lib/site.ts'
+import { SITE_NAME, SITE_URL, siteUrl, withBase } from '@/lib/site.ts'
 import { dict } from '@/lib/site/dict.ts'
 import { bricolage } from '../ui/fonts.ts'
 import { Shell } from '../ui/shell.tsx'
@@ -13,10 +13,10 @@ export const metadata: Metadata = {
   description: t.meta.description,
   applicationName: SITE_NAME,
   keywords: t.meta.keywords,
-  icons: { icon: '/icon.svg' },
-  openGraph: { type: 'website', siteName: SITE_NAME, title: t.meta.title, description: t.meta.description, url: '/', locale: 'en' },
+  icons: { icon: withBase('/icon.svg') },
+  openGraph: { type: 'website', siteName: SITE_NAME, title: t.meta.title, description: t.meta.description, url: siteUrl('global'), locale: 'en' },
   twitter: { card: 'summary_large_image', title: SITE_NAME, description: t.meta.description },
-  alternates: { canonical: '/' },
+  alternates: { canonical: siteUrl('global') },
 }
 
 export const viewport: Viewport = {

@@ -1,6 +1,15 @@
 import type { NextConfig } from 'next'
 
+/**
+ * While the project lives inside angebunden it runs under angebunden.ch/whatshouldistudy:
+ * angebunden rewrites that path to this deployment (Next.js multi-zones). On its
+ * own domain set WSIS_BASE_PATH=/ to serve it at the root.
+ */
+const basePath = (process.env.WSIS_BASE_PATH ?? '/whatshouldistudy').replace(/\/+$/, '')
+
 const nextConfig: NextConfig = {
+  basePath: basePath || undefined,
+  env: { NEXT_PUBLIC_BASE_PATH: basePath },
   // The analysis runs entirely in the browser; the server only handles
   // payment, the unlock token and the programme database.
   poweredByHeader: false,

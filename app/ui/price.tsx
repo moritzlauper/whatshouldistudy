@@ -1,5 +1,6 @@
 'use client'
 
+import { withBase } from '@/lib/site.ts'
 import { useEffect, useState } from 'react'
 import { formatPrice } from '@/lib/pricing.ts'
 import type { Price as PriceT } from '@/lib/pricing.ts'
@@ -15,7 +16,7 @@ let cached: Promise<Config> | null = null
 
 /** Payment mode and the price in the visitor's currency, fetched once per page. */
 export function fetchConfig(site: SiteId): Promise<Config> {
-  cached ??= fetch(`/api/config?site=${site}`).then((r) => r.json() as Promise<Config>)
+  cached ??= fetch(withBase(`/api/config?site=${site}`)).then((r) => r.json() as Promise<Config>)
   return cached
 }
 

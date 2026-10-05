@@ -1,4 +1,6 @@
-import { CH_NAME } from './config.ts'
+import { AT_NAME, CH_NAME, DE_NAME } from './config.ts'
+import { mergeDeep, regionalizeDeep } from './regional.ts'
+import type { DeepPartial } from './regional.ts'
 import type { Locale } from './config.ts'
 
 /**
@@ -16,7 +18,9 @@ const en = {
     privacy: 'Privacy',
     terms: 'Terms',
     local: 'Analysis runs in your browser. We never see your history.',
-    sister: 'Studying in Switzerland? Try our Swiss site',
+    otherSites: 'Also for',
+    siteNames: { global: 'International', ch: 'Switzerland', de: 'Germany', at: 'Austria' } as Record<string, string>,
+    imprint: 'Imprint',
   },
   landing: {
     badge: 'Free · no sign-up · runs in your browser',
@@ -308,8 +312,8 @@ const en = {
     ctaText: 'Find out from what you actually watch, read and build, plus a five-minute questionnaire. Free, in your browser.',
     cta: 'Find my field',
     metaTitle: (f: string) => `Should I study ${f}?`,
-    whereCh: (f: string) => `Where to study ${f} in Switzerland`,
-    whereChSub: 'Universities with Bachelor or Master students in this field, from the Federal Statistical Office.',
+    whereLocal: (f: string) => `Where to study ${f}`,
+    whereLocalSub: 'Universities that teach this field, from official statistics.',
   },
   sourceNames: {
     youtube: 'YouTube', takeout: 'Google Takeout', spotify: 'Spotify', 'spotify-export': 'Spotify export', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Questionnaire',
@@ -340,6 +344,7 @@ const en = {
     terms: 'Terms',
     connecting: 'Connecting …',
     unlocked: 'Unlocked',
+    imprint: 'Imprint',
   },
   misc: {
     start: 'Start',
@@ -406,7 +411,7 @@ const DE_MESSAGES: Array<[RegExp, string]> = [
   [/ Google searches/g, ' Google-Suchen'],
 ]
 
-const de: Dict = {
+const deCH: Dict = {
   nav: { how: 'So funktioniert’s', fields: 'Fächer', start: 'Los geht’s' },
   footer: {
     about: 'Dein digitaler Fussabdruck plus ein kurzer, wissenschaftlicher Fragebogen. Daraus: Studienfächer und echte Studiengänge, die passen.',
@@ -415,7 +420,9 @@ const de: Dict = {
     privacy: 'Datenschutz',
     terms: 'AGB',
     local: 'Die Analyse läuft in deinem Browser. Wir sehen deinen Verlauf nie.',
-    sister: 'International studieren? Zur globalen Seite',
+    otherSites: 'Auch für',
+    siteNames: { global: 'International', ch: 'Schweiz', de: 'Deutschland', at: 'Österreich' },
+    imprint: 'Impressum',
   },
   landing: {
     badge: 'Gratis · ohne Konto · läuft in deinem Browser',
@@ -747,8 +754,8 @@ const de: Dict = {
     ctaText: 'Finde es heraus, aus dem, was du wirklich schaust, liest und baust, plus fünf Minuten Fragebogen. Gratis, in deinem Browser.',
     cta: 'Mein Fach finden',
     metaTitle: (f: string) => `${f} studieren: passt das zu mir?`,
-    whereCh: (f: string) => `Wo du ${f} in der Schweiz studieren kannst`,
-    whereChSub: 'Hochschulen mit Bachelor- oder Master-Studierenden in diesem Fach, laut Bundesamt für Statistik.',
+    whereLocal: (f: string) => `Wo du ${f} in der Schweiz studieren kannst`,
+    whereLocalSub: 'Hochschulen mit Bachelor- oder Master-Studierenden in diesem Fach, laut Bundesamt für Statistik.',
   },
   sourceNames: {
     youtube: 'YouTube', takeout: 'Google Takeout', spotify: 'Spotify', 'spotify-export': 'Spotify-Export', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Fragebogen',
@@ -778,6 +785,7 @@ const de: Dict = {
     terms: 'AGB',
     connecting: 'Verbinde …',
     unlocked: 'Freigeschaltet',
+    imprint: 'Impressum',
   },
   misc: {
     start: 'Los geht’s',
@@ -804,7 +812,89 @@ const de: Dict = {
   },
 }
 
-export const DICTS: Record<Locale, Dict> = { en, de }
+/** Germany: the Swiss texts in German spelling, plus what differs in substance. */
+const DE_OVERRIDES: DeepPartial<Dict> = {
+  landing: {
+    lead: (n: number) =>
+      `Kein weiteres Quiz darüber, was dir angeblich gefällt. Wir lesen, was du wirklich schaust, hörst, abonnierst und baust, nehmen fünf Minuten echte Psychologie dazu und finden so deine Fächer: ${n} Studienfelder, dazu jeder passende Studiengang an Unis, Hochschulen für angewandte Wissenschaften und dualen Hochschulen.`,
+    fullList: ['Jeder passende Studiengang, für dich sortiert', 'Abschluss, Studienform und Semesterbeitrag', 'Uni, HAW und duales Studium im Vergleich', 'Auch Ausland: Österreich, Schweiz, Frankreich, UK, USA und 60 weitere Länder', 'Filter, Suche, CSV-Export, neue Studiengänge markiert'],
+    faq: [
+      ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
+      ['Ist das ein richtiger psychologischer Test?', 'Der Fragebogen nutzt etablierte Instrumente: das RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, und den Mini-IPIP, eine geprüfte Big-Five-Skala mit 20 Fragen. Die Analyse deines Verlaufs ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
+      ['Welche Hochschulen sind drin?', 'Alle Studiengänge aus der Studiensuche der Bundesagentur für Arbeit: Universitäten, Hochschulen für angewandte Wissenschaften, Kunst- und Musikhochschulen, duale Hochschulen und Berufsakademien. Fürs Ausland kommen Österreich, die Schweiz, Frankreich, UK und die USA Studiengang für Studiengang dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
+      ['Was bringt der volle Report?', 'Jeden passenden Studiengang mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Einmal bezahlen, 12 Monate gültig, die Daten werden wöchentlich aktualisiert.'],
+      ['Geht das auch ohne Verbindungen?', 'Ja. Der Fragebogen allein gibt schon ein brauchbares Ergebnis. Jede Quelle macht es genauer, und das Vertrauens-Badge beim Ergebnis zeigt, worauf es beruht.'],
+    ],
+    typesTitle: 'Uni, HAW oder duales Studium?',
+    typesSub: 'Drei Wege ins Studium, mit unterschiedlichen Voraussetzungen. Dein Ergebnis zeigt, welcher zu dir passt.',
+    typesCount: (n: number) => `${n} Studiengänge`,
+  },
+  results: { title: 'Dein Ergebnis', nothingText: 'Verbinde zuerst eine Quelle oder beantworte einen Teil des Fragebogens.' },
+  start: { seeResult: 'Mein Ergebnis →', lead: 'Verbinde so viele Quellen, wie du magst, beantworte so viel vom Fragebogen, wie du willst, und schau dir dann dein Ergebnis an. Du kannst jederzeit zurückkommen und mehr ergänzen.' },
+  programmes: {
+    boxList: (n: string) => [`Alle ${n} passenden Studiengänge`, 'Abschluss, Studienform und Ort', 'Uni, HAW und duales Studium im Vergleich', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche und CSV-Export', 'Neue Studiengänge markiert, wöchentlich aktualisiert'],
+    boxNote: 'Einmalig · 12 Monate gültig · sichere Bezahlung über Stripe',
+  },
+  fields: {
+    tracked: (n: string) => `${n} Studiengänge in Deutschland`,
+    whereLocal: (f: string) => `Wo du ${f} in Deutschland studieren kannst`,
+    whereLocalSub: 'Hochschulen mit Studiengängen in diesem Fach, laut Studiensuche der Bundesagentur für Arbeit.',
+  },
+  meta: {
+    title: `${DE_NAME}: Welches Studium passt zu mir?`,
+    description:
+      'Finde dein Studienfach aus dem, was du wirklich schaust, hörst und baust: YouTube, Spotify, Reddit und GitHub plus ein kurzer Fragebogen. Dazu jeder passende Studiengang an deutschen Unis und Hochschulen. Deine Daten bleiben in deinem Browser.',
+    keywords: ['Was soll ich studieren', 'Welches Studium passt zu mir', 'Studienwahltest', 'Studiengänge Deutschland', 'Uni oder FH', 'Studienorientierung', 'RIASEC', 'Big Five'],
+    results: 'Dein Ergebnis',
+    fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du sie in Deutschland studieren kannst.`,
+    howDesc: `Das Modell hinter ${DE_NAME}: was wir aus jeder Quelle lesen, wie wir Interesse messen, welche Psychologie drinsteckt und woher die Studiengänge kommen.`,
+  },
+  misc: { dataCredit: 'Studiengänge: Studiensuche der Bundesagentur für Arbeit, dazu Statistik Austria, BFS, Parcoursup, Discover Uni, College Scorecard, OpenAlex' },
+}
+
+/** Austria: the Swiss texts in Austrian spelling, plus what differs in substance. */
+const AT_OVERRIDES: DeepPartial<Dict> = {
+  landing: {
+    lead: (n: number) =>
+      `Kein weiteres Quiz darüber, was dir angeblich gefällt. Wir lesen, was du wirklich schaust, hörst, abonnierst und baust, nehmen fünf Minuten echte Psychologie dazu und finden so deine Fächer: ${n} Studienfelder, dazu jedes passende Studium an Unis, Fachhochschulen und Pädagogischen Hochschulen.`,
+    fullList: ['Jedes passende Studium, für dich sortiert', 'Studienbeitrag und Aufnahmeverfahren', 'Uni, FH und PH im Vergleich', 'Auch Ausland: Deutschland, Schweiz, Frankreich, UK, USA und 60 weitere Länder', 'Filter, Suche, CSV-Export, neue Studien markiert'],
+    faq: [
+      ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
+      ['Ist das ein richtiger psychologischer Test?', 'Der Fragebogen nutzt etablierte Instrumente: das RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, und den Mini-IPIP, eine geprüfte Big-Five-Skala mit 20 Fragen. Die Analyse deines Verlaufs ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
+      ['Welche Hochschulen sind drin?', 'Öffentliche Universitäten, Fachhochschulen, Pädagogische Hochschulen und Privathochschulen in Österreich, nach den Zahlen von Statistik Austria. Fürs Ausland kommen Deutschland, die Schweiz, Frankreich, UK und die USA Studiengang für Studiengang dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
+      ['Was bringt der volle Report?', 'Jedes passende Studium mit Studienbeitrag, Aufnahmeverfahren und Link, sortiert nach deinem Profil. Einmal zahlen, 12 Monate gültig, die Daten werden wöchentlich aktualisiert.'],
+      ['Geht das auch ohne Verbindungen?', 'Ja. Der Fragebogen allein gibt schon ein brauchbares Ergebnis. Jede Quelle macht es genauer, und das Vertrauens-Badge beim Ergebnis zeigt, worauf es beruht.'],
+    ],
+    typesTitle: 'Uni, FH oder PH?',
+    typesSub: 'Drei Wege an die Hochschule, mit eigenen Aufnahmeregeln. Dein Ergebnis zeigt, welcher zu dir passt.',
+  },
+  results: { title: 'Dein Ergebnis', nothingText: 'Verbinde zuerst eine Quelle oder beantworte einen Teil des Fragebogens.' },
+  start: { seeResult: 'Mein Ergebnis →', lead: 'Verbinde so viele Quellen, wie du magst, beantworte so viel vom Fragebogen, wie du willst, und schau dir dann dein Ergebnis an. Du kannst jederzeit zurückkommen und mehr ergänzen.' },
+  programmes: {
+    boxList: (n: string) => [`Alle ${n} passenden Studien`, 'Studienbeitrag und Aufnahmeverfahren', 'Uni, FH und PH im Vergleich', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche und CSV-Export', 'Neue Studien markiert, wöchentlich aktualisiert'],
+    boxNote: 'Einmalig · 12 Monate gültig · sichere Bezahlung über Stripe',
+  },
+  fields: {
+    tracked: (n: string) => `${n} Studien in Österreich`,
+    whereLocal: (f: string) => `Wo du ${f} in Österreich studieren kannst`,
+    whereLocalSub: 'Hochschulen mit Studierenden in diesem Fach, laut Statistik Austria.',
+  },
+  meta: {
+    title: `${AT_NAME}: Welches Studium passt zu mir?`,
+    description:
+      'Finde dein Studienfach aus dem, was du wirklich schaust, hörst und baust: YouTube, Spotify, Reddit und GitHub plus ein kurzer Fragebogen. Dazu jedes passende Studium an österreichischen Unis, FHs und PHs. Deine Daten bleiben in deinem Browser.',
+    keywords: ['Was soll ich studieren', 'Welches Studium passt zu mir', 'Studienwahl Test', 'Studieren in Österreich', 'Uni oder FH', 'Studienberatung', 'RIASEC', 'Big Five'],
+    results: 'Dein Ergebnis',
+    fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du sie in Österreich studieren kannst.`,
+    howDesc: `Das Modell hinter ${AT_NAME}: was wir aus jeder Quelle lesen, wie wir Interesse messen, welche Psychologie drinsteckt und woher die Studien kommen.`,
+  },
+  misc: { dataCredit: 'Studien: Statistik Austria (CC BY 4.0), dazu Bundesagentur für Arbeit, BFS, Parcoursup, Discover Uni, College Scorecard, OpenAlex' },
+}
+
+const deDE = mergeDeep(regionalizeDeep(deCH, 'de-DE'), regionalizeDeep(DE_OVERRIDES, 'de-DE'))
+const deAT = mergeDeep(regionalizeDeep(deCH, 'de-AT'), regionalizeDeep(AT_OVERRIDES, 'de-AT'))
+
+export const DICTS: Record<Locale, Dict> = { en, 'de-CH': deCH, 'de-DE': deDE, 'de-AT': deAT }
 
 export function dict(locale: Locale): Dict {
   return DICTS[locale]

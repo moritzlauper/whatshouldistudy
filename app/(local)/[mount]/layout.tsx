@@ -1,33 +1,37 @@
 import type { Metadata, Viewport } from 'next'
-import { CH_URL, SITE_URL, chUrl } from '@/lib/site.ts'
-import { CH_NAME } from '@/lib/site/config.ts'
+import { SITE_URL, siteUrl, withBase } from '@/lib/site.ts'
+import { SITES } from '@/lib/site/config.ts'
 import { dict } from '@/lib/site/dict.ts'
-import { CH_MOUNTS, chBase } from '@/lib/site/kit.ts'
+import { ALL_MOUNTS, mountInfo } from '@/lib/site/kit.ts'
 import { bricolage } from '../../ui/fonts.ts'
 import { Shell } from '../../ui/shell.tsx'
 import '../../globals.css'
 
 /**
- * The Swiss site. Mounted at /schweiz on the global domain, and at an internal
- * path that proxy.ts rewrites the Swiss domain to, so links work on both.
+ * The country sites (Switzerland, Germany, Austria). Each is mounted twice:
+ * /schweiz etc. on the global domain, and an internal path that proxy.ts
+ * rewrites the country's own domain to, so links work on both.
  */
 export function generateStaticParams() {
-  return [{ mount: CH_MOUNTS.public }, { mount: CH_MOUNTS.domain }]
+  return ALL_MOUNTS.map((mount) => ({ mount }))
 }
 export const dynamicParams = false
 
-const t = dict('de')
-
-export const metadata: Metadata = {
-  metadataBase: new URL(CH_URL || SITE_URL),
-  title: { default: t.meta.title, template: `%s · ${CH_NAME}` },
-  description: t.meta.description,
-  applicationName: CH_NAME,
-  keywords: t.meta.keywords,
-  icons: { icon: '/icon-ch.svg' },
-  openGraph: { type: 'website', siteName: CH_NAME, title: t.meta.title, description: t.meta.description, url: chUrl(), locale: 'de_CH' },
-  twitter: { card: 'summary_large_image', title: CH_NAME, description: t.meta.description },
-  alternates: { canonical: chUrl() },
+export async function generateMetadata({ params }: { params: Promise<{ mount: string }> }): Promise<Metadata> {
+  const { site } = mountInfo((await params).mount)
+  const c = SITES[site]
+  const t = dict(c.locale)
+  return {
+    metadataBase: new URL(c.domainUrl || SITE_URL),
+    title: { default: t.meta.title, template: `%s · ${c.name}` },
+    description: t.meta.description,
+    applicationName: c.name,
+    keywords: t.meta.keywords,
+    icons: { icon: withBase(`/icon-${site}.svg`) },
+    openGraph: { type: 'website', siteName: c.name, title: t.meta.title, description: t.meta.description, url: siteUrl(site), locale: c.ogLocale },
+    twitter: { card: 'summary_large_image', title: c.name, description: t.meta.description },
+    alternates: { canonical: siteUrl(site) },
+  }
 }
 
 export const viewport: Viewport = {
@@ -39,12 +43,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default async function SwissLayout({ children, params }: { children: React.ReactNode; params: Promise<{ mount: string }> }) {
-  const { mount } = await params
+export default async function CountryLayout({ children, params }: { children: React.ReactNode; params: Promise<{ mount: string }> }) {
+  const { site, base } = mountInfo((await params).mount)
   return (
-    <html lang="de-CH" data-site="ch" className={bricolage.variable}>
+    <html lang={SITES[site].intl} data-site={site} className={bricolage.variable}>
       <body className="flex min-h-dvh flex-col">
-        <Shell site="ch" base={chBase(mount)}>
+        <Shell site={site} base={base}>
           {children}
         </Shell>
       </body>

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { finishAuth } from '@/lib/sources/oauth.ts'
@@ -54,9 +55,9 @@ export function CallbackView({ provider }: { provider: string }) {
           <div className="text-6xl" aria-hidden="true">😵</div>
           <h1 className="mt-6 font-display text-4xl">{t.callback.failed(name)}</h1>
           <p className="mt-4 text-muted">{error}</p>
-          <a href={`${r.start}#${r.anchors.sources}`} className="btn btn-ink mt-8">
+          <Link href={`${r.start}#${r.anchors.sources}`} className="btn btn-ink mt-8">
             {t.callback.back}
-          </a>
+          </Link>
         </>
       ) : (
         <>

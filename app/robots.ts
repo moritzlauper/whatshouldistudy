@@ -1,20 +1,23 @@
 import type { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
-import { CH_URL, SITE_URL, chHosts, chUrl } from '@/lib/site.ts'
+import { BASE_PATH, siteForHost, siteUrl } from '@/lib/site.ts'
+import { LOCAL_SITES, SITES } from '@/lib/site/config.ts'
+
+const LOCAL_PRIVATE = ['/callback/', '/resultat', '/freigeschaltet']
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
-  const host = ((await headers()).get('host') ?? '').split(':')[0].toLowerCase()
-  const swiss = chHosts().includes(host)
-  return {
-    rules: [
-      {
-        userAgent: '*',
-        allow: '/',
-        disallow: swiss
-          ? ['/api/', '/callback/', '/resultat', '/freigeschaltet']
-          : ['/api/', '/callback/', '/results', '/unlocked', '/schweiz/callback/', '/schweiz/resultat', '/schweiz/freigeschaltet', '/ch-site/'],
-      },
-    ],
-    sitemap: swiss ? (CH_URL ? chUrl('/sitemap.xml') : `https://${host}/sitemap.xml`) : `${SITE_URL}/sitemap.xml`,
-  }
+  const host = ((await headers()).get('host') ?? '').split(':')[0]
+  const own = siteForHost(host)
+  const b = BASE_PATH
+  const disallow = own
+    ? [`${b}/api/`, ...LOCAL_PRIVATE.map((p) => `${b}${p}`)]
+    : [
+        `${b}/api/`,
+        `${b}/callback/`,
+        `${b}/results`,
+        `${b}/unlocked`,
+        ...LOCAL_SITES.flatMap((s) => [...LOCAL_PRIVATE.map((p) => `${b}/${SITES[s].mount}${p}`), `${b}/${SITES[s].domainMount}/`]),
+      ]
+  const sitemap = own ? (SITES[own].domainUrl ? siteUrl(own, '/sitemap.xml') : `https://${host}${b}/sitemap.xml`) : siteUrl('global', '/sitemap.xml')
+  return { rules: [{ userAgent: '*', allow: '/', disallow }], sitemap }
 }

@@ -1,17 +1,12 @@
-import type { Metadata } from 'next'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
-import { chUrl } from '@/lib/site.ts'
-import { dict } from '@/lib/site/dict.ts'
-import { chBase } from '@/lib/site/kit.ts'
+import { mountInfo } from '@/lib/site/kit.ts'
+import { localMeta } from '@/lib/site/meta.ts'
 import { FieldsView } from '../../../views/fields.tsx'
 
 export const revalidate = 86400
 
-const t = dict('de')
-
-export const metadata: Metadata = { title: t.meta.fields, description: t.meta.fieldsDesc(FIELDS.length), alternates: { canonical: chUrl('/faecher') } }
+export const generateMetadata = ({ params }: { params: Promise<{ mount: string }> }) => localMeta(params, '/faecher', (t) => ({ title: t.meta.fields, description: t.meta.fieldsDesc(FIELDS.length) }))
 
 export default async function Faecher({ params }: { params: Promise<{ mount: string }> }) {
-  const { mount } = await params
-  return <FieldsView site="ch" base={chBase(mount)} />
+  return <FieldsView {...mountInfo((await params).mount)} />
 }

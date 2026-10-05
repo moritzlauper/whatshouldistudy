@@ -1,8 +1,7 @@
-import type { Metadata } from 'next'
-import { dict } from '@/lib/site/dict.ts'
+import { localMeta } from '@/lib/site/meta.ts'
 import { ResultsView } from '../../../views/results.tsx'
 
-export const metadata: Metadata = { title: dict('de').meta.results, robots: { index: false } }
+export const generateMetadata = ({ params }: { params: Promise<{ mount: string }> }) => localMeta(params, '/resultat', (t) => ({ title: t.meta.results, index: false }))
 
 export default function Resultat() {
   return <ResultsView />

@@ -1,5 +1,6 @@
 'use client'
 
+import { withBase } from '@/lib/site.ts'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { update } from '@/lib/store.ts'
@@ -17,7 +18,7 @@ export function UnlockedView() {
     if (done.current) return
     done.current = true
     const sid = new URLSearchParams(window.location.search).get('session_id') ?? ''
-    fetch(`/api/unlock?session_id=${encodeURIComponent(sid)}`)
+    fetch(withBase(`/api/unlock?session_id=${encodeURIComponent(sid)}`))
       .then(async (res) => {
         const j = (await res.json()) as { token?: string; expiresAt?: number; error?: string }
         if (!j.token || !j.expiresAt) throw new Error(j.error ?? t.misc.couldNotUnlock)

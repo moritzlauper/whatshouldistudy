@@ -1,8 +1,7 @@
-import type { Metadata } from 'next'
-import { dict } from '@/lib/site/dict.ts'
+import { localMeta } from '@/lib/site/meta.ts'
 import { UnlockedView } from '../../../views/unlocked.tsx'
 
-export const metadata: Metadata = { title: dict('de').meta.unlocked, robots: { index: false } }
+export const generateMetadata = ({ params }: { params: Promise<{ mount: string }> }) => localMeta(params, '/freigeschaltet', (t) => ({ title: t.meta.unlocked, index: false }))
 
 export default function Freigeschaltet() {
   return <UnlockedView />

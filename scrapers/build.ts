@@ -57,6 +57,20 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     licence: 'Open use, Quelle: BFS',
   },
   {
+    id: 'de-studiensuche',
+    name: 'Studiensuche (Bundesagentur für Arbeit)',
+    countries: ['DE'],
+    url: 'https://studiensuche.arbeitsagentur.de/',
+    licence: 'Öffentliche Schnittstelle der Bundesagentur für Arbeit',
+  },
+  {
+    id: 'at-statistik',
+    name: 'Studien an österreichischen Hochschulen (Statistik Austria, unidata)',
+    countries: ['AT'],
+    url: 'https://data.statistik.gv.at/',
+    licence: 'CC BY 4.0',
+  },
+  {
     id: 'global-openalex',
     name: 'OpenAlex institution research profiles',
     countries: ['*'],
@@ -97,7 +111,7 @@ interface Inputs {
 function readOutputs(): Inputs {
   const status = new Map<string, Partial<SourceStatus>>()
   const outputs: ScrapeOutput[] = []
-  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs']) {
+  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'de-studiensuche', 'at-statistik']) {
     const o = readJson<ScrapeOutput>(join(OUT, `${id}.json`))
     if (o) {
       outputs.push(o)
@@ -161,7 +175,7 @@ function previousFirstSeen(dir: string | undefined): Map<string, string> {
  */
 function carryOver(inputs: Inputs, dir: string) {
   const prevMeta = readJson<DataMeta>(join(dir, 'meta.json'))
-  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs']) {
+  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'de-studiensuche', 'at-statistik']) {
     const fresh = inputs.outputs.find((o) => o.source === id && o.programmes.length)
     const prevCount = prevMeta?.sources.find((s) => s.id === id)?.count ?? 0
     // A source that suddenly shrinks by half is more likely broken than real.
@@ -210,6 +224,39 @@ function median(xs: number[]): number | undefined {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
 }
 
+const normName = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+
+/** Programmes without an institution website get it from the world directory, by name. */
+function fillInstitutionUrls(all: Programme[], directory: Inputs['directory']) {
+  if (!directory) return
+  const index = new Map<string, string>()
+  for (const [cc, list] of Object.entries(directory)) for (const u of list) if (u.url) index.set(`${cc}|${normName(u.name)}`, u.url)
+  let filled = 0
+  for (const p of all) {
+    if (p.institutionUrl) continue
+    const url = index.get(`${p.country}|${normName(p.institution)}`)
+    if (url) {
+      p.institutionUrl = url
+      filled++
+    }
+  }
+  log(`Institution websites from the directory: ${filled}`)
+}
+
+function countryTotals(all: Programme[]): NonNullable<DataMeta['byCountry']> {
+  const out: NonNullable<DataMeta['byCountry']> = {}
+  const inst = new Map<string, Set<string>>()
+  for (const p of all) {
+    const c = (out[p.country] ??= { programmes: 0, institutions: 0, byType: {} })
+    c.programmes++
+    if (p.institutionType) c.byType[p.institutionType] = (c.byType[p.institutionType] ?? 0) + 1
+    if (!inst.has(p.country)) inst.set(p.country, new Set())
+    inst.get(p.country)!.add(p.institution)
+  }
+  for (const [cc, set] of inst) out[cc].institutions = set.size
+  return out
+}
+
 async function main() {
   const args = process.argv.slice(2)
   const sample = args.includes('--sample')
@@ -233,6 +280,7 @@ async function main() {
     }
   }
   log(`Programmes: ${all.length}`)
+  fillInstitutionUrls(all, inputs.directory)
 
   rmSync(outDir, { recursive: true, force: true })
 
@@ -278,6 +326,7 @@ async function main() {
       newLast90Days: all.filter((p) => (p.firstSeen ?? '') >= cutoff && !isFirstRun).length,
     },
     unclassified: 0,
+    byCountry: countryTotals(all),
   }
   writeJson(join(outDir, 'meta.json'), meta, true)
   writeJson(join(outDir, 'stats.json'), stats, true)

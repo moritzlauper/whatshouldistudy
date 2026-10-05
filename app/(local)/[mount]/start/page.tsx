@@ -1,11 +1,7 @@
-import type { Metadata } from 'next'
-import { chUrl } from '@/lib/site.ts'
-import { dict } from '@/lib/site/dict.ts'
+import { localMeta } from '@/lib/site/meta.ts'
 import { StartView } from '../../../views/start.tsx'
 
-const t = dict('de')
-
-export const metadata: Metadata = { title: t.meta.start, description: t.meta.startDesc, alternates: { canonical: chUrl('/start') } }
+export const generateMetadata = ({ params }: { params: Promise<{ mount: string }> }) => localMeta(params, '/start', (t) => ({ title: t.meta.start, description: t.meta.startDesc }))
 
 export default function Start() {
   return <StartView />

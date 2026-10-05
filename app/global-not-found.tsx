@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/site.ts'
 import type { Metadata } from 'next'
 import { bricolage } from './ui/fonts.ts'
 import { Burst } from './ui/shapes.tsx'
@@ -16,7 +17,7 @@ export default function GlobalNotFound() {
           <p className="mt-3 text-lg">This page doesn’t exist.</p>
           <p className="text-muted">Diese Seite gibt es nicht.</p>
           <div className="mt-7 flex justify-center gap-3">
-            <a href="/" className="btn btn-primary btn-sm">
+            <a href={withBase('/')} className="btn btn-primary btn-sm">
               Home
             </a>
           </div>

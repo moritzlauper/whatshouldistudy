@@ -75,3 +75,23 @@ export function SwissFlag({ className, size = 40, style }: ShapeProps) {
     </svg>
   )
 }
+
+/** Small flag sticker for a site: Swiss cross, German and Austrian stripes, a globe for the global site. */
+export function SiteFlag({ site, size = 20 }: { site: 'global' | 'ch' | 'de' | 'at'; size?: number }) {
+  if (site === 'ch') return <SwissFlag size={size} />
+  if (site === 'global') return <span aria-hidden="true">🌍</span>
+  const stripes = site === 'de' ? ['#1a1033', '#dd0000', '#ffce00'] : ['#ed2939', '#ffffff', '#ed2939']
+  return (
+    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 32 32">
+      <clipPath id={`flag-${site}`}>
+        <rect x={1.5} y={1.5} width={29} height={29} rx={6} />
+      </clipPath>
+      <g clipPath={`url(#flag-${site})`}>
+        {stripes.map((c, i) => (
+          <rect key={i} x={0} y={i * 10.67} width={32} height={10.67} fill={c} />
+        ))}
+      </g>
+      <rect x={1.5} y={1.5} width={29} height={29} rx={6} fill="none" stroke="var(--line)" strokeWidth={2} />
+    </svg>
+  )
+}

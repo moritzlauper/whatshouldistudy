@@ -9,10 +9,10 @@ import { emoji, fieldBlurb, fieldName, fmtNumber, groupLabel } from '@/lib/site/
 const GROUP_COLORS = ['var(--pink)', 'var(--sky)', 'var(--lime)', 'var(--yellow)', 'var(--orange)', 'var(--violet)', 'var(--pink)', 'var(--sky)', 'var(--lime)']
 
 export async function FieldsView({ site, base }: SiteProps) {
-  const { t, r, locale, intl } = kit(site, base)
+  const { t, r, locale, intl, conf } = kit(site, base)
   const [stats, { meta }] = await Promise.all([getStats(), getMeta()])
   // The Swiss site counts Swiss programmes.
-  const count = (id: string) => (site === 'ch' ? (meta?.counts[id]?.CH ?? 0) : (stats[id]?.programmes ?? 0))
+  const count = (id: string) => (conf.country ? (meta?.counts[id]?.[conf.country] ?? 0) : (stats[id]?.programmes ?? 0))
   const groups = Object.keys(GROUP_LABELS) as FieldGroup[]
   return (
     <div className="mx-auto max-w-6xl px-4 pt-12 sm:px-6">

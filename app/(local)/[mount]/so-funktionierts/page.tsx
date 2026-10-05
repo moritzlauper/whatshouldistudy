@@ -1,16 +1,11 @@
-import type { Metadata } from 'next'
-import { chUrl } from '@/lib/site.ts'
-import { dict } from '@/lib/site/dict.ts'
-import { chBase } from '@/lib/site/kit.ts'
+import { mountInfo } from '@/lib/site/kit.ts'
+import { localMeta } from '@/lib/site/meta.ts'
 import { HowView } from '../../../views/longform.tsx'
 
 export const revalidate = 3600
 
-const t = dict('de')
+export const generateMetadata = ({ params }: { params: Promise<{ mount: string }> }) => localMeta(params, '/so-funktionierts', (t) => ({ title: t.meta.how, description: t.meta.howDesc }))
 
-export const metadata: Metadata = { title: t.meta.how, description: t.meta.howDesc, alternates: { canonical: chUrl('/so-funktionierts') } }
-
-export default async function SoFunktionierts({ params }: { params: Promise<{ mount: string }> }) {
-  const { mount } = await params
-  return <HowView site="ch" base={chBase(mount)} />
+export default async function Page({ params }: { params: Promise<{ mount: string }> }) {
+  return <HowView {...mountInfo((await params).mount)} />
 }

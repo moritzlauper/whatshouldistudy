@@ -50,6 +50,28 @@
       "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
+      "id": "de-studiensuche",
+      "name": "Studiensuche (Bundesagentur für Arbeit)",
+      "countries": [
+        "DE"
+      ],
+      "url": "https://studiensuche.arbeitsagentur.de/",
+      "licence": "Öffentliche Schnittstelle der Bundesagentur für Arbeit",
+      "ok": false,
+      "count": 0
+    },
+    {
+      "id": "at-statistik",
+      "name": "Studien an österreichischen Hochschulen (Statistik Austria, unidata)",
+      "countries": [
+        "AT"
+      ],
+      "url": "https://data.statistik.gv.at/",
+      "licence": "CC BY 4.0",
+      "ok": false,
+      "count": 0
+    },
+    {
       "id": "global-openalex",
       "name": "OpenAlex institution research profiles",
       "countries": [
@@ -358,5 +380,32 @@
     "institutions": 40,
     "newLast90Days": 0
   },
-  "unclassified": 0
+  "unclassified": 0,
+  "byCountry": {
+    "US": {
+      "programmes": 469,
+      "institutions": 8,
+      "byType": {}
+    },
+    "GB": {
+      "programmes": 43,
+      "institutions": 5,
+      "byType": {}
+    },
+    "FR": {
+      "programmes": 43,
+      "institutions": 13,
+      "byType": {}
+    },
+    "CH": {
+      "programmes": 117,
+      "institutions": 14,
+      "byType": {
+        "uni": 33,
+        "eth": 15,
+        "fh": 58,
+        "ph": 11
+      }
+    }
+  }
 }

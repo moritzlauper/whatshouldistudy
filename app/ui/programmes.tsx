@@ -1,13 +1,15 @@
 'use client'
 
+import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { unlockToken } from '@/lib/store.ts'
 import type { Preferences, Results } from '@/lib/engine/types.ts'
 import { COUNTRIES, flag } from '@/lib/countries.ts'
 import type { Level, ResearchInstitution } from '@/lib/programmes.ts'
 import type { RankResult, RankedProgramme } from '@/lib/server/rank.ts'
-import { CH_ADMISSION, CH_TYPE_LABEL } from '@/lib/ch-institutions.ts'
-import type { ChType } from '@/lib/ch-institutions.ts'
+import { TYPE_LABEL, TYPE_STYLE, admissionText, typeShort } from '@/lib/institutions.ts'
+import type { InstType } from '@/lib/institutions.ts'
+import { withBase } from '@/lib/site.ts'
 import { formatPrice } from '@/lib/pricing.ts'
 import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel } from '@/lib/site/labels.ts'
 import { useConfig } from './price.tsx'
@@ -34,7 +36,6 @@ const DE_DATIVE: Record<string, string> = {
   PH: 'den Philippinen',
 }
 
-const TYPE_COLOR: Record<string, string> = { uni: 'var(--sky)', eth: 'var(--pink)', fh: 'var(--lime)', ph: 'var(--yellow)' }
 
 /** The fields we look up programmes for: your top six, with their scores. */
 function requestFields(results: Results) {
@@ -51,7 +52,7 @@ export function Programmes({ results, prefs }: { results: Results; prefs: Prefer
   useEffect(() => setToken(unlockToken()), [])
 
   useEffect(() => {
-    fetch('/api/teaser', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields, prefs }) })
+    fetch(withBase('/api/teaser'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields, prefs }) })
       .then((res) => res.json())
       .then(setTeaser)
       .catch(() => setTeaser(null))
@@ -61,7 +62,7 @@ export function Programmes({ results, prefs }: { results: Results; prefs: Prefer
   const where = prefs.countries.length
     ? prefs.countries.length > 4
       ? t.programmes.inCountries(prefs.countries.length)
-      : t.programmes.inList(prefs.countries.map((c) => (locale === 'de' ? (DE_DATIVE[c] ?? countryLabel(c, intl)) : countryLabel(c, intl))))
+      : t.programmes.inList(prefs.countries.map((c) => (locale !== 'en' ? (DE_DATIVE[c] ?? countryLabel(c, intl)) : countryLabel(c, intl))))
     : t.programmes.anywhere
 
   return (
@@ -69,9 +70,9 @@ export function Programmes({ results, prefs }: { results: Results; prefs: Prefer
       <h2 className="font-display text-4xl sm:text-5xl">{t.programmes.title}</h2>
       <p className="mt-3 max-w-2xl text-muted">
         {t.programmes.sub(where, t.programmes.levelText[prefs.level])}{' '}
-        <a href={`${r.start}#${r.anchors.prefs}`} className="font-bold text-accent underline-offset-2 hover:underline">
+        <Link href={`${r.start}#${r.anchors.prefs}`} className="font-bold text-accent underline-offset-2 hover:underline">
           {t.programmes.change}
-        </a>
+        </Link>
       </p>
       {teaser?.sample && <p className="on-color mt-5 rounded-2xl border-2 border-line bg-yellow px-4 py-3 text-sm font-semibold">⚠ {t.programmes.demo}</p>}
 
@@ -92,7 +93,7 @@ function Locked({ teaser, config, results }: { teaser: Teaser | null; config: Co
     setBusy(true)
     setError('')
     try {
-      const res = await fetch(`/api/checkout?site=${site}&back=${encodeURIComponent(base)}`, { method: 'POST' })
+      const res = await fetch(withBase(`/api/checkout?site=${site}&back=${encodeURIComponent(base)}&o=${encodeURIComponent(window.location.origin)}`), { method: 'POST' })
       const j = (await res.json()) as { url?: string; error?: string }
       if (!j.url) throw new Error(j.error ?? t.programmes.checkoutFailed)
       window.location.assign(j.url)
@@ -172,7 +173,8 @@ function Locked({ teaser, config, results }: { teaser: Teaser | null; config: Co
 
 function ProgrammeRow({ p }: { p: RankedProgramme }) {
   const { t, locale, intl } = useSite()
-  const type = p.institutionType as ChType | undefined
+  const type = p.institutionType as InstType | undefined
+  const lang = locale === 'en' ? 'en' : 'de'
   return (
     <article className="card-sm p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -200,9 +202,9 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {type && CH_TYPE_LABEL[type] && (
-            <span className="on-color rounded-full border-2 border-line px-2.5 py-0.5 text-xs font-bold" style={{ background: TYPE_COLOR[type] }}>
-              {type === 'eth' ? 'ETH' : type.toUpperCase()}
+          {type && TYPE_LABEL[type] && (
+            <span className="on-color rounded-full border-2 border-line px-2.5 py-0.5 text-xs font-bold" style={{ background: TYPE_STYLE[type].color }} title={TYPE_LABEL[type][lang]}>
+              {typeShort(type, p.country)}
             </span>
           )}
           <span className="rounded-full border-2 border-line bg-accent px-2.5 py-0.5 text-sm font-extrabold text-accent-ink" title={t.programmes.row.matchTip}>
@@ -221,12 +223,12 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
         {p.earnings && <Item k={t.programmes.row.earnings(p.earnings.yearsAfter)} v={fmtMoney(p.earnings.median, p.earnings.currency, intl)} />}
         {p.debt && <Item k={t.programmes.row.debt} v={fmtMoney(p.debt.median, p.debt.currency, intl)} />}
         {p.admissionRate !== undefined && <Item k={t.programmes.row.admission} v={`${Math.round(p.admissionRate * 100)} %`} />}
-        {p.capacity && <Item k={p.source === 'ch-bfs' ? t.programmes.row.students : t.programmes.row.places} v={fmtNumber(p.capacity, intl)} />}
+        {p.capacity && <Item k={p.source === 'ch-bfs' || p.source === 'at-statistik' ? t.programmes.row.students : t.programmes.row.places} v={fmtNumber(p.capacity, intl)} />}
         {p.languages?.length ? <Item k={t.programmes.row.language} v={p.languages.map((l) => l.toUpperCase()).join(', ')} /> : null}
       </dl>
       {p.admission && (
         <p className="mt-2 text-xs text-muted">
-          🎟️ {t.programmes.row.entry}: {type && CH_ADMISSION[type] ? CH_ADMISSION[type][locale] : p.admission}
+          🎟️ {t.programmes.row.entry}: {admissionText(p.country, type, lang) ?? p.admission}
         </p>
       )}
     </article>
@@ -255,7 +257,7 @@ function Explorer({ token, fields, prefs, onInvalid }: { token: string; fields: 
 
   const query = useCallback(
     async (extra: Record<string, unknown> = {}) => {
-      const res = await fetch('/api/programmes', {
+      const res = await fetch(withBase('/api/programmes'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ fields, prefs, country: country || undefined, level, sort, q: q || undefined, page, ...extra }),
@@ -376,7 +378,7 @@ function Research({ token, fields, countries }: { token: string | null; fields: 
   const { t, locale, intl } = useSite()
   const [data, setData] = useState<ResearchResponse | null>(null)
   useEffect(() => {
-    fetch('/api/research', {
+    fetch(withBase('/api/research'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ fields, countries }),

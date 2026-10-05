@@ -5,24 +5,24 @@ import type { Big5Key, SubjectKey } from '@/lib/taxonomy/fields.ts'
 import { riasecCode } from '@/lib/engine/questionnaire.ts'
 import { getMeta, getShard, getStats } from '@/lib/server/data.ts'
 import { flag } from '@/lib/countries.ts'
-import { CH_TYPE_LABEL, findChInstitution } from '@/lib/ch-institutions.ts'
-import type { ChType } from '@/lib/ch-institutions.ts'
+import { TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
+import type { InstType } from '@/lib/institutions.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
 import { big5Label, countryLabel, emoji, fieldBlurb, fieldCareers, fieldName, fmtMoney, fmtNumber, groupLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 
-const TYPE_COLOR: Record<ChType, string> = { uni: 'var(--sky)', eth: 'var(--pink)', fh: 'var(--lime)', ph: 'var(--yellow)' }
 
 export async function FieldView({ site, base, id }: SiteProps & { id: string }) {
-  const { t, r, locale, intl } = kit(site, base)
+  const { t, r, locale, intl, conf } = kit(site, base)
+  const country = conf.country
   const f = FIELD_BY_ID[id]
   if (!f) notFound()
-  const [stats, { meta }, shard] = await Promise.all([getStats(), getMeta(), site === 'ch' ? getShard(id) : Promise.resolve(null)])
+  const [stats, { meta }, shard] = await Promise.all([getStats(), getMeta(), country ? getShard(id) : Promise.resolve(null)])
   const s = stats[id]
   const name = fieldName(id, locale)
-  const byCountry = Object.entries(meta?.counts[id] ?? {}).sort((a, b) => (site === 'ch' ? Number(b[0] === 'CH') - Number(a[0] === 'CH') : 0) || b[1] - a[1])
+  const byCountry = Object.entries(meta?.counts[id] ?? {}).sort((a, b) => (country ? Number(b[0] === country) - Number(a[0] === country) : 0) || b[1] - a[1])
   const subjects = Object.entries(f.subjects)
     .filter(([, d]) => (d ?? 0) >= 0.5)
     .sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0))
@@ -35,11 +35,11 @@ export async function FieldView({ site, base, id }: SiteProps & { id: string }) 
     .map(({ x }) => x)
   const code = riasecCode(f.riasec)
 
-  // Swiss site: the institutions that teach it, from the BFS enrolment data.
-  const chInstitutions = new Map<string, { name: string; type?: ChType; url?: string; levels: Set<string> }>()
+  // Country sites: the institutions that teach it there.
+  const chInstitutions = new Map<string, { name: string; type?: InstType; url?: string; levels: Set<string> }>()
   for (const p of shard?.programmes ?? []) {
-    if (p.country !== 'CH') continue
-    const e = chInstitutions.get(p.institution) ?? { name: p.institution, type: p.institutionType as ChType | undefined, url: p.institutionUrl ?? findChInstitution(p.institution)?.url, levels: new Set<string>() }
+    if (p.country !== country) continue
+    const e = chInstitutions.get(p.institution) ?? { name: p.institution, type: p.institutionType as InstType | undefined, url: p.institutionUrl, levels: new Set<string>() }
     e.levels.add(p.level)
     chInstitutions.set(p.institution, e)
   }
@@ -104,15 +104,15 @@ export async function FieldView({ site, base, id }: SiteProps & { id: string }) 
 
       {chInstitutions.size > 0 && (
         <section className="card mt-10 p-6">
-          <h2 className="font-display text-2xl">{t.fields.whereCh(name)}</h2>
-          <p className="mt-1 text-sm text-muted">{t.fields.whereChSub}</p>
+          <h2 className="font-display text-2xl">{t.fields.whereLocal(name)}</h2>
+          <p className="mt-1 text-sm text-muted">{t.fields.whereLocalSub}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {[...chInstitutions.values()]
               .sort((a, b) => a.name.localeCompare(b.name, intl))
               .map((i) => (
-                <a key={i.name} href={i.url} target="_blank" rel="noreferrer" className="chip on-color hover:-translate-y-0.5" style={{ background: i.type ? TYPE_COLOR[i.type] : 'var(--surface)' }}>
+                <a key={i.name} href={i.url} target="_blank" rel="noreferrer" className="chip on-color hover:-translate-y-0.5" style={{ background: i.type ? TYPE_STYLE[i.type]?.color : 'var(--surface)' }}>
                   {i.name}
-                  {i.type && <span className="text-xs opacity-70">· {CH_TYPE_LABEL[i.type][locale]}</span>}
+                  {i.type && <span className="text-xs opacity-70">· {typeLabel(i.type, country, locale === 'en' ? 'en' : 'de')}</span>}
                 </a>
               ))}
           </div>
@@ -121,7 +121,7 @@ export async function FieldView({ site, base, id }: SiteProps & { id: string }) 
 
       {byCountry.length > 0 && (
         <section className="card mt-10 p-6">
-          <h2 className="font-display text-2xl">{t.fields.tracked(fmtNumber(site === 'ch' ? (meta?.counts[id]?.CH ?? 0) : (s?.programmes ?? 0), intl))}</h2>
+          <h2 className="font-display text-2xl">{t.fields.tracked(fmtNumber(country ? (meta?.counts[id]?.[country] ?? 0) : (s?.programmes ?? 0), intl))}</h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {byCountry.map(([cc, n]) => (
               <span key={cc} className="chip">

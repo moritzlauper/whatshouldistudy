@@ -5,6 +5,9 @@
  * server; the analysis calls the providers' APIs directly from the browser.
  */
 
+import { BASE_PATH } from '../site.ts'
+import { LOCAL_SITES, SITES } from '../site/config.ts'
+
 export type Provider = 'google' | 'spotify' | 'reddit'
 
 export const CLIENT_IDS: Record<Provider, string | undefined> = {
@@ -30,13 +33,15 @@ export function isConfigured(p: Provider): boolean {
 }
 
 /**
- * Each site gets its own callback: /callback/x on the global site and on the
- * Swiss domain, /schweiz/callback/x under the global domain. All three must be
- * registered with the provider.
+ * Each site gets its own callback: /callback/x on the global site and on a
+ * country's own domain, /schweiz/callback/x (and /deutschland, /oesterreich)
+ * under the global domain, all behind the app's base path. Every one of them
+ * must be registered with the provider.
  */
 export function redirectUri(p: Provider): string {
-  const base = /^\/schweiz(\/|$)/.test(window.location.pathname) ? '/schweiz' : ''
-  return `${window.location.origin}${base}/callback/${p}`
+  const path = window.location.pathname.slice(BASE_PATH.length)
+  const mount = LOCAL_SITES.map((s) => SITES[s].mount!).find((m) => path === `/${m}` || path.startsWith(`/${m}/`))
+  return `${window.location.origin}${BASE_PATH}${mount ? `/${mount}` : ''}/callback/${p}`
 }
 
 function randomString(bytes = 32): string {

@@ -11,7 +11,8 @@ const ORIGINS: Array<Preferences['origin']> = ['eu', 'ch', 'uk', 'us', 'other']
 const BUDGETS = [0, 500, 1500, 3000, 6000, 12000, 25000, 45000]
 
 export function PrefsForm() {
-  const { t, intl, site } = useSite()
+  const { t, intl, site, conf } = useSite()
+  const home = conf.country
   const { prefs } = useAppState()
   const set = (p: Partial<Preferences>) => update((s) => ({ ...s, prefs: { ...s.prefs, ...p } }))
   const toggle = (cc: string) => set({ countries: prefs.countries.includes(cc) ? prefs.countries.filter((c) => c !== cc) : [...prefs.countries, cc] })
@@ -20,7 +21,7 @@ export function PrefsForm() {
   // The Swiss site leads with Switzerland and its neighbours.
   const withData = Object.keys(COUNTRIES)
     .filter((cc) => COUNTRIES[cc].programmeData)
-    .sort((a, b) => (site === 'ch' ? Number(b === 'CH') - Number(a === 'CH') : 0) || byName(a, b))
+    .sort((a, b) => (home ? Number(b === home) - Number(a === home) : 0) || byName(a, b))
   const others = Object.keys(COUNTRIES)
     .filter((cc) => !COUNTRIES[cc].programmeData)
     .sort(byName)

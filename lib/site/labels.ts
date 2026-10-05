@@ -4,6 +4,7 @@ import { LEVEL_LABELS } from '../programmes.ts'
 import type { Level } from '../programmes.ts'
 import { FIELDS_DE } from './fields-de.ts'
 import type { Locale } from './config.ts'
+import { regionalize } from './regional.ts'
 
 /** Localised names for everything the taxonomy defines in English. */
 
@@ -93,15 +94,15 @@ export const FIELD_EMOJI: Record<string, string> = {
 export const emoji = (id: string) => FIELD_EMOJI[id] ?? '🎓'
 
 export function fieldName(id: string, locale: Locale): string {
-  return locale === 'de' ? (FIELDS_DE[id]?.name ?? FIELD_BY_ID[id]?.name ?? id) : (FIELD_BY_ID[id]?.name ?? id)
+  return locale === 'en' ? (FIELD_BY_ID[id]?.name ?? id) : regionalize(FIELDS_DE[id]?.name ?? FIELD_BY_ID[id]?.name ?? id, locale)
 }
 
 export function fieldBlurb(id: string, locale: Locale): string {
-  return locale === 'de' ? (FIELDS_DE[id]?.blurb ?? '') : (FIELD_BY_ID[id]?.blurb ?? '')
+  return locale === 'en' ? (FIELD_BY_ID[id]?.blurb ?? '') : regionalize(FIELDS_DE[id]?.blurb ?? '', locale)
 }
 
 export function fieldCareers(id: string, locale: Locale): string[] {
-  return locale === 'de' ? (FIELDS_DE[id]?.careers ?? []) : (FIELD_BY_ID[id]?.careers ?? [])
+  return locale === 'en' ? (FIELD_BY_ID[id]?.careers ?? []) : (FIELDS_DE[id]?.careers ?? []).map((c) => regionalize(c, locale))
 }
 
 const GROUP_DE: Record<FieldGroup, string> = {
@@ -170,12 +171,19 @@ const LEVEL_DE: Record<Level, string> = {
   professional: 'Staatsexamen (Medizin, Recht …)',
 }
 
-export const groupLabel = (g: FieldGroup, l: Locale) => (l === 'de' ? GROUP_DE[g] : GROUP_LABELS[g])
-export const subjectLabel = (k: SubjectKey, l: Locale) => (l === 'de' ? SUBJECT_DE[k] : SUBJECT_LABELS[k])
-export const valueLabel = (k: ValueKey, l: Locale) => (l === 'de' ? VALUE_DE[k] : VALUE_LABELS[k])
-export const riasecLabel = (k: RiasecKey, l: Locale) => (l === 'de' ? RIASEC_DE[k] : RIASEC_LABELS[k])
-export const big5Label = (k: Big5Key, l: Locale) => (l === 'de' ? BIG5_DE[k] : BIG5_LABELS[k])
-export const levelLabel = (k: Level, l: Locale) => (l === 'de' ? LEVEL_DE[k] : LEVEL_LABELS[k])
+const de = <T,>(v: T, l: Locale): T => (typeof v === 'string' ? (regionalize(v, l) as T) : (Object.fromEntries(Object.entries(v as object).map(([k, x]) => [k, regionalize(x as string, l)])) as T))
+
+export const groupLabel = (g: FieldGroup, l: Locale) => (l === 'en' ? GROUP_LABELS[g] : de(GROUP_DE[g], l))
+export const subjectLabel = (k: SubjectKey, l: Locale) => (l === 'en' ? SUBJECT_LABELS[k] : de(SUBJECT_DE[k], l))
+export const valueLabel = (k: ValueKey, l: Locale) => (l === 'en' ? VALUE_LABELS[k] : de(VALUE_DE[k], l))
+export const riasecLabel = (k: RiasecKey, l: Locale) => (l === 'en' ? RIASEC_LABELS[k] : de(RIASEC_DE[k], l))
+export const big5Label = (k: Big5Key, l: Locale) => (l === 'en' ? BIG5_LABELS[k] : de(BIG5_DE[k], l))
+export function levelLabel(k: Level, l: Locale): string {
+  if (l === 'en') return LEVEL_LABELS[k]
+  // Austria has no Staatsexamen; medicine, law and teaching are Diplomstudien there.
+  if (l === 'de-AT' && k === 'professional') return 'Diplomstudium'
+  return regionalize(LEVEL_DE[k], l)
+}
 
 /** Country names from the browser's/Node's own data. */
 export function countryLabel(code: string, intl: string): string {

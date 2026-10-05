@@ -1,16 +1,18 @@
 import Link from 'next/link'
 import { getMeta } from '@/lib/server/data.ts'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
-import { CH_ADMISSION, CH_INSTITUTIONS, CH_TYPE_LABEL } from '@/lib/ch-institutions.ts'
-import type { ChType } from '@/lib/ch-institutions.ts'
+import { CH_INSTITUTIONS } from '@/lib/ch-institutions.ts'
+import { ADMISSION, SCHOOL_TYPES, TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
+import { AT_INSTITUTIONS } from '@/lib/at-institutions.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { Kit } from '@/lib/site/kit.ts'
+import { isLocal } from '@/lib/site/config.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
 import { emoji, fieldName, fmtNumber } from '@/lib/site/labels.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Marquee } from '../ui/marquee.tsx'
 import { Price } from '../ui/price.tsx'
-import { Blob, Burst, Pill, Ring, Sparkle, Squiggle, SwissFlag } from '../ui/shapes.tsx'
+import { Blob, Burst, Pill, Ring, SiteFlag, Sparkle, Squiggle } from '../ui/shapes.tsx'
 
 const SOURCE_GLYPH = ['▶', '📦', '🎧', '👽', '🐙', '✍️']
 
@@ -18,9 +20,12 @@ export async function Landing({ site, base }: SiteProps) {
   const k = kit(site, base)
   const { t, r, locale, intl } = k
   const { meta } = await getMeta()
-  const ch = site === 'ch'
-  const programmes = ch ? (meta?.sources.find((s) => s.id === 'ch-bfs')?.count ?? 0) : (meta?.totals.programmes ?? 0)
-  const institutions = ch ? CH_INSTITUTIONS.length : (meta?.totals.institutions ?? 0)
+  const local = isLocal(site)
+  const country = k.conf.country
+  // A country site counts its own country.
+  const own = country ? meta?.byCountry?.[country] : undefined
+  const programmes = local ? (own?.programmes ?? 0) : (meta?.totals.programmes ?? 0)
+  const institutions = local ? (own?.institutions ?? 0) : (meta?.totals.institutions ?? 0)
 
   return (
     <>
@@ -32,7 +37,7 @@ export async function Landing({ site, base }: SiteProps) {
         <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pb-20 pt-12 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:pt-20">
           <div>
             <p className="sticker" style={{ background: 'var(--lime)' }}>
-              {ch ? <SwissFlag size={18} /> : <span aria-hidden="true">✦</span>} {t.landing.badge}
+              {local ? <SiteFlag site={site} size={18} /> : <span aria-hidden="true">✦</span>} {t.landing.badge}
             </p>
             <h1 className="mt-7 font-display text-[2.7rem] sm:text-6xl lg:text-7xl">
               <span className="block text-accent">{t.landing.h1a}</span>
@@ -107,7 +112,7 @@ export async function Landing({ site, base }: SiteProps) {
         </div>
       </section>
 
-      {ch && <SchoolTypes k={k} />}
+      {local && country && <SchoolTypes k={k} country={country} counts={own?.byType ?? {}} />}
 
       {/* Privacy */}
       <section className="px-4 py-14 sm:px-6">
@@ -115,7 +120,7 @@ export async function Landing({ site, base }: SiteProps) {
           <Blob className="absolute -bottom-16 -right-10 opacity-90" size={220} color="var(--accent)" />
           <div className="relative grid gap-10 p-8 sm:p-12 lg:grid-cols-2">
             <div>
-              <p className="sticker" style={{ background: 'var(--lime)' }}>🔒 {ch ? 'DSG' : 'GDPR'}</p>
+              <p className="sticker" style={{ background: 'var(--lime)' }}>🔒 {site === 'ch' ? 'DSG' : site === 'global' ? 'GDPR' : 'DSGVO'}</p>
               <h2 className="mt-5 font-display text-4xl sm:text-5xl">{t.landing.privacyTitle}</h2>
               <p className="mt-5 leading-relaxed opacity-80">{t.landing.privacyBody}</p>
             </div>
@@ -247,17 +252,12 @@ function HeroCard({ k }: { k: Kit }) {
   )
 }
 
-const TYPE_STYLE: Record<ChType, { color: string; glyph: string }> = {
-  uni: { color: 'var(--sky)', glyph: '🏛️' },
-  eth: { color: 'var(--pink)', glyph: '🔬' },
-  fh: { color: 'var(--lime)', glyph: '🛠️' },
-  ph: { color: 'var(--yellow)', glyph: '🍎' },
-}
-
-/** Swiss site: the four kinds of higher education and who gets in. */
-function SchoolTypes({ k }: { k: Kit }) {
+/** Country sites: the kinds of higher education and who gets in. */
+function SchoolTypes({ k, country, counts }: { k: Kit; country: string; counts: Record<string, number> }) {
   const { t } = k
-  const count = (type: ChType) => CH_INSTITUTIONS.filter((i) => i.type === type).length
+  // Switzerland and Austria have curated institution lists; Germany counts programmes from the data.
+  const list = country === 'CH' ? CH_INSTITUTIONS : country === 'AT' ? AT_INSTITUTIONS : null
+  const count = (type: string) => (list ? list.filter((i) => i.type === type).length : (counts[type] ?? 0))
   return (
     <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
       <div className="max-w-3xl">
@@ -265,12 +265,12 @@ function SchoolTypes({ k }: { k: Kit }) {
         <p className="mt-4 text-lg text-muted">{t.landing.typesSub}</p>
       </div>
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {(['uni', 'eth', 'fh', 'ph'] as ChType[]).map((type, i) => (
+        {SCHOOL_TYPES[country].map((type, i) => (
           <div key={type} className="card on-color p-6" style={{ background: TYPE_STYLE[type].color, transform: `rotate(${[-1, 0.7, -0.5, 1][i]}deg)` }}>
             <div className="text-3xl" aria-hidden="true">{TYPE_STYLE[type].glyph}</div>
-            <h3 className="mt-3 font-display text-2xl">{CH_TYPE_LABEL[type].de}</h3>
-            <p className="mt-1 text-sm font-bold">{t.landing.typesCount(count(type))}</p>
-            <p className="mt-3 text-sm leading-relaxed text-muted">{CH_ADMISSION[type].de}</p>
+            <h3 className="mt-3 hyphens-auto break-words font-display text-2xl">{typeLabel(type, country, 'de')}</h3>
+            {count(type) > 0 && <p className="mt-1 text-sm font-bold">{t.landing.typesCount(count(type))}</p>}
+            <p className="mt-3 text-sm leading-relaxed text-muted">{ADMISSION[country]?.[type]?.de}</p>
           </div>
         ))}
       </div>

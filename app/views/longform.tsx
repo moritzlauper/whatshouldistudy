@@ -1,4 +1,8 @@
 import Link from 'next/link'
+import { cloneElement, isValidElement } from 'react'
+import type { ReactNode } from 'react'
+import { regionalize } from '@/lib/site/regional.ts'
+import type { Locale } from '@/lib/site/config.ts'
 import { getMeta } from '@/lib/server/data.ts'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
 import { CONTACT } from '@/lib/site.ts'
@@ -8,8 +12,43 @@ import type { SiteProps } from '@/lib/site/config.ts'
 import { fmtNumber } from '@/lib/site/labels.ts'
 import { Sparkle } from '../ui/shapes.tsx'
 
-/** Who runs the site, for the privacy notice. Set NEXT_PUBLIC_OPERATOR, e.g. «Vorname Name, Zürich». */
+/** Who runs the site, for the privacy notice and imprint. Set NEXT_PUBLIC_OPERATOR, e.g. «Vorname Name, Zürich». */
 const OPERATOR = process.env.NEXT_PUBLIC_OPERATOR
+const OPERATOR_ADDRESS = process.env.NEXT_PUBLIC_OPERATOR_ADDRESS
+
+/** The German pages are written in Swiss spelling; Germany and Austria get theirs. */
+function rz(node: ReactNode, l: Locale): ReactNode {
+  if (l === 'de-CH' || l === 'en') return node
+  if (typeof node === 'string') return regionalize(node, l)
+  if (Array.isArray(node)) return node.map((n) => rz(n, l))
+  if (isValidElement(node)) {
+    const kids = (node.props as { children?: ReactNode }).children
+    if (kids === undefined) return node
+    return cloneElement(node, undefined, ...(Array.isArray(kids) ? kids.map((c) => rz(c, l)) : [rz(kids, l)]))
+  }
+  return node
+}
+
+/** Where a country's programmes come from, for «So funktioniert’s». */
+function LocalData({ k }: { k: Kit }) {
+  if (k.site === 'de')
+    return (
+      <p>
+        Die deutschen Studiengänge stammen aus der Studiensuche der Bundesagentur für Arbeit, der gleichen Datenbank wie auf studiensuche.arbeitsagentur.de: Bachelor, Master, Staatsexamen und Diplom an Universitäten, Hochschulen für angewandte Wissenschaften, dualen Hochschulen und Kunsthochschulen. Staatliche Hochschulen verlangen keine Studiengebühren, nur einen Semesterbeitrag von meist 100 bis 400 Euro; Baden-Württemberg verlangt von Studierenden aus Nicht-EU-Staaten 1’500 Euro pro Semester. Private Hochschulen legen ihre Gebühren selbst fest.
+      </p>
+    )
+  if (k.site === 'at')
+    return (
+      <p>
+        Die österreichischen Studien stammen von Statistik Austria und aus unidata, dem Datenangebot des Wissenschaftsministeriums (CC BY 4.0): öffentliche Universitäten, Fachhochschulen, Pädagogische Hochschulen und Privatuniversitäten. Öffentliche Universitäten sind für Studierende aus der EU innerhalb der Regelstudienzeit plus zwei Toleranzsemestern gratis, Studierende aus Drittstaaten zahlen 726.72 Euro pro Semester. Fachhochschulen verlangen meist bis 363.36 Euro pro Semester.
+      </p>
+    )
+  return (
+    <p>
+      Die Schweizer Studiengänge stammen aus den Zahlen des Bundesamts für Statistik: Studierende pro Hochschule, Fachrichtung und Stufe, jeweils fürs neuste Studienjahr. Wo in einer Fachrichtung Bachelor- oder Master-Studierende eingeschrieben sind, gibt es dort ein Studium. Die Zahl der Studierenden steht beim Studiengang. Die Gebühr ist die Semestergebühr der Hochschule mal zwei, gerundet. Genaue Studiengangsnamen, Vertiefungen und Fristen findest du auf der Website der Hochschule. Quelle: BFS.
+    </p>
+  )
+}
 
 function Page({ title, lead, children }: { title: string; lead?: string; children: React.ReactNode }) {
   return (
@@ -25,7 +64,7 @@ function Page({ title, lead, children }: { title: string; lead?: string; childre
 }
 
 function DataSources({ k, sources, updated, sample }: { k: Kit; sources: Array<{ id: string; name: string; url: string; licence: string; count: number; ok: boolean; error?: string }>; updated?: string; sample: boolean }) {
-  const de = k.locale === 'de'
+  const de = k.locale !== 'en'
   return (
     <>
       <p>
@@ -53,8 +92,8 @@ export async function HowView({ site, base }: SiteProps) {
   const k = kit(site, base)
   const { meta, sample } = await getMeta()
   const sources = meta?.sources ?? []
-  if (k.locale === 'de') {
-    return (
+  if (k.locale !== 'en') {
+    return rz(
       <Page title="So funktioniert’s" lead={`Drei Schritte: Wir lesen, was du schaust, hörst und baust, übersetzen das in ${FIELDS.length} Studienfelder und verrechnen es mit dem, was du uns über dich sagst. Hier steht jeder Schritt, auch was das Ganze nicht kann.`}>
         <h2>1. Deine Quellen lesen, in deinem Browser</h2>
         <p>
@@ -131,15 +170,14 @@ export async function HowView({ site, base }: SiteProps) {
         </ul>
 
         <h2 id="daten">Woher die Studiengänge kommen</h2>
-        <p>
-          Die Schweizer Studiengänge stammen aus den Zahlen des Bundesamts für Statistik: Studierende pro Hochschule, Fachrichtung und Stufe, jeweils fürs neuste Studienjahr. Wo in einer Fachrichtung Bachelor- oder Master-Studierende eingeschrieben sind, gibt es dort ein Studium. Die Zahl der Studierenden steht beim Studiengang. Die Gebühr ist die Semestergebühr der Hochschule mal zwei, gerundet. Genaue Studiengangsnamen, Vertiefungen und Fristen findest du auf der Website der Hochschule. Quelle: BFS.
-        </p>
-        <p>Fürs Ausland kommen offene Daten aus den USA, Grossbritannien und Frankreich dazu, für 60 weitere Länder OpenAlex. Alles wird jede Woche automatisch aktualisiert.</p>
+        <LocalData k={k} />
+        <p>Fürs Ausland kommen offene Daten aus den Nachbarländern, den USA, Grossbritannien und Frankreich dazu, für 60 weitere Länder OpenAlex. Alles wird jede Woche automatisch aktualisiert.</p>
         <DataSources k={k} sources={sources} updated={meta?.updated} sample={sample} />
         <p className="mt-10">
           <Link href={k.r.start}>Probier’s aus →</Link>
         </p>
-      </Page>
+      </Page>,
+      k.locale,
     )
   }
   return (
@@ -231,12 +269,12 @@ export async function HowView({ site, base }: SiteProps) {
 
 export function PrivacyView({ site, base }: SiteProps) {
   const k = kit(site, base)
-  if (k.locale === 'de') {
-    return (
+  if (k.locale !== 'en') {
+    return rz(
       <Page title="Datenschutz" lead="Kurz: Dein Verlauf kommt nie bei uns an. Die Analyse läuft in deinem Browser, und was sie behält, bleibt dort.">
         <h2>Wer verantwortlich ist</h2>
         <p>
-          {OPERATOR ? `${OPERATOR}. ` : ''}Erreichbar unter <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Massgebend ist das Schweizer Datenschutzgesetz (DSG). Für Nutzer:innen aus der EU gilt zusätzlich die DSGVO.
+          {OPERATOR ? `${OPERATOR}. ` : ''}Erreichbar unter <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. {k.site === 'ch' ? 'Massgebend ist das Schweizer Datenschutzgesetz (DSG). Für Nutzer:innen aus der EU gilt zusätzlich die DSGVO.' : 'Massgebend ist die Datenschutz-Grundverordnung (DSGVO), dazu das Schweizer Datenschutzgesetz (DSG).'}
         </p>
 
         <h2>Was mit deinen Daten passiert</h2>
@@ -273,7 +311,8 @@ export function PrivacyView({ site, base }: SiteProps) {
         <p>
           Über deine Nutzung der Analyse halten wir keine Personendaten. Es gibt bei uns also nichts herauszugeben oder zu löschen, du steuerst alles in deinem Browser. Für Zahlungsbelege oder Fragen: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
         </p>
-      </Page>
+      </Page>,
+      k.locale,
     )
   }
   return (
@@ -319,8 +358,8 @@ export function PrivacyView({ site, base }: SiteProps) {
 
 export function TermsView({ site, base }: SiteProps) {
   const k = kit(site, base)
-  if (k.locale === 'de') {
-    return (
+  if (k.locale !== 'en') {
+    return rz(
       <Page title="AGB">
         <h2>Was du bekommst</h2>
         <p>
@@ -334,15 +373,22 @@ export function TermsView({ site, base }: SiteProps) {
         <p>Die Schnittstelle für Studiengänge ist nicht zum automatischen Auslesen oder Weiterverkaufen gedacht. Die offenen Daten dahinter bleiben bei ihren Herausgebern unter deren Lizenzen frei verfügbar.</p>
         <h2>Datenquellen</h2>
         <p>
-          Schweiz: Bundesamt für Statistik (BFS), freie Nutzung mit Quellenangabe. Ausland: College Scorecard des US-Bildungsministeriums (gemeinfrei), Discover Uni (Office for Students, CC BY 4.0), Parcoursup (Licence Ouverte 2.0), OpenAlex (CC0), University Domains List (MIT).
+          Schweiz: Bundesamt für Statistik (BFS), freie Nutzung mit Quellenangabe. Deutschland: Studiensuche der Bundesagentur für Arbeit. Österreich: Statistik Austria und unidata (CC BY 4.0). Weitere Länder: College Scorecard des US-Bildungsministeriums (gemeinfrei), Discover Uni (Office for Students, CC BY 4.0), Parcoursup (Licence Ouverte 2.0), OpenAlex (CC0), University Domains List (MIT).
         </p>
+        {k.site !== 'ch' && (
+          <>
+            <h2>Widerrufsrecht</h2>
+            <p>Du kannst den Kauf innert 14 Tagen ohne Angabe von Gründen widerrufen. Eine E-Mail an uns genügt, wir erstatten den vollen Betrag, auch wenn du den Report schon geöffnet hast.</p>
+          </>
+        )}
         <h2>Recht</h2>
-        <p>Es gilt Schweizer Recht.</p>
+        <p>{k.site === 'ch' ? 'Es gilt Schweizer Recht.' : 'Es gilt Schweizer Recht. Zwingende Verbraucherschutzvorschriften deines Wohnsitzstaates bleiben unberührt.'}</p>
         <h2>Kontakt</h2>
         <p>
           <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
         </p>
-      </Page>
+      </Page>,
+      k.locale,
     )
   }
   return (
@@ -366,5 +412,35 @@ export function TermsView({ site, base }: SiteProps) {
         <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
       </p>
     </Page>
+  )
+}
+
+export function ImprintView({ site, base }: SiteProps) {
+  const k = kit(site, base)
+  const de = k.locale !== 'en'
+  return rz(
+    <Page title={de ? 'Impressum' : 'Imprint'}>
+      <h2>{de ? 'Betreiber' : 'Operator'}</h2>
+      <p>
+        {OPERATOR ?? (de ? 'Angaben folgen.' : 'Details to follow.')}
+        {OPERATOR_ADDRESS ? (
+          <>
+            <br />
+            {OPERATOR_ADDRESS}
+          </>
+        ) : null}
+      </p>
+      <h2>{de ? 'Kontakt' : 'Contact'}</h2>
+      <p>
+        <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
+      </p>
+      <h2>{de ? 'Haftung' : 'Liability'}</h2>
+      <p>
+        {de
+          ? 'Die Angaben zu Studiengängen stammen aus öffentlichen Daten und können unvollständig oder veraltet sein. Für Inhalte verlinkter Seiten sind deren Betreiber verantwortlich.'
+          : 'Programme information comes from public data and can be incomplete or out of date. Linked sites are the responsibility of their operators.'}
+      </p>
+    </Page>,
+    k.locale,
   )
 }

@@ -104,6 +104,8 @@ export interface DataMeta {
   /** Programme counts per field and country. */
   counts: Record<string, Record<string, number>>
   totals: { programmes: number; countries: number; institutions: number; newLast90Days: number }
+  /** Per country: programmes, institutions, and programmes per kind of institution. */
+  byCountry?: Record<string, { programmes: number; institutions: number; byType: Record<string, number> }>
   unclassified: number
 }
 
