@@ -98,7 +98,7 @@
     "countries": 1
   },
   "mechanical-engineering": {
-    "programmes": 18,
+    "programmes": 19,
     "countries": 3,
     "usMedianEarnings": 78883,
     "salaryPercentile": 0.83
@@ -232,7 +232,7 @@
     "salaryPercentile": 0.54
   },
   "business-management": {
-    "programmes": 17,
+    "programmes": 19,
     "countries": 2,
     "usMedianEarnings": 62757.5,
     "salaryPercentile": 0.63

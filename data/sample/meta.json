@@ -34,7 +34,7 @@
       "url": "https://data.enseignementsup-recherche.gouv.fr/",
       "licence": "Licence Ouverte 2.0",
       "ok": true,
-      "count": 40,
+      "count": 43,
       "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
@@ -144,7 +144,7 @@
       "FR": 1
     },
     "mechanical-engineering": {
-      "FR": 3,
+      "FR": 4,
       "GB": 1,
       "US": 14
     },
@@ -223,7 +223,7 @@
       "US": 24
     },
     "business-management": {
-      "FR": 1,
+      "FR": 3,
       "US": 16
     },
     "finance-accounting": {
@@ -319,9 +319,9 @@
     "aviation": {}
   },
   "totals": {
-    "programmes": 552,
+    "programmes": 555,
     "countries": 3,
-    "institutions": 23,
+    "institutions": 26,
     "newLast90Days": 0
   },
   "unclassified": 0

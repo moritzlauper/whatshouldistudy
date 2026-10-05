@@ -20,9 +20,11 @@ const DATASETS = ['fr-esr-cartographie_formations_parcoursup', 'fr-esr-parcoursu
 
 type Rec = Record<string, unknown>
 
+/** First non-empty value of the given columns; the cartographie stores many as arrays. */
 const pick = (r: Rec, keys: string[]): string | undefined => {
   for (const k of keys) {
-    const v = r[k]
+    let v = r[k]
+    if (Array.isArray(v)) v = v.find((x) => typeof x === 'string' && x.trim())
     if (typeof v === 'string' && v.trim()) return v.trim()
     if (typeof v === 'number') return String(v)
   }
@@ -116,7 +118,9 @@ export function parseRecords(records: Rec[], fetchedAt: string): { programmes: P
       else if (/pass|acc[eè]s sant[ée]|l\.as/.test(f)) fields = ['medicine']
       else if (/[ée]cole de commerce|management|commerce/.test(f)) fields = ['business-management']
       else if (/sciences po|iep/.test(f)) fields = ['political-science']
-      confidence = fields.length ? 0.6 : 0
+      // Generalist engineering schools: specialisation comes later.
+      else if (/ing[ée]nieur/.test(f)) fields = ['mechanical-engineering', 'electrical-engineering', 'industrial-engineering']
+      confidence = fields.length ? (fields.length > 1 ? 0.4 : 0.6) : 0
     }
     if (!fields.length) {
       unclassified++

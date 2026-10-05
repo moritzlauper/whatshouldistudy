@@ -46,6 +46,13 @@ test('Parcoursup records: levels, fees and fields', () => {
   assert.equal(info.tuition?.eu, 178)
   assert.equal(programmes.find((p) => p.name === 'CPGE - MPSI')!.fields[0], 'mathematics')
   assert.equal(programmes.find((p) => p.name.endsWith("Diplôme d'Etat d'infirmier"))!.fields[0], 'nursing')
+  // Records in the exact shape of the live dataset (array columns).
+  const ci = programmes.find((p) => p.name === 'BTS - Services - Commerce International')!
+  assert.equal(ci.level, 'short')
+  assert.equal(ci.fields[0], 'business-management')
+  assert.equal(ci.public, false)
+  assert.equal(programmes.find((p) => p.name.startsWith('BTS - Production - Conception des processus'))!.fields[0], 'mechanical-engineering')
+  assert.equal(programmes.find((p) => p.name === "BTS - Services - Support à l'action managériale")!.public, true)
 })
 
 test('UK award labels map to levels', () => {
