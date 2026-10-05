@@ -307,6 +307,9 @@ async function tableIds(): Promise<string[]> {
   return [...ids]
 }
 
+const FIXTURE_SCHOOLS = /^(ETHZ|EPFL|UZH|BE|SG|ZHAW|ZHdK|HSLU|FHNW|BFH|PH Zürich|PHBern|PHLU)$/
+const FIXTURE_SUBJECTS = /^(Informatik|Maschineningenieurwesen|Psychologie|Humanmedizin|Rechtswissenschaft|Architektur|Soziale Arbeit|Biologie|Physik|Pflege|Elektrotechnik|Wirtschaftsinformatik|Musik|Vorschul- und Primarstufe|Sekundarstufe I|Betriebsökonomie|Volkswirtschaftslehre|Geschichte|Design|Film)$/
+
 /** Retries a rate-limited call after longer and longer pauses. */
 async function patiently<T>(fn: () => Promise<T>): Promise<T> {
   for (let round = 1; ; round++) {
@@ -350,6 +353,9 @@ async function main() {
       const rows = pxRows(meta.variables, res)
       log(`CH ${id}: ${rows.length} rows; columns ${JSON.stringify(detectColumns(Object.keys(rows[0] ?? {})))}`)
       for (const r of rows.slice(0, 3)) log(`CH sample: ${JSON.stringify(r)}`)
+      // A small slice of real rows for the demo dataset (scrapers/fixtures/ch-bfs.json).
+      const slice = rows.filter((r) => Number(r.Wert) > 0 && FIXTURE_SCHOOLS.test(r.Hochschule ?? '') && FIXTURE_SUBJECTS.test(r.Fachrichtung ?? ''))
+      log(`CH fixture ${id}: ${JSON.stringify(slice.slice(0, 60))}`)
       const parsed = parseRows(rows, fetchedAt)
       parsed.unmatched.forEach((x) => unmatched.add(x))
       parsed.unclassified.forEach((x) => unclassified.add(x))
