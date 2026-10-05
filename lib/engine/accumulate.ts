@@ -31,12 +31,17 @@ export interface AccumulateOptions {
   dataPoints?: number
 }
 
+/** Nothing we read is older than 2004; anything else is a misread date. */
+const EARLIEST = Date.UTC(2004, 0, 1)
+const plausible = (t: number) => t >= EARLIEST && t <= Date.now() + 86_400_000
+
 function monthOf(t: number): string {
   const d = new Date(t)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
 export function accumulate(items: SignalItem[], opts: AccumulateOptions): SourceSummary {
+  items = items.map((it) => (it.time && !plausible(it.time) ? { ...it, time: undefined } : it))
   const fieldScore = new Float64Array(FIELD_COUNT)
   const fieldItems = new Uint32Array(FIELD_COUNT)
   const fieldMonths: Array<Set<string>> = FIELDS.map(() => new Set())

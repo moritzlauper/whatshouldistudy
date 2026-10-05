@@ -69,7 +69,7 @@ export function computeInterest(summaries: SourceSummary[]): { byField: Map<stri
   const perSource: Array<{ s: SourceSummary; w: number }> = []
   // With a long watch history, the sign-in snapshot (subscriptions, likes)
   // mostly repeats older choices, so it counts for less.
-  const watched = summaries.find((s) => s.source === 'takeout')?.stats.watchedVideos ?? 0
+  const watched = Number(summaries.find((s) => s.source === 'takeout')?.stats.watchedVideos ?? 0)
   for (const s of summaries) {
     if (s.totalWeight <= 0) continue
     const volume = Math.min(1, Math.log10(1 + s.dataPoints) / 3)

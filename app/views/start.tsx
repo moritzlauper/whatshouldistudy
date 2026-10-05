@@ -200,17 +200,17 @@ export function StartView() {
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-line bg-bg/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-3 text-sm">
-            <span className="chip">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3 text-sm">
+            <span className="chip whitespace-nowrap">
               <span className="font-display text-base">{mounted ? fmtNumber(signals, intl) : '0'}</span> {t.start.signals}
             </span>
-            <span className="chip">
+            <span className="chip whitespace-nowrap max-sm:hidden">
               <span className="font-display text-base">{mounted ? q.done : 0}</span>/{q.total} {t.start.answers}
             </span>
           </div>
           {mounted && ready ? (
-            <Link href={r.results} className="btn btn-primary">
+            <Link href={r.results} className="btn btn-primary shrink-0 whitespace-nowrap">
               {t.start.seeResult}
             </Link>
           ) : (

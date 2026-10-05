@@ -139,6 +139,8 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
   const time = a.time ? Date.parse(a.time) : undefined
   const url = a.titleUrl ?? ''
   if (a.details?.some((d) => /ads/i.test(d.name ?? ''))) return null
+  // Google's own «Why is this here?» and settings links.
+  if (/^https?:\/\/(myaccount|policies|support)\.google\./.test(url)) return null
   const isYouTube = /youtube\.com|youtu\.be/.test(url) || /youtube/i.test(a.header ?? '')
 
   if (isYouTube && /\/watch\?v=/.test(url)) {
@@ -156,7 +158,7 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
       c.channelCounts.set(group, cc)
     }
     // Songs on plain YouTube are listening too, not an interest in studying music.
-    const music = /music/i.test(a.header ?? '') || a.products?.some((p) => /music/i.test(p)) || MUSIC_TITLE.test(title) || MUSIC_CHANNEL.test(channel)
+    const music = /music/i.test(a.header ?? '') || a.products?.some((p) => /music/i.test(p)) || /music\.youtube\.com/.test(url) || MUSIC_TITLE.test(title) || MUSIC_CHANNEL.test(channel)
     ;(music ? c.music : c.watch).push({
       kind: 'watch',
       text: `${title} \n ${channel}`,
@@ -250,29 +252,61 @@ function addSpotifyPlay(c: Collected, e: Record<string, string | number | null>)
   if (artist && ms >= 30_000) c.spotifyTracks.set(artist, (c.spotifyTracks.get(artist) ?? 0) + 1)
 }
 
+const MONTHS: Record<string, number> = {
+  jan: 0, janv: 0, ene: 0, gen: 0, feb: 1, févr: 1, fév: 1, mär: 2, märz: 2, mar: 2, mars: 2, apr: 3, avr: 3, abr: 3, mai: 4, may: 4, mag: 4,
+  jun: 5, juni: 5, juin: 5, giu: 5, jul: 6, juli: 6, juil: 6, lug: 6, aug: 7, août: 7, ago: 7, sep: 8, sept: 8, set: 8,
+  okt: 9, oct: 9, ott: 9, nov: 10, dez: 11, dec: 11, déc: 11, dic: 11,
+}
+
+/**
+ * Takeout writes dates in the account's language: «5 Oct 2026, 00:20:33 CEST»,
+ * «Oct 5, 2026, 12:20:33 AM CEST», «05.10.2026, 00:20:33 MESZ», «5. Okt. 2026, …».
+ * Only a date with a written-out year and a time counts, so a stray number in
+ * a title never turns into one.
+ */
+export function takeoutDate(raw: string): number {
+  const s = raw.replace(/[  ]/g, ' ').trim().toLowerCase()
+  const clock = /\b(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s*([ap])\.?m\.?)?/.exec(s)
+  if (!clock) return NaN
+  let h = Number(clock[1])
+  if (clock[4]) h = (h % 12) + (clock[4] === 'p' ? 12 : 0)
+  const at = (y: number, m: number | undefined, d: number) =>
+    m !== undefined && m >= 0 && m < 12 && d >= 1 && d <= 31 && y >= 1990 && y < 2100
+      ? new Date(y, m, d, h, Number(clock[2]), Number(clock[3] ?? 0)).getTime()
+      : NaN
+  const num = /\b(\d{1,2})[./](\d{1,2})[./](\d{4})\b/.exec(s)
+  if (num) return at(Number(num[3]), Number(num[2]) - 1, Number(num[1]))
+  const dm = /\b(\d{1,2})\.?\s+([a-zäéû]{3,5})\.?\s+(\d{4})\b/.exec(s)
+  if (dm) return at(Number(dm[3]), MONTHS[dm[2]], Number(dm[1]))
+  const md = /\b([a-zäéû]{3,5})\.?\s+(\d{1,2}),?\s+(\d{4})\b/.exec(s)
+  if (md) return at(Number(md[3]), MONTHS[md[1]], Number(md[2]))
+  return NaN
+}
+
 /** Takeout's HTML version of the same activity log. */
 function parseActivityHtml(c: Collected, path: string, html: string): boolean {
   const name = path.split('/').pop() ?? path
   // My Activity keeps one folder per product: …/My Activity/Chrome/MyActivity.html.
   const product = path.split('/').slice(-2, -1)[0] ?? ''
   const doc = new DOMParser().parseFromString(html, 'text/html')
-  const cells = doc.querySelectorAll('.content-cell')
+  const cells = doc.querySelectorAll('.content-cell:not(.mdl-typography--caption)')
   let n = 0
   for (const cell of cells) {
     const links = cell.querySelectorAll('a')
     if (!links.length) continue
     const first = links[0] as HTMLAnchorElement
     const second = links[1] as HTMLAnchorElement | undefined
-    // The date is the last text line of the cell.
-    const lines = (cell as HTMLElement).innerText?.split('\n') ?? cell.textContent?.split('\n') ?? []
-    const last = lines.filter((l) => l.trim()).pop() ?? ''
-    const parsed = Date.parse(last.replace(/\s[A-Z]{2,5}$/, '').replace(/ /g, ' '))
+    // The date is the cell's last bare text, after the last <br>.
+    const texts = [...cell.childNodes].filter((n) => n.nodeType === 3 && n.textContent?.trim())
+    const parsed = takeoutDate(texts.at(-1)?.textContent ?? '')
     // The URL tells YouTube from Google search; the folder names the product.
     const kind = addActivity(c, {
       header: /youtube/i.test(product) ? undefined : product,
       title: first.textContent ?? '',
       titleUrl: first.href,
       subtitles: second ? [{ name: second.textContent ?? '', url: second.href }] : [],
+      // «YouTube» and «YouTube Music» share a folder; the entry's own header tells them apart.
+      products: [cell.closest('.outer-cell')?.querySelector('.header-cell')?.textContent?.trim() ?? product],
       time: Number.isFinite(parsed) ? new Date(parsed).toISOString() : undefined,
     })
     if (kind) n++
