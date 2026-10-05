@@ -162,7 +162,7 @@ export function StartView() {
               color="var(--yellow)"
               text={t.start.searchText}
               summaries={[state.summaries['google-search']]}
-              requests={[{ href: 'https://takeout.google.com/settings/takeout/custom/myactivity', label: t.start.request.search }]}
+              requests={[{ href: 'https://takeout.google.com/settings/takeout/custom/my_activity', label: t.start.request.search }]}
               hint={t.start.hint.search}
               running={running?.source === 'search' ? running : null}
               error={errors.search}
