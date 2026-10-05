@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getDirectory, getResearch } from '@/lib/server/data.ts'
-import { bearer, verifyToken } from '@/lib/server/token.ts'
+import { bearer, paymentMode, verifyToken } from '@/lib/server/token.ts'
 import { FIELD_BY_ID } from '@/lib/taxonomy/fields.ts'
 
 /**
@@ -9,7 +9,7 @@ import { FIELD_BY_ID } from '@/lib/taxonomy/fields.ts'
  * Paid; the free tier gets counts only.
  */
 export async function POST(req: Request) {
-  const paid = !!verifyToken(bearer(req))
+  const paid = paymentMode() === 'off' || !!verifyToken(bearer(req))
   const body = (await req.json().catch(() => null)) as { fields?: string[]; countries?: string[] } | null
   const fields = (body?.fields ?? []).filter((f) => FIELD_BY_ID[f]).slice(0, 6)
   const countries = (body?.countries ?? []).filter((c) => /^[A-Z]{2}$/.test(c)).slice(0, 40)

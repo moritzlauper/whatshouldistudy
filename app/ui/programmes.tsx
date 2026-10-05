@@ -80,7 +80,11 @@ export function Programmes({ results, prefs, hideFirst = true }: { results: Resu
       </p>
       {teaser?.sample && <p className="on-color mt-5 rounded-2xl border-2 border-line bg-yellow px-4 py-3 text-sm font-semibold">⚠ {t.programmes.demo}</p>}
 
-      {token ? <Explorer token={token} fields={fields} prefs={prefs} onInvalid={() => setToken(null)} /> : <Locked teaser={teaser} config={config} results={results} hideFirst={hideFirst} />}
+      {token || config?.payments === 'off' ? (
+        <Explorer token={token} fields={fields} prefs={prefs} onInvalid={() => setToken(null)} />
+      ) : (
+        <Locked teaser={teaser} config={config} results={results} hideFirst={hideFirst} />
+      )}
 
       {noDataCountries.length > 0 && <Research token={token} fields={fields.map((f) => f.id)} countries={noDataCountries} />}
     </section>
@@ -276,7 +280,7 @@ function Item({ k, v }: { k: string; v?: string }) {
   )
 }
 
-function Explorer({ token, fields, prefs, onInvalid }: { token: string; fields: Array<{ id: string; score: number }>; prefs: Preferences; onInvalid: () => void }) {
+function Explorer({ token, fields, prefs, onInvalid }: { token: string | null; fields: Array<{ id: string; score: number }>; prefs: Preferences; onInvalid: () => void }) {
   const { t, locale, intl, conf, site } = useSite()
   const [country, setCountry] = useState('')
   const [level, setLevel] = useState<Level | 'any'>('any')
@@ -290,7 +294,7 @@ function Explorer({ token, fields, prefs, onInvalid }: { token: string; fields: 
     async (extra: Record<string, unknown> = {}) => {
       const res = await fetch(withBase('/api/programmes'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ fields, prefs, country: country || undefined, level, sort, q: q || undefined, page, ...extra }),
       })
       if (res.status === 401) {
