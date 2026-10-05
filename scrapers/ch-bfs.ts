@@ -97,11 +97,29 @@ const BFS_FIELDS: Record<string, string[]> = {
   'betriebs- und produktionswissenschaften': ['industrial-engineering', 'mechanical-engineering'],
   'technische wissenschaften übergreifend/übrige': ['industrial-engineering', 'materials-science'],
   militärwissenschaften: ['political-science'],
+  verkehrssysteme: ['civil-engineering', 'logistics'],
+  informationstechnologie: ['computer-science', 'information-systems'],
+  'technik und it fächerübergreifend / übrige': ['industrial-engineering', 'computer-science'],
+  'wirtschaft und dienstleistungen fächerübergreifend / übrige': ['business-management'],
+  'design (masterstudio)': ['graphic-design', 'industrial-design'],
+  'design fächerübergreifend / übrige': ['graphic-design', 'industrial-design'],
+  spitzensport: ['sports-science'],
+  transdisziplinarität: ['liberal-arts'],
+  'musik und bewegung': ['music', 'education'],
+  'gesundheit fächerübergreifend / übrige': ['public-health', 'nursing'],
+  fachdidaktik: ['education'],
+}
+
+/** Teacher education by subject: Primarstufe is a Bachelor, Sek I a Bachelor plus Master, special needs a Master. */
+export function teacherLevels(field: string): Level[] {
+  if (/sekundarstufe i(?!i)|sek(\.|undar)?\s*i(?!i)\b/i.test(field)) return ['bachelor', 'master']
+  if (/sekundarstufe ii|maturitätsschul|gymnas|berufsfachschul|heilpädagog|förderung|fachdidaktik/i.test(field)) return ['master']
+  return ['bachelor']
 }
 
 /** «Theologie übergreifend/übrige» reads badly as a programme name. */
 export function chProgrammeName(level: Level, field: string): string {
-  const name = field.replace(/\s*übergreifend\/übrige$/i, ' (fächerübergreifend)')
+  const name = field.replace(/\s*(fächer)?übergreifend\s*\/\s*übrige$/i, ' (fächerübergreifend)')
   return `${level === 'bachelor' ? 'Bachelor' : 'Master'} ${name}`
 }
 
@@ -130,32 +148,35 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
   const col = detectColumns(header)
   const unmatched = new Set<string>()
   const unclassified = new Set<string>()
-  if (!col.institution || !col.field || !col.level) return { programmes: [], unmatched, unclassified }
+  if (!col.institution || !col.field) return { programmes: [], unmatched, unclassified }
 
   // Latest year only.
   const years = col.year ? rows.map((r) => r[col.year!]).filter(Boolean).sort() : []
   const latest = years[years.length - 1]
 
-  const acc = new Map<string, { inst: string; field: string; level: Level; students: number }>()
+  const acc = new Map<string, { inst: string; field: string; level: Level; students: number; shared?: boolean }>()
   for (const r of rows) {
     if (latest && col.year && r[col.year] !== latest) continue
-    const levelText = r[col.level!] ?? ''
-    const level = LEVEL.find(([re]) => re.test(levelText))?.[1]
-    if (!level) continue
     const inst = r[col.institution!]?.trim()
     const field = r[col.field!]?.trim()
     const skip = /^total|^insgesamt|^alle|^ensemble|^andere|^übrige|- total$/i
     if (!inst || !field || skip.test(inst) || skip.test(field)) continue
+    const levelText = col.level ? (r[col.level] ?? '') : ''
+    const found = LEVEL.find(([re]) => re.test(levelText))?.[1]
+    // Without a level column (teacher education), the subject tells.
+    const levels = col.level ? (found ? [found] : []) : teacherLevels(field)
     const n = col.value ? Number(String(r[col.value]).replace(/['’\s]/g, '')) : 1
-    if (!Number.isFinite(n) || n <= 0) continue
-    const key = `${inst}|${field}|${level}`
-    const a = acc.get(key)
-    if (a) a.students += n
-    else acc.set(key, { inst, field, level, students: n })
+    if (!levels.length || !Number.isFinite(n) || n <= 0) continue
+    for (const level of levels) {
+      const key = `${inst}|${field}|${level}`
+      const a = acc.get(key)
+      if (a) a.students += n
+      else acc.set(key, { inst, field, level, students: n, shared: levels.length > 1 })
+    }
   }
 
   const programmes: Programme[] = []
-  for (const { inst, field, level, students } of acc.values()) {
+  for (const { inst, field, level, students, shared } of acc.values()) {
     const found = findChInstitution(inst)
     if (!found) {
       unmatched.add(inst)
@@ -168,7 +189,7 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
       continue
     }
     const institution = splitUmbrella(found, inst, fields)
-    const fee = institution.feeCh * 2
+    const fee = (institution.feeCh ?? 0) * 2
     programmes.push({
       id: programmeId(['ch', institution.id, field, level]),
       name: chProgrammeName(level, field),
@@ -180,7 +201,7 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
       fields,
       fieldConfidence: confidence,
       languages: institution.languages,
-      tuition: {
+      tuition: !fee ? undefined : {
         currency: 'CHF',
         domestic: fee,
         eu: institution.feeForeign ? institution.feeForeign * 2 : fee,
@@ -192,7 +213,7 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
       mode: 'full-time',
       url: institution.url,
       institutionUrl: institution.url,
-      capacity: students,
+      capacity: shared ? undefined : students,
       public: institution.type !== 'fh' || !['ffhs', 'kalaidos'].includes(institution.id),
       admission: CH_ADMISSION[institution.type].de,
       institutionType: institution.type,
@@ -268,8 +289,11 @@ async function tableIds(): Promise<string[]> {
     // Enrolment by subject, level and institution; the narrowest table per type of school.
     for (const p of found.values()) {
       const t = de(p.title)
-      if (!/^studierende/i.test(t) || !/fachrichtung/i.test(t) || !/studienstufe/i.test(t) || !/hochschule$/i.test(t)) continue
-      if (/geschlecht|staatsangeh|bildungsherkunft|alter|ohne ph/i.test(t)) continue
+      if (!/^studierende/i.test(t) || !/fachrichtung/i.test(t) || !/hochschule$/i.test(t)) continue
+      if (/staatsangeh|bildungsherkunft|alter|ohne ph/i.test(t)) continue
+      // The universities of teacher education have their own table, without study level.
+      const ph = /pädagogischen hochschulen \(ohne fh\)/i.test(t)
+      if (!ph && (!/studienstufe/i.test(t) || /geschlecht/i.test(t))) continue
       for (const r of p.resources) {
         const id = (r.url ?? '').match(/(px-x-\d+_\d+)/)?.[1]
         if (id) ids.add(id)

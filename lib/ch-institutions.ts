@@ -18,7 +18,8 @@ export interface ChInstitution {
   canton: string
   url: string
   languages: string[]
-  feeCh: number
+  /** Unknown for some private schools. */
+  feeCh?: number
   feeForeign?: number
   aliases: string[]
 }
@@ -74,11 +75,12 @@ export const CH_INSTITUTIONS: ChInstitution[] = [
   { id: 'zfh', name: 'ZHAW Zürcher Hochschule für Angewandte Wissenschaften', type: 'fh', city: 'Winterthur', canton: 'ZH', url: 'https://www.zhaw.ch', languages: ['de', 'en'], feeCh: 720, feeForeign: 1220, aliases: ['ZHAW', 'Zürcher Hochschule für Angewandte Wissenschaften', 'Zürcher Fachhochschule', 'ZFH'] },
   { id: 'zhdk', name: 'Zürcher Hochschule der Künste', type: 'fh', city: 'Zürich', canton: 'ZH', url: 'https://www.zhdk.ch', languages: ['de', 'en'], feeCh: 720, feeForeign: 1220, aliases: ['Zürcher Hochschule der Künste', 'ZHdK'] },
   { id: 'hslu', name: 'Hochschule Luzern', type: 'fh', city: 'Luzern', canton: 'LU', url: 'https://www.hslu.ch', languages: ['de', 'en'], feeCh: 800, feeForeign: 1000, aliases: ['Hochschule Luzern', 'HSLU', 'Fachhochschule Zentralschweiz'] },
-  { id: 'ost', name: 'OST Ostschweizer Fachhochschule', type: 'fh', city: 'St. Gallen', canton: 'SG', url: 'https://www.ost.ch', languages: ['de'], feeCh: 750, feeForeign: 1050, aliases: ['OST Ostschweizer Fachhochschule', 'OST', 'Ostschweizer Fachhochschule', 'FHO Fachhochschule Ostschweiz', 'Fachhochschule Ostschweiz'] },
+  { id: 'ost', name: 'OST Ostschweizer Fachhochschule', type: 'fh', city: 'St. Gallen', canton: 'SG', url: 'https://www.ost.ch', languages: ['de'], feeCh: 750, feeForeign: 1050, aliases: ['OST Ostschweizer Fachhochschule', 'OST', 'Ostschweizer Fachhochschule', 'FHO Fachhochschule Ostschweiz', 'Fachhochschule Ostschweiz', 'FHO'] },
   { id: 'supsi', name: 'SUPSI Scuola universitaria professionale della Svizzera italiana', type: 'fh', city: 'Mendrisio', canton: 'TI', url: 'https://www.supsi.ch', languages: ['it', 'en'], feeCh: 800, feeForeign: 1600, aliases: ['SUPSI', 'Scuola universitaria professionale della Svizzera italiana', 'Fachhochschule der italienischen Schweiz'] },
   { id: 'ffhs', name: 'Fernfachhochschule Schweiz', type: 'fh', city: 'Brig', canton: 'VS', url: 'https://www.ffhs.ch', languages: ['de'], feeCh: 3500, aliases: ['Fernfachhochschule Schweiz', 'FFHS'] },
   { id: 'kalaidos', name: 'Kalaidos Fachhochschule', type: 'fh', city: 'Zürich', canton: 'ZH', url: 'https://www.kalaidos-fh.ch', languages: ['de'], feeCh: 5000, aliases: ['Kalaidos Fachhochschule', 'Kalaidos FH', 'Kalaidos', 'Kal FH'] },
   { id: 'fhgr', name: 'Fachhochschule Graubünden', type: 'fh', city: 'Chur', canton: 'GR', url: 'https://www.fhgr.ch', languages: ['de', 'en'], feeCh: 750, feeForeign: 950, aliases: ['TH CHUR', 'FHGR', 'Fachhochschule Graubünden', 'FH Graubünden', 'Technische Hochschule Graubünden', 'HTW Chur'] },
+  { id: 'hwz', name: 'HWZ Hochschule für Wirtschaft Zürich', type: 'fh', city: 'Zürich', canton: 'ZH', url: 'https://fh-hwz.ch', languages: ['de'], aliases: ['HWZ', 'Hochschule für Wirtschaft Zürich'] },
   { id: 'ehsm', name: 'Eidgenössische Hochschule für Sport Magglingen', type: 'fh', city: 'Magglingen', canton: 'BE', url: 'https://www.ehsm.admin.ch', languages: ['de', 'fr'], feeCh: 700, aliases: ['EHSM', 'Eidgenössische Hochschule für Sport Magglingen'] },
   { id: 'hfh', name: 'Interkantonale Hochschule für Heilpädagogik', type: 'ph', city: 'Zürich', canton: 'ZH', url: 'https://www.hfh.ch', languages: ['de'], feeCh: 700, aliases: ['Interkantonale Hochschule für Heilpädagogik', 'HfH'] },
   // Universities of teacher education

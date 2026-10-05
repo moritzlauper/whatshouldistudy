@@ -98,3 +98,16 @@ test('only Bachelor and Master are requested; catch-all subjects get readable na
   assert.equal(chProgrammeName('bachelor', 'Theologie übergreifend/übrige'), 'Bachelor Theologie (fächerübergreifend)')
   assert.equal(findChInstitution('TH CHUR')?.id, 'fhgr')
 })
+
+test('teacher education levels come from the subject', async () => {
+  const { teacherLevels, parseRows: parse } = await import('../scrapers/ch-bfs.ts')
+  assert.deepEqual(teacherLevels('Lehrkräfteausbildung Vorschulstufe und Primarstufe'), ['bachelor'])
+  assert.deepEqual(teacherLevels('Lehrkräfteausbildung Sekundarstufe I'), ['bachelor', 'master'])
+  assert.deepEqual(teacherLevels('Lehrkräfteausbildung Sekundarstufe II'), ['master'])
+  assert.deepEqual(teacherLevels('Schulische Heilpädagogik'), ['master'])
+  const rows = [{ Jahr: '2025/26', Hochschule: 'PHZH', Fachrichtung: 'Lehrkräfteausbildung Sekundarstufe I', Geschlecht: 'Total', Wert: '800' }]
+  const { programmes } = parse(rows, '2026-01-01')
+  assert.deepEqual(programmes.map((p) => p.level).sort(), ['bachelor', 'master'])
+  assert.equal(programmes[0].institutionType, 'ph')
+  assert.equal(programmes[0].capacity, undefined)
+})
