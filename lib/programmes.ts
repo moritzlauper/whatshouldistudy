@@ -38,6 +38,10 @@ export interface Programme {
   selective?: boolean
   capacity?: number
   public?: boolean
+  /** Who can apply (Switzerland: which Matura). */
+  admission?: string
+  /** Swiss institution type: uni, eth, fh, ph. */
+  institutionType?: string
   source: string
   /** ISO date the programme first appeared in our data. */
   firstSeen?: string

@@ -49,6 +49,13 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     licence: 'Licence Ouverte 2.0',
   },
   {
+    id: 'ch-bfs',
+    name: 'Studierende nach Hochschule und Fachrichtung (Bundesamt für Statistik)',
+    countries: ['CH'],
+    url: 'https://opendata.swiss/de/organization/bundesamt-fur-statistik-bfs',
+    licence: 'Open use, Quelle: BFS',
+  },
+  {
     id: 'global-openalex',
     name: 'OpenAlex institution research profiles',
     countries: ['*'],
@@ -89,7 +96,7 @@ interface Inputs {
 function readOutputs(): Inputs {
   const status = new Map<string, Partial<SourceStatus>>()
   const outputs: ScrapeOutput[] = []
-  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup']) {
+  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs']) {
     const o = readJson<ScrapeOutput>(join(OUT, `${id}.json`))
     if (o) {
       outputs.push(o)
@@ -147,7 +154,7 @@ function previousFirstSeen(dir: string | undefined): Map<string, string> {
  */
 function carryOver(inputs: Inputs, dir: string) {
   const prevMeta = readJson<DataMeta>(join(dir, 'meta.json'))
-  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup']) {
+  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs']) {
     const fresh = inputs.outputs.find((o) => o.source === id && o.programmes.length)
     const prevCount = prevMeta?.sources.find((s) => s.id === id)?.count ?? 0
     // A source that suddenly shrinks by half is more likely broken than real.

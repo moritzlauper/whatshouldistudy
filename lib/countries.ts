@@ -25,7 +25,7 @@ export const COUNTRIES: Record<string, CountryInfo> = {
   FR: { name: 'France', region: 'eu', currency: 'EUR', typicalTuition: 'Public €178 (bachelor), €254 (master) for EU; higher for non-EU', programmeData: true },
   DE: { name: 'Germany', region: 'eu', currency: 'EUR', typicalTuition: 'Free at public universities (semester fee ~€150–400); Baden-Württemberg €1,500/semester for non-EU' },
   AT: { name: 'Austria', region: 'eu', currency: 'EUR', typicalTuition: 'Free for EU (within standard duration); ~€1,500/yr non-EU' },
-  CH: { name: 'Switzerland', region: 'ch', currency: 'CHF', typicalTuition: 'CHF 1,000–4,000/yr at public universities' },
+  CH: { name: 'Switzerland', region: 'ch', currency: 'CHF', typicalTuition: 'CHF 1,000–4,000/yr at public universities', programmeData: true },
   NL: { name: 'Netherlands', region: 'eu', currency: 'EUR', typicalTuition: '~€2,600 for EU; €9k–€20k non-EU' },
   BE: { name: 'Belgium', region: 'eu', currency: 'EUR', typicalTuition: '~€1,000 for EU; €4k+ non-EU' },
   LU: { name: 'Luxembourg', region: 'eu', currency: 'EUR', typicalTuition: '€400–800' },
@@ -125,6 +125,8 @@ export function feeFor(p: Programme, origin: Preferences['origin']): { amount: n
     amount = t.international ?? t.domestic
   } else if (p.country === 'GB') {
     amount = origin === 'uk' ? t.domestic : (t.international ?? undefined)
+  } else if (p.country === 'CH') {
+    amount = origin === 'ch' ? t.domestic : (t.international ?? t.domestic)
   } else if (region === 'eu' || region === 'eea') {
     const euLike = origin === 'eu' || origin === 'ch'
     amount = euLike ? (t.eu ?? t.domestic) : (t.international ?? t.eu ?? t.domestic)
