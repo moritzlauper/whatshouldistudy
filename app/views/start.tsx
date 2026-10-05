@@ -61,6 +61,9 @@ export function StartView() {
           // Optional enrichment.
         }
       }
+      if (!result.summaries.length && result.takeoutExport?.files) {
+        throw new Error(t.start.takeoutPartMissing(fmtNumber(result.takeoutExport.files, intl)))
+      }
       if (!result.summaries.length) {
         const skipped = result.skipped.length ? ` ${t.start.unread(result.skipped.length, result.skipped.slice(0, 3).join(', '))}` : ''
         throw new Error((result.takeoutProducts ? t.start.emptyTakeout(result.takeoutProducts.filter((x) => x !== '?').join(', ')) : t.start.noHistory) + skipped)
@@ -111,7 +114,7 @@ export function StartView() {
             badge={t.start.best}
             text={t.start.yt}
             summaries={[state.summaries.takeout, state.summaries['google-search'], state.summaries.youtube]}
-            requests={[{ href: 'https://takeout.google.com/settings/takeout/custom/youtube,my_activity', label: t.start.request.youtube }]}
+            requests={[{ href: 'https://takeout.google.com/settings/takeout/custom/my_activity', label: t.start.request.youtube }]}
             hint={t.start.hint.takeout}
             running={running?.source === 'takeout' ? running : null}
             error={errors.takeout || errors.google}
@@ -239,7 +242,10 @@ function Connected({ summary, onRemove }: { summary: SourceSummary; onRemove: ()
   return (
     <div className="mt-4 rounded-2xl border-2 border-line bg-surface-2 p-4 text-sm">
       <div className="flex items-center justify-between gap-3">
-        <span className="font-bold text-good">✓ {t.start.signalsRead(fmtNumber(summary.dataPoints, intl))}</span>
+        <span>
+          <span className="block text-xs font-extrabold uppercase tracking-wider text-muted">{t.sourceNames[summary.source] ?? summary.label}</span>
+          <span className="font-bold text-good">✓ {t.start.signalsRead(fmtNumber(summary.dataPoints, intl))}</span>
+        </span>
         <button type="button" onClick={onRemove} className="text-xs font-semibold text-muted underline-offset-2 hover:text-bad hover:underline">
           {t.start.remove}
         </button>

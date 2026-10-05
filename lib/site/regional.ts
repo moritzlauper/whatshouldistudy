@@ -26,6 +26,8 @@ const WORDS: Record<'de-DE' | 'de-AT', Array<[RegExp, string]>> = {
     [/\bLohn\b/g, 'Gehalt'],
     [/\binnert\b/g, 'innerhalb von'],
     [/\bein E-Mail\b/g, 'eine E-Mail'],
+    [/\bdas E-Mail\b/g, 'die E-Mail'],
+    [/\bim E-Mail\b/g, 'in der E-Mail'],
     [/Major-Minor-Studium/g, 'Zwei-Fach-Studium'],
     [/Bildnerisches Gestalten/g, 'Kunst'],
     [/\bim Spital\b/g, 'im Krankenhaus'],

@@ -35,6 +35,8 @@ export interface ExportResult {
   skipped: string[]
   /** Products listed in a Takeout archive that held no history we read (e.g. only «Search profile»). */
   takeoutProducts?: string[]
+  /** What the archive's table of contents says the whole export holds. */
+  takeoutExport?: { files: number; size: string }
   /** Re-runs the analysis with channel descriptions fetched from the YouTube API. */
   rebuild: (channels: Map<string, ChannelInfo>) => ExportResult
 }
@@ -69,6 +71,7 @@ interface Collected {
   recognised: string[]
   skipped: string[]
   takeoutProducts?: string[]
+  takeoutExport?: { files: number; size: string }
 }
 
 const WATCH_PREFIX = /^(watched|vous avez regardé|has visto|hai guardato|assistiu a|bekeken|obejrzano|ha visto|se vio|visto)\s*:?\s+/i
@@ -391,6 +394,10 @@ async function readEntry(c: Collected, name: string, text: string): Promise<void
           return /no data found|keine daten/i.test(words.slice(0, 400)) ? `${name}: no data` : name
         })
         c.takeoutProducts = products.length ? [...new Set(products)] : ['?']
+        const words = block.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ')
+        const files = [...words.matchAll(/(\d[\d,.']*) (?:files? exported successfully|Dateien? erfolgreich exportiert)/gi)].reduce((s, m) => s + Number(m[1].replace(/\D/g, '')), 0)
+        const size = /•\s*([\d.,]+\s*[KMGT]B)\s*•/.exec(text.replace(/<[^>]+>/g, ' '))?.[1] ?? ''
+        if (files) c.takeoutExport = { files, size }
         return
       }
       if (/content-cell/.test(text)) {
@@ -545,6 +552,7 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>): Expo
     recognised: c.recognised,
     skipped: c.skipped,
     takeoutProducts: c.takeoutProducts,
+    takeoutExport: c.takeoutExport,
     rebuild: (ch) => buildSummaries(c, ch),
   }
 }

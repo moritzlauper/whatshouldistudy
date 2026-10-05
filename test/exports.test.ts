@@ -105,6 +105,13 @@ test('a Takeout archive without history says what it holds', async () => {
   assert.deepEqual(r.takeoutProducts, ["Search profile"])
 })
 
+test('notices when only the table of contents of a Takeout download arrived', async () => {
+  const index = '<div>Products in Archive (1)</div><div id="service-tile-MY_ACTIVITY" class="service_wrapper"><img src="x" alt="My Activity"><div>337 files exported successfully</div><div>HTML format • 336.3 MB •</div></div>'
+  const r = await readTexts([{ name: 'Takeout/archive_browser.html', text: index }])
+  assert.equal(r.summaries.length, 0)
+  assert.deepEqual(r.takeoutExport, { files: 337, size: '336.3 MB' })
+})
+
 test('reads the rest of My Activity: pages, Maps, apps, without double-counting YouTube', async () => {
   const activity = [
     { header: 'Chrome', title: 'Visited Quantum mechanics - Wikipedia', titleUrl: 'https://en.wikipedia.org/wiki/Quantum_mechanics', time: '2024-04-02T10:00:00.000Z', products: ['Chrome'] },
