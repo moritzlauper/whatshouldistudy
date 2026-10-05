@@ -52,20 +52,21 @@ export const CH_ADMISSION: Record<ChType, { de: string; en: string }> = {
 
 export const CH_INSTITUTIONS: ChInstitution[] = [
   // Federal institutes of technology
-  { id: 'ethz', name: 'ETH Zürich', type: 'eth', city: 'Zürich', canton: 'ZH', url: 'https://ethz.ch', languages: ['de', 'en'], feeCh: 730, aliases: ['ETH Zürich', 'ETHZ', 'Eidgenössische Technische Hochschule Zürich', 'ETH Zurich'] },
-  { id: 'epfl', name: 'EPFL', type: 'eth', city: 'Lausanne', canton: 'VD', url: 'https://www.epfl.ch', languages: ['fr', 'en'], feeCh: 730, aliases: ['EPFL', 'EPF Lausanne', 'Ecole polytechnique fédérale de Lausanne', 'ETH Lausanne'] },
+  { id: 'ethz', name: 'ETH Zürich', type: 'eth', city: 'Zürich', canton: 'ZH', url: 'https://ethz.ch', languages: ['de', 'en'], feeCh: 730, aliases: ['ETH Zürich', 'ETHZ', 'Eidgenössische Technische Hochschule Zürich', 'ETH Zurich', 'ETH'] },
+  { id: 'epfl', name: 'EPFL', type: 'eth', city: 'Lausanne', canton: 'VD', url: 'https://www.epfl.ch', languages: ['fr', 'en'], feeCh: 730, aliases: ['EPFL', 'EPF Lausanne', 'Ecole polytechnique fédérale de Lausanne', 'ETH Lausanne', 'EPF'] },
   // Cantonal universities
-  { id: 'uzh', name: 'Universität Zürich', type: 'uni', city: 'Zürich', canton: 'ZH', url: 'https://www.uzh.ch', languages: ['de', 'en'], feeCh: 770, aliases: ['Universität Zürich', 'UZH', 'Zürich UNI', 'Uni Zürich'] },
-  { id: 'unibe', name: 'Universität Bern', type: 'uni', city: 'Bern', canton: 'BE', url: 'https://www.unibe.ch', languages: ['de', 'en'], feeCh: 750, feeForeign: 950, aliases: ['Universität Bern', 'UniBE', 'Bern UNI', 'Uni Bern'] },
-  { id: 'unibas', name: 'Universität Basel', type: 'uni', city: 'Basel', canton: 'BS', url: 'https://www.unibas.ch', languages: ['de', 'en'], feeCh: 850, aliases: ['Universität Basel', 'UniBas', 'Basel UNI', 'Uni Basel'] },
-  { id: 'unilu', name: 'Universität Luzern', type: 'uni', city: 'Luzern', canton: 'LU', url: 'https://www.unilu.ch', languages: ['de'], feeCh: 810, feeForeign: 1210, aliases: ['Universität Luzern', 'UniLU', 'Luzern UNI', 'Uni Luzern'] },
-  { id: 'unisg', name: 'Universität St. Gallen (HSG)', type: 'uni', city: 'St. Gallen', canton: 'SG', url: 'https://www.unisg.ch', languages: ['de', 'en'], feeCh: 1229, feeForeign: 3129, aliases: ['Universität St. Gallen', 'HSG', 'St. Gallen UNI', 'Universität St.Gallen'] },
-  { id: 'unifr', name: 'Université de Fribourg / Universität Freiburg', type: 'uni', city: 'Fribourg', canton: 'FR', url: 'https://www.unifr.ch', languages: ['fr', 'de', 'en'], feeCh: 720, feeForeign: 870, aliases: ['Université de Fribourg', 'Universität Freiburg', 'Fribourg UNI', 'UniFR'] },
-  { id: 'unige', name: 'Université de Genève', type: 'uni', city: 'Genève', canton: 'GE', url: 'https://www.unige.ch', languages: ['fr', 'en'], feeCh: 500, aliases: ['Université de Genève', 'Genève UNI', 'UniGE', 'Universität Genf'] },
-  { id: 'unil', name: 'Université de Lausanne', type: 'uni', city: 'Lausanne', canton: 'VD', url: 'https://www.unil.ch', languages: ['fr', 'en'], feeCh: 580, aliases: ['Université de Lausanne', 'Lausanne UNI', 'UNIL', 'Universität Lausanne'] },
-  { id: 'unine', name: 'Université de Neuchâtel', type: 'uni', city: 'Neuchâtel', canton: 'NE', url: 'https://www.unine.ch', languages: ['fr', 'en'], feeCh: 515, feeForeign: 790, aliases: ['Université de Neuchâtel', 'Neuchâtel UNI', 'UniNE', 'Universität Neuenburg'] },
-  { id: 'usi', name: 'Università della Svizzera italiana', type: 'uni', city: 'Lugano', canton: 'TI', url: 'https://www.usi.ch', languages: ['it', 'en'], feeCh: 2000, feeForeign: 4000, aliases: ['Università della Svizzera italiana', 'USI', 'Lugano UNI', 'Universität der italienischen Schweiz'] },
-  { id: 'unidistance', name: 'UniDistance Suisse', type: 'uni', city: 'Brig', canton: 'VS', url: 'https://unidistance.ch', languages: ['de', 'fr', 'en'], feeCh: 1200, aliases: ['UniDistance Suisse', 'Fernuniversität Schweiz', 'FernUni Schweiz', 'UniDistance'] },
+  { id: 'uzh', name: 'Universität Zürich', type: 'uni', city: 'Zürich', canton: 'ZH', url: 'https://www.uzh.ch', languages: ['de', 'en'], feeCh: 770, aliases: ['Universität Zürich', 'UZH', 'Zürich UNI', 'Uni Zürich', 'ZH'] },
+  { id: 'unibe', name: 'Universität Bern', type: 'uni', city: 'Bern', canton: 'BE', url: 'https://www.unibe.ch', languages: ['de', 'en'], feeCh: 750, feeForeign: 950, aliases: ['Universität Bern', 'UniBE', 'Bern UNI', 'Uni Bern', 'BE'] },
+  { id: 'unibas', name: 'Universität Basel', type: 'uni', city: 'Basel', canton: 'BS', url: 'https://www.unibas.ch', languages: ['de', 'en'], feeCh: 850, aliases: ['Universität Basel', 'UniBas', 'Basel UNI', 'Uni Basel', 'BS'] },
+  { id: 'unilu', name: 'Universität Luzern', type: 'uni', city: 'Luzern', canton: 'LU', url: 'https://www.unilu.ch', languages: ['de'], feeCh: 810, feeForeign: 1210, aliases: ['Universität Luzern', 'UniLU', 'Luzern UNI', 'Uni Luzern', 'LU'] },
+  { id: 'unisg', name: 'Universität St. Gallen (HSG)', type: 'uni', city: 'St. Gallen', canton: 'SG', url: 'https://www.unisg.ch', languages: ['de', 'en'], feeCh: 1229, feeForeign: 3129, aliases: ['Universität St. Gallen', 'HSG', 'St. Gallen UNI', 'Universität St.Gallen', 'SG'] },
+  { id: 'unifr', name: 'Université de Fribourg / Universität Freiburg', type: 'uni', city: 'Fribourg', canton: 'FR', url: 'https://www.unifr.ch', languages: ['fr', 'de', 'en'], feeCh: 720, feeForeign: 870, aliases: ['Université de Fribourg', 'Universität Freiburg', 'Fribourg UNI', 'UniFR', 'FR'] },
+  { id: 'unige', name: 'Université de Genève', type: 'uni', city: 'Genève', canton: 'GE', url: 'https://www.unige.ch', languages: ['fr', 'en'], feeCh: 500, aliases: ['Université de Genève', 'Genève UNI', 'UniGE', 'Universität Genf', 'GE'] },
+  { id: 'unil', name: 'Université de Lausanne', type: 'uni', city: 'Lausanne', canton: 'VD', url: 'https://www.unil.ch', languages: ['fr', 'en'], feeCh: 580, aliases: ['Université de Lausanne', 'Lausanne UNI', 'UNIL', 'Universität Lausanne', 'LS'] },
+  { id: 'unine', name: 'Université de Neuchâtel', type: 'uni', city: 'Neuchâtel', canton: 'NE', url: 'https://www.unine.ch', languages: ['fr', 'en'], feeCh: 515, feeForeign: 790, aliases: ['Université de Neuchâtel', 'Neuchâtel UNI', 'UniNE', 'Universität Neuenburg', 'NE'] },
+  { id: 'usi', name: 'Università della Svizzera italiana', type: 'uni', city: 'Lugano', canton: 'TI', url: 'https://www.usi.ch', languages: ['it', 'en'], feeCh: 2000, feeForeign: 4000, aliases: ['Università della Svizzera italiana', 'USI', 'Lugano UNI', 'Universität der italienischen Schweiz', 'LUG'] },
+  { id: 'unidistance', name: 'UniDistance Suisse', type: 'uni', city: 'Brig', canton: 'VS', url: 'https://unidistance.ch', languages: ['de', 'fr', 'en'], feeCh: 1200, aliases: ['UniDistance Suisse', 'Fernuniversität Schweiz', 'FernUni Schweiz', 'UniDistance', 'FS-CH', 'FernUni'] },
+  { id: 'iheid', name: 'Geneva Graduate Institute (IHEID)', type: 'uni', city: 'Genève', canton: 'GE', url: 'https://www.graduateinstitute.ch', languages: ['en', 'fr'], feeCh: 1000, aliases: ['IHEID', 'Geneva Graduate Institute', 'Institut de hautes études internationales et du développement'] },
   // Universities of applied sciences
   { id: 'bfh', name: 'Berner Fachhochschule', type: 'fh', city: 'Bern', canton: 'BE', url: 'https://www.bfh.ch', languages: ['de', 'fr'], feeCh: 750, feeForeign: 950, aliases: ['Berner Fachhochschule', 'BFH'] },
   { id: 'hes-so', name: 'HES-SO Haute école spécialisée de Suisse occidentale', type: 'fh', city: 'Delémont', canton: 'JU', url: 'https://www.hes-so.ch', languages: ['fr', 'de'], feeCh: 500, aliases: ['HES-SO', 'Haute école spécialisée de Suisse occidentale', 'Fachhochschule Westschweiz'] },
@@ -76,7 +77,8 @@ export const CH_INSTITUTIONS: ChInstitution[] = [
   { id: 'ost', name: 'OST Ostschweizer Fachhochschule', type: 'fh', city: 'St. Gallen', canton: 'SG', url: 'https://www.ost.ch', languages: ['de'], feeCh: 750, feeForeign: 1050, aliases: ['OST Ostschweizer Fachhochschule', 'OST', 'Ostschweizer Fachhochschule', 'FHO Fachhochschule Ostschweiz', 'Fachhochschule Ostschweiz'] },
   { id: 'supsi', name: 'SUPSI Scuola universitaria professionale della Svizzera italiana', type: 'fh', city: 'Mendrisio', canton: 'TI', url: 'https://www.supsi.ch', languages: ['it', 'en'], feeCh: 800, feeForeign: 1600, aliases: ['SUPSI', 'Scuola universitaria professionale della Svizzera italiana', 'Fachhochschule der italienischen Schweiz'] },
   { id: 'ffhs', name: 'Fernfachhochschule Schweiz', type: 'fh', city: 'Brig', canton: 'VS', url: 'https://www.ffhs.ch', languages: ['de'], feeCh: 3500, aliases: ['Fernfachhochschule Schweiz', 'FFHS'] },
-  { id: 'kalaidos', name: 'Kalaidos Fachhochschule', type: 'fh', city: 'Zürich', canton: 'ZH', url: 'https://www.kalaidos-fh.ch', languages: ['de'], feeCh: 5000, aliases: ['Kalaidos Fachhochschule', 'Kalaidos FH', 'Kalaidos'] },
+  { id: 'kalaidos', name: 'Kalaidos Fachhochschule', type: 'fh', city: 'Zürich', canton: 'ZH', url: 'https://www.kalaidos-fh.ch', languages: ['de'], feeCh: 5000, aliases: ['Kalaidos Fachhochschule', 'Kalaidos FH', 'Kalaidos', 'Kal FH'] },
+  { id: 'ehsm', name: 'Eidgenössische Hochschule für Sport Magglingen', type: 'fh', city: 'Magglingen', canton: 'BE', url: 'https://www.ehsm.admin.ch', languages: ['de', 'fr'], feeCh: 700, aliases: ['EHSM', 'Eidgenössische Hochschule für Sport Magglingen'] },
   { id: 'hfh', name: 'Interkantonale Hochschule für Heilpädagogik', type: 'ph', city: 'Zürich', canton: 'ZH', url: 'https://www.hfh.ch', languages: ['de'], feeCh: 700, aliases: ['Interkantonale Hochschule für Heilpädagogik', 'HfH'] },
   // Universities of teacher education
   { id: 'phzh', name: 'Pädagogische Hochschule Zürich', type: 'ph', city: 'Zürich', canton: 'ZH', url: 'https://phzh.ch', languages: ['de'], feeCh: 720, aliases: ['Pädagogische Hochschule Zürich', 'PHZH'] },
@@ -106,6 +108,7 @@ export function findChInstitution(name: string): ChInstitution | undefined {
   const n = norm(name)
   const exact = BY_ALIAS.get(n)
   if (exact) return exact
+  if (n.length <= 3) return undefined
   for (const [alias, inst] of BY_ALIAS) if (alias.length > 3 && (n.includes(alias) || alias.includes(n))) return inst
   return undefined
 }

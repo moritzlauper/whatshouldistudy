@@ -79,3 +79,14 @@ test('PXWeb answers become rows; umbrella schools are split', async () => {
   const zhaw = findChInstitution('ZHAW')!
   assert.equal(splitUmbrella(zhaw, 'ZHAW', ['music']).id, 'zfh')
 })
+
+test('the newest year is chosen by its label, BFS short codes are matched', async () => {
+  const { pxQuery } = await import('../scrapers/ch-bfs.ts')
+  const years = Array.from({ length: 12 }, (_, i) => `${2014 + i}/${String(15 + i).padStart(2, '0')}`)
+  const q = pxQuery([{ code: 'Jahr', text: 'Jahr', values: years.map((_, i) => String(i)), valueTexts: years, time: true }])
+  assert.deepEqual(q.query[0].selection.values, ['11'])
+  assert.equal(findChInstitution('BE')?.id, 'unibe')
+  assert.equal(findChInstitution('BFH')?.id, 'bfh')
+  assert.equal(findChInstitution('Kal FH')?.id, 'kalaidos')
+  assert.equal(findChInstitution('XY'), undefined)
+})

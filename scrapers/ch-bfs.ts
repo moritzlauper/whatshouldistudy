@@ -75,6 +75,19 @@ const BFS_FIELDS: Record<string, string[]> = {
   'chemie und life sciences': ['chemistry', 'molecular-biology'],
   'land- und forstwirtschaft': ['agriculture'],
   'lehrkräfteausbildung': ['education'],
+  holztechnik: ['materials-science', 'mechanical-engineering'],
+  telekommunikation: ['electrical-engineering', 'computer-engineering'],
+  aviatik: ['aviation', 'aerospace-engineering'],
+  'life technologies': ['biomedical-engineering', 'molecular-biology'],
+  'information und dokumentation': ['information-systems'],
+  konservierung: ['fine-arts', 'archaeology'],
+  filmrealisation: ['film-production'],
+  'bildnerisches gestalten': ['fine-arts', 'education'],
+  'ästhetische erziehung': ['education', 'fine-arts'],
+  'vermittlung von kunst und design': ['education', 'fine-arts'],
+  'schul- und kirchenmusik': ['music', 'education'],
+  'theaterschaffen in den darstellenden künsten': ['performing-arts'],
+  'angewandte sprachen': ['languages', 'linguistics'],
 }
 
 const ARTS = new Set(['fine-arts', 'graphic-design', 'fashion-design', 'film-production', 'animation-vfx', 'music', 'music-production', 'performing-arts', 'game-design'])
@@ -84,8 +97,8 @@ const byId = (id: string) => CH_INSTITUTIONS.find((i) => i.id === id)!
 export function splitUmbrella(inst: ChInstitution, bfsName: string, fields: string[]): ChInstitution {
   const teaching = fields[0] === 'education'
   if (inst.id === 'zfh' && !/zhaw|angewandte wissenschaften/i.test(bfsName)) {
+    if (fields.some((f) => ARTS.has(f))) return byId('zhdk')
     if (teaching) return byId('phzh')
-    if (fields.every((f) => ARTS.has(f))) return byId('zhdk')
   }
   if (inst.id === 'fhnw' && teaching) return byId('fhnw-ph')
   if (inst.id === 'supsi' && teaching) return byId('dfa')
@@ -116,7 +129,8 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
     if (!level) continue
     const inst = r[col.institution!]?.trim()
     const field = r[col.field!]?.trim()
-    if (!inst || !field || /^total|^insgesamt|^alle|^ensemble/i.test(inst) || /^total|^insgesamt|^alle|^ensemble/i.test(field)) continue
+    const skip = /^total|^insgesamt|^alle|^ensemble|^andere|^übrige|- total$/i
+    if (!inst || !field || skip.test(inst) || skip.test(field)) continue
     const n = col.value ? Number(String(r[col.value]).replace(/['’\s]/g, '')) : 1
     if (!Number.isFinite(n) || n <= 0) continue
     const key = `${inst}|${field}|${level}`
@@ -193,8 +207,9 @@ export function pxQuery(vars: PxVariable[]) {
   for (const v of vars) {
     const name = `${v.code} ${v.text}`
     if (v.time || /jahr|year|ann[ée]e/i.test(name)) {
-      const latest = [...v.values].sort().at(-1)!
-      query.push({ code: v.code, selection: { filter: 'item', values: [latest] } })
+      // Codes are often just indexes ("0" … "45"); the newest year is the highest text.
+      const latest = v.valueTexts.reduce((best, t, i) => (t > v.valueTexts[best] ? i : best), 0)
+      query.push({ code: v.code, selection: { filter: 'item', values: [v.values[latest]] } })
     } else if (/hochschule|fachrichtung|studienstufe|institution/i.test(name)) {
       query.push({ code: v.code, selection: { filter: 'all', values: ['*'] } })
     } else {
@@ -260,7 +275,10 @@ async function main() {
     try {
       const meta = await getJson<{ title: string; variables: PxVariable[] }>(url)
       log(`CH ${id}: ${meta.title}`)
-      for (const v of meta.variables) log(`CH ${id} variable ${v.code} «${v.text}»: ${v.values.length} values, e.g. ${v.valueTexts.slice(0, 6).join(' | ')}`)
+      for (const v of meta.variables) {
+        const all = /hochschule|institution/i.test(v.text) || v.values.length <= 8
+        log(`CH ${id} variable ${v.code} «${v.text}»: ${v.values.length} values: ${(all ? v.valueTexts : v.valueTexts.slice(0, 6)).join(' | ')}`)
+      }
       const body = pxQuery(meta.variables)
       const res = await getJson<Parameters<typeof pxRows>[1]>(url, {
         method: 'POST',
