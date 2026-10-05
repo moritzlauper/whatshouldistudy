@@ -153,28 +153,9 @@ export function StartView() {
             notes={notes.tiktok}
             onFiles={(f) => onFiles(f, 'tiktok')}
           />
-          <ExportCard
-            title="Spotify"
-            glyph="🎧"
-            color="var(--lime)"
-            text={t.start.spotify}
-            summaries={[state.summaries['spotify-export'], state.summaries.spotify]}
-            requests={[{ href: 'https://www.spotify.com/account/privacy/', label: t.start.request.spotify }]}
-            hint={t.start.hint.spotify}
-            running={running?.source === 'spotify' ? running : null}
-            error={errors.spotify}
-            notes={notes.spotify}
-            onFiles={(f) => onFiles(f, 'spotify')}
-          >
-            {mounted && isConfigured('spotify') && (
-              <button type="button" onClick={() => connect('spotify')} className="btn btn-ghost btn-sm mt-4">
-                {state.summaries.spotify ? t.start.refresh : t.start.connect('Spotify')}
-              </button>
-            )}
-          </ExportCard>
           <OAuthCard id="reddit" provider="reddit" title="Reddit" glyph="👽" color="var(--orange)" text={t.start.reddit} summary={state.summaries.reddit} error={errors.reddit} onConnect={() => connect('reddit')} mounted={mounted} />
           <GitHubCard summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
-          <div className="md:col-span-2">
+          <div>
             <ExportCard
               title={t.start.searchTitle}
               glyph="🔎"
@@ -190,6 +171,14 @@ export function StartView() {
             />
           </div>
         </div>
+        <SpotifyRow
+          summaries={[state.summaries['spotify-export'], state.summaries.spotify]}
+          running={running?.source === 'spotify' ? running : null}
+          error={errors.spotify}
+          notes={notes.spotify}
+          onFiles={(f) => onFiles(f, 'spotify')}
+          onConnect={mounted && isConfigured('spotify') ? () => connect('spotify') : undefined}
+        />
       </section>
 
       <section id={r.anchors.questionnaire} className="mt-20 scroll-mt-24">
@@ -465,5 +454,51 @@ function GitHubCard({ summary, running, error, onSubmit }: { summary?: SourceSum
         </button>
       </form>
     </Card>
+  )
+}
+
+/** Spotify, small and optional: its download takes days, and music says little. */
+function SpotifyRow(props: { summaries: Array<SourceSummary | undefined>; running: Running; error?: string; notes?: string[]; onFiles: (files: File[]) => void; onConnect?: () => void }) {
+  const { t } = useSite()
+  return (
+    <div className="card-sm mt-5 p-4 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="text-xl" aria-hidden="true">🎧</span>
+          <div className="min-w-0">
+            <div className="font-bold">
+              Spotify <span className="ml-1 rounded-full border-2 border-soft-line px-2 py-0.5 text-xs font-semibold text-muted">{t.start.optional}</span>
+            </div>
+            <p className="text-xs text-muted">{t.start.spotifySlow}</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <a href="https://www.spotify.com/account/privacy/" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+            {t.start.request.spotify} ↗
+          </a>
+          {props.onConnect && (
+            <button type="button" onClick={props.onConnect} className="btn btn-ghost btn-sm">
+              {t.start.connect('Spotify')}
+            </button>
+          )}
+        </div>
+      </div>
+      {props.summaries.map((x) => x && <Connected key={x.source} summary={x} onRemove={() => removeSummary(x.source)} />)}
+      <details className="mt-3 text-sm">
+        <summary className="cursor-pointer font-semibold text-accent">{t.start.fileReady}</summary>
+        <div className="mt-3 flex">
+          <DropZone onFiles={props.onFiles} />
+        </div>
+      </details>
+      {props.running && <RunningLine running={props.running} />}
+      {props.error && <p className="mt-3 text-sm font-semibold text-bad">{props.error}</p>}
+      {props.notes && props.notes.length > 0 && (
+        <ul className="mt-3 text-xs text-muted">
+          {props.notes.map((n) => (
+            <li key={n}>✓ {n}</li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
