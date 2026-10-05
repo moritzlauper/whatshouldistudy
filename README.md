@@ -172,6 +172,8 @@ State of the first live runs (October 2026):
 | Source | Result |
 | --- | --- |
 | Switzerland (BFS) | 1,069 programmes for 2025/26: 536 university, 75 ETH/EPFL, 373 FH, 85 PH, at 43 institutions |
+| Germany (Studiensuche) | 20,094 programmes from 21,585 offers: 12,467 university, 5,651 HAW/FH, 1,182 private, 726 art and music colleges, 37 dual, 31 public administration |
+| Austria (studienwahl.at) | 2,551 entries, 1,658 programmes in the first run (976 university, 290 FH, 190 private, 130 arts, 72 PH). The German title stems in `scrapers/lib/de-titles.ts` came after it and classify the compound names it missed. |
 | France (Parcoursup cartographie) | 25,805 programmes read, ~22,300+ classified |
 | United States | with `DEMO_KEY` only ~1,000 of ~2,700 institutions (≈45,000 programmes) before the rate limit; complete with a free API key |
 | OpenAlex | 14,657 universities in 65 countries |

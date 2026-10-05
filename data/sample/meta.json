@@ -57,19 +57,21 @@
       ],
       "url": "https://studiensuche.arbeitsagentur.de/",
       "licence": "Öffentliche Schnittstelle der Bundesagentur für Arbeit",
-      "ok": false,
-      "count": 0
+      "ok": true,
+      "count": 45,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
-      "id": "at-statistik",
-      "name": "Studien an österreichischen Hochschulen (Statistik Austria, unidata)",
+      "id": "at-studienwahl",
+      "name": "studienwahl.at (Bundesministerium für Frauen, Wissenschaft und Forschung, OeAD)",
       "countries": [
         "AT"
       ],
-      "url": "https://data.statistik.gv.at/",
-      "licence": "CC BY 4.0",
-      "ok": false,
-      "count": 0
+      "url": "https://www.studienwahl.at/",
+      "licence": "Öffentliches Studienportal",
+      "ok": true,
+      "count": 60,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
       "id": "global-openalex",
@@ -113,6 +115,8 @@
   },
   "counts": {
     "mathematics": {
+      "AT": 1,
+      "DE": 2,
       "FR": 3,
       "GB": 1,
       "US": 16
@@ -122,20 +126,29 @@
       "US": 18
     },
     "computer-science": {
+      "AT": 3,
       "CH": 15,
+      "DE": 3,
       "FR": 4,
       "GB": 3,
       "US": 18
     },
-    "artificial-intelligence": {},
+    "artificial-intelligence": {
+      "AT": 1
+    },
     "cybersecurity": {},
     "information-systems": {
-      "CH": 7
+      "AT": 2,
+      "CH": 7,
+      "DE": 1
     },
     "computer-engineering": {
+      "AT": 2,
+      "DE": 1,
       "US": 10
     },
     "physics": {
+      "AT": 2,
       "CH": 8,
       "FR": 3,
       "GB": 1,
@@ -146,12 +159,15 @@
       "US": 8
     },
     "chemistry": {
+      "AT": 3,
       "FR": 2,
       "GB": 1,
       "US": 24
     },
     "biology": {
+      "AT": 2,
       "CH": 6,
+      "DE": 1,
       "FR": 3,
       "GB": 1,
       "US": 14
@@ -168,6 +184,7 @@
       "US": 6
     },
     "environmental-science": {
+      "AT": 1,
       "GB": 2,
       "US": 8
     },
@@ -180,30 +197,39 @@
       "GB": 1
     },
     "geography": {
+      "AT": 1,
+      "DE": 2,
       "FR": 1
     },
     "mechanical-engineering": {
       "CH": 4,
+      "DE": 3,
       "FR": 4,
       "GB": 1,
       "US": 14
     },
     "electrical-engineering": {
+      "AT": 1,
       "CH": 4,
+      "DE": 1,
       "FR": 2,
       "GB": 1,
       "US": 14
     },
     "civil-engineering": {
+      "AT": 1,
       "FR": 1,
       "GB": 1,
       "US": 14
     },
     "aerospace-engineering": {
+      "DE": 1,
       "GB": 2,
       "US": 12
     },
-    "automotive-engineering": {},
+    "automotive-engineering": {
+      "DE": 1
+    },
     "chemical-engineering": {
       "GB": 1,
       "US": 12
@@ -212,18 +238,25 @@
       "GB": 1,
       "US": 12
     },
-    "materials-science": {},
+    "materials-science": {
+      "DE": 1
+    },
     "robotics-mechatronics": {},
-    "energy-engineering": {},
+    "energy-engineering": {
+      "DE": 1
+    },
     "industrial-engineering": {
+      "DE": 1,
       "US": 6
     },
     "architecture": {
       "CH": 8,
+      "DE": 2,
       "GB": 1,
       "US": 12
     },
     "urban-planning": {
+      "AT": 2,
       "US": 10
     },
     "industrial-design": {
@@ -232,6 +265,7 @@
     "game-design": {},
     "ux-design": {},
     "medicine": {
+      "AT": 1,
       "CH": 6,
       "FR": 1,
       "GB": 3,
@@ -239,39 +273,52 @@
     },
     "nursing": {
       "CH": 6,
+      "DE": 1,
       "FR": 1,
       "GB": 1,
       "US": 10
     },
-    "pharmacy": {},
+    "pharmacy": {
+      "AT": 1
+    },
     "dentistry": {},
     "veterinary-medicine": {
       "GB": 1
     },
     "physiotherapy": {},
     "sports-science": {
+      "AT": 2,
       "FR": 1,
       "GB": 1,
       "US": 6
     },
     "nutrition": {
+      "AT": 1,
+      "DE": 2,
       "GB": 1
     },
-    "public-health": {},
+    "public-health": {
+      "DE": 1
+    },
     "psychology": {
+      "AT": 4,
       "CH": 4,
       "FR": 1,
       "GB": 1,
       "US": 21
     },
     "economics": {
+      "AT": 4,
       "CH": 6,
+      "DE": 3,
       "FR": 1,
       "GB": 1,
       "US": 24
     },
     "business-management": {
+      "AT": 2,
       "CH": 7,
+      "DE": 7,
       "FR": 3,
       "US": 16
     },
@@ -289,11 +336,15 @@
       "FR": 2
     },
     "political-science": {
+      "AT": 1,
+      "DE": 1,
       "FR": 1,
       "GB": 1,
       "US": 10
     },
     "law": {
+      "AT": 3,
+      "DE": 1,
       "FR": 2,
       "GB": 1,
       "US": 5
@@ -302,48 +353,70 @@
       "GB": 1
     },
     "sociology": {
+      "AT": 6,
       "FR": 1
     },
     "anthropology": {
+      "AT": 1,
       "GB": 1
     },
     "social-work": {
+      "AT": 1,
       "CH": 8,
+      "DE": 1,
       "GB": 1
     },
     "education": {
-      "CH": 11
+      "CH": 11,
+      "DE": 9
     },
     "journalism": {
       "GB": 1,
       "US": 8
     },
-    "media-communication": {},
+    "media-communication": {
+      "AT": 3,
+      "DE": 1
+    },
     "history": {
+      "AT": 2,
       "CH": 4,
+      "DE": 1,
       "FR": 1,
       "GB": 1,
       "US": 10
     },
-    "archaeology": {},
+    "archaeology": {
+      "AT": 4
+    },
     "philosophy": {
+      "AT": 4,
+      "DE": 1,
       "FR": 1,
       "GB": 1,
       "US": 12
     },
-    "religious-studies": {},
+    "religious-studies": {
+      "AT": 1
+    },
     "linguistics": {
+      "AT": 3,
       "GB": 1,
       "US": 12
     },
     "languages": {
+      "AT": 7,
+      "DE": 5,
       "FR": 1
     },
     "literature": {
+      "AT": 8,
+      "DE": 2,
       "FR": 1,
       "US": 10
     },
     "liberal-arts": {
+      "AT": 1,
       "FR": 1
     },
     "fine-arts": {
@@ -361,7 +434,9 @@
     },
     "animation-vfx": {},
     "music": {
+      "AT": 1,
       "CH": 5,
+      "DE": 3,
       "FR": 1,
       "GB": 1,
       "US": 12
@@ -371,13 +446,15 @@
       "GB": 1
     },
     "culinary-arts": {},
-    "agriculture": {},
+    "agriculture": {
+      "DE": 4
+    },
     "aviation": {}
   },
   "totals": {
-    "programmes": 672,
-    "countries": 4,
-    "institutions": 40,
+    "programmes": 777,
+    "countries": 6,
+    "institutions": 49,
     "newLast90Days": 0
   },
   "unclassified": 0,
@@ -405,6 +482,23 @@
         "eth": 15,
         "fh": 58,
         "ph": 11
+      }
+    },
+    "DE": {
+      "programmes": 45,
+      "institutions": 2,
+      "byType": {
+        "uni": 15,
+        "fh": 30
+      }
+    },
+    "AT": {
+      "programmes": 60,
+      "institutions": 7,
+      "byType": {
+        "uni": 57,
+        "ph": 2,
+        "fh": 1
       }
     }
   }

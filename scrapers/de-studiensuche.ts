@@ -14,8 +14,9 @@ import { programmeId } from '../lib/programmes.ts'
 import type { Level, Programme } from '../lib/programmes.ts'
 import type { InstType } from '../lib/institutions.ts'
 import { ADMISSION } from '../lib/institutions.ts'
-import { OUT, fetchRetry, fieldsForTitle, isMain, log, sleep, writeJson } from './lib/common.ts'
+import { OUT, fetchRetry, isMain, log, sleep, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
+import { germanFields } from './lib/de-titles.ts'
 
 const API = 'https://rest.arbeitsagentur.de/infosysbub/studisu/pc/v1/studienangebote'
 const HEADERS = { 'X-API-Key': 'infosysbub-studisu', Accept: 'application/json' }
@@ -73,7 +74,8 @@ export function parseAngebot(a: RawAngebot, fetchedAt: string): Programme | null
   const institution = (a.studienanbieter?.name ?? '').trim()
   if (!name || !institution) return null
   const subjects = (a.studienfaecher ?? []).map((s) => s.replace(/\s*\((grundständig|weiterführend|weiterbildend)\)\s*$/i, ''))
-  const { fields, confidence } = fieldsForTitle([name, ...subjects].join(' · '))
+  const text = [name, ...subjects].join(' · ')
+  const { fields, confidence } = germanFields(text)
   if (!fields.length) return null
   const type = deType(a.hochschulart?.label, institution)
   const region = a.region?.Key ?? ''
@@ -111,6 +113,8 @@ export function parseAngebot(a: RawAngebot, fetchedAt: string): Programme | null
   }
 }
 
+const PARALLEL = 4
+
 const FIXTURE = /^(Universität Hamburg|Technische Universität München|Hochschule Osnabrück|Universität Bonn|Hochschule für angewandte Wissenschaften Hamburg|Duale Hochschule Baden-Württemberg Stuttgart)$/
 
 async function page(sw: string, pg: number): Promise<{ items: RawAngebot[]; total: number }> {
@@ -138,8 +142,7 @@ async function main() {
     const first = await page(sw, 1)
     const pages = Math.ceil(first.total / 20)
     let added = 0
-    for (let pg = 1; pg <= pages; pg++) {
-      const { items } = pg === 1 ? first : await page(sw, pg).catch((e) => (log(`DE ${sw} page ${pg} failed: ${(e as Error).message}`), { items: [], total: 0 }))
+    const take = (items: RawAngebot[]) => {
       for (const a of items) {
         if (!a?.id || seen.has(a.id)) continue
         seen.add(a.id)
@@ -152,13 +155,21 @@ async function main() {
           added++
         } else if (deLevel(a.abschlussgrad?.label)) unclassified.set(a.studiBezeichnung ?? '', (unclassified.get(a.studiBezeichnung ?? '') ?? 0) + 1)
       }
-      await sleep(150)
+    }
+    take(first.items)
+    // A few pages at a time: one by one, the 1,000 pages take most of an hour.
+    for (let pg = 2; pg <= pages; pg += PARALLEL) {
+      const batch = Array.from({ length: Math.min(PARALLEL, pages - pg + 1) }, (_, k) =>
+        page(sw, pg + k).catch((e) => (log(`DE ${sw} page ${pg + k} failed: ${(e as Error).message}`), { items: [] as RawAngebot[], total: 0 })),
+      )
+      for (const { items } of await Promise.all(batch)) take(items)
+      await sleep(200)
     }
     log(`DE «${sw}»: ${first.total} results, ${added} new programmes (total ${programmes.length})`)
   }
   log(`DE: ${raw} offers read, ${programmes.length} programmes`)
   log(`DE institution kinds: ${JSON.stringify([...kinds])}`)
-  log(`DE unclassified (${unclassified.size}): ${[...unclassified.keys()].slice(0, 60).join(' || ')}`)
+  log(`DE unclassified (${unclassified.size}): ${[...unclassified.keys()].slice(0, 400).join(' || ')}`)
   const byType = new Map<string, number>()
   for (const p of programmes) byType.set(p.institutionType!, (byType.get(p.institutionType!) ?? 0) + 1)
   log(`DE by type: ${JSON.stringify([...byType])}`)

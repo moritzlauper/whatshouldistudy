@@ -1,0 +1,422 @@
+[
+ {
+  "name": "Recht, Wirtschaft und Gesellschaft",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/rechtswissenschaften/recht/3531-recht-wirtschaft-und-gesellschaft-12-3-graz.de.html"
+ },
+ {
+  "name": "Pharmazie",
+  "institution": "Universität Wien",
+  "kind": "Bachelorstudium",
+  "place": "Wien",
+  "href": "/studien/naturwissenschaften/784-pharmazie-0-0.de.html"
+ },
+ {
+  "name": "Philosophie",
+  "institution": "Universität Wien",
+  "kind": "Bachelorstudium",
+  "place": "Wien",
+  "href": "/studien/geistes-und-kulturwissenschaften/historische-kulturwissenschaften/philosophie/787-philosophie-0-0.de.html"
+ },
+ {
+  "name": "Interdisziplinäre Osteuropastudien",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/geistes-und-kulturwissenschaften/historische-kulturwissenschaften/geschichte/2641-interdisziplinaere-osteuropastudien-0-0.de.html"
+ },
+ {
+  "name": "Internationale Betriebswirtschaft",
+  "institution": "Universität Wien",
+  "kind": "Bachelorstudium",
+  "place": "Wien",
+  "href": "/studien/sozial-und-wirtschaftswissenschaften/wirtschaft/internationale-betriebswirtschaft/536-internationale-betriebswirtschaft-0-0.de.html"
+ },
+ {
+  "name": "Informatik",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/ingenieurwissenschaften/informatik/2936-informatik-0-0.de.html"
+ },
+ {
+  "name": "Bauingenieurwesen",
+  "institution": "Technische Universität Wien",
+  "kind": "Bachelorstudium",
+  "place": "Wien",
+  "href": "/studien/ingenieurwissenschaften/architektur-und-bauwesen/bauingenieurwesen/87-bauingenieurwesen-2-3-wien.de.html"
+ },
+ {
+  "name": "Raumplanung und Raumordnung",
+  "institution": "Technische Universität Wien",
+  "kind": "Bachelorstudium",
+  "place": "Wien",
+  "href": "/studien/ingenieurwissenschaften/technik/raumplanung-und-raumordnung/854-raumplanung-und-raumordnung-2-3-wien.de.html"
+ },
+ {
+  "name": "Technische Informatik",
+  "institution": "Technische Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/ingenieurwissenschaften/technik/informatik/1045-technische-informatik-12-3-wien.de.html"
+ },
+ {
+  "name": "Business Informatics",
+  "institution": "Technische Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/sozial-und-wirtschaftswissenschaften/wirtschaft/wirtschaftsinformatik/1151-business-informatics-12-3-wien.de.html"
+ },
+ {
+  "name": "Kultur und Gesellschaft des modernen Südasiens",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-außereuropäisch/südasienwissenschaft/2638-kultur-und-gesellschaft-des-modernen-suedasiens-12-3-wien.de.html"
+ },
+ {
+  "name": "Information und Kommunikation (Angewandte Digitalisierung)",
+  "institution": "Pädagogische Hochschule Wien",
+  "kind": "Lehramtsstudium Bachelor",
+  "place": "Wien",
+  "href": "/studien/lehramtsstudien/2213-information-und-kommunikation-angewandte-digitalisierung-0-0.de.html"
+ },
+ {
+  "name": "Romanistik / Französisch",
+  "institution": "Universität Graz",
+  "kind": "Bachelorstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-allgemein-und-europäisch/romanistik/877-romanistik-franzoesisch-0-0.de.html"
+ },
+ {
+  "name": "Romanistik/Spanisch",
+  "institution": "Universität Graz",
+  "kind": "Bachelorstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-allgemein-und-europäisch/romanistik/885-romanistikspanisch-2-3-graz.de.html"
+ },
+ {
+  "name": "Slawistische Sprach-, Literatur- und Kulturwissenschaft",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-allgemein-und-europäisch/slawistik/135-slawistische-sprach-literatur-und-kulturwissenschaft-12-3-graz.de.html"
+ },
+ {
+  "name": "Romanistik",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-allgemein-und-europäisch/romanistik/874-romanistik-12-3-graz.de.html"
+ },
+ {
+  "name": "Romanistik/Italienisch",
+  "institution": "Universität Graz",
+  "kind": "Bachelorstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-allgemein-und-europäisch/romanistik/880-romanistikitalienisch-2-3-graz.de.html"
+ },
+ {
+  "name": "Software Engineering",
+  "institution": "Technische Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/ingenieurwissenschaften/technik/informatik/928-software-engineering-12-3-wien.de.html"
+ },
+ {
+  "name": "Logic and Artificial Intelligence",
+  "institution": "Technische Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/ingenieurwissenschaften/informatik/3987-logic-and-artificial-intelligence-12-3-wien.de.html"
+ },
+ {
+  "name": "Publizistik und Kommunikationswissenschaft",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/geistes-und-kulturwissenschaften/informationswesen/publizistik-und-kommunikationswissenschaft/846-publizistik-und-kommunikationswissenschaft-0-0.de.html"
+ },
+ {
+  "name": "Soziologie",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/sozial-und-wirtschaftswissenschaften/sozialwissenschaften/soziologie/938-soziologie-0-0.de.html"
+ },
+ {
+  "name": "Psychologie",
+  "institution": "Universität Graz",
+  "kind": "Bachelorstudium",
+  "place": "Graz",
+  "href": "/studien/naturwissenschaften/chemischbiologische-studien/psychologie/836-psychologie-2-3-graz.de.html"
+ },
+ {
+  "name": "Psychologie",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/naturwissenschaften/2327-psychologie-12-3-graz.de.html"
+ },
+ {
+  "name": "Rechtswissenschaften",
+  "institution": "Universität Graz",
+  "kind": "Diplomstudium",
+  "place": "Graz",
+  "href": "/studien/rechtswissenschaften/recht/rechtswissenschaften/861-rechtswissenschaften-3-3-graz.de.html"
+ },
+ {
+  "name": "Religion Kultur Gesellschaft",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/theologische-studien/theologie-katholische/religionswissenschaft/3440-religion-kultur-gesellschaft-12-3-graz.de.html"
+ },
+ {
+  "name": "Mikroelektronik und Photonik",
+  "institution": "Technische Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/ingenieurwissenschaften/technik/elektrotechnik/709-mikroelektronik-und-photonik-12-3-wien.de.html"
+ },
+ {
+  "name": "Archäologie",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/historische-kulturwissenschaften/klassische-archäologie/594-archaeologie-12-3-graz.de.html"
+ },
+ {
+  "name": "Raumplanung und Raumordnung",
+  "institution": "Technische Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/ingenieurwissenschaften/technik/raumplanung-und-raumordnung/855-raumplanung-und-raumordnung-12-3-wien.de.html"
+ },
+ {
+  "name": "Evolutionary Genomics and Systems Biology",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/naturwissenschaften/chemischbiologische-studien/biologie/2940-evolutionary-genomics-and-systems-biology-0-0.de.html"
+ },
+ {
+  "name": "Chemie und Technologie der Materialien",
+  "institution": "Technische Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/naturwissenschaften/chemischbiologische-studien/technische-chemie/2514-chemie-und-technologie-der-materialien-12-3-wien.de.html"
+ },
+ {
+  "name": "Psychologie",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/naturwissenschaften/chemischbiologische-studien/psychologie/2479-psychologie-0-0.de.html"
+ },
+ {
+  "name": "Publizistik und Kommunikationswissenschaft",
+  "institution": "Universität Wien",
+  "kind": "Bachelorstudium",
+  "place": "Wien",
+  "href": "/studien/geistes-und-kulturwissenschaften/informationswesen/publizistik-und-kommunikationswissenschaft/845-publizistik-und-kommunikationswissenschaft-0-0.de.html"
+ },
+ {
+  "name": "Klassische Philologie",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-allgemein-und-europäisch/klassische-philologie/597-klassische-philologie-0-0.de.html"
+ },
+ {
+  "name": "Elemtentarbildung - Inklusion und Leadership",
+  "institution": "Pädagogische Hochschule Wien",
+  "kind": "Bachelorstudium",
+  "place": "Wien",
+  "href": "/studien/lehramtsstudien/3414-elemtentarbildung-inklusion-und-leadership-2-4-wien.de.html"
+ },
+ {
+  "name": "Chemistry",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/naturwissenschaften/chemischbiologische-studien/chemie/162-chemistry-12-3-graz.de.html"
+ },
+ {
+  "name": "Allgemeine Linguistik: Grammatiktheorie und kognitive Sprachwissenschaft",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-allgemein-und-europäisch/sprachwissenschaft/11-allgemeine-linguistik-grammatiktheorie-und-kognitive-sprachwissenschaft-0-0.de.html"
+ },
+ {
+  "name": "Ethik",
+  "institution": "Universität Graz",
+  "kind": "Lehramtsstudium Bachelor",
+  "place": "Graz",
+  "href": "/studien/lehramtsstudien/3457-ethik-0-0.de.html"
+ },
+ {
+  "name": "Volkswirtschaftslehre",
+  "institution": "Universität Wien",
+  "kind": "Bachelorstudium",
+  "place": "Wien",
+  "href": "/studien/sozial-und-wirtschaftswissenschaften/sozialwissenschaften/volkswirtschaft/1132-volkswirtschaftslehre-2-3-wien.de.html"
+ },
+ {
+  "name": "East Asian Economy and Society",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/geistes-und-kulturwissenschaften/bildungs-und-sozialwissenschaften/regionalwissenschaft/1142-east-asian-economy-and-society-0-0.de.html"
+ },
+ {
+  "name": "Ecology and Ecosystems",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/naturwissenschaften/chemischbiologische-studien/biologie/759-ecology-and-ecosystems-0-0.de.html"
+ },
+ {
+  "name": "Electronics and Computer Engineering",
+  "institution": "FH JOANNEUM GmbH",
+  "kind": "Masterstudium",
+  "place": "Kapfenberg",
+  "href": "/studien/ingenieurwissenschaften/technik/1743-electronics-and-computer-engineering-12-1-kapfenberg.de.html"
+ },
+ {
+  "name": "Sprachwissenschaft",
+  "institution": "Universität Graz",
+  "kind": "Bachelorstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-allgemein-und-europäisch/sprachwissenschaft/971-sprachwissenschaft-2-3-graz.de.html"
+ },
+ {
+  "name": "Theoretical and Empirical Linguistics",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-allgemein-und-europäisch/sprachwissenschaft/972-theoretical-and-empirical-linguistics-12-3-graz.de.html"
+ },
+ {
+  "name": "Political, Economic and Legal Philosophie",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/historische-kulturwissenschaften/philosophie/818-political-economic-and-legal-philosophie-12-3-graz.de.html"
+ },
+ {
+  "name": "Economics",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/sozial-und-wirtschaftswissenschaften/sozialwissenschaften/volkswirtschaft/1130-economics-0-0.de.html"
+ },
+ {
+  "name": "Klassische Philologie",
+  "institution": "Universität Graz",
+  "kind": "Bachelorstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-allgemein-und-europäisch/klassische-philologie-latein/3422-klassische-philologie-2-3-graz.de.html"
+ },
+ {
+  "name": "Klassische Philologie",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/sprachen-und-philologische-kulturwissenschaften-allgemein-und-europäisch/klassische-philologie-latein/3423-klassische-philologie-12-3-graz.de.html"
+ },
+ {
+  "name": "Physik",
+  "institution": "Universität Graz",
+  "kind": "Lehramtsstudium Bachelor",
+  "place": "Graz",
+  "href": "/studien/lehramtsstudien/lehramtsstudium-naturwissenschaften/physik/802-physik-0-0.de.html"
+ },
+ {
+  "name": "Psychologie und Philosophie",
+  "institution": "Universität Graz",
+  "kind": "Lehramtsstudium Bachelor",
+  "place": "Graz",
+  "href": "/studien/lehramtsstudien/lehramtsstudium-naturwissenschaften/psychologie-und-philosophie/843-psychologie-und-philosophie-0-0.de.html"
+ },
+ {
+  "name": "Microbiome Science",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/naturwissenschaften/chemischbiologische-studien/molekularbiologie/3958-microbiome-science-0-0.de.html"
+ },
+ {
+  "name": "Recht, Wirtschaft, Gesellschaft im digitalen Wandel",
+  "institution": "Universität Graz",
+  "kind": "Bachelorstudium",
+  "place": "Graz",
+  "href": "/studien/rechtswissenschaften/recht-und-wirtschaft/wirtschaftsrecht/3249-recht-wirtschaft-gesellschaft-im-digitalen-wandel-2-3-graz.de.html"
+ },
+ {
+  "name": "Green Chemistry",
+  "institution": "Universität Wien, Technische Universität Wien, Universität für Bodenkultur Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/naturwissenschaften/chemischbiologische-studien/chemie/3525-green-chemistry-12-3-wien.de.html"
+ },
+ {
+  "name": "Musikwissenschaft",
+  "institution": "Universität Wien",
+  "kind": "Bachelorstudium",
+  "place": "Wien",
+  "href": "/studien/geistes-und-kulturwissenschaften/historische-kulturwissenschaften/musikwissenschaft/741-musikwissenschaft-0-0.de.html"
+ },
+ {
+  "name": "Medical Informatics",
+  "institution": "Technische Universität Wien, Medizinische Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/medizingesundheit/medizintechnik/informatik/700-medical-informatics-0-0.de.html"
+ },
+ {
+  "name": "JMP Jüdische Studien - Geschichte jüdischer Kulturen",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/geistes-und-kulturwissenschaften/historische-kulturwissenschaften/judaistik/563-jmp-juedische-studien-geschichte-juedischer-kulturen-12-3-graz.de.html"
+ },
+ {
+  "name": "Umweltsystemwissenschaften – Economics",
+  "institution": "Universität Graz",
+  "kind": "Bachelorstudium",
+  "place": "Graz",
+  "href": "/studien/sozial-und-wirtschaftswissenschaften/wirtschaft/umweltsystemwissenschaften/2347-umweltsystemwissenschaften-economics-2-3-graz.de.html"
+ },
+ {
+  "name": "Mathematik",
+  "institution": "Universität Graz",
+  "kind": "Lehramtsstudium Bachelor",
+  "place": "Graz",
+  "href": "/studien/lehramtsstudien/lehramtsstudium-naturwissenschaften/mathematik/670-mathematik-0-0.de.html"
+ },
+ {
+  "name": "Physcial Geography: Enviromental Dynamics and Sustainability",
+  "institution": "Universität Wien",
+  "kind": "Masterstudium",
+  "place": "Wien",
+  "href": "/studien/naturwissenschaften/erdwissenschaftliche-studien/geographie/4008-physcial-geography-enviromental-dynamics-and-sustainability-12-3-wien.de.html"
+ },
+ {
+  "name": "Sport- und Bewegungswissenschaften",
+  "institution": "Universität Graz",
+  "kind": "Bachelorstudium",
+  "place": "Graz",
+  "href": "/studien/naturwissenschaften/chemischbiologische-studien/sportwissenschaften/956-sport-und-bewegungswissenschaften-2-3-graz.de.html"
+ },
+ {
+  "name": "Sport- und Bewegungswissenschaften",
+  "institution": "Universität Graz",
+  "kind": "Masterstudium",
+  "place": "Graz",
+  "href": "/studien/naturwissenschaften/chemischbiologische-studien/sportwissenschaften/957-sport-und-bewegungswissenschaften-12-3-graz.de.html"
+ }
+]

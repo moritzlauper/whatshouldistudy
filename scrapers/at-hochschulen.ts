@@ -12,10 +12,15 @@ import type { Level, Programme } from '../lib/programmes.ts'
 import { ADMISSION } from '../lib/institutions.ts'
 import { atTuition, findAtInstitution } from '../lib/at-institutions.ts'
 import type { AtType } from '../lib/at-institutions.ts'
-import { OUT, fetchRetry, fieldsForTitle, isMain, log, sleep, writeJson } from './lib/common.ts'
+import { OUT, fetchRetry, isMain, log, sleep, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
+import { germanFields } from './lib/de-titles.ts'
 
 const SITE = 'https://www.studienwahl.at'
+
+const STATES: Record<string, string> = {
+  B: 'Burgenland', K: 'Kärnten', NÖ: 'Niederösterreich', OÖ: 'Oberösterreich', S: 'Salzburg', ST: 'Steiermark', T: 'Tirol', V: 'Vorarlberg', W: 'Wien',
+}
 
 export interface ListItem {
   name: string
@@ -49,8 +54,10 @@ export function parseList(html: string): ListItem[] {
 }
 
 export function atLevel(kind: string): Level | null {
+  // Continuing education and the vocational «Bachelor Professional» are not degree programmes.
+  if (/continuing|weiterbild|professional/i.test(kind)) return null
   if (/bachelor/i.test(kind)) return 'bachelor'
-  if (/master/i.test(kind)) return 'master'
+  if (/master|erasmus mundus/i.test(kind)) return 'master'
   if (/diplom|lehramt/i.test(kind)) return 'professional'
   return null
 }
@@ -67,19 +74,21 @@ function typeOf(institution: string): AtType {
 export function parseItem(it: ListItem, fetchedAt: string): Programme | null {
   const level = atLevel(it.kind)
   if (!level) return null
-  const { fields, confidence } = fieldsForTitle(it.name)
+  const { fields, confidence } = germanFields(it.name)
   if (!fields.length) return null
   const known = findAtInstitution(it.institution)
   const type = typeOf(it.institution)
   const fee = atTuition(type)
+  const city = it.place || known?.city
+  const region = known ? STATES[known.state] : undefined
   const english = /^[A-Za-z0-9 ,.&()'’\-–:/+]+$/.test(it.name) && /\b(and|of|in|for|management|science|studies|engineering|design)\b/i.test(it.name)
   return {
     id: programmeId(['at', it.href]),
     name: it.name,
     institution: known?.name ?? it.institution,
     country: 'AT',
-    city: it.place || known?.city,
-    region: known?.state,
+    city,
+    region: region === city ? undefined : region,
     level,
     fields,
     fieldConfidence: confidence,
@@ -135,7 +144,7 @@ async function main() {
   log(`AT: ${seen.size} read, ${programmes.length} programmes`)
   log(`AT kinds: ${JSON.stringify([...kinds])}`)
   log(`AT institutions not in our list (${unknown.size}): ${[...unknown].slice(0, 60).join(' || ')}`)
-  log(`AT unclassified (${unclassified.length}): ${unclassified.slice(0, 60).join(' || ')}`)
+  log(`AT unclassified (${unclassified.length}): ${unclassified.slice(0, 400).join(' || ')}`)
   const byType = new Map<string, number>()
   for (const p of programmes) byType.set(p.institutionType!, (byType.get(p.institutionType!) ?? 0) + 1)
   log(`AT by type: ${JSON.stringify([...byType])}`)

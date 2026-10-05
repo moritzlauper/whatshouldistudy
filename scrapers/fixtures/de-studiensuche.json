@@ -1,0 +1,2721 @@
+[
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843171",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "English Studies Bachelor of Arts",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen<br/></p><h4>Anmerkung der Hochschule: </h4><p>wählbar als Kernfach, Begleitfach oder im Zwei-Fach-Modell im Bachelor of Arts</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Anglistik, Amerikanistik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": -1,
+    "label": ""
+   },
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843184",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Volkswirtschaftslehre Bachelor of Science",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen<br/></p><h4>Anmerkung der Hochschule: </h4><p>Die Bewerbung erfolgt über das DoSV bei hochschulstart.de.</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Volkswirtschaftslehre (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": -1,
+    "label": ""
+   },
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843186",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Agrarwissenschaften Bachelor of Science",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Ökonomie des Agrar- und Ernährungssektors, Pflanzenwissenschaften, Tierwissenschaften</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Agrarwissenschaft (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": -1,
+    "label": ""
+   },
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843190",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Geographie Bachelor of Science",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Fernerkundung / GIS / Kartographie, Geographische Entwicklungsforschung, Geomorphologie, Historische Geographie, Hydrologie & Wasserressourcenmanagement, Klimatologie und Landschaftsökologie, Stadt- und Regionalforschung, Wirtschafts- und Sozialgeographie</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Geografie (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": -1,
+    "label": ""
+   },
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843191",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Geographie Bachelor of Arts",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen<br/></p><h4>Anmerkung der Hochschule: </h4><p>wählbar als Begleitfach in Kombination mit einem Kernfach im Bachelor of Arts</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Geografie (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": -1,
+    "label": ""
+   },
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843194",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Mathematik Bachelor of Science",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Mathematik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843213",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Deutsch Bachelor Lehramt an Gymnasien und Gesamtschulen",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Lehramt an Gymnasien (grundständig außer Staatsexamen)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843214",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Englisch Bachelor Lehramt an Gymnasien und Gesamtschulen",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Lehramt an Gymnasien (grundständig außer Staatsexamen)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": -1,
+    "label": ""
+   },
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843215",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Ernährungs- und Hauswirtschaftswissenschaft Bachelor Lehramt an Berufskollegs",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen<br/></p><h4>Anmerkung der Hochschule: </h4><p>Im Lehramt für Berufskollegs wird eine berufliche Fachrichtung mit einem Unterrichtsfach und dem Fach Bildungswissenschaften kombiniert.</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Lehramt an berufsbildenden/beruflichen Schulen/Berufskollegs (grundständig außer Staatsexamen)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843217",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Französisch Bachelor Lehramt an Gymnasien und Gesamtschulen",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Lehramt an Gymnasien (grundständig außer Staatsexamen)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843222",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Geschichte Bachelor Lehramt an Gymnasien und Gesamtschulen",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Lehramt an Gymnasien (grundständig außer Staatsexamen)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843227",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Bildungswissenschaften Bachelor Lehramt an Gymnasien und Gesamtschulen",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen<br/></p><h4>Anmerkung der Hochschule: </h4><p>Das Fach Bildungswissenschaften ist obligatorischer Bestandteil eines Lehramtsstudiums. Im Bachelor Lehramt an Gymnasien und Gesamtschulen werden zwei Unterrichtsfächer damit kombiniert. Eine Einschreibung in die jeweilige Fächerkombination kann nur dann erfolgen, wenn die Zulassung sowohl für Bildungswissenschaften als auch für di&hellip;</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Lehramt an Gymnasien (grundständig außer Staatsexamen)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": -1,
+    "label": ""
+   },
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843240",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Mathematik Bachelor Lehramt an Gymnasien und Gesamtschulen",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Lehramt an Gymnasien (grundständig außer Staatsexamen)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843242",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Philosophie/Praktische Philosophie Bachelor Lehramt an Gymnasien und Gesamtschulen",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Lehramt an Gymnasien (grundständig außer Staatsexamen)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [
+   {
+    "id": 2,
+    "label": "OSA"
+   }
+  ],
+  "hochschulart": {
+   "id": 108,
+   "label": "Universität"
+  },
+  "id": "10843249",
+  "region": {
+   "id": 9,
+   "Key": "NW",
+   "label": "Nordrhein-Westfalen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Spanisch Bachelor Lehramt an Gymnasien und Gesamtschulen",
+  "studiInhalt": "<p>Inhalte bitte bei der Hochschule erfragen</p>",
+  "studienanbieter": {
+   "banId": 26482,
+   "name": "Universität Bonn",
+   "logo": {
+    "id": 4831,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26482/logos/4831",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26482/logos/4831"
+   }
+  },
+  "studienfaecher": [
+   "Lehramt an Gymnasien (grundständig außer Staatsexamen)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Nordrhein-Westfalen",
+   "location": {
+    "lat": 50.7342,
+    "lon": 7.0992
+   },
+   "ort": "Bonn",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "53113",
+   "staat": "Deutschland",
+   "strasse": "Regina-Pacis-Weg 3"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850090",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Elektrotechnik Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Allgemeine Elektrotechnik, Automatisierungstechnik, Elektrische Energietechnik, Informationssysteme, Ingenieurpädagogik, Kommunikationstechnik<br/></p><h4>Anmerkung der Hochschule: </h4><p>Auslandsstudium möglich</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Elektrotechnik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850091",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Maschinenbau Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Energietechnik, Entwicklung, Ingenieurpädagogik, Ingenieurwissenschaften, Konstruktion, Landmaschinenbau, Maschinenbau, Mechatronische Systeme, Produktionstechnik, Technik<br/></p><h4>Anmerkung der Hochschule: </h4><p>Ansprechperson an der Hochschule Osnabrück:<br/>Frau Agnes Kenkel, Tel.: 0541 - 969-3741</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Maschinenbau (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850092",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Wirtschaftsingenieurwesen Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Betriebswirtschaft, Elektrotechnik, Maschinenbau, Projektmanagement, Qualitätsmanagement, Wirtschaftsinformatik<br/></p><h4>Anmerkung der Hochschule: </h4><p>Bildung eines technischen Schwerpunktes im Bereich Maschinenbau oder Elektrotechnik ab dem vierten Semester.</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Wirtschaftsingenieurwesen (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.5222,
+    "lon": 7.3167
+   },
+   "ort": "Lingen (Ems)",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "49809",
+   "staat": "Deutschland",
+   "strasse": "Kaiserstraße 10c"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850093",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Energie-, Umwelt- und Verfahrenstechnik Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Anwendungsbezogene Prozesstechnik, Energiesysteme, Energietechnik, Life Cycle Assessments, Nachhaltige Recyclingkonzepte, Nachwachsende Rohstoffe, Regenerative Energieanlagen, Synthetische Kraftstoffe, Umwelttechnik und Umweltanalytik zur Wasser- und Luftaufbereitung, Verfahrenstechnik zur Aufbereitung von Rohstoffen zu Produkten<br/></p><h4>Anmerkung der Hochschule: </h4><p>Während des Studiums ist ein &hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Energietechnik (grundständig)",
+   "Umwelttechnik (grundständig)",
+   "Verfahrenstechnik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850095",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Öffentliches Management Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Eventmanagement, Veranstaltungsmanagement, Kulturmanagement, Marketing, Öffentliches Recht, Politikwissenschaft, Public Management, Rechnungswesen und Controlling, Sozialökonomie, Sozialwissenschaft, Soziologie<br/></p><h4>Anmerkung der Hochschule: </h4><p>Engagement managen, Gemeinwohl organisieren!\" ist der Slogan, der den Studiengang Öffentliches Management charakterisiert. Wer im öffentlichen Sektor &hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Verwaltungsmanagement, Public Management (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850096",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Informatik - Technische Informatik Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Algorithmen, Datenbanken, Embedded Systems, KI, Rechnerorganisation, Software-Engineering, Verteilte Systeme<br/></p><h4>Anmerkung der Hochschule: </h4><p>Auslandsstudiensemester möglich.</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Technische Informatik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850097",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Ökotrophologie Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Beratung und Bildung, Diätetik, Ernährungswirtschaft, Ernährung und Gesundheit, Lebensmittelproduktion, Management und Versorgung, Nachhaltigkeit, Konsumentenverhalten, Qualitätssicherung</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Ernährungswissenschaft, Ökotrophologie (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850098",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Pflegewissenschaft Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Beratung in der Pflege, Grundlagen der Didaktik und Pflegepädagogik, Grundlagen der Mitarbeiterführung, Grundlagen der Pflegewissenschaft, Pflegeforschung, Praxisentwicklung, Professionalisierung der Pflege, Projektarbeit, Psychiatrische Versorgung und Pflege, Quslitätsentwicklung in der Pflege<br/></p><h4>Anmerkung der Hochschule: </h4><p>Bewerbungen von Studienanfängern sind nur zum Sommersemester eine&hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Pflegemanagement, -wissenschaft (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [
+   {
+    "id": 3,
+    "label": "berufs&shy;begleitend"
+   },
+   {
+    "id": 5,
+    "label": "Duales Studium"
+   }
+  ],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850099",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Landwirtschaft Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Agrarökologie, Betriebswirtschaftslehre, Ethologie und Tierschutz, Futtermittelkunde, Grundlagen Recht/Buchführung/Steuern, Landtechnische Verfahren, Lebensmittelsicherheit, Phytomedizin, Tierernährung, Volkswirtschaftslehre<br/></p><h4>Anmerkung der Hochschule: </h4><p>Im 5. Studiensemester findet ein integriertes berufspraktisches Projekt mit Seminar statt.</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Agrarwissenschaft (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850100",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Landschaftsentwicklung Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Boden, Geografische Informationssysteme, GIS-Anwendungen und Darstellungsmethoden, Hydrologie, Kartierung, Klima, Landschaftsentwicklung, Naturschutz, Umweltbildung, Umweltprüfung</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Landschaftsarchitektur, Freiraumplanung (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850101",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Wirtschaftsrecht Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Arbeitsrecht, Finanzwirtschaft, International Aspects of Law, Internationale Wirtschaft, Marketing, Personalmanagement, Recht des Geistigen Eigentums, Steuern, Veranstaltungsmanagement, Wirtschaftsprüfung<br/></p><h4>Anmerkung der Hochschule: </h4><p>Studiengangkoordinator: <br/>Dipl.-Wirtschaftsjur. (FH) Mario Horvat <br/>Raum: CF 0105A <br/>Telefon: 0541 969-3005</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Wirtschaftsrecht (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850102",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Informatik - Medieninformatik Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Audio- und Videotechnik, Datenstrukturen, KI, Mediengestaltung, Rich Media Applications, Webanwendungen<br/></p><h4>Anmerkung der Hochschule: </h4><p>Auslandsstudiensemester möglich</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Medieninformatik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850104",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Fahrzeugtechnik Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Fahrzeugbau, Fahrzeugtechnik, Ingenieurwissenschaften, Ingenieurwissenschaftliche Grundlagen, Kfz-Technik, Maschinenbau, Mathematisch-naturwissenschaftliche Grundlagen, Technik<br/></p><h4>Anmerkung der Hochschule: </h4><p>Kontakt an der Hochschule Osnabrück:<br/>Frau Agnes Kenkel, Tel.: 0541 - 969-3741</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Fahrzeugtechnik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850105",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Dentaltechnologie Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Betriebswirtschaftslehre, Dentale Fertigungstechnik, Messtechnik, Qualitätsmanagement, Statik, Werkstoffanalytik<br/></p><h4>Anmerkung der Hochschule: </h4><p>Auslandsstudium möglich</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Medizinische Technik (grundständig)",
+   "Werkstoffwissenschaft, -technik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850106",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Kommunikationsmanagement Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Gesellschaft, Grundlagen des Managements, Journalismus, Kommunikation, Kommunikationspsychologie, Medien, Onlinekommunikation, PR, Projektmanagement, Techniken der Kommunikation<br/></p><h4>Anmerkung der Hochschule: </h4><p>Studiengangsspezifischer Kontakt an der Hochschule Osnabrück: <br/>Frau Karin Merschel (Studierendensekretariat) <br/>Tel.: 0591-80098-634</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Public Relations, Kommunikationsmanagement (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.5222,
+    "lon": 7.3167
+   },
+   "ort": "Lingen (Ems)",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "49809",
+   "staat": "Deutschland",
+   "strasse": "Kaiserstraße 10c"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850108",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Betriebswirtschaft und Management Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Accounting und Audit (Wirtschaftsprüfung), Controlling und Unternehmenssteuerung, Digital Enterprise (Wirtschaftsinformatik), Finanzwirtschaft, Internationale Wirtschaft, Logistikmanagement, Marketing, Nachhaltige Wirtschaft und Entwicklung, Personalmanagement, Steuern<br/></p><h4>Anmerkung der Hochschule: </h4><p>Unser Bachelorstudiengang Betriebswirtschaft und Management bietet dir eine umfassende, pra&hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Unternehmensführung, Management (grundständig)",
+   "Wirtschaftsinformatik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850109",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Betriebswirtschaft im Gesundheitswesen Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Betriebswirtschaft in Gesundheitseinrichtungen, Controlling in Gesundheitseinrichtungen, Finanzierung in Gesundheitseinrichtungen, Gesundheitsökonomie, Gesundheitspolitik, Informatik im Gesundheitswesen, Krankenhausmanagement, Recht im Gesundheitswesen<br/></p><h4>Anmerkung der Hochschule: </h4><p>Der Bachelorstudiengang Betriebswirtschaft im Gesundheitswesen, kurz BIG, ist ein betriebswirtschaftlicher S&hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Gesundheitsmanagement, -ökonomie (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850110",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Soziale Arbeit Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Diversity und Intersektionalität, Eingliederungshilfe, International Social Work, Kinderschutz, Klinische Sozialarbeit, Methodisches Handeln, Praxisprojekte, Recht, Soziale Räume und Lebenswelten, soziologische, pädagogische und psychologische Grundlagen<br/></p><h4>Anmerkung der Hochschule: </h4><p>Nach den sechs Studiensemestern erfolgt ein 1-jähriges Berufspraktikum (Berufsanerkennungsjahr).</p><p>Kontaktmög&hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Soziale Arbeit (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850112",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Angewandte Pflanzenbiologie - Gartenbau, Pflanzentechnologie Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Baumschule, Gemüseanbau, Obstbau, Pflanzenernährung, Pflanzenproduktion, Pflanzenschutz, Pflanzenvermarktung, Pflanzenzüchtung, Versuchswesen, Zierpflanzenbau</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Gartenbau (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850113",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Aircraft and Flight Engineering Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Aerodynamik, Flugversuchstechnik, Grundlagen der Luftfahrt, Ingenieurwesen, Ingenieurwissenschaftliche Grundlagen, Luftfahrttechnik, Maschinenbau, Technik<br/></p><h4>Anmerkung der Hochschule: </h4><p>Studienbegleitende Flugausbildung an einer kooperierenden Verkehrsfliegerschule; Auslandsjahr an der University of the West of England, Bristol</p><p>Ansprechperson an der Hochschule Osnabrück:<br/>Dr. Steffen Schrader&hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Luft-, Raumfahrttechnik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850114",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Freiraumplanung Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Bepflanzungsplanung, Entwurf und Raum, Freilandpflanzenkunde, Gartenplanung, Landschaftsbau, Raumgestaltung</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Landschaftsarchitektur, Freiraumplanung (grundständig)",
+   "Gartenbau (grundständig)",
+   "Landschaftsbau (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850116",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Wirtschaftsinformatik Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>BWL, Informatik, Mathematik, Statistik<br/></p><h4>Anmerkung der Hochschule: </h4><p>Möglichkeit zum Erwerb von Zusatzqualifikationen (CISCO Certified Network Associate, NetBeans Certified Associate/Engineer, Basiszertifikat Projektmanagement, IHK Ausbildung zum Ausbilder)</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Wirtschaftsinformatik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.5222,
+    "lon": 7.3167
+   },
+   "ort": "Lingen (Ems)",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "49809",
+   "staat": "Deutschland",
+   "strasse": "Kaiserstraße 10c"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850117",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Öffentliche Verwaltung Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Besonderes Verwaltungsrecht, Buchführung, Haushaltsmanagement, Öffentliche Betriebswirtschaftslehre, Öffentliches Recht, Personalmanagement, Privatrecht, Sozialwissenschaften und Politik, Soziologie und Psychologie für die öffentliche Verwaltung, Verwaltungsmanagement<br/></p><h4>Anmerkung der Hochschule: </h4><p>Beim Absolvieren einer praktischen Einführungszeit nach dem Studium im öffentlichen Dienst v&hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Verwaltungsmanagement, Public Management (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850119",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Maschinenbau im Praxisverbund Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Energietechnik, Entwicklung, Fahrzeugtechnik, Ingenieurpädagogik, Ingenieurwissenschaften, Konstruktion, Landmaschinenbau, Maschinenbau, Mechatronische Systeme, Produktionstechnik<br/></p><h4>Anmerkung der Hochschule: </h4><p>Berufsausbildung parallel zum Studium. Diese integrierte Berufsausbildung startet ein 1/2 Jahr vor dem Studium. Aufgrund des vorgelagerten halbjährigen ersten Teils der Berufsausbil&hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Maschinenbau (grundständig)"
+  ],
+  "studienform": {
+   "id": 2,
+   "label": "Teilzeitstudium"
+  },
+  "studienmodelle": [
+   {
+    "id": 3,
+    "label": "berufs&shy;begleitend"
+   },
+   {
+    "id": 5,
+    "label": "Duales Studium"
+   }
+  ],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850121",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Betriebswirtschaft, in Kooperation mit der VWA Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Betriebswirtschaftslehre, Controlling, Finanzierung und Rechnungslegung, Logistik, Marketing, Methoden- und Sozialkompetenzen, Personal, Volkswirtschaftslehre<br/></p><h4>Anmerkung der Hochschule: </h4><p>Das betriebswirtschaftliche Studium ist kombiniert mit einer kaufmännischen Berufsausbildung</p><p>Studiengangkoordinatorin: Lea Unland, bw-dual@hs-osnabrueck.de, 0541 969 3556, Caprivistraße 30 A, 49076 Osnab&hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Betriebswirtschaftslehre, Business Administration (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [
+   {
+    "id": 1,
+    "label": "ausbildungs&shy;integrierend"
+   },
+   {
+    "id": 5,
+    "label": "Duales Studium"
+   }
+  ],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850123",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Musikerziehung - Klassik Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Instrumental, Komposition/Musiktheorie/Gehörbildung, künstlerische Ausbildung, Meisterkurse, pädagogische Ausbildung, Vokal, Workshops<br/></p><h4>Anmerkung der Hochschule: </h4><p>Während des Studiums ist ein Auslandsstudiensemester möglich.</p><p>Kontaktperson an der Hochschule:<br/>Imke Scheuer, E-Mail: i.scheuer@hs-osnabrueck.de, Tel.: 0541 - 969-3235</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Musikpädagogik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850124",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Musikerziehung - Jazz Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Jazz Live, Jazzpädagogik, Künstlerische Ausbildung<br/></p><h4>Anmerkung der Hochschule: </h4><p>Während des Studiums ist ein Auslandsstudiensemester möglich.</p><p>Kontaktperson an der Hochschule:<br/>Imke Scheuer, E-Mail: i.scheuer@hs-osnabrueck.de, Tel.: 0541 - 969-3235</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Musikpädagogik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850126",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Musikerziehung - Pop Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Bass, Gesang, Gitarre, Keyboard, Musikpädagogik, Piano, Producing, Schlagzeug, Songwriting, Vokal<br/></p><h4>Anmerkung der Hochschule: </h4><p>Während des Studiums ist ein Auslandsstudiensemester möglich.</p><p>Kontaktperson an der Hochschule:<br/>Imke Scheuer, E-Mail: i.scheuer@hs-osnabrueck.de, Tel.: 0541 - 969-3235</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Musikpädagogik (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.2769,
+    "lon": 8.0419
+   },
+   "ort": "Osnabrück",
+   "postfach": "1940",
+   "postfachBundesland": "Niedersachsen",
+   "postfachOrt": "Osnabrück",
+   "postfachPostleitzahl": "49009",
+   "postfachStaat": "Deutschland",
+   "postleitzahl": "49076",
+   "staat": "Deutschland",
+   "strasse": "Albrechtstraße 30"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850130",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Engineering technischer Systeme Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Automatisierungstechnik, Chemie, Elektrotechnik, Kunststofftechnik, Maschinenbau, Mathematik, Mechatronik, Physik, Technische Informatik, Verfahrenstechnik<br/></p><h4>Anmerkung der Hochschule: </h4><p>Der Studiengang wird als Dualer Studiengang an den beiden Lernorten Fachhochschule und Unternehmen durchgeführt. Jeder Studierende steht für die Dauer des Studiums in einem verbindlichen Ausbildungsverhält&hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Ingenieurwissenschaft (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [
+   {
+    "id": 4,
+    "label": "praxis&shy;integrierend"
+   },
+   {
+    "id": 5,
+    "label": "Duales Studium"
+   }
+  ],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.5222,
+    "lon": 7.3167
+   },
+   "ort": "Lingen (Ems)",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "49809",
+   "staat": "Deutschland",
+   "strasse": "Kaiserstraße 10c"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ },
+ {
+  "abschlussgrad": {
+   "id": 2,
+   "label": "Bachelor/Bakkalaureus"
+  },
+  "fitFuerStudiumFacettenOptions": [],
+  "hochschulart": {
+   "id": 106,
+   "label": "Fachhochschule/Hochschule für angewandte Wissenschaften"
+  },
+  "id": "10850131",
+  "region": {
+   "id": 8,
+   "Key": "NI",
+   "label": "Niedersachsen"
+  },
+  "studiBeginn": "Auf Anfrage",
+  "studiBezeichnung": "Management betrieblicher Systeme Bachelor",
+  "studiInhalt": "<h4>Schwerpunkte: </h4><p>Controlling, Human Resource Management, Logistik, Marketing, Produktionsmanagement, Produktmanagement, Projektmanagement, Technisches Controlling, Unternehmensführung, Vertriebsmanagement<br/></p><h4>Anmerkung der Hochschule: </h4><p>Die Studierenden stehen für die Dauer des Studiums in einem verbindlichen Arbeitsverhältnis zu einem Unternehmen.</p><p>Kontaktinformation:<br/>Büro für Studierenden- und Unternehmensbe&hellip;</p>",
+  "studienanbieter": {
+   "banId": 26320,
+   "name": "Hochschule Osnabrück",
+   "logo": {
+    "id": 16822,
+    "url": "http://prod-server.infosysbub-kursnet-rest-dmz.svc.cluster.local:8080/ct/v1/bildungsanbieter/26320/logos/16822",
+    "externalURL": "https://rest.arbeitsagentur.de/infosysbub/kursnet-rest/ct/v1/bildungsanbieter/26320/logos/16822"
+   }
+  },
+  "studienfaecher": [
+   "Unternehmensführung, Management (grundständig)"
+  ],
+  "studienform": {
+   "id": 1,
+   "label": "Vollzeitstudium"
+  },
+  "studienmodelle": [
+   {
+    "id": 2,
+    "label": "berufs&shy;integrierend"
+   },
+   {
+    "id": 5,
+    "label": "Duales Studium"
+   }
+  ],
+  "studienort": {
+   "bundesland": "Niedersachsen",
+   "location": {
+    "lat": 52.5222,
+    "lon": 7.3167
+   },
+   "ort": "Lingen (Ems)",
+   "postfach": null,
+   "postfachBundesland": null,
+   "postfachOrt": null,
+   "postfachPostleitzahl": null,
+   "postfachStaat": null,
+   "postleitzahl": "49809",
+   "staat": "Deutschland",
+   "strasse": "Kaiserstraße 10c"
+  },
+  "studientyp": {
+   "id": 0,
+   "label": "Studiengang grundständig"
+  }
+ }
+]

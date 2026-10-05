@@ -25,6 +25,10 @@ import { rankInstitutions } from './global-openalex.ts'
 import type { RawInstitution } from './global-openalex.ts'
 import { buildDirectory } from './global-directory.ts'
 import { parseRows as parseChRows } from './ch-bfs.ts'
+import { parseAngebot } from './de-studiensuche.ts'
+import type { RawAngebot } from './de-studiensuche.ts'
+import { parseItem as parseAtItem } from './at-hochschulen.ts'
+import type { ListItem as AtListItem } from './at-hochschulen.ts'
 import type { DirectoryEntry, RawUniversity } from './global-directory.ts'
 
 const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>> = [
@@ -143,11 +147,19 @@ function readFixtures(): Inputs {
   const ch = Object.values(chTables)
     .flatMap((rows) => parseChRows(rows, at).programmes)
     .filter((p) => !seen.has(p.id) && seen.add(p.id))
+  const de = readJson<RawAngebot[]>(join(FIXTURES, 'de-studiensuche.json'))!
+    .map((a) => parseAngebot(a, at))
+    .filter((p): p is Programme => !!p && !seen.has(p.id) && !!seen.add(p.id))
+  const atItems = readJson<AtListItem[]>(join(FIXTURES, 'at-studienwahl.json'))!
+    .map((it) => parseAtItem(it, at))
+    .filter((p): p is Programme => !!p)
   const outputs = [
     { source: 'us-college-scorecard', fetchedAt: at, programmes: us },
     { source: 'uk-discover-uni', fetchedAt: at, programmes: uk },
     { source: 'fr-parcoursup', fetchedAt: at, programmes: fr },
     { source: 'ch-bfs', fetchedAt: at, programmes: ch },
+    { source: 'de-studiensuche', fetchedAt: at, programmes: de },
+    { source: 'at-studienwahl', fetchedAt: at, programmes: atItems },
   ]
   for (const o of outputs) status.set(o.source, { ok: true, count: o.programmes.length, fetchedAt: at })
   const research = rankInstitutions(readJson<RawInstitution[]>(join(FIXTURES, 'openalex-institutions.json'))!)
