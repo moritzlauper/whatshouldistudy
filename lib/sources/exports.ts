@@ -129,11 +129,13 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
     return 'watch'
   }
   const q = searchQuery(url)
-  if (q && isYouTube) {
+  // «Visited …» entries carry the visited page in q, not a search.
+  if (!q || /^https?:/.test(q) || /\/url\?/.test(url)) return null
+  if (isYouTube) {
     c.youtubeSearch.push({ kind: 'search', text: q, label: `«${truncate(q, 60)}»`, weight: 0.6, time })
     return 'search'
   }
-  if (q && /google\./.test(url)) {
+  if (/google\./.test(url)) {
     c.googleSearch.push({ kind: 'google', text: q, label: `«${truncate(q, 60)}»`, weight: 0.4, time })
     return 'google'
   }
@@ -211,8 +213,8 @@ function parseActivityHtml(c: Collected, name: string, html: string): boolean {
     const lines = (cell as HTMLElement).innerText?.split('\n') ?? cell.textContent?.split('\n') ?? []
     const last = lines.filter((l) => l.trim()).pop() ?? ''
     const parsed = Date.parse(last.replace(/\s[A-Z]{2,5}$/, '').replace(/ /g, ' '))
+    // The URL tells YouTube from Google search (My Activity), so no header is assumed.
     const kind = addActivity(c, {
-      header: 'YouTube',
       title: first.textContent ?? '',
       titleUrl: first.href,
       subtitles: second ? [{ name: second.textContent ?? '', url: second.href }] : [],

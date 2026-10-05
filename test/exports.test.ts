@@ -86,3 +86,14 @@ test('ignores unrelated files', async () => {
   assert.equal(r.summaries.length, 0)
   assert.equal(r.skipped.length, 1)
 })
+
+test('reads Google searches from My Activity', async () => {
+  const search = [
+    { header: 'Suche', title: 'Gesucht nach: quantum physics lecture', titleUrl: 'https://www.google.com/search?q=quantum+physics+lecture', time: '2024-04-02T10:00:00.000Z', products: ['Suche'] },
+    { header: 'Suche', title: 'Besucht: example.org', titleUrl: 'https://www.google.com/url?q=https://example.org', time: '2024-04-02T10:01:00.000Z', products: ['Suche'] },
+  ]
+  const r = await readTexts([{ name: 'Takeout/Meine Aktivitäten/Google Suche/MeineAktivitäten.json', text: JSON.stringify(search) }])
+  const s = r.summaries.find((x) => x.source === 'takeout')!
+  assert.equal(s.stats.googleSearches, 1)
+  assert.ok(s.fields.physics.score > 0)
+})

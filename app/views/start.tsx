@@ -24,7 +24,7 @@ export function StartView() {
   const state = useAppState()
   const [running, setRunning] = useState<Running>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [notes, setNotes] = useState<string[]>([])
+  const [notes, setNotes] = useState<Record<string, string[]>>({})
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
 
@@ -45,16 +45,17 @@ export function StartView() {
     }
   }
 
-  async function onFiles(files: File[]) {
+  /** Every export card reads any export; the card only decides where progress and notes show. */
+  async function onFiles(files: File[], card: string) {
     if (!files.length) return
-    setErrors((x) => ({ ...x, takeout: '' }))
+    setErrors((x) => ({ ...x, [card]: '' }))
     try {
-      let result = await readExports(files, progress('takeout'))
+      let result = await readExports(files, progress(card))
       // With a YouTube sign-in in this tab, add descriptions of the channels you watch most.
       const token = getToken('google')
       if (token && result.topChannelIds.length) {
         try {
-          const channels = await fetchChannels(result.topChannelIds.slice(0, 200), token, progress('takeout'))
+          const channels = await fetchChannels(result.topChannelIds.slice(0, 200), token, progress(card))
           result = result.rebuild(channels)
         } catch {
           // Optional enrichment.
@@ -62,9 +63,9 @@ export function StartView() {
       }
       if (!result.summaries.length) throw new Error(t.start.noHistory)
       for (const s of result.summaries) setSummary(s)
-      setNotes(result.recognised.map(t.tr))
+      setNotes((n) => ({ ...n, [card]: result.recognised.map(t.tr) }))
     } catch (e) {
-      fail('takeout', e)
+      fail(card, e)
     } finally {
       setRunning(null)
     }
@@ -101,10 +102,72 @@ export function StartView() {
         <StepTitle n={1} color="var(--pink)" title={t.start.step1} sub={t.start.step1sub} />
         <div className="mt-7 grid gap-5 md:grid-cols-2">
           <OAuthCard id="youtube" provider="google" title="YouTube" glyph="▶" color="var(--pink)" text={t.start.yt} summary={state.summaries.youtube} error={errors.google} onConnect={() => connect('google')} mounted={mounted} />
-          <TakeoutCard summary={state.summaries.takeout} extra={[state.summaries['spotify-export'], state.summaries.instagram, state.summaries.tiktok]} running={running?.source === 'takeout' ? running : null} error={errors.takeout} notes={notes} onFiles={onFiles} />
-          <OAuthCard id="spotify" provider="spotify" title="Spotify" glyph="🎧" color="var(--lime)" text={t.start.spotify} summary={state.summaries.spotify} error={errors.spotify} onConnect={() => connect('spotify')} mounted={mounted} />
+          <ExportCard
+            title="Instagram"
+            glyph="📸"
+            color="var(--violet)"
+            text={t.start.instagram}
+            summaries={[state.summaries.instagram]}
+            requests={[{ href: 'https://accountscenter.instagram.com/info_and_permissions/dyi/', label: t.start.request.instagram }]}
+            hint={t.start.hint.instagram}
+            running={running?.source === 'instagram' ? running : null}
+            error={errors.instagram}
+            notes={notes.instagram}
+            onFiles={(f) => onFiles(f, 'instagram')}
+          />
+          <ExportCard
+            title="TikTok"
+            glyph="🎵"
+            color="var(--sky)"
+            text={t.start.tiktok}
+            summaries={[state.summaries.tiktok]}
+            requests={[{ href: 'https://www.tiktok.com/setting/download-your-data', label: t.start.request.tiktok }]}
+            hint={t.start.hint.tiktok}
+            running={running?.source === 'tiktok' ? running : null}
+            error={errors.tiktok}
+            notes={notes.tiktok}
+            onFiles={(f) => onFiles(f, 'tiktok')}
+          />
+          <ExportCard
+            title="Spotify"
+            glyph="🎧"
+            color="var(--lime)"
+            text={t.start.spotify}
+            summaries={[state.summaries.spotify, state.summaries['spotify-export']]}
+            requests={[{ href: 'https://www.spotify.com/account/privacy/', label: t.start.request.spotify }]}
+            hint={t.start.hint.spotify}
+            running={running?.source === 'spotify' ? running : null}
+            error={errors.spotify}
+            notes={notes.spotify}
+            onFiles={(f) => onFiles(f, 'spotify')}
+          >
+            {mounted && isConfigured('spotify') && (
+              <button type="button" onClick={() => connect('spotify')} className="btn btn-ghost btn-sm mt-4">
+                {state.summaries.spotify ? t.start.refresh : t.start.connect('Spotify')}
+              </button>
+            )}
+          </ExportCard>
           <OAuthCard id="reddit" provider="reddit" title="Reddit" glyph="👽" color="var(--orange)" text={t.start.reddit} summary={state.summaries.reddit} error={errors.reddit} onConnect={() => connect('reddit')} mounted={mounted} />
           <GitHubCard summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
+          <div className="md:col-span-2">
+            <ExportCard
+              title={t.start.takeoutTitle}
+              glyph="📦"
+              color="var(--yellow)"
+              badge={t.start.best}
+              text={t.start.takeoutText}
+              summaries={[state.summaries.takeout]}
+              requests={[
+                { href: 'https://takeout.google.com/settings/takeout/custom/youtube', label: t.start.request.youtube },
+                { href: 'https://takeout.google.com/settings/takeout/custom/myactivity', label: t.start.request.search },
+              ]}
+              hint={t.start.hint.takeout}
+              running={running?.source === 'takeout' ? running : null}
+              error={errors.takeout}
+              notes={notes.takeout}
+              onFiles={(f) => onFiles(f, 'takeout')}
+            />
+          </div>
         </div>
       </section>
 
@@ -253,82 +316,95 @@ function OAuthCard(props: { id: SourceId; provider: Provider; title: string; gly
   )
 }
 
-function TakeoutCard({ summary, extra, running, error, notes, onFiles }: { summary?: SourceSummary; extra: Array<SourceSummary | undefined>; running: Running; error?: string; notes: string[]; onFiles: (files: File[]) => void }) {
-  const { t } = useSite()
-  const input = useRef<HTMLInputElement>(null)
-  const [drag, setDrag] = useState(false)
+/** A data download: one button to the page where you request it, then a place to drop it. */
+function ExportCard(props: {
+  title: string
+  glyph: string
+  color: string
+  text: string
+  badge?: string
+  summaries: Array<SourceSummary | undefined>
+  requests: Array<{ href: string; label: string }>
+  hint: string
+  running: Running
+  error?: string
+  notes?: string[]
+  onFiles: (files: File[]) => void
+  children?: React.ReactNode
+}) {
   return (
-    <Card title={t.start.exportsTitle} text={t.start.exportsText} glyph="📦" color="var(--yellow)" badge={t.start.best}>
-      {summary && <Connected summary={summary} onRemove={() => removeSummary('takeout')} />}
-      {extra.map((x) => x && <Connected key={x.source} summary={x} onRemove={() => removeSummary(x.source)} />)}
-      {running && <RunningLine running={running} />}
-      {error && <p className="mt-3 text-sm font-semibold text-bad">{error}</p>}
-      {notes.length > 0 && (
+    <Card title={props.title} text={props.text} glyph={props.glyph} color={props.color} badge={props.badge}>
+      {props.summaries.map((x) => x && <Connected key={x.source} summary={x} onRemove={() => removeSummary(x.source)} />)}
+      {props.children}
+      <div className="mt-5 grid gap-4">
+        <div className="flex gap-3">
+          <StepDot n={1} />
+          <div className="min-w-0">
+            <div className="flex flex-wrap gap-2">
+              {props.requests.map((q) => (
+                <a key={q.href} href={q.href} target="_blank" rel="noreferrer" className="btn btn-ink btn-sm">
+                  {q.label} ↗
+                </a>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted">{props.hint}</p>
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <StepDot n={2} />
+          <DropZone onFiles={props.onFiles} />
+        </div>
+      </div>
+      {props.running && <RunningLine running={props.running} />}
+      {props.error && <p className="mt-3 text-sm font-semibold text-bad">{props.error}</p>}
+      {props.notes && props.notes.length > 0 && (
         <ul className="mt-3 text-xs text-muted">
-          {notes.map((n) => (
+          {props.notes.map((n) => (
             <li key={n}>✓ {n}</li>
           ))}
         </ul>
       )}
-      <div
-        onDragOver={(e) => {
-          e.preventDefault()
-          setDrag(true)
-        }}
-        onDragLeave={() => setDrag(false)}
-        onDrop={(e) => {
-          e.preventDefault()
-          setDrag(false)
-          onFiles([...e.dataTransfer.files])
-        }}
-        onClick={() => input.current?.click()}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') input.current?.click()
-        }}
-        role="button"
-        tabIndex={0}
-        className={`mt-4 cursor-pointer rounded-2xl border-2 border-dashed p-6 text-center transition ${drag ? 'border-accent bg-accent-soft' : 'border-line hover:bg-surface-2'}`}
-      >
-        <span className="block text-2xl" aria-hidden="true">⤓</span>
-        <span className="font-bold">{t.start.drop}</span>
-        <span className="block text-xs text-muted">{t.start.dropSub}</span>
-        <input ref={input} type="file" multiple accept=".zip,.json,.html,.csv" className="hidden" onChange={(e) => onFiles([...(e.target.files ?? [])])} />
-      </div>
-      <details className="mt-3 text-sm">
-        <summary className="cursor-pointer font-semibold text-accent">{t.start.takeoutHow}</summary>
-        <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
-          {t.start.takeoutSteps.map((s, i) => (
-            <li key={s}>
-              {i === 0 ? (
-                <a className="underline" href="https://takeout.google.com/settings/takeout/custom/youtube" target="_blank" rel="noreferrer">
-                  {s}
-                </a>
-              ) : (
-                s
-              )}
-            </li>
-          ))}
-        </ol>
-      </details>
-      <HowTo title={t.start.instagramHow} steps={t.start.instagramSteps} href="https://accountscenter.instagram.com/info_and_permissions/dyi/" />
-      <HowTo title={t.start.tiktokHow} steps={t.start.tiktokSteps} href="https://www.tiktok.com/setting/download-your-data" />
-      <details className="mt-2 text-sm">
-        <summary className="cursor-pointer font-semibold text-accent">{t.start.spotifyHow}</summary>
-        <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
-          {t.start.spotifySteps.map((s, i) => (
-            <li key={s}>
-              {i === 0 ? (
-                <a className="underline" href="https://www.spotify.com/account/privacy/" target="_blank" rel="noreferrer">
-                  {s}
-                </a>
-              ) : (
-                s
-              )}
-            </li>
-          ))}
-        </ol>
-      </details>
     </Card>
+  )
+}
+
+function StepDot({ n }: { n: number }) {
+  return (
+    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-line bg-surface text-sm font-extrabold" aria-hidden="true">
+      {n}
+    </span>
+  )
+}
+
+function DropZone({ onFiles }: { onFiles: (files: File[]) => void }) {
+  const { t } = useSite()
+  const input = useRef<HTMLInputElement>(null)
+  const [drag, setDrag] = useState(false)
+  return (
+    <div
+      onDragOver={(e) => {
+        e.preventDefault()
+        setDrag(true)
+      }}
+      onDragLeave={() => setDrag(false)}
+      onDrop={(e) => {
+        e.preventDefault()
+        setDrag(false)
+        onFiles([...e.dataTransfer.files])
+      }}
+      onClick={() => input.current?.click()}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') input.current?.click()
+      }}
+      role="button"
+      tabIndex={0}
+      className={`min-w-0 flex-1 cursor-pointer rounded-2xl border-2 border-dashed p-4 text-center transition ${drag ? 'border-accent bg-accent-soft' : 'border-line hover:bg-surface-2'}`}
+    >
+      <span className="block text-xl" aria-hidden="true">⤓</span>
+      <span className="text-sm font-bold">{t.start.drop}</span>
+      <span className="block text-xs text-muted">{t.start.dropSub}</span>
+      <input ref={input} type="file" multiple accept=".zip,.json,.html,.csv,.txt" className="hidden" onChange={(e) => onFiles([...(e.target.files ?? [])])} />
+    </div>
   )
 }
 
@@ -353,27 +429,5 @@ function GitHubCard({ summary, running, error, onSubmit }: { summary?: SourceSum
         </button>
       </form>
     </Card>
-  )
-}
-
-/** Steps to get a data download; the first step links to the right page. */
-function HowTo({ title, steps, href }: { title: string; steps: string[]; href: string }) {
-  return (
-    <details className="mt-2 text-sm">
-      <summary className="cursor-pointer font-semibold text-accent">{title}</summary>
-      <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
-        {steps.map((s, i) => (
-          <li key={s}>
-            {i === 0 ? (
-              <a className="underline" href={href} target="_blank" rel="noreferrer">
-                {s}
-              </a>
-            ) : (
-              s
-            )}
-          </li>
-        ))}
-      </ol>
-    </details>
   )
 }
