@@ -410,7 +410,10 @@ export async function readExports(files: File[], onProgress: Progress = () => {}
 function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>): ExportResult {
   const summaries: SourceSummary[] = []
   // Google searches (My Activity) are their own source, so the two downloads don't overwrite each other.
-  const youtubeItems = [...c.watch, ...c.music, ...c.youtubeSearch, ...c.comments, ...c.subscriptions]
+  // Subscriptions in Takeout carry no date and can be years old; with a real
+  // watch history, what someone watches now leads.
+  const subscriptions = c.watch.length >= 200 ? c.subscriptions.map((x) => ({ ...x, weight: 1 })) : c.subscriptions
+  const youtubeItems = [...c.watch, ...c.music, ...c.youtubeSearch, ...c.comments, ...subscriptions]
   if (youtubeItems.length) {
     const groupText = new Map<string, string>()
     if (channels) for (const [id, ch] of channels) groupText.set(id, ch.text)

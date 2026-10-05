@@ -77,3 +77,11 @@ test('reads the HTML version of an Instagram download', async () => {
   assert.ok(s.fields.astronomy.score > 0)
   assert.ok(!JSON.stringify(s).includes('secret'))
 })
+
+test('old YouTube subscriptions count less than fresh ones', async () => {
+  const { subscriptionWeight } = await import('../lib/sources/youtube.ts')
+  const now = Date.parse('2026-10-01')
+  assert.equal(subscriptionWeight(Date.parse('2026-06-01'), now), 3)
+  assert.equal(subscriptionWeight(Date.parse('2023-06-01'), now), 1.8)
+  assert.equal(subscriptionWeight(Date.parse('2019-06-01'), now), 1)
+})

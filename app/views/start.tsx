@@ -129,6 +129,7 @@ export function StartView() {
             title="Instagram"
             glyph="📸"
             color="var(--violet)"
+            badge={t.start.best}
             text={t.start.instagram}
             summaries={[state.summaries.instagram]}
             requests={[{ href: 'https://accountscenter.instagram.com/info_and_permissions/dyi/', label: t.start.request.instagram }]}
@@ -142,6 +143,7 @@ export function StartView() {
             title="TikTok"
             glyph="🎵"
             color="var(--sky)"
+            badge={t.start.best}
             text={t.start.tiktok}
             summaries={[state.summaries.tiktok]}
             requests={[{ href: 'https://www.tiktok.com/setting/download-your-data', label: t.start.request.tiktok }]}

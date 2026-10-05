@@ -223,7 +223,8 @@ export async function collectYouTube(token: string, onProgress: Progress = () =>
       text: channels.get(s.id)?.text ?? `${s.title} ${truncate(s.description, 500)}`,
       label: s.title,
       group: s.id,
-      weight: 3,
+      // A subscription from years ago says less about today than recent viewing.
+      weight: subscriptionWeight(s.time),
       time: s.time,
       learningPrior: 0.4,
       url: `https://www.youtube.com/channel/${s.id}`,
@@ -331,4 +332,11 @@ export async function collectYouTube(token: string, onProgress: Progress = () =>
     music: genres.size >= 3 ? genresToProfile(genres, 0) : undefined,
     dataPoints: items.length + channels.size,
   })
+}
+
+/** 3 for a fresh subscription, down to 1 after four years. */
+export function subscriptionWeight(time?: number, now = Date.now()): number {
+  if (!time) return 3
+  const years = (now - time) / (365.25 * 24 * 3600 * 1000)
+  return years > 4 ? 1 : years > 2 ? 1.8 : 3
 }
