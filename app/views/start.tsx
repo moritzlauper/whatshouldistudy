@@ -90,7 +90,7 @@ export function StartView() {
         <StepTitle n={1} color="var(--pink)" title={t.start.step1} sub={t.start.step1sub} />
         <div className="mt-7 grid gap-5 md:grid-cols-2">
           <OAuthCard id="youtube" provider="google" title="YouTube" glyph="▶" color="var(--pink)" text={t.start.yt} summary={state.summaries.youtube} error={errors.google} onConnect={() => connect('google')} mounted={mounted} />
-          <TakeoutCard summary={state.summaries.takeout} spotifyExport={state.summaries['spotify-export']} running={running?.source === 'takeout' ? running : null} error={errors.takeout} notes={notes} onFiles={onFiles} />
+          <TakeoutCard summary={state.summaries.takeout} extra={[state.summaries['spotify-export'], state.summaries.instagram, state.summaries.tiktok]} running={running?.source === 'takeout' ? running : null} error={errors.takeout} notes={notes} onFiles={onFiles} />
           <OAuthCard id="spotify" provider="spotify" title="Spotify" glyph="🎧" color="var(--lime)" text={t.start.spotify} summary={state.summaries.spotify} error={errors.spotify} onConnect={() => connect('spotify')} mounted={mounted} />
           <OAuthCard id="reddit" provider="reddit" title="Reddit" glyph="👽" color="var(--orange)" text={t.start.reddit} summary={state.summaries.reddit} error={errors.reddit} onConnect={() => connect('reddit')} mounted={mounted} />
           <GitHubCard summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
@@ -242,14 +242,14 @@ function OAuthCard(props: { id: SourceId; provider: Provider; title: string; gly
   )
 }
 
-function TakeoutCard({ summary, spotifyExport, running, error, notes, onFiles }: { summary?: SourceSummary; spotifyExport?: SourceSummary; running: Running; error?: string; notes: string[]; onFiles: (files: File[]) => void }) {
+function TakeoutCard({ summary, extra, running, error, notes, onFiles }: { summary?: SourceSummary; extra: Array<SourceSummary | undefined>; running: Running; error?: string; notes: string[]; onFiles: (files: File[]) => void }) {
   const { t } = useSite()
   const input = useRef<HTMLInputElement>(null)
   const [drag, setDrag] = useState(false)
   return (
     <Card title={t.start.exportsTitle} text={t.start.exportsText} glyph="📦" color="var(--yellow)" badge={t.start.best}>
       {summary && <Connected summary={summary} onRemove={() => removeSummary('takeout')} />}
-      {spotifyExport && <Connected summary={spotifyExport} onRemove={() => removeSummary('spotify-export')} />}
+      {extra.map((x) => x && <Connected key={x.source} summary={x} onRemove={() => removeSummary(x.source)} />)}
       {running && <RunningLine running={running} />}
       {error && <p className="mt-3 text-sm font-semibold text-bad">{error}</p>}
       {notes.length > 0 && (
@@ -299,6 +299,8 @@ function TakeoutCard({ summary, spotifyExport, running, error, notes, onFiles }:
           ))}
         </ol>
       </details>
+      <HowTo title={t.start.instagramHow} steps={t.start.instagramSteps} href="https://accountscenter.instagram.com/info_and_permissions/dyi/" />
+      <HowTo title={t.start.tiktokHow} steps={t.start.tiktokSteps} href="https://www.tiktok.com/setting/download-your-data" />
       <details className="mt-2 text-sm">
         <summary className="cursor-pointer font-semibold text-accent">{t.start.spotifyHow}</summary>
         <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
@@ -340,5 +342,27 @@ function GitHubCard({ summary, running, error, onSubmit }: { summary?: SourceSum
         </button>
       </form>
     </Card>
+  )
+}
+
+/** Steps to get a data download; the first step links to the right page. */
+function HowTo({ title, steps, href }: { title: string; steps: string[]; href: string }) {
+  return (
+    <details className="mt-2 text-sm">
+      <summary className="cursor-pointer font-semibold text-accent">{title}</summary>
+      <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
+        {steps.map((s, i) => (
+          <li key={s}>
+            {i === 0 ? (
+              <a className="underline" href={href} target="_blank" rel="noreferrer">
+                {s}
+              </a>
+            ) : (
+              s
+            )}
+          </li>
+        ))}
+      </ol>
+    </details>
   )
 }

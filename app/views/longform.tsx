@@ -97,7 +97,7 @@ export async function HowView({ site, base }: SiteProps) {
       <Page title="So funktioniert’s" lead={`Drei Schritte: Wir lesen, was du schaust, hörst und baust, übersetzen das in ${FIELDS.length} Studienfelder und verrechnen es mit dem, was du uns über dich sagst. Hier steht jeder Schritt, auch was das Ganze nicht kann.`}>
         <h2>1. Deine Quellen lesen, in deinem Browser</h2>
         <p>
-          Wenn du YouTube, Spotify oder Reddit verbindest, meldest du dich direkt beim Dienst an und erlaubst nur Lesezugriff. Der Schlüssel dafür bleibt in deinem Browser-Tab, und dein Browser fragt den Dienst selbst ab. Ziehst du einen Google-Takeout- oder Spotify-Export rein, wird die Datei auf deinem Gerät entpackt. Unser Server ist nie dabei.
+          Wenn du YouTube, Spotify oder Reddit verbindest, meldest du dich direkt beim Dienst an und erlaubst nur Lesezugriff. Der Schlüssel dafür bleibt in deinem Browser-Tab, und dein Browser fragt den Dienst selbst ab. Ziehst du einen Export von Google Takeout, Spotify, Instagram oder TikTok rein, wird die Datei auf deinem Gerät entpackt. Unser Server ist nie dabei.
         </p>
         <ul>
           <li>
@@ -105,6 +105,9 @@ export async function HowView({ site, base }: SiteProps) {
           </li>
           <li>
             <strong>Google Takeout:</strong> dein ganzer Wiedergabe- und Suchverlauf, Kommentare und Abos. YouTube gibt den Wiedergabeverlauf nicht über die Schnittstelle heraus, deshalb dieser Umweg. Oft stecken Jahre drin.
+          </li>
+          <li>
+            <strong>Instagram und TikTok:</strong> aus deinem Daten-Download die Themen, unter denen dich Instagram führt, die Konten, denen du folgst, deine Likes, Gespeichertes, Suchen, Hashtags und eigene Kommentare. Per Login geben beide das nicht heraus, deshalb der Download. Direktnachrichten lesen wir nicht.
           </li>
           <li>
             <strong>Spotify:</strong> gespeicherte Podcasts und Folgen, Hörbücher, Playlists und deine Top-Artists mit ihren Genres.
@@ -184,7 +187,7 @@ export async function HowView({ site, base }: SiteProps) {
     <Page title="How it works" lead={`Three steps: read what you consume and make, describe it in terms of ${FIELDS.length} fields of study, then combine it with what you tell us about yourself. Here is every step, including what it can’t do.`}>
       <h2>1. Reading your sources, in your browser</h2>
       <p>
-        When you connect YouTube, Spotify or Reddit, you sign in with the service itself and grant read-only access. The access token stays in your browser tab; your browser calls the service directly. When you drop a Google Takeout or Spotify export, the file is unpacked on your device. Our server is never involved.
+        When you connect YouTube, Spotify or Reddit, you sign in with the service itself and grant read-only access. The access token stays in your browser tab; your browser calls the service directly. When you drop an export from Google Takeout, Spotify, Instagram or TikTok, the file is unpacked on your device. Our server is never involved.
       </p>
       <ul>
         <li>
@@ -192,6 +195,9 @@ export async function HowView({ site, base }: SiteProps) {
         </li>
         <li>
           <strong>Google Takeout:</strong> your full watch history and search history, comments and subscriptions. YouTube doesn’t offer watch history through its API, so this is the way to get it, often years of it.
+        </li>
+        <li>
+          <strong>Instagram and TikTok:</strong> from your data download, the topics Instagram files you under, the accounts you follow, your likes, saved posts, searches, hashtags and your own comments. Neither offers this through a sign-in, hence the download. We don’t read direct messages.
         </li>
         <li>
           <strong>Spotify:</strong> saved podcasts and episodes, audiobooks, playlists, and your top and followed artists with their genres.
@@ -283,7 +289,7 @@ export function PrivacyView({ site, base }: SiteProps) {
             <strong>Verbundene Konten (YouTube, Spotify, Reddit):</strong> Du meldest dich beim Dienst selbst an. Er gibt deinem Browser einen Schlüssel mit reinem Lesezugriff. Der liegt nur im Sitzungsspeicher dieses Tabs und ist weg, wenn du ihn schliesst. Dein Browser holt die Daten direkt beim Dienst. Wir bekommen weder den Schlüssel noch die Daten.
           </li>
           <li>
-            <strong>Exporte (Google Takeout, Spotify):</strong> Dateien, die du reinziehst, werden auf deinem Gerät gelesen und entpackt. Sie werden nicht hochgeladen.
+            <strong>Exporte (Google Takeout, Spotify, Instagram, TikTok):</strong> Dateien, die du reinziehst, werden auf deinem Gerät gelesen und entpackt. Sie werden nicht hochgeladen.
           </li>
           <li>
             <strong>Was gespeichert bleibt:</strong> pro Quelle eine Zusammenfassung (wie viel deiner Inhalte zu welchem Fach gehört, ein paar Beispieltitel als Beleg, Zahlen), dazu deine Antworten im Fragebogen und deine Einstellungen. Alles im lokalen Speicher deines Browsers, nur auf deinem Gerät. «Alle meine Daten löschen» auf der Startseite entfernt es.
@@ -326,7 +332,7 @@ export function PrivacyView({ site, base }: SiteProps) {
           <strong>Connected accounts (YouTube, Spotify, Reddit):</strong> you sign in with the service. It gives your browser a read-only access token, stored in this tab’s session storage only and gone when you close it. Your browser fetches your data directly from the service. We never receive the token or the data.
         </li>
         <li>
-          <strong>Exports (Google Takeout, Spotify):</strong> files you drop are read and unpacked on your device. They are not uploaded.
+          <strong>Exports (Google Takeout, Spotify, Instagram, TikTok):</strong> files you drop are read and unpacked on your device. They are not uploaded.
         </li>
         <li>
           <strong>What is kept:</strong> a summary per source (how much of your content relates to each field, a few example titles as evidence, counts), your questionnaire answers and preferences. These are stored in your browser’s local storage, on your device only. “Delete all my data” on the start page removes them.

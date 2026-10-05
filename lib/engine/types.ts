@@ -5,6 +5,8 @@ export type SourceId =
   | 'takeout'
   | 'spotify'
   | 'spotify-export'
+  | 'instagram'
+  | 'tiktok'
   | 'reddit'
   | 'github'
   | 'questionnaire'

@@ -45,6 +45,7 @@ const en = {
       { name: 'YouTube', how: 'Sign in with Google, read-only', what: 'Every subscription with its date, every liked video with tags and topic, your playlists, uploads and the channels behind them.', n: '500–5,000 signals', color: 'pink' },
       { name: 'Google Takeout', how: 'Drop the file from Google', what: 'Your complete watch and search history, often years and tens of thousands of videos. The richest source by far.', n: '5,000–100,000 signals', color: 'yellow' },
       { name: 'Spotify', how: 'Sign in or drop your export', what: 'Podcasts, saved episodes and audiobooks show what you want to understand. Music adds a light personality signal.', n: '200–20,000 signals', color: 'lime' },
+      { name: 'Instagram & TikTok', how: 'Drop your data download', what: 'The topics Instagram filed you under, the accounts you follow, what you liked, saved and searched, your hashtags.', n: '300–20,000 signals', color: 'yellow' },
       { name: 'Reddit', how: 'Sign in, read-only', what: 'The communities you joined, what you saved and upvoted, what you posted. r/AskHistorians says a lot.', n: '100–3,000 signals', color: 'orange' },
       { name: 'GitHub', how: 'Just your username', what: 'What you build and what you star. The strongest signal there is for people who make things.', n: '20–600 signals', color: 'sky' },
       { name: 'Questionnaire', how: '5 minutes, all optional', what: 'Holland interests (RIASEC), the 20-item Mini-IPIP Big Five, your school subjects and what you want from work.', n: '60 answers', color: 'violet' },
@@ -98,7 +99,7 @@ const en = {
     reddit: 'Your communities, saved and upvoted posts, and what you wrote yourself.',
     github: 'What you build and what you star. Public data, just your username.',
     exportsTitle: 'Data exports',
-    exportsText: 'Your full YouTube watch and search history from Google Takeout, or your Spotify listening history. The richest source.',
+    exportsText: 'Your full YouTube history from Google Takeout, your Spotify listening history, or your Instagram and TikTok download. The richest source.',
     best: 'Best',
     signalsRead: (n: string) => `${n} signals read`,
     remove: 'Remove',
@@ -114,6 +115,18 @@ const en = {
       'Leave everything as it is («Export once», .zip, 2 GB) and click «Create export».',
       'Google emails you a download link, usually within minutes. Drop the .zip here as it is.',
       'Uploaded videos yourself? Untick «videos» under «All YouTube data included» first, or the file gets huge.',
+    ],
+    instagramHow: 'How to get your Instagram data',
+    instagramSteps: [
+      'Open Accounts Center → Your information and permissions → Download your information, and choose your Instagram account.',
+      'Pick «Download to device», «All time» and the format «JSON» (not HTML). Media quality doesn’t matter.',
+      'Meta emails you when it’s ready, often within an hour. Drop the .zip here. We don’t read your messages.',
+    ],
+    tiktokHow: 'How to get your TikTok data',
+    tiktokSteps: [
+      'In TikTok: Profile → ☰ → Settings and privacy → Account → Download your data.',
+      'Choose «All data» and the format «JSON», then «Request data».',
+      'When it’s ready (minutes to a few days), download it under «Download data» and drop the .zip here.',
     ],
     spotifyHow: 'How to get your Spotify history',
     spotifySteps: ['Open spotify.com/account/privacy and request your «Extended streaming history» (or «Account data», which is faster).', 'Spotify emails you a .zip within a few days. Drop it here.'],
@@ -209,7 +222,7 @@ const en = {
     kinds: {
       subscription: 'subscribed', like: 'liked', watch: 'watched', search: 'searched', google: 'googled', comment: 'commented', playlist: 'playlist', upload: 'your video',
       podcast: 'podcast', episode: 'episode', book: 'audiobook', subreddit: 'community', saved: 'saved', upvote: 'upvoted', post: 'your post',
-      repo: 'your repo', fork: 'fork', star: 'starred', bio: 'bio',
+      repo: 'your repo', fork: 'fork', star: 'starred', bio: 'bio', topic: 'topic',
     } as Record<string, string>,
   },
   reasons: {
@@ -319,7 +332,7 @@ const en = {
     whereLocalSub: 'Universities that teach this field, from official statistics.',
   },
   sourceNames: {
-    youtube: 'YouTube', takeout: 'Google Takeout', spotify: 'Spotify', 'spotify-export': 'Spotify export', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Questionnaire',
+    youtube: 'YouTube', takeout: 'Google Takeout', spotify: 'Spotify', 'spotify-export': 'Spotify export', instagram: 'Instagram', tiktok: 'TikTok', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Questionnaire',
   } as Record<string, string>,
   stats: {
     subscriptions: 'subscriptions', likedVideos: 'liked videos', musicLikes: 'music likes', playlists: 'playlists', playlistItems: 'playlist items', uploads: 'uploads',
@@ -327,6 +340,7 @@ const en = {
     plays: 'plays', podcastEpisodes: 'podcast episodes', artists: 'artists', repositories: 'repositories', ownRepositories: 'own repos', starred: 'starred', topLanguage: 'top language',
     communities: 'communities', saved: 'saved', upvoted: 'upvoted', posts: 'posts', topArtists: 'top artists', followedArtists: 'followed artists', topTracks: 'top tracks',
     recentPlays: 'recent plays', savedPodcasts: 'saved podcasts', savedEpisodes: 'saved episodes', audiobooks: 'audiobooks',
+    topics: 'topics', following: 'accounts followed', likes: 'likes', savedPosts: 'saved posts', searches: 'searches', profileSearches: 'profile searches', seen: 'posts seen', entries: 'entries',
   } as Record<string, string>,
   /** Progress and error messages from the connectors, which are written in English. */
   tr: (s: string): string => s,
@@ -412,6 +426,16 @@ const DE_MESSAGES: Array<[RegExp, string]> = [
   [/ watched videos/g, ' geschaute Videos'],
   [/ YouTube searches/g, ' YouTube-Suchen'],
   [/ Google searches/g, ' Google-Suchen'],
+  [/ accounts you follow/g, ' gefolgte Konten'],
+  [/ posts and videos seen/g, ' gesehene Posts und Videos'],
+  [/ saved posts/g, ' gespeicherte Posts'],
+  [/ profile searches/g, ' Profilsuchen'],
+  [/ searches/g, ' Suchen'],
+  [/ topics/g, ' Themen'],
+  [/ likes/g, ' Likes'],
+  [/ comments/g, ' Kommentare'],
+  [/ videos watched/g, ' geschaute Videos'],
+  [/ entries/g, ' Einträge'],
 ]
 
 const deCH: Dict = {
@@ -450,6 +474,7 @@ const deCH: Dict = {
       { name: 'YouTube', how: 'Mit Google anmelden, nur lesen', what: 'Jedes Abo mit Datum, jedes gelikte Video mit Tags und Thema, deine Playlists und Uploads, plus die Kanäle dahinter.', n: '500–5’000 Signale', color: 'pink' },
       { name: 'Google Takeout', how: 'Datei von Google reinziehen', what: 'Dein kompletter Wiedergabe- und Suchverlauf, oft Jahre und zehntausende Videos. Mit Abstand die beste Quelle.', n: '5’000–100’000 Signale', color: 'yellow' },
       { name: 'Spotify', how: 'Anmelden oder Export reinziehen', what: 'Podcasts, gespeicherte Folgen und Hörbücher zeigen, was du verstehen willst. Musik gibt einen leisen Hinweis auf deine Persönlichkeit.', n: '200–20’000 Signale', color: 'lime' },
+      { name: 'Instagram & TikTok', how: 'Daten-Download reinziehen', what: 'Die Themen, unter denen dich Instagram führt, wem du folgst, was du likest, speicherst und suchst, deine Hashtags.', n: '300–20’000 Signale', color: 'yellow' },
       { name: 'Reddit', how: 'Anmelden, nur lesen', what: 'Die Communities, in denen du bist, was du speicherst und upvotest, was du selbst postest.', n: '100–3’000 Signale', color: 'orange' },
       { name: 'GitHub', how: 'Nur dein Username', what: 'Was du baust und was du sternst. Für Leute, die Dinge machen, das stärkste Signal überhaupt.', n: '20–600 Signale', color: 'sky' },
       { name: 'Fragebogen', how: '5 Minuten, alles freiwillig', what: 'Interessen nach Holland (RIASEC), die 20 Fragen des Mini-IPIP (Big Five), deine Schulfächer und was du vom Job willst.', n: '60 Antworten', color: 'violet' },
@@ -503,7 +528,7 @@ const deCH: Dict = {
     reddit: 'Deine Communities, gespeicherte und upgevotete Posts, und was du selbst schreibst.',
     github: 'Was du baust und was du sternst. Öffentliche Daten, nur dein Username.',
     exportsTitle: 'Daten-Export',
-    exportsText: 'Dein ganzer YouTube-Verlauf aus Google Takeout oder dein Spotify-Hörverlauf. Die beste Quelle.',
+    exportsText: 'Dein ganzer YouTube-Verlauf aus Google Takeout, dein Spotify-Hörverlauf oder dein Instagram- und TikTok-Download. Die beste Quelle.',
     best: 'Top',
     signalsRead: (n: string) => `${n} Signale gelesen`,
     remove: 'Entfernen',
@@ -519,6 +544,18 @@ const deCH: Dict = {
       'Alles so lassen («Einmal exportieren», .zip, 2 GB) und «Export erstellen» klicken.',
       'Google schickt dir meist innert Minuten einen Download-Link. Die .zip-Datei so, wie sie ist, hier reinziehen.',
       'Selbst Videos hochgeladen? Dann vorher unter «Alle YouTube-Daten» die Videos abwählen, sonst wird die Datei riesig.',
+    ],
+    instagramHow: 'So kommst du zu deinen Instagram-Daten',
+    instagramSteps: [
+      'Kontenübersicht öffnen → Deine Informationen und Berechtigungen → Deine Informationen herunterladen, dann dein Instagram-Konto wählen.',
+      '«Auf Gerät herunterladen», «Gesamter Zeitraum» und das Format «JSON» wählen (nicht HTML). Die Medienqualität spielt keine Rolle.',
+      'Meta schickt dir ein E-Mail, wenn es bereit ist, oft innert einer Stunde. Die .zip hier reinziehen. Deine Nachrichten lesen wir nicht.',
+    ],
+    tiktokHow: 'So kommst du zu deinen TikTok-Daten',
+    tiktokSteps: [
+      'In TikTok: Profil → ☰ → Einstellungen und Datenschutz → Konto → Deine Daten herunterladen.',
+      '«Alle Daten» und das Format «JSON» wählen, dann «Daten anfordern».',
+      'Wenn es bereit ist (Minuten bis ein paar Tage), unter «Daten herunterladen» abholen und die .zip hier reinziehen.',
     ],
     spotifyHow: 'So kommst du zu deinem Spotify-Verlauf',
     spotifySteps: ['spotify.com/account/privacy öffnen und den «erweiterten Streaming-Verlauf» anfordern (oder «Kontodaten», das geht schneller).', 'Spotify schickt dir innert ein paar Tagen ein .zip per E-Mail. Hier reinziehen.'],
@@ -654,7 +691,7 @@ const deCH: Dict = {
     kinds: {
       subscription: 'abonniert', like: 'geliked', watch: 'geschaut', search: 'gesucht', google: 'gegoogelt', comment: 'kommentiert', playlist: 'Playlist', upload: 'dein Video',
       podcast: 'Podcast', episode: 'Folge', book: 'Hörbuch', subreddit: 'Community', saved: 'gespeichert', upvote: 'upgevotet', post: 'dein Post',
-      repo: 'dein Repo', fork: 'Fork', star: 'gesternt', bio: 'Bio',
+      repo: 'dein Repo', fork: 'Fork', star: 'gesternt', bio: 'Bio', topic: 'Thema',
     },
   },
   reasons: {
@@ -764,7 +801,7 @@ const deCH: Dict = {
     whereLocalSub: 'Hochschulen mit Bachelor- oder Master-Studierenden in diesem Fach, laut Bundesamt für Statistik.',
   },
   sourceNames: {
-    youtube: 'YouTube', takeout: 'Google Takeout', spotify: 'Spotify', 'spotify-export': 'Spotify-Export', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Fragebogen',
+    youtube: 'YouTube', takeout: 'Google Takeout', spotify: 'Spotify', 'spotify-export': 'Spotify-Export', instagram: 'Instagram', tiktok: 'TikTok', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Fragebogen',
   },
   stats: {
     subscriptions: 'Abos', likedVideos: 'gelikte Videos', musicLikes: 'Musik-Likes', playlists: 'Playlists', playlistItems: 'Videos in Playlists', uploads: 'Uploads',
@@ -772,6 +809,7 @@ const deCH: Dict = {
     plays: 'Plays', podcastEpisodes: 'Podcast-Folgen', artists: 'Artists', repositories: 'Repos', ownRepositories: 'eigene Repos', starred: 'gesternt', topLanguage: 'Top-Sprache',
     communities: 'Communities', saved: 'gespeichert', upvoted: 'upgevotet', posts: 'Posts', topArtists: 'Top-Artists', followedArtists: 'gefolgte Artists', topTracks: 'Top-Songs',
     recentPlays: 'zuletzt gehört', savedPodcasts: 'gespeicherte Podcasts', savedEpisodes: 'gespeicherte Folgen', audiobooks: 'Hörbücher',
+    topics: 'Themen', following: 'gefolgte Konten', likes: 'Likes', savedPosts: 'gespeicherte Posts', searches: 'Suchen', profileSearches: 'Profilsuchen', seen: 'gesehene Posts', entries: 'Einträge',
   },
   tr: (s: string): string => DE_MESSAGES.reduce((acc, [re, to]) => acc.replace(re, to), s),
   meta: {

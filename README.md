@@ -132,13 +132,15 @@ sources (CIP for the US, CAH for the UK, ISCED-F, OpenAlex subfields).
 | YouTube Data API | subscriptions, likes, playlists, uploads, channel details | Google Cloud project, enable *YouTube Data API v3*, OAuth client (web), consent screen with scope `youtube.readonly`. Until Google verifies the app (sensitive scope, a few weeks, needs the privacy page and a demo video), only listed test users can sign in. Default quota is 10,000 units/day ≈ 50–60 full scans; request more via the quota form. |
 | Google Takeout | full watch + search history, comments, subscriptions | none, the user uploads the export |
 | Spotify Web API | podcasts, episodes, audiobooks, artists/genres | app on developer.spotify.com. Development mode allows 25 allow-listed users; public use needs Spotify's extended quota approval, which Spotify currently grants mainly to organisations. The Spotify data export works for everyone. |
+| Instagram data download (JSON) | topics Instagram files you under, accounts you follow, likes, saved posts, searches, posts seen | none, the user requests it in Accounts Center and drops the .zip; direct messages are skipped. Instagram's API only covers business accounts and their own posts, so there is no sign-in. |
+| TikTok data download (JSON or TXT) | searches, accounts you follow, hashtags, own comments, how many videos watched and liked | none, the user requests it in the app (Settings → Account → Download your data). TikTok's Login Kit gives only profile and own videos. |
 | Reddit API | communities, saved, upvoted, own posts | app of type *installed app* on reddit.com/prefs/apps |
 | GitHub | public repos and stars | none (public API, 60 requests/hour per visitor IP) |
 
 Further sources worth adding later (account access exists): Google "My Activity"
 search history is already read from Takeout; Goodreads and Letterboxd CSV
 exports (books and films); Steam (owned games and playtime via Steam Web API);
-TikTok and Instagram data downloads (topics/interests files); Strava (sports).
+Strava (sports).
 
 ## Programme database
 

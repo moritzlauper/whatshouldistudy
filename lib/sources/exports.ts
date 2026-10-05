@@ -4,6 +4,8 @@ import { truncate } from '../engine/text.ts'
 import type { SignalItem, SourceSummary } from '../engine/types.ts'
 import type { ChannelInfo } from './youtube.ts'
 import type { Progress } from './oauth.ts'
+import { newSocial, parseInstagram, parseTikTok, parseTikTokText } from './social-exports.ts'
+import type { SocialCollected } from './social-exports.ts'
 
 /**
  * Data exports the user downloads themselves and drops into the page:
@@ -14,6 +16,9 @@ import type { Progress } from './oauth.ts'
  * - Google Takeout (My Activity → Search): your Google searches.
  * - Spotify "Account data" or "Extended streaming history": every song and
  *   podcast episode you played.
+ * - Instagram and TikTok data downloads (JSON, or TikTok's TXT): topics,
+ *   accounts you follow, likes, saved posts, searches, hashtags. Direct
+ *   messages are skipped.
  *
  * Files are recognised by their content, not their (localised) names, and are
  * read in the browser. A whole Takeout .zip can be dropped as is; it is
@@ -51,13 +56,14 @@ interface Collected {
   spotifyTracks: Map<string, number>
   spotifyPlays: number
   channelCounts: Map<string, { name: string; n: number }>
+  social: SocialCollected
   recognised: string[]
   skipped: string[]
 }
 
 const WATCH_PREFIX = /^(watched|vous avez regardé|has visto|hai guardato|assistiu a|bekeken|obejrzano|ha visto|se vio|visto)\s*:?\s+/i
 const WATCH_SUFFIX = /\s+(angesehen|angeschaut|bekeken)$/i
-const WANTED = /\.(json|html|csv)$/i
+const WANTED = /\.(json|html|csv|txt)$/i
 
 function channelIdFromUrl(url?: string): string | undefined {
   const m = url ? /\/channel\/(UC[\w-]{20,})/.exec(url) : null
@@ -86,6 +92,7 @@ function newCollected(): Collected {
     spotifyTracks: new Map(),
     spotifyPlays: 0,
     channelCounts: new Map(),
+    social: newSocial(),
     recognised: [],
     skipped: [],
   }
@@ -310,7 +317,15 @@ async function readEntry(c: Collected, name: string, text: string): Promise<void
   const short = name.split('/').pop() ?? name
   try {
     if (/\.json$/i.test(name)) {
-      if (!parseActivityJson(c, short, JSON.parse(text))) c.skipped.push(short)
+      const data = JSON.parse(text) as unknown
+      if (parseActivityJson(c, short, data)) return
+      const social = parseInstagram(c.social, short, data) ?? parseTikTok(c.social, short, data)
+      if (social) c.recognised.push(social)
+      else c.skipped.push(short)
+    } else if (/\.txt$/i.test(name)) {
+      const social = parseTikTokText(c.social, short, text)
+      if (social) c.recognised.push(social)
+      else c.skipped.push(short)
     } else if (/\.html$/i.test(name)) {
       if (!/content-cell/.test(text) || !parseActivityHtml(c, short, text)) c.skipped.push(short)
     } else if (/\.csv$/i.test(name)) {
@@ -329,6 +344,8 @@ async function readZip(c: Collected, file: File, onProgress: Progress): Promise<
     // Takeout puts everything else (videos, photos) in the same archive; skip it.
     if (!WANTED.test(f.name) || (f.originalSize ?? 0) > 400e6) return
     if (/\/(videos?|fotos?|photos?)\//i.test(f.name) && !/history|verlauf|historique|historial|cronologia/i.test(f.name)) return
+    // Instagram and TikTok downloads: direct messages stay unread.
+    if (/(^|\/)(messages|inbox|message_requests|direct_messages?)\//i.test(f.name)) return
     const chunks: Uint8Array[] = []
     pending.push(
       new Promise<void>((resolve) => {
@@ -414,6 +431,20 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>): Expo
         label: 'Spotify data export',
         stats: { plays: c.spotifyPlays, podcastEpisodes: c.spotifyPodcasts.length, artists },
         dataPoints: c.spotifyPlays,
+      }),
+    )
+  }
+  const ig = c.social
+  if (ig.instagram.length) {
+    summaries.push(accumulate(ig.instagram, { source: 'instagram', label: 'Instagram', stats: ig.instagramStats }))
+  }
+  if (ig.tiktok.length) {
+    summaries.push(
+      accumulate(ig.tiktok, {
+        source: 'tiktok',
+        label: 'TikTok',
+        stats: ig.tiktokStats,
+        dataPoints: ig.tiktok.length + (ig.tiktokStats.watchedVideos ?? 0) + (ig.tiktokStats.likes ?? 0),
       }),
     )
   }

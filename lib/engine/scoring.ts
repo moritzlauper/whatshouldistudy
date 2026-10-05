@@ -32,6 +32,8 @@ export const SOURCE_RELIABILITY: Record<SourceId, number> = {
   github: 0.8,
   spotify: 0.6,
   'spotify-export': 0.7,
+  instagram: 0.7,
+  tiktok: 0.6,
   questionnaire: 1,
 }
 
