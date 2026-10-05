@@ -8,6 +8,7 @@ import { flag } from '@/lib/countries.ts'
 import { TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
 import { kit } from '@/lib/site/kit.ts'
+import { isLocal } from '@/lib/site/config.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
 import { big5Label, countryLabel, emoji, fieldBlurb, fieldCareers, fieldName, fmtMoney, fmtNumber, groupLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
@@ -92,7 +93,7 @@ export async function FieldView({ site, base, id }: SiteProps & { id: string }) 
           <div className="card on-color bg-lime p-6">
             <h2 className="font-display text-2xl">{t.fields.leadsTo}</h2>
             <p className="mt-1 text-sm text-muted">{fieldCareers(id, locale).join(' · ')}</p>
-            {s?.usMedianEarnings && (
+            {s?.usMedianEarnings && !isLocal(site) && (
               <p className="mt-3 text-sm">
                 {t.fields.usEarnings(fmtMoney(s.usMedianEarnings, 'USD', intl))}
                 <span className="text-muted">{t.fields.scorecard}</span>

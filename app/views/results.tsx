@@ -8,6 +8,7 @@ import { score } from '@/lib/engine/scoring.ts'
 import type { FieldMatch, Results, SourceSummary } from '@/lib/engine/types.ts'
 import type { FieldStat } from '@/lib/programmes.ts'
 import { BIG5_KEYS, FIELDS, FIELD_BY_ID, RIASEC_KEYS } from '@/lib/taxonomy/fields.ts'
+import { isLocal } from '@/lib/site/config.ts'
 import { big5Label, emoji, fieldBlurb, fieldCareers, fieldName, fmtMoney, fmtNumber, groupLabel, riasecLabel } from '@/lib/site/labels.ts'
 import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
@@ -58,6 +59,8 @@ export function ResultsView() {
 
   const [first, ...rest] = results.fields
   const top = rest.slice(0, 9)
+  // Place 1 belongs to the paid report; the other places stay free.
+  const unlocked = !!state.unlock && state.unlock.expiresAt > Date.now()
   const sourceList = results.sources.map((s) => t.sourceNames[s.id] ?? s.label).join(', ') || t.results.yourAnswers
 
   return (
@@ -75,7 +78,7 @@ export function ResultsView() {
         </div>
       </div>
 
-      <TopMatch m={first} stat={stats[first.id]} />
+      {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop />}
 
       <section className="mt-16">
         <h2 className="font-display text-4xl">{t.results.next}</h2>
@@ -197,11 +200,17 @@ export function ResultsView() {
               <li key={y.year} className="grid grid-cols-[4rem_1fr] items-center gap-3">
                 <span className="font-display text-xl">{y.year}</span>
                 <div className="flex flex-wrap gap-2">
-                  {y.fields.map((f) => (
-                    <span key={f.id} className="chip">
-                      <span aria-hidden="true">{emoji(f.id)}</span> {fieldName(f.id, locale)}
-                    </span>
-                  ))}
+                  {y.fields.map((f) =>
+                    f.id === first.id && !unlocked ? (
+                      <span key={f.id} className="chip">
+                        🔒 {t.results.lockedChip}
+                      </span>
+                    ) : (
+                      <span key={f.id} className="chip">
+                        <span aria-hidden="true">{emoji(f.id)}</span> {fieldName(f.id, locale)}
+                      </span>
+                    ),
+                  )}
                 </div>
               </li>
             ))}
@@ -296,15 +305,63 @@ function TopMatch({ m, stat }: { m: FieldMatch; stat?: FieldStat }) {
             <div className="font-bold">{t.results.leadsTo}</div>
             <div className="text-muted">{fieldCareers(m.id, locale).slice(0, 4).join(' · ')}</div>
           </div>
-          {stat?.usMedianEarnings && (
+          {stat?.usMedianEarnings && !isLocal(k.site) && (
             <div className="text-sm">
               <div className="font-bold">{t.results.usEarnings}</div>
               <div className="text-muted">{fmtMoney(stat.usMedianEarnings, 'USD', intl)}</div>
             </div>
           )}
-          <Link href={r.field(m.id)} className="btn btn-ghost btn-sm self-start">
-            {t.results.more(name)}
+          <Link href={r.field(m.id)} className="btn btn-ghost btn-sm max-w-full self-start">
+            {t.results.more}
           </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/** Place 1 before the report is unlocked: the card's shape, nothing of its content. */
+function LockedTop() {
+  const { t, r } = useSite()
+  const bar = (w: string) => <span className="block h-3 rounded-full bg-surface-2" style={{ width: w }} />
+  return (
+    <section className="card pop-in relative mt-9 overflow-hidden">
+      <div className="on-color relative flex flex-wrap items-center gap-4 border-b-2 border-line bg-yellow px-6 py-4 sm:px-10">
+        <span className="sticker" style={{ background: 'var(--surface)', color: 'var(--ink)' }}>🏆 {t.results.best}</span>
+        <Burst className="spin-slow absolute -right-8 -top-8 hidden sm:block" size={110} color="var(--pink)" />
+      </div>
+      <div className="relative">
+        <div className="grid select-none gap-10 p-6 blur-[6px] sm:p-10 lg:grid-cols-[1fr_20rem]" aria-hidden="true">
+          <div>
+            <div className="text-6xl">🎓</div>
+            <div className="mt-4 h-14 w-4/5 rounded-2xl bg-accent-soft" />
+            <div className="mt-5 grid gap-2.5">
+              {bar('92%')}
+              {bar('85%')}
+              {bar('60%')}
+            </div>
+            <div className="mt-7 grid gap-3">
+              {bar('70%')}
+              {bar('64%')}
+              {bar('76%')}
+            </div>
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="h-24 w-24 rounded-full border-[6px] border-accent bg-lime" />
+            {bar('100%')}
+            {bar('90%')}
+            {bar('80%')}
+          </div>
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center p-6">
+          <div className="card max-w-md p-6 text-center sm:p-8">
+            <div className="text-4xl" aria-hidden="true">🔒</div>
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl">{t.results.lockedTitle}</h2>
+            <p className="mt-2 text-muted">{t.results.lockedText}</p>
+            <a href={`#${r.anchors.programmes}`} className="btn btn-primary mt-5">
+              {t.results.lockedCta}
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -354,7 +411,7 @@ function FieldCard({ m, rank, stat, color }: { m: FieldMatch; rank: number; stat
                 {t.results.topics}: {m.terms.slice(0, 6).join(', ')}
               </p>
             )}
-            {stat?.usMedianEarnings && (
+            {stat?.usMedianEarnings && !isLocal(k.site) && (
               <p className="text-xs text-muted">
                 {t.results.usEarnings}: {fmtMoney(stat.usMedianEarnings, 'USD', intl)}
               </p>

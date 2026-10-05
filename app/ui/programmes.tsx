@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { unlockToken } from '@/lib/store.ts'
+import { isLocal } from '@/lib/site/config.ts'
 import type { Preferences, Results } from '@/lib/engine/types.ts'
 import { COUNTRIES, flag } from '@/lib/countries.ts'
 import type { Level, ResearchInstitution } from '@/lib/programmes.ts'
@@ -42,6 +43,9 @@ function requestFields(results: Results) {
   return results.fields.slice(0, 6).map((f) => ({ id: f.id, score: f.score }))
 }
 
+/** Until the report is unlocked, place 1 stays hidden, also from the free teaser. */
+const teaserFields = (fields: ReturnType<typeof requestFields>) => fields.slice(1)
+
 export function Programmes({ results, prefs }: { results: Results; prefs: Preferences }) {
   const { t, r, site, locale, intl } = useSite()
   const [token, setToken] = useState<string | null>(null)
@@ -52,7 +56,7 @@ export function Programmes({ results, prefs }: { results: Results; prefs: Prefer
   useEffect(() => setToken(unlockToken()), [])
 
   useEffect(() => {
-    fetch(withBase('/api/teaser'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields, prefs }) })
+    fetch(withBase('/api/teaser'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: teaserFields(fields), prefs }) })
       .then((res) => res.json())
       .then(setTeaser)
       .catch(() => setTeaser(null))
@@ -121,6 +125,7 @@ function Locked({ teaser, config, results }: { teaser: Teaser | null; config: Co
                   ))}
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
+                <span className="chip-soft">🔒 {t.results.lockedChip}</span>
                 {Object.entries(teaser.facets.fields)
                   .sort((a, b) => b[1] - a[1])
                   .map(([id, n]) => (
@@ -151,7 +156,7 @@ function Locked({ teaser, config, results }: { teaser: Teaser | null; config: Co
           <span className="absolute inset-0 flex items-center justify-center font-display text-lg text-on-color">{price}</span>
         </div>
         <h3 className="pr-16 font-display text-3xl">{t.programmes.boxTitle}</h3>
-        <p className="mt-2 text-sm opacity-85">{t.programmes.boxSub(fieldName(results.fields[0].id, locale))}</p>
+        <p className="mt-2 text-sm opacity-85">{t.programmes.boxSub}</p>
         <ul className="mt-5 grid gap-2 text-sm font-medium">
           {t.programmes.boxList(teaser ? fmtNumber(teaser.total, intl) : '').map((x) => (
             <li key={x}>★ {x}</li>
@@ -172,7 +177,10 @@ function Locked({ teaser, config, results }: { teaser: Teaser | null; config: Co
 }
 
 function ProgrammeRow({ p }: { p: RankedProgramme }) {
-  const { t, locale, intl } = useSite()
+  const { t, locale, intl, site } = useSite()
+  // Switzerland, Germany and Austria talk about fees per semester.
+  const perSemester = isLocal(site)
+  const feeAmount = p.fee ? (perSemester ? Math.round(p.fee.amount / 2) : p.fee.amount) : 0
   const type = p.institutionType as InstType | undefined
   const lang = locale === 'en' ? 'en' : 'de'
   return (
@@ -217,8 +225,8 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
         <Item k={t.programmes.row.level} v={levelLabel(p.level as Level, locale)} />
         {p.durationYears && <Item k={t.programmes.row.duration} v={`${p.durationYears} ${t.programmes.row.yrs}`} />}
         <Item
-          k={t.programmes.row.fee}
-          v={p.fee ? `${p.fee.amount === 0 ? t.programmes.row.free : fmtMoney(p.fee.amount, p.fee.currency, intl)}${p.fee.estimated ? t.programmes.row.approx : ''}` : (p.tuition?.note ?? t.programmes.row.seePage)}
+          k={perSemester ? t.programmes.row.feeSemester : t.programmes.row.fee}
+          v={p.fee ? `${feeAmount === 0 ? t.programmes.row.free : fmtMoney(feeAmount, p.fee.currency, intl)}${p.fee.estimated ? t.programmes.row.approx : ''}` : (p.tuition?.note ?? t.programmes.row.seePage)}
         />
         {p.earnings && <Item k={t.programmes.row.earnings(p.earnings.yearsAfter)} v={fmtMoney(p.earnings.median, p.earnings.currency, intl)} />}
         {p.debt && <Item k={t.programmes.row.debt} v={fmtMoney(p.debt.median, p.debt.currency, intl)} />}
@@ -246,7 +254,7 @@ function Item({ k, v }: { k: string; v?: string }) {
 }
 
 function Explorer({ token, fields, prefs, onInvalid }: { token: string; fields: Array<{ id: string; score: number }>; prefs: Preferences; onInvalid: () => void }) {
-  const { t, locale, intl, conf } = useSite()
+  const { t, locale, intl, conf, site } = useSite()
   const [country, setCountry] = useState('')
   const [level, setLevel] = useState<Level | 'any'>('any')
   const [sort, setSort] = useState<'match' | 'cost' | 'earnings' | 'new'>('match')
@@ -332,7 +340,7 @@ function Explorer({ token, fields, prefs, onInvalid }: { token: string; fields: 
           ))}
         </select>
         <select value={sort} onChange={(e) => (setSort(e.target.value as typeof sort), setPage(0))} className="input w-auto">
-          {(['match', 'cost', 'earnings', 'new'] as const).map((s) => (
+          {(['match', 'cost', 'earnings', 'new'] as const).filter((s) => s !== 'earnings' || !isLocal(site)).map((s) => (
             <option key={s} value={s}>
               {t.programmes.sort[s]}
             </option>
