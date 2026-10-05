@@ -217,7 +217,7 @@ whatshouldistudy is its own Vercel project and joins angebunden.ch as a
 [multi-zone](https://nextjs.org/docs/app/guides/multi-zones) app:
 
 1. New Vercel project from this repository, **Root Directory**
-   `whatshouldistudy`, project name `whatshouldistudy`. `vercel.json` skips
+   `whatshouldistudy`, any project name. `vercel.json` skips
    builds when nothing in this folder changed and never deploys the data and
    bot branches.
 2. Settings → Deployment Protection: switch *Vercel Authentication* off for
@@ -225,15 +225,14 @@ whatshouldistudy is its own Vercel project and joins angebunden.ch as a
 3. Set the variables from `.env.example`, at least `NEXT_PUBLIC_SITE_URL`
    (`https://angebunden.ch`).
 4. angebunden's `next.config.ts` rewrites `/whatshouldistudy/*` to
-   `https://whatshouldistudy-laupermoritz-3127s-projects.vercel.app`, the
-   production alias Vercel gives a project named `whatshouldistudy` in this
-   team. With another name or team, set `WHATSHOULDISTUDY_URL` in the
-   **angebunden** project to this project's production URL (no trailing slash).
-   Once both are deployed from `main`, the site is at
+   `https://angebunden-7o69.vercel.app`, the production domain of the project
+   as it was created. For another project, set `WHATSHOULDISTUDY_URL` in the
+   **angebunden** project to the domain listed under its Settings → Domains
+   (no trailing slash). Once both are deployed from `main`, the site is at
    `angebunden.ch/whatshouldistudy`.
 
-Before that, every preview deployment of this project works on its own at
-`<preview-url>/whatshouldistudy`.
+Before that, every deployment of this project works on its own at
+`<deployment-url>/whatshouldistudy`; its root redirects there.
 
 With the system environment variables exposed (Vercel default), the data branch
 is found automatically, also after moving the repository. When the site moves to

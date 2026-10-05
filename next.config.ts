@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
   experimental: {
     globalNotFound: true,
   },
+  // The zone's own domain has nothing at its root; send visitors to the app.
+  async redirects() {
+    return basePath ? [{ source: '/', destination: basePath, basePath: false, permanent: false }] : []
+  },
   async headers() {
     return [
       {
