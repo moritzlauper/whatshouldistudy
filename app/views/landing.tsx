@@ -16,7 +16,7 @@ import { Blob, Burst, Pill, Ring, Sparkle, Squiggle } from '../ui/shapes.tsx'
 import { GitHubMark, TrustStickers } from '../ui/trust.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 
-const SOURCE_GLYPH = ['▶', '🔎', '🎧', '📸', '👽', '🐙', '✍️']
+const SOURCE_GLYPH = ['▶', '🎧', '📸', '👽', '🐙', '✍️']
 
 export async function Landing({ site, base }: SiteProps) {
   const k = kit(site, base)
@@ -98,7 +98,7 @@ export async function Landing({ site, base }: SiteProps) {
         </div>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {t.landing.sources.map((s, i) => (
-            <div key={s.name} className={`card card-pop flex flex-col overflow-hidden ${i === t.landing.sources.length - 1 ? 'sm:col-span-2 lg:col-span-1 lg:col-start-2' : ''}`}>
+            <div key={s.name} className={`card card-pop flex flex-col overflow-hidden ${i === t.landing.sources.length - 1 && t.landing.sources.length % 3 === 1 ? 'sm:col-span-2 lg:col-span-1 lg:col-start-2' : ''}`}>
               <div className="on-color flex items-center justify-between border-b-2 border-line px-6 py-4" style={{ background: `var(--${s.color})` }}>
                 <span className="flex items-center gap-3">
                   <span className="flex h-11 w-11 items-center justify-center rounded-xl border-2 border-line bg-surface text-xl text-ink" aria-hidden="true">

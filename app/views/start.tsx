@@ -102,13 +102,13 @@ export function StartView() {
         <StepTitle n={1} color="var(--pink)" title={t.start.step1} sub={t.start.step1sub} />
         <div className="mt-7 grid gap-5 md:grid-cols-2">
           <ExportCard
-            title="YouTube"
+            title="YouTube & Google"
             glyph="▶"
             color="var(--pink)"
             badge={t.start.best}
             text={t.start.yt}
-            summaries={[state.summaries.takeout, state.summaries.youtube]}
-            requests={[{ href: 'https://takeout.google.com/settings/takeout/custom/youtube', label: t.start.request.youtube }]}
+            summaries={[state.summaries.takeout, state.summaries['google-search'], state.summaries.youtube]}
+            requests={[{ href: 'https://takeout.google.com/settings/takeout/custom/youtube,my_activity', label: t.start.request.youtube }]}
             hint={t.start.hint.takeout}
             running={running?.source === 'takeout' ? running : null}
             error={errors.takeout || errors.google}
@@ -154,22 +154,7 @@ export function StartView() {
             onFiles={(f) => onFiles(f, 'tiktok')}
           />
           <OAuthCard id="reddit" provider="reddit" title="Reddit" glyph="👽" color="var(--orange)" text={t.start.reddit} summary={state.summaries.reddit} error={errors.reddit} onConnect={() => connect('reddit')} mounted={mounted} />
-          <GitHubCard summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
-          <div>
-            <ExportCard
-              title={t.start.searchTitle}
-              glyph="🔎"
-              color="var(--yellow)"
-              text={t.start.searchText}
-              summaries={[state.summaries['google-search']]}
-              requests={[{ href: 'https://takeout.google.com/settings/takeout/custom/my_activity', label: t.start.request.search }]}
-              hint={t.start.hint.search}
-              running={running?.source === 'search' ? running : null}
-              error={errors.search}
-              notes={notes.search}
-              onFiles={(f) => onFiles(f, 'search')}
-            />
-          </div>
+          <GitHubCard wide summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
         </div>
         <SpotifyRow
           summaries={[state.summaries['spotify-export'], state.summaries.spotify]}
@@ -273,9 +258,9 @@ function Connected({ summary, onRemove }: { summary: SourceSummary; onRemove: ()
   )
 }
 
-function Card({ title, text, glyph, color, badge, children }: { title: string; text: string; glyph: string; color: string; badge?: string; children: React.ReactNode }) {
+function Card({ title, text, glyph, color, badge, children, className }: { title: string; text: string; glyph: string; color: string; badge?: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className="card flex flex-col overflow-hidden">
+    <div className={`card flex flex-col overflow-hidden ${className ?? ''}`}>
       <div className="on-color flex items-center justify-between gap-3 border-b-2 border-line px-5 py-3.5" style={{ background: color }}>
         <span className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-line bg-surface text-lg text-ink" aria-hidden="true">
@@ -433,11 +418,11 @@ function DropZone({ onFiles }: { onFiles: (files: File[]) => void }) {
   )
 }
 
-function GitHubCard({ summary, running, error, onSubmit }: { summary?: SourceSummary; running: Running; error?: string; onSubmit: (u: string) => void }) {
+function GitHubCard({ summary, running, error, onSubmit, wide }: { summary?: SourceSummary; running: Running; error?: string; onSubmit: (u: string) => void; wide?: boolean }) {
   const { t } = useSite()
   const [name, setName] = useState('')
   return (
-    <Card title="GitHub" text={t.start.github} glyph="🐙" color="var(--sky)">
+    <Card className={wide ? 'md:col-span-2' : undefined} title="GitHub" text={t.start.github} glyph="🐙" color="var(--sky)">
       {summary && <Connected summary={summary} onRemove={() => removeSummary('github')} />}
       {running && <RunningLine running={running} />}
       {error && <p className="mt-3 text-sm font-semibold text-bad">{error}</p>}

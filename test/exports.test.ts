@@ -104,3 +104,26 @@ test('a Takeout archive without history says what it holds', async () => {
   assert.equal(r.summaries.length, 0)
   assert.deepEqual(r.takeoutProducts, ['Search profile'])
 })
+
+test('reads the rest of My Activity: pages, Maps, apps, without double-counting YouTube', async () => {
+  const activity = [
+    { header: 'Chrome', title: 'Visited Quantum mechanics - Wikipedia', titleUrl: 'https://en.wikipedia.org/wiki/Quantum_mechanics', time: '2024-04-02T10:00:00.000Z', products: ['Chrome'] },
+    { header: 'Search', title: 'Visited Introduction to astrophysics', titleUrl: 'https://www.google.com/url?q=https://example.org/astro', time: '2024-04-02T10:01:00.000Z', products: ['Search'] },
+    { header: 'Maps', title: 'Searched for ETH Zürich Physik', titleUrl: 'https://www.google.com/maps/search/ETH+Z%C3%BCrich+Physik', time: '2024-04-02T10:02:00.000Z', products: ['Maps'] },
+    { header: 'Google Play Store', title: 'Used Star Walk 2', titleUrl: 'https://play.google.com/store/apps/details?id=x', time: '2024-04-02T10:03:00.000Z', products: ['Google Play Store'] },
+    { header: 'Ads', title: 'Visited Buy shoes', titleUrl: 'https://www.googleadservices.com/x', time: '2024-04-02T10:04:00.000Z', details: [{ name: 'From Google Ads' }] },
+  ]
+  const watch = [{ header: 'YouTube', title: 'Watched How rocket engines work', titleUrl: 'https://www.youtube.com/watch?v=abc', time: '2024-03-01T20:11:05.123Z', subtitles: [{ name: 'Everyday Astronaut' }] }]
+  const r = await readTexts([
+    { name: 'Takeout/My Activity/Chrome/MyActivity.json', text: JSON.stringify(activity) },
+    { name: 'Takeout/YouTube/history/watch-history.json', text: JSON.stringify(watch) },
+    { name: 'Takeout/My Activity/YouTube/MyActivity.json', text: JSON.stringify(watch) },
+  ])
+  const g = r.summaries.find((x) => x.source === 'google-search')!
+  assert.equal(g.stats.pagesVisited, 2)
+  assert.equal(g.stats.mapsSearches, 1)
+  assert.equal(g.stats.apps, 1)
+  assert.ok(g.fields.physics.score > 0)
+  const y = r.summaries.find((x) => x.source === 'takeout')!
+  assert.equal(y.stats.watchedVideos, 1)
+})

@@ -13,7 +13,9 @@ import type { SocialCollected } from './social-exports.ts'
  * - Google Takeout (YouTube): the complete watch history and search history,
  *   subscriptions and your comments. This is the only way to get watch history,
  *   often tens of thousands of entries going back years. JSON or HTML.
- * - Google Takeout (My Activity → Search): your Google searches.
+ * - Google Takeout (My Activity): your Google searches, and what else Google
+ *   logs: pages you visited (Chrome, search results), Maps searches, apps
+ *   from the Play Store, books, articles from News and Discover.
  * - Spotify "Account data" or "Extended streaming history": every song and
  *   podcast episode you played.
  * - Instagram and TikTok data downloads (JSON, or TikTok's TXT): topics,
@@ -51,6 +53,11 @@ interface Collected {
   watch: SignalItem[]
   youtubeSearch: SignalItem[]
   googleSearch: SignalItem[]
+  /** Other My Activity entries: visited pages, Maps searches, apps, books, articles. */
+  activity: SignalItem[]
+  activityCounts: Record<string, number>
+  /** Watch entries already seen; YouTube and My Activity both carry the history. */
+  seenWatch: Set<string>
   comments: SignalItem[]
   subscriptions: SignalItem[]
   music: SignalItem[]
@@ -88,6 +95,9 @@ function newCollected(): Collected {
     watch: [],
     youtubeSearch: [],
     googleSearch: [],
+    activity: [],
+    activityCounts: {},
+    seenWatch: new Set(),
     comments: [],
     subscriptions: [],
     music: [],
@@ -101,13 +111,34 @@ function newCollected(): Collected {
   }
 }
 
-function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' | null {
+/** «Visited …», «Gesucht nach: …»: the verb in front of a My Activity title. */
+const ACTIVITY_VERB = /^(searched for|visited|viewed|used|read|opened|installed|listened to|gesucht nach|besucht|angesehen|aufgerufen|verwendet|genutzt|gelesen|installiert|geöffnet|recherche effectuée|consulté|utilisé|lu|buscaste|visitaste|cercato|visitato)\s*:?\s+/i
+
+type OtherKind = 'visit' | 'maps' | 'app' | 'book' | 'read'
+
+/** What a My Activity product tells about someone, and how much one entry counts. */
+function otherKind(product: string, url: string): OtherKind | null {
+  if (/\bads?\b|anzeigen|annonces|anuncios|googleadservices|doubleclick/i.test(product + ' ' + url)) return null
+  if (/maps|karten/i.test(product)) return /search|suche|recherch|q=/i.test(url) || /maps\/search|maps\?q=/.test(url) ? 'maps' : null
+  if (/play|apps?\b/i.test(product)) return 'app'
+  if (/books|bücher|livres/i.test(product)) return 'book'
+  if (/news|discover|nachrichten|actualités/i.test(product)) return 'read'
+  if (/chrome|search|suche|recherche|búsqueda|ricerca/i.test(product) || /\/url\?/.test(url)) return 'visit'
+  return null
+}
+
+const OTHER_WEIGHT: Record<OtherKind, number> = { visit: 0.15, maps: 0.2, app: 0.4, book: 1, read: 0.3 }
+
+function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' | 'other' | null {
   const time = a.time ? Date.parse(a.time) : undefined
   const url = a.titleUrl ?? ''
   if (a.details?.some((d) => /ads/i.test(d.name ?? ''))) return null
   const isYouTube = /youtube\.com|youtu\.be/.test(url) || /youtube/i.test(a.header ?? '')
 
   if (isYouTube && /\/watch\?v=/.test(url)) {
+    const key = `${/v=([\w-]+)/.exec(url)?.[1] ?? url}|${time ? Math.round(time / 60000) : ''}`
+    if (c.seenWatch.has(key)) return null
+    c.seenWatch.add(key)
     const title = (a.title ?? '').replace(WATCH_PREFIX, '').replace(WATCH_SUFFIX, '').trim()
     if (!title || title.startsWith('https://')) return null
     const channel = a.subtitles?.[0]?.name ?? ''
@@ -133,16 +164,23 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
   }
   const q = searchQuery(url)
   // «Visited …» entries carry the visited page in q, not a search.
-  if (!q || /^https?:/.test(q) || /\/url\?/.test(url)) return null
-  if (isYouTube) {
+  const isSearch = !!q && !/^https?:/.test(q) && !/\/url\?/.test(url)
+  if (isSearch && isYouTube) {
     c.youtubeSearch.push({ kind: 'search', text: q, label: `«${truncate(q, 60)}»`, weight: 0.6, time })
     return 'search'
   }
-  if (/google\./.test(url)) {
+  const product = a.header ?? a.products?.[0] ?? ''
+  if (isSearch && /google\./.test(url) && !/maps/i.test(url + product)) {
     c.googleSearch.push({ kind: 'google', text: q, label: `«${truncate(q, 60)}»`, weight: 0.4, time })
     return 'google'
   }
-  return null
+  if (isYouTube) return null
+  const kind = otherKind(product, url)
+  const title = (a.title ?? '').replace(ACTIVITY_VERB, '').trim()
+  if (!kind || !title || /^https?:/.test(title) || title.length < 3) return null
+  c.activity.push({ kind, text: title, label: truncate(title, 60), weight: OTHER_WEIGHT[kind], time, group: kind === 'app' || kind === 'book' ? title : undefined, url: kind === 'visit' ? undefined : url || undefined })
+  c.activityCounts[kind] = (c.activityCounts[kind] ?? 0) + 1
+  return 'other'
 }
 
 function parseActivityJson(c: Collected, name: string, data: unknown): boolean {
@@ -164,17 +202,20 @@ function parseActivityJson(c: Collected, name: string, data: unknown): boolean {
   let watch = 0
   let search = 0
   let google = 0
+  let other = 0
   for (const a of data as Activity[]) {
     const kind = addActivity(c, a)
     if (kind === 'watch') watch++
     else if (kind === 'search') search++
     else if (kind === 'google') google++
+    else if (kind === 'other') other++
   }
-  if (!watch && !search && !google) return false
+  if (!watch && !search && !google && !other) return false
   const parts = [
     watch && `${watch.toLocaleString('en-US')} watched videos`,
     search && `${search.toLocaleString('en-US')} YouTube searches`,
     google && `${google.toLocaleString('en-US')} Google searches`,
+    other && `${other.toLocaleString('en-US')} other activity entries`,
   ].filter(Boolean)
   c.recognised.push(`${name}: ${parts.join(', ')}`)
   return true
@@ -203,7 +244,10 @@ function addSpotifyPlay(c: Collected, e: Record<string, string | number | null>)
 }
 
 /** Takeout's HTML version of the same activity log. */
-function parseActivityHtml(c: Collected, name: string, html: string): boolean {
+function parseActivityHtml(c: Collected, path: string, html: string): boolean {
+  const name = path.split('/').pop() ?? path
+  // My Activity keeps one folder per product: …/My Activity/Chrome/MyActivity.html.
+  const product = path.split('/').slice(-2, -1)[0] ?? ''
   const doc = new DOMParser().parseFromString(html, 'text/html')
   const cells = doc.querySelectorAll('.content-cell')
   let n = 0
@@ -216,8 +260,9 @@ function parseActivityHtml(c: Collected, name: string, html: string): boolean {
     const lines = (cell as HTMLElement).innerText?.split('\n') ?? cell.textContent?.split('\n') ?? []
     const last = lines.filter((l) => l.trim()).pop() ?? ''
     const parsed = Date.parse(last.replace(/\s[A-Z]{2,5}$/, '').replace(/ /g, ' '))
-    // The URL tells YouTube from Google search (My Activity), so no header is assumed.
+    // The URL tells YouTube from Google search; the folder names the product.
     const kind = addActivity(c, {
+      header: /youtube/i.test(product) ? undefined : product,
       title: first.textContent ?? '',
       titleUrl: first.href,
       subtitles: second ? [{ name: second.textContent ?? '', url: second.href }] : [],
@@ -340,7 +385,7 @@ async function readEntry(c: Collected, name: string, text: string): Promise<void
         return
       }
       if (/content-cell/.test(text)) {
-        if (!parseActivityHtml(c, short, text)) c.skipped.push(short)
+        if (!parseActivityHtml(c, name, text)) c.skipped.push(short)
         return
       }
       const social = parseInstagramHtml(c.social, name, text)
@@ -444,8 +489,17 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>): Expo
       }),
     )
   }
-  if (c.googleSearch.length) {
-    summaries.push(accumulate(c.googleSearch, { source: 'google-search', label: 'Google searches', stats: { googleSearches: c.googleSearch.length } }))
+  if (c.googleSearch.length || c.activity.length) {
+    const n = c.activityCounts
+    summaries.push(
+      accumulate([...c.googleSearch, ...c.activity], {
+        source: 'google-search',
+        label: 'Google activity',
+        stats: Object.fromEntries(
+          Object.entries({ googleSearches: c.googleSearch.length, pagesVisited: n.visit ?? 0, mapsSearches: n.maps ?? 0, apps: n.app ?? 0, books: n.book ?? 0, articles: n.read ?? 0 }).filter(([, v]) => v),
+        ),
+      }),
+    )
   }
   if (c.spotifyPlays) {
     const artists = c.spotifyTracks.size
