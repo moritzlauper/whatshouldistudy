@@ -45,3 +45,37 @@ test('long-format BFS rows become programmes for the latest year', () => {
   assert.ok(b.admission?.includes('Matura'))
   assert.ok(unmatched.has('Hochschule Irgendwo'))
 })
+
+test('PXWeb answers become rows; umbrella schools are split', async () => {
+  const { pxQuery, pxRows, splitUmbrella } = await import('../scrapers/ch-bfs.ts')
+  const vars = [
+    { code: 'Jahr', text: 'Jahr', values: ['2023/24', '2024/25'], valueTexts: ['2023/24', '2024/25'], time: true },
+    { code: 'Hochschule', text: 'Hochschule', values: ['0', '1'], valueTexts: ['Hochschule - Total', 'Zürcher Fachhochschule'] },
+    { code: 'Fachrichtung', text: 'Fachrichtung', values: ['10', '11'], valueTexts: ['Musik', 'Lehrkräfteausbildung Primarstufe'] },
+    { code: 'Studienstufe', text: 'Studienstufe', values: ['B'], valueTexts: ['Bachelor'] },
+    { code: 'Geschlecht', text: 'Geschlecht', values: ['T', 'F'], valueTexts: ['Geschlecht - Total', 'Frau'] },
+  ]
+  const q = pxQuery(vars)
+  assert.deepEqual(q.query.find((x) => x.code === 'Jahr')?.selection.values, ['2024/25'])
+  assert.deepEqual(q.query.find((x) => x.code === 'Geschlecht')?.selection.values, ['T'])
+  const rows = pxRows(vars, {
+    columns: [
+      { code: 'Jahr', text: 'Jahr', type: 't' },
+      { code: 'Hochschule', text: 'Hochschule', type: 'd' },
+      { code: 'Fachrichtung', text: 'Fachrichtung', type: 'd' },
+      { code: 'Studienstufe', text: 'Studienstufe', type: 'd' },
+      { code: 'Studierende', text: 'Studierende', type: 'c' },
+    ],
+    data: [
+      { key: ['2024/25', '1', '10', 'B'], values: ['420'] },
+      { key: ['2024/25', '1', '11', 'B'], values: ['900'] },
+      { key: ['2024/25', '0', '10', 'B'], values: ['2000'] },
+    ],
+  })
+  assert.equal(rows[0].Hochschule, 'Zürcher Fachhochschule')
+  const { programmes } = parseRows(rows, '2026-01-01')
+  const ids = programmes.map((p) => p.institution).sort()
+  assert.deepEqual(ids, ['Pädagogische Hochschule Zürich', 'Zürcher Hochschule der Künste'])
+  const zhaw = findChInstitution('ZHAW')!
+  assert.equal(splitUmbrella(zhaw, 'ZHAW', ['music']).id, 'zfh')
+})

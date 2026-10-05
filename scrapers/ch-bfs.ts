@@ -1,21 +1,23 @@
 /**
- * Switzerland: the Federal Statistical Office (BFS) publishes on opendata.swiss
- * how many students are enrolled per institution, subject (Fachrichtung) and
- * level. A subject with Bachelor or Master students at an institution is a
- * programme on offer, with its real size. Institutions are matched to
- * lib/ch-institutions.ts for type, fees, languages and admission.
+ * Switzerland: the Federal Statistical Office (BFS) publishes how many students
+ * are enrolled per institution, subject (Fachrichtung) and level. A subject
+ * with Bachelor or Master students at an institution is a programme on offer,
+ * with its real size. Institutions are matched to lib/ch-institutions.ts for
+ * type, fees, languages and admission.
  *
  * Open use, source must be credited: «Quelle: BFS».
  *
- * The CKAN search finds the current datasets; the CSV columns are read by
- * name pattern because BFS releases differ in layout. Everything found is
- * logged, so a format change shows up in the run log.
+ * The tables are PXWeb cubes. opendata.swiss lists them (the CKAN search finds
+ * the current table ids); the PXWeb API gives their variables and the numbers.
+ * Variables are recognised by name because BFS releases differ in layout, and
+ * everything found is logged, so a format change shows up in the run log.
  */
 import { join } from 'node:path'
-import { CH_ADMISSION, findChInstitution } from '../lib/ch-institutions.ts'
+import { CH_ADMISSION, CH_INSTITUTIONS, findChInstitution } from '../lib/ch-institutions.ts'
+import type { ChInstitution } from '../lib/ch-institutions.ts'
 import { programmeId } from '../lib/programmes.ts'
 import type { Level, Programme } from '../lib/programmes.ts'
-import { OUT, csvObjects, fetchRetry, fieldsForTitle, getJson, isMain, log, writeJson } from './lib/common.ts'
+import { OUT, fieldsForTitle, getJson, isMain, log, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
 
 const CKAN = 'https://ckan.opendata.swiss/api/3/action'
@@ -75,6 +77,21 @@ const BFS_FIELDS: Record<string, string[]> = {
   'lehrkräfteausbildung': ['education'],
 }
 
+const ARTS = new Set(['fine-arts', 'graphic-design', 'fashion-design', 'film-production', 'animation-vfx', 'music', 'music-production', 'performing-arts', 'game-design'])
+const byId = (id: string) => CH_INSTITUTIONS.find((i) => i.id === id)!
+
+/** BFS counts some schools under their umbrella; teaching and the arts have schools of their own. */
+export function splitUmbrella(inst: ChInstitution, bfsName: string, fields: string[]): ChInstitution {
+  const teaching = fields[0] === 'education'
+  if (inst.id === 'zfh' && !/zhaw|angewandte wissenschaften/i.test(bfsName)) {
+    if (teaching) return byId('phzh')
+    if (fields.every((f) => ARTS.has(f))) return byId('zhdk')
+  }
+  if (inst.id === 'fhnw' && teaching) return byId('fhnw-ph')
+  if (inst.id === 'supsi' && teaching) return byId('dfa')
+  return inst
+}
+
 const LEVEL: Array<[RegExp, Level]> = [
   [/bachelor/i, 'bachelor'],
   [/master/i, 'master'],
@@ -110,8 +127,8 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
 
   const programmes: Programme[] = []
   for (const { inst, field, level, students } of acc.values()) {
-    const institution = findChInstitution(inst)
-    if (!institution) {
+    const found = findChInstitution(inst)
+    if (!found) {
       unmatched.add(inst)
       continue
     }
@@ -121,6 +138,7 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
       unclassified.add(field)
       continue
     }
+    const institution = splitUmbrella(found, inst, fields)
     const fee = institution.feeCh * 2
     programmes.push({
       id: programmeId(['ch', institution.id, field, level]),
@@ -156,59 +174,122 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
   return { programmes, unmatched, unclassified }
 }
 
+const PXWEB = 'https://www.pxweb.bfs.admin.ch/api/v1/de'
+/** Students by year, subject, level and institution: universities, then UAS and UTE. */
+const KNOWN_TABLES = ['px-x-1502040100_105', 'px-x-1502040400_135']
+
+interface PxVariable {
+  code: string
+  text: string
+  values: string[]
+  valueTexts: string[]
+  elimination?: boolean
+  time?: boolean
+}
+
+/** What to ask PXWeb for: the latest year, every subject, level and institution, totals of the rest. */
+export function pxQuery(vars: PxVariable[]) {
+  const query: Array<{ code: string; selection: { filter: string; values: string[] } }> = []
+  for (const v of vars) {
+    const name = `${v.code} ${v.text}`
+    if (v.time || /jahr|year|ann[ée]e/i.test(name)) {
+      const latest = [...v.values].sort().at(-1)!
+      query.push({ code: v.code, selection: { filter: 'item', values: [latest] } })
+    } else if (/hochschule|fachrichtung|studienstufe|institution/i.test(name)) {
+      query.push({ code: v.code, selection: { filter: 'all', values: ['*'] } })
+    } else {
+      const total = v.valueTexts.findIndex((t) => /total|insgesamt/i.test(t))
+      if (total >= 0) query.push({ code: v.code, selection: { filter: 'item', values: [v.values[total]] } })
+      else if (!v.elimination) query.push({ code: v.code, selection: { filter: 'all', values: ['*'] } })
+    }
+  }
+  return { query, response: { format: 'json' } }
+}
+
+/** PXWeb «json» answer to rows keyed by variable name, with value texts. */
+export function pxRows(vars: PxVariable[], res: { columns: Array<{ code: string; text: string; type: string }>; data: Array<{ key: string[]; values: string[] }> }) {
+  const byCode = new Map(vars.map((v) => [v.code, v]))
+  const dims = res.columns.filter((c) => c.type !== 'c')
+  return res.data.map((d) => {
+    const row: Record<string, string> = {}
+    dims.forEach((c, i) => {
+      const v = byCode.get(c.code)
+      const idx = v ? v.values.indexOf(d.key[i]) : -1
+      row[c.text] = idx >= 0 ? v!.valueTexts[idx] : d.key[i]
+    })
+    row.Wert = d.values[0] ?? ''
+    return row
+  })
+}
+
+async function tableIds(): Promise<string[]> {
+  const ids = new Set<string>()
+  try {
+    const found = new Map<string, Package>()
+    for (const q of QUERIES) {
+      const res = await getJson<{ result: { results: Package[] } }>(`${CKAN}/package_search?q=${encodeURIComponent(q)}&rows=40`)
+      for (const p of res.result.results) found.set(p.name, p)
+    }
+    log(`CH: ${found.size} candidate datasets`)
+    // Enrolment by subject, level and institution; the narrowest table per type of school.
+    for (const p of found.values()) {
+      const t = de(p.title)
+      if (!/^studierende/i.test(t) || !/fachrichtung/i.test(t) || !/studienstufe/i.test(t) || !/hochschule$/i.test(t)) continue
+      if (/geschlecht|staatsangeh|bildungsherkunft|alter/i.test(t)) continue
+      for (const r of p.resources) {
+        const id = (r.url ?? '').match(/(px-x-\d+_\d+)/)?.[1]
+        if (id) ids.add(id)
+      }
+      log(`CH table: ${p.name} | ${t}`)
+    }
+  } catch (e) {
+    log(`CH: opendata.swiss search failed (${(e as Error).message}); using the known tables`)
+  }
+  for (const id of KNOWN_TABLES) ids.add(id)
+  return [...ids]
+}
+
 async function main() {
   const fetchedAt = new Date().toISOString()
-  const found = new Map<string, Package>()
-  for (const q of QUERIES) {
-    const res = await getJson<{ result: { results: Package[] } }>(`${CKAN}/package_search?q=${encodeURIComponent(q)}&rows=40`)
-    for (const p of res.result.results) found.set(p.name, p)
-  }
-  log(`CH: ${found.size} candidate datasets`)
-  for (const p of found.values()) log(`CH dataset: ${p.name} | ${de(p.title)} | ${p.resources.map((r) => r.format).join(',')}`)
-
-  // Datasets on enrolment by institution and subject; subject (Fachrichtung) beats subject group.
-  const candidates = [...found.values()]
-    .filter((p) => /studierende/i.test(de(p.title)) && /hochschul/i.test(de(p.title)) && /fach/i.test(de(p.title)))
-    .sort((a, b) => Number(/fachrichtung/i.test(de(b.title))) - Number(/fachrichtung/i.test(de(a.title))))
-
   const programmes: Programme[] = []
   const seen = new Set<string>()
   const unmatched = new Set<string>()
   const unclassified = new Set<string>()
-  for (const p of candidates.slice(0, 6)) {
-    const csv = p.resources.find((r) => /csv/i.test(r.format ?? '') || /\.csv/i.test(r.url ?? ''))
-    const url = csv?.download_url ?? csv?.url
-    if (!url) {
-      log(`CH: ${p.name} has no CSV (${p.resources.map((r) => `${r.format}:${r.url}`).join(' ')})`)
-      continue
-    }
+  for (const id of await tableIds()) {
+    const url = `${PXWEB}/${id}/${id}.px`
     try {
-      const raw = await (await fetchRetry(url)).arrayBuffer()
-      // BFS files are UTF-8 or Latin-1, comma or semicolon separated.
-      let text = new TextDecoder('utf-8').decode(raw)
-      if (text.includes('�')) text = new TextDecoder('latin1').decode(raw)
-      const firstLine = text.split(/\r?\n/, 1)[0]
-      const delimiter = (firstLine.match(/;/g)?.length ?? 0) > (firstLine.match(/,/g)?.length ?? 0) ? ';' : ','
-      const rows = csvObjects(text, delimiter)
-      log(`CH: ${p.name}: ${rows.length} rows; columns: ${Object.keys(rows[0] ?? {}).join(' | ')}`)
-      for (const r of rows.slice(0, 3)) log(`CH sample: ${JSON.stringify(r).slice(0, 400)}`)
-      log(`CH columns detected: ${JSON.stringify(detectColumns(Object.keys(rows[0] ?? {})))}`)
-      const res = parseRows(rows, fetchedAt)
-      res.unmatched.forEach((x) => unmatched.add(x))
-      res.unclassified.forEach((x) => unclassified.add(x))
-      for (const prog of res.programmes) {
-        if (seen.has(prog.id)) continue
-        seen.add(prog.id)
-        programmes.push(prog)
+      const meta = await getJson<{ title: string; variables: PxVariable[] }>(url)
+      log(`CH ${id}: ${meta.title}`)
+      for (const v of meta.variables) log(`CH ${id} variable ${v.code} «${v.text}»: ${v.values.length} values, e.g. ${v.valueTexts.slice(0, 6).join(' | ')}`)
+      const body = pxQuery(meta.variables)
+      const res = await getJson<Parameters<typeof pxRows>[1]>(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const rows = pxRows(meta.variables, res)
+      log(`CH ${id}: ${rows.length} rows; columns ${JSON.stringify(detectColumns(Object.keys(rows[0] ?? {})))}`)
+      for (const r of rows.slice(0, 3)) log(`CH sample: ${JSON.stringify(r)}`)
+      const parsed = parseRows(rows, fetchedAt)
+      parsed.unmatched.forEach((x) => unmatched.add(x))
+      parsed.unclassified.forEach((x) => unclassified.add(x))
+      let added = 0
+      for (const p of parsed.programmes) {
+        if (seen.has(p.id)) continue
+        seen.add(p.id)
+        programmes.push(p)
+        added++
       }
-      log(`CH: ${p.name} → ${res.programmes.length} programmes`)
+      log(`CH ${id}: ${added} programmes`)
     } catch (e) {
-      log(`CH: ${p.name} failed: ${(e as Error).message}`)
+      log(`CH ${id} failed: ${(e as Error).message}`)
     }
   }
   if (unmatched.size) log(`CH institutions not matched: ${[...unmatched].slice(0, 40).join(' || ')}`)
-  if (unclassified.size) log(`CH subjects not classified: ${[...unclassified].slice(0, 60).join(' || ')}`)
-  log(`CH: ${programmes.length} programmes`)
+  if (unclassified.size) log(`CH subjects not classified: ${[...unclassified].slice(0, 80).join(' || ')}`)
+  const byType = new Map<string, number>()
+  for (const p of programmes) byType.set(p.institutionType ?? '?', (byType.get(p.institutionType ?? '?') ?? 0) + 1)
+  log(`CH: ${programmes.length} programmes (${[...byType].map(([k, v]) => `${k} ${v}`).join(', ')})`)
   if (!programmes.length) throw new Error('No Swiss programmes parsed')
   const out: ScrapeOutput = { source: 'ch-bfs', fetchedAt, programmes }
   writeJson(join(OUT, 'ch-bfs.json'), out)
