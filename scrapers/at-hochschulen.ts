@@ -59,14 +59,44 @@ async function head(url: string, lines = 6) {
 }
 
 async function main() {
-  const D = 'https://data.statistik.gv.at/data'
-  for (const id of ['OGD_ordstud_ext_ORD_STUDIEN_1', 'OGD_unistud1_ext_UNI_STUD1_1', 'OGD_fhsstud_ext_FHS_S_1', 'OGD_phsstud_ext_PHS_S_1', 'OGD_uptstud_ext_UPT_S_1']) {
-    await head(`${D}/${id}_HEADER.csv`, 40)
-    await head(`${D}/${id}.csv`, 6)
+  for (const u of ['https://unidata.gv.at/opendata', 'https://unidata.gv.at/opendata/', 'https://unidata.gv.at/opendata/universitaeten']) {
+    try {
+      const html = await (await fetchRetry(u, {}, 2)).text()
+      const links = [...new Set(html.match(/\/opendata\/[a-z0-9\-_/]+/gi) ?? [])]
+      log(`AT ${u}: ${html.length} chars; opendata links: ${links.join(' | ')}`)
+    } catch (e) {
+      log(`AT ${u} failed: ${(e as Error).message.slice(0, 160)}`)
+    }
   }
-  for (const c of ['OGD_ordstud_ext_ORD_STUDIEN_1_C-BER_ZEIT-0', 'OGD_fhsstud_ext_FHS_S_1_C-SEMESTER-0', 'OGD_unistud1_ext_UNI_STUD1_1_C-SEMESTER-0']) await head(`${D}/${c}.csv`, 8)
-  await head('https://unidata.gv.at/opendata/universitaeten/studierende', 8)
-  await head('https://extapp.noc-science.at/apex/shibb/api/v1/hochschulen', 3)
+  for (const g of ['universitaeten/studien', 'universitaeten/belegte-studien', 'universitaeten/studienangebot', 'universitaeten/studienabschluesse', 'fachhochschulen/studien', 'fachhochschulen/studierende', 'fachhochschulen/studiengaenge', 'paedagogische-hochschulen/studien', 'privathochschulen/studien']) await head(`https://unidata.gv.at/opendata/${g}`, 4)
+  for (const q of ['Studienrichtung', 'belegte Studien Universität', 'Studiengänge', 'ISCED Studierende', 'Fachhochschul-Studiengänge', 'Studien nach Universität']) {
+    try {
+      const j = (await getJson<{ result?: { count?: number; results?: Array<Record<string, unknown>> } }>(`https://www.data.gv.at/api/hub/search/search?q=${encodeURIComponent(q)}&filter=dataset&limit=40`)) ?? {}
+      log(`AT data.gv.at «${q}»: ${j.result?.count}`)
+      for (const r of j.result?.results ?? []) {
+        const d = ((r.distributions as Array<Record<string, unknown>>) ?? []).map((x) => String(x.access_url ?? x.download_url ?? '')).filter((x) => /csv|json|opendata/i.test(x)).slice(0, 2)
+        if (d.length) log(`AT   ${txt(r.title)} | ${d.join(' ')}`)
+      }
+    } catch (e) {
+      log(`AT search ${q} failed: ${(e as Error).message.slice(0, 160)}`)
+    }
+  }
+  // studienwahl.at: what a result list shows.
+  try {
+    const html = await (await fetchRetry('https://www.studienwahl.at/studien/?page=1&per-page=50', {}, 2)).text()
+    const links = html.match(/href="\/studien\/[^"]+\.de\.html"/g) ?? []
+    log(`AT studienwahl list: ${links.length} programme links; total text: ${(html.match(/[\d.]+\s*(Ergebnisse|Studien|Treffer)/g) ?? []).slice(0, 3).join(' | ')}`)
+    const k = html.indexOf(links[0]?.slice(6, -1) ?? '###')
+    log(`AT studienwahl item: ${html.slice(Math.max(0, k - 600), k + 1800).replace(/\s+/g, ' ')}`)
+    const detail = links[0]?.slice(6, -1)
+    if (detail) {
+      const d = await (await fetchRetry(`https://www.studienwahl.at${detail}`, {}, 2)).text()
+      const m = d.indexOf('<h1')
+      log(`AT studienwahl detail ${detail}: ${d.slice(m, m + 3500).replace(/\s+/g, ' ')}`)
+    }
+  } catch (e) {
+    log(`AT studienwahl failed: ${(e as Error).message.slice(0, 160)}`)
+  }
   throw new Error('Austria: exploration only')
 }
 
