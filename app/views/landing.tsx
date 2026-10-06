@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { getMeta } from '@/lib/server/data.ts'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
 import { CH_INSTITUTIONS } from '@/lib/ch-institutions.ts'
-import { ADMISSION, SCHOOL_TYPES, TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
+import { admissionText, SCHOOL_TYPES, TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
 import { AT_INSTITUTIONS } from '@/lib/at-institutions.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { Kit } from '@/lib/site/kit.ts'
@@ -18,8 +18,8 @@ import { JsonLd, homeLd } from '../ui/json-ld.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 import { isConfigured } from '@/lib/sources/oauth.ts'
 
-export async function Landing({ site, base }: SiteProps) {
-  const k = kit(site, base)
+export async function Landing({ site, base, locale: selectedLocale }: SiteProps) {
+  const k = kit(site, base, selectedLocale)
   const { t, r, locale, intl } = k
   const { meta } = await getMeta()
   const local = isLocal(site)
@@ -286,9 +286,9 @@ function SchoolTypes({ k, country, counts }: { k: Kit; country: string; counts: 
         {SCHOOL_TYPES[country].map((type, i) => (
           <div key={type} className="card on-color p-6" style={{ background: TYPE_STYLE[type].color, transform: `rotate(${[-1, 0.7, -0.5, 1][i]}deg)` }}>
             <div className="text-3xl" aria-hidden="true">{TYPE_STYLE[type].glyph}</div>
-            <h3 className="mt-3 hyphens-auto break-words font-display text-2xl">{typeLabel(type, country, 'de')}</h3>
+            <h3 className="mt-3 hyphens-auto break-words font-display text-2xl">{typeLabel(type, country, k.locale === 'fr-CH' ? 'fr' : k.locale === 'it-CH' ? 'it' : 'de')}</h3>
             {count(type) > 0 && <p className="mt-1 text-sm font-bold">{t.landing.typesCount(count(type))}</p>}
-            <p className="mt-3 text-sm leading-relaxed text-muted">{ADMISSION[country]?.[type]?.de}</p>
+            <p className="mt-3 text-sm leading-relaxed text-muted">{admissionText(country, type, k.locale === 'fr-CH' ? 'fr' : k.locale === 'it-CH' ? 'it' : 'de')}</p>
           </div>
         ))}
       </div>

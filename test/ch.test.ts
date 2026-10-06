@@ -3,6 +3,23 @@ import assert from 'node:assert/strict'
 import { detectColumns, parseRows } from '../scrapers/ch-bfs.ts'
 import { findChInstitution } from '../lib/ch-institutions.ts'
 import { fieldsForTitle } from '../scrapers/lib/common.ts'
+import { routes } from '../lib/site/config.ts'
+import { mountInfo } from '../lib/site/kit.ts'
+import { fieldName } from '../lib/site/labels.ts'
+import { switchHref } from '../lib/site/switch.ts'
+
+test('Swiss French and Italian paths resolve to their local route tree', () => {
+  assert.equal(mountInfo('fr').locale, 'fr-CH')
+  assert.equal(mountInfo('it').locale, 'it-CH')
+  assert.equal(routes('ch', '', 'fr-CH').home, '/fr')
+  assert.equal(routes('ch', '', 'fr-CH').start, '/fr/start')
+  assert.equal(routes('ch', '', 'it-CH').start, '/it/start')
+  assert.equal(routes('ch', '', 'it-CH').privacy, '/it/datenschutz')
+  assert.equal(routes('ch', '', 'fr-CH').field('computer-science'), '/fr/faecher/informatik')
+  assert.equal(routes('ch', '', 'de-CH').home, '/')
+  assert.equal(fieldName('computer-science', 'fr-CH'), 'Informatique')
+  assert.equal(fieldName('computer-science', 'it-CH'), 'Informatica')
+})
 
 test('Swiss institutions are found under BFS spellings', () => {
   assert.equal(findChInstitution('ETH Zürich')?.id, 'ethz')
@@ -110,4 +127,15 @@ test('teacher education levels come from the subject', async () => {
   assert.deepEqual(programmes.map((p) => p.level).sort(), ['bachelor', 'master'])
   assert.equal(programmes[0].institutionType, 'ph')
   assert.equal(programmes[0].capacity, undefined)
+})
+
+test('the language switch leads to the same page in the other language', () => {
+  const fr = { site: 'ch', base: '', locale: 'fr-CH' } as const
+  const ids = ['computer-science', 'medicine']
+  assert.equal(switchHref(fr, { site: 'ch', locale: 'de-CH' }, '/fr/faecher/informatik', ids), '/faecher/informatik')
+  assert.equal(switchHref(fr, { site: 'ch', locale: 'it-CH' }, '/fr/datenschutz', ids), '/it/datenschutz')
+  assert.equal(switchHref(fr, { site: 'global', locale: 'en' }, '/fr/faecher/medizin', ids), 'https://whatshouldistudy.com/fields/medicine')
+  assert.equal(switchHref({ site: 'ch', base: '', locale: 'de-CH' }, { site: 'ch', locale: 'fr-CH' }, '/', ids), '/fr')
+  // An unknown page falls back to the home page.
+  assert.equal(switchHref(fr, { site: 'ch', locale: 'de-CH' }, '/fr/nichts', ids), '/')
 })

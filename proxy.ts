@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { LOCAL_SITES, SITES } from './lib/site/config.ts'
+import { NextResponse } from 'next/server.js'
+import type { NextRequest } from 'next/server.js'
+import { CH_LANGUAGES, LOCAL_SITES, SITES } from './lib/site/config.ts'
 import { siteForHost } from './lib/site.ts'
 import { FIELD_SLUG_DE } from './lib/site/slugs-de.ts'
 
@@ -35,6 +35,8 @@ export function proxy(req: NextRequest) {
 
   if (local) {
     const c = SITES[local]
+    // The Swiss site's French and Italian versions are mounts of their own.
+    if (local === 'ch' && CH_LANGUAGES.some((l) => under(path, `/${l}`))) return NextResponse.next()
     for (const prefix of [`/${c.mount}`, `/${c.domainMount}`]) {
       if (under(path, prefix)) return redirectTo(url, rest(path, prefix) || '/')
     }
@@ -45,6 +47,7 @@ export function proxy(req: NextRequest) {
     return NextResponse.rewrite(to)
   }
 
+  if (SITES.ch.domainUrl && CH_LANGUAGES.some((l) => under(path, `/${l}`))) return NextResponse.redirect(`${SITES.ch.domainUrl}${path}${url.search}`, 308)
   for (const site of LOCAL_SITES) {
     const c = SITES[site]
     if (under(path, `/${c.domainMount}`)) return redirectTo(url, `/${c.mount}${rest(path, `/${c.domainMount}`)}`)

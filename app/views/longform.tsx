@@ -71,23 +71,24 @@ function Page({ title, lead, children }: { title: string; lead?: string; childre
 }
 
 function DataSources({ k, sources, updated, sample }: { k: Kit; sources: Array<{ id: string; name: string; url: string; licence: string; count: number; ok: boolean; error?: string }>; updated?: string; sample: boolean }) {
-  const de = k.locale !== 'en'
+  const de = k.locale.startsWith('de-')
+  const fr = k.locale === 'fr-CH'
   return (
     <>
       <p>
         {sample
           ? de
             ? 'Hier läuft gerade ein kleiner Demo-Datensatz.'
-            : 'This deployment currently shows a small demo dataset.'
+            : fr ? 'Un petit jeu de démonstration est affiché pour le moment.' : k.locale === 'it-CH' ? 'Al momento è visualizzato un piccolo set di dati dimostrativi.' : 'This deployment currently shows a small demo dataset.'
           : updated
-            ? `${de ? 'Letzte Aktualisierung' : 'Last refresh'}: ${new Date(updated).toLocaleString(k.intl, { dateStyle: 'long', timeStyle: 'short', timeZone: 'Europe/Zurich' })}.`
+            ? `${de ? 'Letzte Aktualisierung' : fr ? 'Dernière mise à jour' : k.locale === 'it-CH' ? 'Ultimo aggiornamento' : 'Last refresh'}: ${new Date(updated).toLocaleString(k.intl, { dateStyle: 'long', timeStyle: 'short', timeZone: 'Europe/Zurich' })}.`
             : ''}
       </p>
       <ul>
         {sources.map((s) => (
           <li key={s.id}>
-            <a href={s.url}>{s.name}</a> ({s.licence}): {fmtNumber(s.count, k.intl)} {s.id.startsWith('global') ? (de ? 'Hochschulen' : 'institutions') : de ? 'Studiengänge' : 'programmes'}
-            {!s.ok && s.error ? (de ? ` (letzter Lauf fehlgeschlagen: ${s.error})` : ` (last refresh failed; ${s.error})`) : ''}
+            <a href={s.url}>{s.name}</a> ({s.licence}): {fmtNumber(s.count, k.intl)} {s.id.startsWith('global') ? (de ? 'Hochschulen' : fr ? 'hautes écoles' : k.locale === 'it-CH' ? 'scuole universitarie' : 'institutions') : de ? 'Studiengänge' : fr ? 'formations' : k.locale === 'it-CH' ? 'corsi' : 'programmes'}
+            {!s.ok && s.error ? (de ? ` (letzter Lauf fehlgeschlagen: ${s.error})` : fr ? ` (échec de la dernière mise à jour : ${s.error})` : k.locale === 'it-CH' ? ` (ultimo aggiornamento non riuscito: ${s.error})` : ` (last refresh failed; ${s.error})`) : ''}
           </li>
         ))}
       </ul>
@@ -95,10 +96,78 @@ function DataSources({ k, sources, updated, sample }: { k: Kit; sources: Array<{
   )
 }
 
-export async function HowView({ site, base }: SiteProps) {
-  const k = kit(site, base)
+export async function HowView({ site, base, locale }: SiteProps) {
+  const k = kit(site, base, locale)
   const { meta, sample } = await getMeta()
   const sources = meta?.sources ?? []
+  if (k.locale === 'fr-CH') {
+    return (
+      <Page title="Comment ça marche" lead={`Nous analysons vos activités numériques, les comparons à ${FIELDS.length} domaines d’études et les mettons en regard de vos réponses. Voici les étapes et les limites du résultat.`}>
+        <h2>1. Vos sources restent dans votre navigateur</h2>
+        <p>Lorsque vous connectez YouTube, Spotify ou Reddit, vous vous authentifiez directement auprès du service. Le jeton de lecture reste dans votre navigateur et les données sont récupérées depuis votre appareil. Les fichiers Google Takeout, Spotify, Instagram et TikTok sont également lus localement. Ils ne sont pas envoyés à notre serveur.</p>
+        <ul>
+          <li><strong>YouTube et Google :</strong> abonnements, vidéos aimées, playlists, historique de visionnage et recherches, ainsi que les pages, cartes et applications répertoriées dans Google Takeout.</li>
+          <li><strong>Spotify :</strong> podcasts, épisodes enregistrés, livres audio, playlists et artistes les plus écoutés.</li>
+          <li><strong>Instagram et TikTok :</strong> comptes suivis, recherches, thèmes, hashtags, publications aimées et enregistrées selon les données fournies par la plateforme.</li>
+          <li><strong>Reddit et GitHub :</strong> communautés, publications enregistrées ou votées, dépôts publics et projets suivis.</li>
+        </ul>
+        <h2>2. Des signaux aux domaines d’études</h2>
+        <p>Chaque élément est comparé à un lexique multilingue et à des thèmes associés aux domaines. Un abonnement ou un projet créé pèse davantage qu’une consultation isolée. Nous tenons compte de la répétition dans le temps, puis comparons la part de chaque domaine à sa fréquence générale. Les signaux provenant de sources différentes peuvent se renforcer.</p>
+        <h2>3. Vos réponses complètent l’analyse</h2>
+        <ul>
+          <li><strong>Intérêts :</strong> le modèle RIASEC de John Holland décrit six types d’intérêts. Le questionnaire et les thèmes de votre historique contribuent à votre profil.</li>
+          <li><strong>Personnalité :</strong> le Mini-IPIP de Donnellan et ses collègues (2006) contient 20 questions issues de l’International Personality Item Pool. La personnalité pèse moins que les intérêts dans le calcul.</li>
+          <li><strong>Matières et priorités :</strong> vos matières préférées, vos points forts et ce que vous recherchez dans un métier sont comparés aux contenus des domaines.</li>
+        </ul>
+        <h2>4. Ce que le résultat ne dit pas</h2>
+        <ul>
+          <li>Votre historique indique ce qui vous intéresse, pas vos notes ni vos compétences.</li>
+          <li>Les comptes partagés, la lecture automatique et les intérêts passagers peuvent fausser le profil.</li>
+          <li>Les contenus dans d’autres langues que le français, l’anglais, l’allemand, l’italien et l’espagnol sont moins bien reconnus.</li>
+          <li>Le résultat est un point de départ. Vérifiez les plans d’études et échangez avec des étudiants avant de choisir.</li>
+        </ul>
+        <h2 id="donnees">Données sur les formations</h2>
+        <p>Pour la Suisse, les données de l’Office fédéral de la statistique indiquent les effectifs par haute école, domaine et niveau. Une formation est répertoriée lorsqu’un établissement compte des étudiants en Bachelor ou en Master dans le domaine. Vérifiez les intitulés, spécialisations et délais sur le site de l’établissement.</p>
+        <DataSources k={k} sources={sources} updated={meta?.updated} sample={sample} />
+        <p>Les frais affichés sont ceux publiés par l’établissement pour votre catégorie de nationalité, ou une estimation signalée comme telle. Confirmez toujours les montants et conditions sur le site officiel.</p>
+        <p className="mt-10"><Link href={k.r.start}>Essayer →</Link></p>
+      </Page>
+    )
+  }
+  if (k.locale === 'it-CH') {
+    return (
+      <Page title="Come funziona" lead={`Analizziamo le tue attività digitali, le confrontiamo con ${FIELDS.length} aree di studio e le mettiamo in relazione con le tue risposte. Ecco i passaggi e i limiti del risultato.`}>
+        <h2>1. Le tue fonti restano nel browser</h2>
+        <p>Quando colleghi YouTube, Spotify o Reddit, accedi direttamente al servizio. Il token di sola lettura resta nel browser e i dati vengono richiesti dal tuo dispositivo. Anche i file di Google Takeout, Spotify, Instagram e TikTok vengono letti localmente, senza essere caricati sul nostro server.</p>
+        <ul>
+          <li><strong>YouTube e Google:</strong> iscrizioni, video apprezzati, playlist, cronologia di visione e ricerche, oltre alle pagine, alle mappe e alle app presenti in Google Takeout.</li>
+          <li><strong>Spotify:</strong> podcast, episodi salvati, audiolibri, playlist e artisti più ascoltati.</li>
+          <li><strong>Instagram e TikTok:</strong> account seguiti, ricerche, temi, hashtag, post apprezzati e salvati, secondo i dati forniti dalla piattaforma.</li>
+          <li><strong>Reddit e GitHub:</strong> comunità, post salvati o votati, repository pubblici e progetti seguiti.</li>
+        </ul>
+        <h2>2. Dai segnali alle aree di studio</h2>
+        <p>Ogni elemento viene confrontato con un lessico multilingue e con i temi associati alle aree. Un’iscrizione o un progetto creato pesa più di una visita isolata. Consideriamo la ricorrenza nel tempo e confrontiamo la quota di ogni area con la sua frequenza generale. Segnali provenienti da fonti diverse possono rafforzarsi.</p>
+        <h2>3. Le tue risposte completano l’analisi</h2>
+        <ul>
+          <li><strong>Interessi:</strong> il modello RIASEC di John Holland descrive sei tipi di interesse. Al profilo contribuiscono il questionario e i temi della tua cronologia.</li>
+          <li><strong>Personalità:</strong> il Mini-IPIP di Donnellan e colleghi (2006) contiene 20 domande tratte dall’International Personality Item Pool. Nel calcolo la personalità pesa meno degli interessi.</li>
+          <li><strong>Materie e priorità:</strong> confrontiamo le materie che ti piacciono, i tuoi punti di forza e ciò che cerchi in un lavoro con i contenuti delle aree.</li>
+        </ul>
+        <h2>4. Cosa non indica il risultato</h2>
+        <ul>
+          <li>La cronologia indica i tuoi interessi, non i voti o le competenze.</li>
+          <li>Account condivisi, riproduzione automatica e interessi temporanei possono influenzare il profilo.</li>
+          <li>I contenuti in lingue diverse da italiano, inglese, tedesco, francese e spagnolo vengono riconosciuti meno bene.</li>
+          <li>Il risultato è un punto di partenza. Consulta i piani di studio e parla con gli studenti prima di scegliere.</li>
+        </ul>
+        <h2 id="dati">Dati sui corsi</h2>
+        <p>Per la Svizzera, i dati dell’Ufficio federale di statistica mostrano gli iscritti per scuola universitaria, area e livello. Un corso è elencato quando un istituto ha studenti Bachelor o Master nell’area. Verifica nomi, indirizzi e scadenze sul sito dell’istituto.</p>
+        <DataSources k={k} sources={sources} updated={meta?.updated} sample={sample} />
+        <p>Le tasse mostrate corrispondono agli importi pubblicati per la tua categoria di cittadinanza oppure sono indicate come stime. Verifica sempre importi e requisiti sul sito ufficiale.</p>
+        <p className="mt-10"><Link href={k.r.start}>Prova →</Link></p>
+      </Page>
+    )
+  }
   if (k.locale !== 'en') {
     return rz(
       <Page title="So funktioniert’s" lead={`Drei Schritte: Wir lesen, was du schaust, hörst und baust, übersetzen das in ${FIELDS.length} Studienfelder und verrechnen es mit dem, was du uns über dich sagst. Hier steht jeder Schritt, auch was das Ganze nicht kann.`}>
@@ -280,8 +349,88 @@ export async function HowView({ site, base }: SiteProps) {
   )
 }
 
-export function PrivacyView({ site, base }: SiteProps) {
-  const k = kit(site, base)
+export function PrivacyView({ site, base, locale }: SiteProps) {
+  const k = kit(site, base, locale)
+  if (k.locale === 'fr-CH') {
+    return (
+      <Page title="Confidentialité" lead="Nous ne conservons pas votre historique. L’analyse se déroule dans votre navigateur et les résumés restent sur votre appareil.">
+        <p><strong>Traduction :</strong> en cas de divergence, la version allemande fait foi.</p>
+        <h2>Responsable</h2>
+        <p>{OPERATOR ? `${OPERATOR}. ` : ''}Contact : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Le droit suisse de la protection des données s’applique. Le RGPD s’applique également lorsque la législation européenne le prévoit.</p>
+        <h2>Ce que nous conservons</h2>
+        <p>Nous n’avons ni compte ni base de données contenant vos réponses. Le résumé de l’analyse, vos réponses au questionnaire et vos préférences sont enregistrés dans le stockage local de votre navigateur. Vous pouvez tout supprimer depuis la page de démarrage. L’hébergeur Vercel conserve brièvement des journaux techniques. Stripe traite les paiements si vous achetez le rapport complet.</p>
+        <h2>Sources connectées et fichiers</h2>
+        <p>Pour YouTube, Spotify et Reddit, vous vous authentifiez directement auprès du service. Le jeton de lecture reste dans la mémoire de session de l’onglet et disparaît lorsque vous le fermez. Votre navigateur récupère les données auprès du service. Les exports de Google Takeout, Spotify, Instagram et TikTok sont lus et décompressés sur votre appareil. Nous ne recevons ni ces fichiers ni les jetons.</p>
+        <h2>Recherche de formations</h2>
+        <p>Pour rechercher des formations, votre navigateur transmet les identifiants et scores de vos domaines principaux, jusqu’à 80 thèmes pondérés et vos filtres de recherche. Il ne transmet ni titres consultés, ni recherches, ni chaînes, ni noms permettant de vous identifier. Nous ne conservons pas cette requête.</p>
+        <h2>Paiements et hébergement</h2>
+        <p>Stripe traite le paiement et nous indique s’il a abouti, sans nous transmettre les données de votre carte. Le site est hébergé par Vercel, qui peut enregistrer temporairement l’adresse IP, l’heure et la page consultée. Nous utilisons l’adresse IP uniquement pour déterminer le pays et afficher la devise correspondante.</p>
+        <h2>Données Google et YouTube</h2>
+        <p>Notre utilisation des données Google respecte la <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, y compris les règles Limited Use. Nous demandons uniquement l’autorisation de lecture <code>youtube.readonly</code> afin de calculer votre profil dans votre navigateur. Ces données ne nous sont pas transmises, ne servent pas à la publicité et ne servent pas à entraîner des modèles d’IA. Vous pouvez révoquer l’accès sur <a href="https://myaccount.google.com/permissions">les autorisations de votre compte Google</a>. Les <a href="https://www.youtube.com/t/terms">conditions YouTube</a> et la <a href="https://policies.google.com/privacy">politique de confidentialité de Google</a> s’appliquent également.</p>
+        <h2>Liens partagés</h2>
+        <p>Le résultat partagé est placé après le caractère « # » dans le lien. Cette partie n’est pas envoyée aux serveurs. Toute personne disposant du lien peut voir les domaines, les scores et le profil qu’il contient. Le partage est facultatif.</p>
+        <h2>Cookies et mesure</h2>
+        {!GOOGLE_TAG && !VERCEL_ANALYTICS && <p>Nous n’utilisons ni cookies de suivi ni outil d’analyse d’audience.</p>}
+        {VERCEL_ANALYTICS && (
+          <p>Vercel Web Analytics compte les pages vues sans cookies et sans identifiant qui vous reconnaîtrait d’un jour à l’autre. Vercel reçoit pour cela la page consultée, la page de provenance, votre pays et le type d’appareil. Nous retirons auparavant de l’adresse les éléments comme les codes de connexion ou les numéros de paiement. Base juridique : notre intérêt légitime à savoir comment le site est utilisé (art. 6, al. 1, let. f RGPD).</p>
+        )}
+        {GOOGLE_TAG && (
+          <>
+            <p>Pour savoir quelles publicités amènent des visiteurs et combien d’entre eux achètent le rapport, nous utilisons Google Analytics et Google Ads de Google Ireland Limited (Gordon House, Barrow Street, Dublin 4, Irlande). Google dépose pour cela des cookies et apprend quelles pages vous consultez et si vous affichez un résultat, commencez un achat ou payez, avec le montant et la devise. S’y ajoutent votre adresse IP et des informations sur le navigateur et l’appareil. Lors d’un achat, un hachage (SHA-256) de votre adresse e-mail est transmis à Google Ads afin d’attribuer l’achat à une annonce. L’adresse elle-même n’est pas transmise.</p>
+            <p>Votre historique, vos sources, vos réponses, vos domaines et votre résultat n’entrent jamais dans cette mesure. Nous n’utilisons pas les données de l’interface YouTube à des fins publicitaires.</p>
+            <p>La mesure dépend de l’endroit où vous vous trouvez. Depuis l’UE, l’EEE et le Royaume-Uni, nous ne déposons des cookies Google qu’avec votre consentement (art. 6, al. 1, let. a RGPD).{' '}
+              {CONSENT_MODE === 'advanced'
+                ? 'Sans consentement, la balise Google envoie seulement des signaux sans cookies, par exemple qu’une page a été consultée, à partir desquels Google fait des estimations.'
+                : 'Sans consentement, la balise Google ne se charge pas.'}{' '}
+              Depuis la Suisse et tous les autres pays, la mesure est active tant que vous ne la refusez pas (art. 45c LTC). Vous pouvez modifier votre choix à tout moment via « Paramètres des cookies » en bas de chaque page.</p>
+            <p>Google peut transférer des données aux États-Unis et est certifié selon le EU-US Data Privacy Framework, y compris pour la Suisse. L’utilisation des données par Google est décrite sur <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.</p>
+          </>
+        )}
+        <h2>Vos droits et les mineurs</h2>
+        <p>Nous ne détenons pas de données personnelles issues de l’analyse et ne pouvons donc pas exporter ou supprimer des données que nous ne possédons pas. Vous gérez les données dans votre navigateur. Vous pouvez saisir l’autorité de protection des données de votre pays, en Suisse le Préposé fédéral à la protection des données et à la transparence. Pour toute question : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Si vous avez moins de 16 ans, parlez-en à vos parents avant de connecter des comptes ou d’effectuer un achat. En Autriche, cet âge est de 14 ans.</p>
+      </Page>
+    )
+  }
+  if (k.locale === 'it-CH') {
+    return (
+      <Page title="Privacy" lead="Non conserviamo la tua cronologia. L’analisi avviene nel browser e i riepiloghi restano sul tuo dispositivo.">
+        <p><strong>Traduzione:</strong> in caso di differenze, fa fede la versione tedesca.</p>
+        <h2>Titolare del trattamento</h2>
+        <p>{OPERATOR ? `${OPERATOR}. ` : ''}Contatto: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Si applica la legge svizzera sulla protezione dei dati. Il GDPR si applica inoltre quando previsto dalla normativa europea.</p>
+        <h2>Cosa conserviamo</h2>
+        <p>Non abbiamo account né banche dati con le tue risposte. Il riepilogo dell’analisi, le risposte al questionario e le preferenze vengono salvati nella memoria locale del browser. Puoi eliminarli dalla pagina iniziale. Il servizio di hosting Vercel conserva per poco tempo log tecnici. Se acquisti il report completo, Stripe gestisce il pagamento.</p>
+        <h2>Account collegati e file</h2>
+        <p>Per YouTube, Spotify e Reddit accedi direttamente al servizio. Il token di sola lettura resta nella memoria di sessione della scheda e scompare quando la chiudi. Il browser recupera i dati dal servizio. Gli export di Google Takeout, Spotify, Instagram e TikTok vengono letti e decompressi sul tuo dispositivo. Non riceviamo i file né i token.</p>
+        <h2>Ricerca dei corsi</h2>
+        <p>Per cercare i corsi, il browser invia gli identificativi e i punteggi delle tue aree principali, fino a 80 temi con il relativo peso e i filtri di ricerca. Non invia titoli consultati, ricerche, canali o nomi che possano identificarti. Non conserviamo la richiesta.</p>
+        <h2>Pagamenti e hosting</h2>
+        <p>Stripe gestisce il pagamento e ci comunica se è andato a buon fine, senza trasmetterci i dati della carta. Il sito è ospitato da Vercel, che può registrare temporaneamente indirizzo IP, ora e pagina visitata. Usiamo l’indirizzo IP solo per determinare il Paese e mostrare la valuta corretta.</p>
+        <h2>Dati Google e YouTube</h2>
+        <p>L’uso dei dati Google rispetta la <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, comprese le regole Limited Use. Richiediamo solo l’autorizzazione di lettura <code>youtube.readonly</code> per calcolare il profilo nel browser. I dati non ci vengono trasmessi, non sono usati per pubblicità né per addestrare modelli di IA. Puoi revocare l’accesso nelle <a href="https://myaccount.google.com/permissions">autorizzazioni del tuo account Google</a>. Si applicano anche i <a href="https://www.youtube.com/t/terms">termini di YouTube</a> e l’<a href="https://policies.google.com/privacy">informativa privacy di Google</a>.</p>
+        <h2>Link condivisi</h2>
+        <p>Il risultato condiviso si trova dopo il carattere «#» nel link. Questa parte non viene inviata ai server. Chiunque abbia il link può vedere aree, punteggi e profilo inclusi. La condivisione è facoltativa.</p>
+        <h2>Cookie e misurazione</h2>
+        {!GOOGLE_TAG && !VERCEL_ANALYTICS && <p>Non usiamo cookie di tracciamento né strumenti di analisi.</p>}
+        {VERCEL_ANALYTICS && (
+          <p>Vercel Web Analytics conta le pagine visitate senza cookie e senza un identificativo che ti riconosca da un giorno all’altro. Per farlo Vercel riceve la pagina visitata, la pagina di provenienza, il tuo Paese e il tipo di dispositivo. Prima togliamo dall’indirizzo parti come codici di accesso o numeri di pagamento. Base giuridica: il nostro interesse legittimo a sapere come viene usato il sito (art. 6 par. 1 lett. f GDPR).</p>
+        )}
+        {GOOGLE_TAG && (
+          <>
+            <p>Per sapere quali annunci portano visitatori e quanti di loro acquistano il report, usiamo Google Analytics e Google Ads di Google Ireland Limited (Gordon House, Barrow Street, Dublin 4, Irlanda). Google imposta a questo scopo dei cookie e viene a sapere quali pagine visiti e se guardi un risultato, inizi un acquisto o paghi, con importo e valuta. A ciò si aggiungono il tuo indirizzo IP e informazioni su browser e dispositivo. In caso di acquisto, a Google Ads viene inviato un hash (SHA-256) del tuo indirizzo e-mail, per attribuire l’acquisto a un annuncio. L’indirizzo stesso non viene trasmesso.</p>
+            <p>La tua cronologia, le tue fonti, le tue risposte, le tue aree e il tuo risultato non entrano mai in questa misurazione. Non usiamo i dati dell’interfaccia di YouTube per la pubblicità.</p>
+            <p>La misurazione dipende da dove ti trovi. Dall’UE, dal SEE e dal Regno Unito impostiamo i cookie di Google solo con il tuo consenso (art. 6 par. 1 lett. a GDPR).{' '}
+              {CONSENT_MODE === 'advanced'
+                ? 'Senza consenso, il tag di Google invia solo segnali senza cookie, ad esempio che una pagina è stata visitata, da cui Google fa delle stime.'
+                : 'Senza consenso, il tag di Google non viene caricato.'}{' '}
+              Dalla Svizzera e da tutti gli altri Paesi la misurazione è attiva finché non la rifiuti (art. 45c LTC). Puoi cambiare la tua scelta in qualsiasi momento tramite «Impostazioni cookie» in fondo a ogni pagina.</p>
+            <p>Google può trasferire dati negli Stati Uniti ed è certificata secondo l’EU-US Data Privacy Framework, anche per la Svizzera. Come Google usa i dati è spiegato su <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.</p>
+          </>
+        )}
+        <h2>Diritti e minori</h2>
+        <p>Non deteniamo dati personali derivati dall’analisi e quindi non possiamo esportare o cancellare dati che non possediamo. Gestisci tutto nel browser. Puoi rivolgerti all’autorità per la protezione dei dati del tuo Paese; in Svizzera, all’Incaricato federale della protezione dei dati e della trasparenza. Per domande: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Se hai meno di 16 anni, parlane con i tuoi genitori prima di collegare account o acquistare. In Austria l’età è 14 anni.</p>
+      </Page>
+    )
+  }
   if (k.locale !== 'en') {
     return rz(
       <Page title="Datenschutz" lead="Kurz: Wir speichern nichts. Dein Verlauf kommt nie bei uns an, die Analyse läuft in deinem Browser, und was sie behält, bleibt dort. Der ganze Code ist Open Source.">
@@ -474,8 +623,32 @@ export function PrivacyView({ site, base }: SiteProps) {
   )
 }
 
-export function TermsView({ site, base }: SiteProps) {
-  const k = kit(site, base)
+export function TermsView({ site, base, locale }: SiteProps) {
+  const k = kit(site, base, locale)
+  if (k.locale === 'fr-CH') {
+    return (
+      <Page title="Conditions">
+        <p><strong>Traduction :</strong> en cas de divergence, la version allemande fait foi.</p>
+        <h2>Service</h2><p>{k.conf.name} fournit une orientation, pas une garantie. Les correspondances sont des estimations fondées sur vos données et sur des informations publiques qui peuvent être incomplètes ou obsolètes. Vérifiez les formations, les frais et les délais auprès de l’établissement avant de déposer votre candidature.</p>
+        <h2>Rapport complet</h2><p>Un paiement unique débloque le rapport complet dans le navigateur utilisé lors de l’achat, pour une durée de 12 mois. Les mises à jour hebdomadaires sont incluses. En cas de problème, contactez-nous dans les 14 jours pour demander un remboursement.</p>
+        <h2>YouTube et utilisation équitable</h2><p>En connectant YouTube, vous acceptez ses <a href="https://www.youtube.com/t/terms">conditions d’utilisation</a>. N’extrayez pas automatiquement les données de l’interface des formations et ne revendez pas ses résultats. Les données ouvertes restent disponibles auprès de leurs éditeurs selon leurs licences.</p>
+        <h2>Sources des données</h2><p>Suisse : Office fédéral de la statistique et studyprogrammes.ch (swissuniversities). Allemagne : Bundesagentur für Arbeit. Autriche : studienwahl.at (ministère fédéral). Autres sources : College Scorecard, Discover Uni, Parcoursup, OpenAlex et University Domains List, selon les licences indiquées par leurs éditeurs.</p>
+        <h2>Droit applicable et contact</h2><p>Le droit suisse s’applique, sous réserve des règles impératives de protection des consommateurs. Contact : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
+      </Page>
+    )
+  }
+  if (k.locale === 'it-CH') {
+    return (
+      <Page title="Condizioni">
+        <p><strong>Traduzione:</strong> in caso di differenze, fa fede la versione tedesca.</p>
+        <h2>Servizio</h2><p>{k.conf.name} offre un orientamento, non una garanzia. Le corrispondenze sono stime basate sui dati forniti e su informazioni pubbliche che possono essere incomplete o non aggiornate. Prima di candidarti, verifica corsi, tasse e scadenze presso l’istituto.</p>
+        <h2>Report completo</h2><p>Un pagamento unico sblocca il report completo nel browser usato per l’acquisto per 12 mesi. Gli aggiornamenti settimanali sono inclusi. Se qualcosa non funziona, contattaci entro 14 giorni per chiedere un rimborso.</p>
+        <h2>YouTube e uso corretto</h2><p>Collegando YouTube accetti i suoi <a href="https://www.youtube.com/t/terms">termini di servizio</a>. Non estrarre automaticamente i dati dall’interfaccia dei corsi e non rivendere i risultati. I dati aperti restano disponibili presso gli editori originali secondo le relative licenze.</p>
+        <h2>Fonti dei dati</h2><p>Svizzera: Ufficio federale di statistica e studyprogrammes.ch (swissuniversities). Germania: Bundesagentur für Arbeit. Austria: studienwahl.at (ministero federale). Altre fonti: College Scorecard, Discover Uni, Parcoursup, OpenAlex e University Domains List, secondo le licenze dei rispettivi editori.</p>
+        <h2>Legge applicabile e contatto</h2><p>Si applica il diritto svizzero, fatte salve le norme inderogabili di tutela dei consumatori. Contatto: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
+      </Page>
+    )
+  }
   if (k.locale !== 'en') {
     return rz(
       <Page title="AGB">
@@ -541,8 +714,23 @@ export function TermsView({ site, base }: SiteProps) {
   )
 }
 
-export function ImprintView({ site, base }: SiteProps) {
-  const k = kit(site, base)
+export function ImprintView({ site, base, locale }: SiteProps) {
+  const k = kit(site, base, locale)
+  if (k.locale === 'fr-CH' || k.locale === 'it-CH') {
+    const fr = k.locale === 'fr-CH'
+    return (
+      <Page title={fr ? 'Mentions légales' : 'Note legali'}>
+        <p><strong>{fr ? 'Traduction :' : 'Traduzione:'}</strong> {fr ? 'en cas de divergence, la version allemande fait foi.' : 'in caso di differenze, fa fede la versione tedesca.'}</p>
+        <h2>{fr ? 'Éditeur et responsable du contenu' : 'Editore e responsabile dei contenuti'}</h2>
+        <p>{OPERATOR ?? (fr ? 'Informations à compléter.' : 'Informazioni da completare.')}{OPERATOR_ADDRESS ? <><br />{OPERATOR_ADDRESS}</> : null}</p>
+        <h2>{fr ? 'Contact' : 'Contatto'}</h2><p><a href={`mailto:${CONTACT}`}>{CONTACT}</a>{OPERATOR_PHONE ? <><br />{fr ? 'Téléphone' : 'Telefono'}: {OPERATOR_PHONE}</> : null}</p>
+        {OPERATOR_UID && <><h2>{fr ? 'Numéro d’identification' : 'Numero identificativo'}</h2><p>{OPERATOR_UID}</p></>}
+        <h2>{fr ? 'Activité' : 'Attività'}</h2><p>{fr ? 'Orientation en ligne pour les études : analyse de données personnelles dans le navigateur et suggestions de domaines et de formations.' : 'Orientamento online agli studi: analisi dei dati personali nel browser e suggerimenti di aree e corsi di studio.'}</p>
+        {EU_REPRESENTATIVE && <><h2>{fr ? 'Représentant dans l’UE (art. 27 RGPD)' : 'Rappresentante nell’UE (art. 27 GDPR)'}</h2><p>{EU_REPRESENTATIVE}</p></>}
+        <h2>{fr ? 'Responsabilité' : 'Responsabilità'}</h2><p>{fr ? 'Les informations sur les formations proviennent de données publiques et peuvent être incomplètes ou obsolètes. Le contenu des sites liés relève de leurs éditeurs.' : 'Le informazioni sui corsi provengono da dati pubblici e possono essere incomplete o non aggiornate. I contenuti dei siti collegati sono responsabilità dei rispettivi gestori.'}</p>
+      </Page>
+    )
+  }
   const de = k.locale !== 'en'
   return rz(
     <Page title={de ? 'Impressum' : 'Imprint'}>

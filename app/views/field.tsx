@@ -16,8 +16,8 @@ import { Earnings } from '../ui/earnings.tsx'
 import { JsonLd, fieldLd } from '../ui/json-ld.tsx'
 
 
-export async function FieldView({ site, base, id }: SiteProps & { id: string }) {
-  const { t, r, locale, intl, conf } = kit(site, base)
+export async function FieldView({ site, base, locale: selectedLocale, id }: SiteProps & { id: string }) {
+  const { t, r, locale, intl, conf } = kit(site, base, selectedLocale)
   const country = conf.country
   const f = FIELD_BY_ID[id]
   if (!f) notFound()
@@ -112,7 +112,7 @@ export async function FieldView({ site, base, id }: SiteProps & { id: string }) 
               .map((i) => (
                 <a key={i.name} href={i.url} target="_blank" rel="noreferrer" className="chip on-color hover:-translate-y-0.5" style={{ background: i.type ? TYPE_STYLE[i.type]?.color : 'var(--surface)' }}>
                   {i.name}
-                  {i.type && <span className="text-xs opacity-70">· {typeLabel(i.type, country, locale === 'en' ? 'en' : 'de')}</span>}
+                  {i.type && <span className="text-xs opacity-70">· {typeLabel(i.type, country, locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it')}</span>}
                 </a>
               ))}
           </div>

@@ -10,6 +10,15 @@ import { CH_ADMISSION } from './ch-institutions.ts'
 export type InstType = 'uni' | 'eth' | 'fh' | 'ph' | 'dual' | 'art' | 'priv' | 'theo' | 'admin'
 type Text = { de: string; en: string }
 
+const TYPE_FR: Record<InstType, string> = {
+  uni: 'Université', eth: 'École polytechnique fédérale', fh: 'Haute école spécialisée', ph: 'Haute école pédagogique',
+  dual: 'Université en alternance', art: 'Haute école d’art et de musique', priv: 'Haute école privée', theo: 'Haute école de théologie', admin: 'Haute école d’administration publique',
+}
+const TYPE_IT: Record<InstType, string> = {
+  uni: 'Università', eth: 'Politecnico federale', fh: 'Scuola universitaria professionale', ph: 'Alta scuola pedagogica',
+  dual: 'Università duale', art: 'Scuola universitaria d’arte e musica', priv: 'Università privata', theo: 'Scuola universitaria di teologia', admin: 'Scuola universitaria di amministrazione pubblica',
+}
+
 export const TYPE_LABEL: Record<InstType, Text & { short: string }> = {
   uni: { de: 'Universität', en: 'University', short: 'UNI' },
   eth: { de: 'ETH', en: 'Federal Institute of Technology', short: 'ETH' },
@@ -23,7 +32,9 @@ export const TYPE_LABEL: Record<InstType, Text & { short: string }> = {
 }
 
 /** Germany calls them Hochschulen für angewandte Wissenschaften. */
-export function typeLabel(type: InstType, country: string | undefined, locale: 'de' | 'en'): string {
+export function typeLabel(type: InstType, country: string | undefined, locale: 'de' | 'en' | 'fr' | 'it'): string {
+  if (locale === 'fr') return TYPE_FR[type]
+  if (locale === 'it') return TYPE_IT[type]
   if (type === 'fh' && country === 'DE') return locale === 'de' ? 'Hochschule für angewandte Wissenschaften' : 'University of Applied Sciences'
   return TYPE_LABEL[type][locale]
 }
@@ -74,7 +85,26 @@ export const ADMISSION: Record<string, Partial<Record<InstType, Text>>> = {
   },
 }
 
-export function admissionText(country: string | undefined, type: string | undefined, locale: 'de' | 'en'): string | undefined {
+export function admissionText(country: string | undefined, type: string | undefined, locale: 'de' | 'en' | 'fr' | 'it'): string | undefined {
+  if (!country || !type) return undefined
+  if (locale === 'fr' || locale === 'it') {
+    const labels = locale === 'fr'
+      ? {
+          uni: 'Maturité gymnasiale ou titre équivalent. Certaines filières appliquent des examens ou limitent les places.',
+          eth: 'Maturité gymnasiale ou titre équivalent. Des examens d’admission peuvent s’appliquer.',
+          fh: 'Maturité professionnelle ou titre équivalent. Une expérience professionnelle ou une passerelle peut être demandée.',
+          ph: 'Maturité ou titre équivalent. Une évaluation d’aptitude peut être requise.',
+        }
+      : {
+          uni: 'Maturità liceale o titolo equivalente. Alcuni corsi prevedono esami o posti limitati.',
+          eth: 'Maturità liceale o titolo equivalente. Possono essere previsti esami di ammissione.',
+          fh: 'Maturità professionale o titolo equivalente. Può essere richiesta esperienza professionale o una passerella.',
+          ph: 'Maturità o titolo equivalente. Può essere richiesta una verifica dell’idoneità.',
+        }
+    return country === 'CH' && type in labels
+      ? labels[type as keyof typeof labels]
+      : locale === 'fr' ? 'Les conditions varient selon la formation. Consultez le site de l’établissement.' : 'I requisiti variano secondo il corso. Consulta il sito dell’istituto.'
+  }
   return country && type ? ADMISSION[country]?.[type as InstType]?.[locale] : undefined
 }
 

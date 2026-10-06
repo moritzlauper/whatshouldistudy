@@ -8,8 +8,8 @@ import { emoji, fieldBlurb, fieldName, fmtNumber, groupLabel } from '@/lib/site/
 
 const GROUP_COLORS = ['var(--pink)', 'var(--sky)', 'var(--lime)', 'var(--yellow)', 'var(--orange)', 'var(--violet)', 'var(--pink)', 'var(--sky)', 'var(--lime)']
 
-export async function FieldsView({ site, base }: SiteProps) {
-  const { t, r, locale, intl, conf } = kit(site, base)
+export async function FieldsView({ site, base, locale: selectedLocale }: SiteProps) {
+  const { t, r, locale, intl, conf } = kit(site, base, selectedLocale)
   const [stats, { meta }] = await Promise.all([getStats(), getMeta()])
   // The Swiss site counts Swiss programmes.
   const count = (id: string) => (conf.country ? (meta?.counts[id]?.[conf.country] ?? 0) : (stats[id]?.programmes ?? 0))

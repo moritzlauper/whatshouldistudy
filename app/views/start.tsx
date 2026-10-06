@@ -27,7 +27,7 @@ const YT_CHANNELS = 300
 const YT_VIDEOS = 2500
 
 export function StartView() {
-  const { t, r, intl, site, base } = useSite()
+  const { t, r, intl, site, base, locale } = useSite()
   const state = useAppState()
   const [running, setRunning] = useState<Running>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -47,7 +47,7 @@ export function StartView() {
     setErrors((x) => ({ ...x, [p]: '' }))
     measureConnect(p === 'google' ? 'youtube' : p)
     try {
-      await startAuth(p, { site, base })
+      await startAuth(p, { site, base, locale })
     } catch (e) {
       fail(p, e)
     }

@@ -1,24 +1,27 @@
 import { LOCAL_SITES, SITES, isLocal, routes } from './config.ts'
-import type { LocalSiteId, SiteId } from './config.ts'
+import type { Locale, LocalSiteId, SiteId } from './config.ts'
 import { dict } from './dict.ts'
 import { siteUrl } from '../site.ts'
 
 /** Everything a view needs to render for one site. */
-export function kit(site: SiteId, base: string) {
-  const conf = SITES[site]
-  return { site, base, conf, locale: conf.locale, intl: conf.intl, t: dict(conf.locale), r: routes(site, base) }
+export function kit(site: SiteId, base: string, locale = SITES[site].locale) {
+  const original = SITES[site]
+  const conf = locale === original.locale ? original : { ...original, locale, intl: locale, ogLocale: locale.replace('-', '_') }
+  return { site, base, conf, locale, intl: locale, t: dict(locale), r: routes(site, base, locale) }
 }
 
 export type Kit = ReturnType<typeof kit>
 
 /** Every mount of the country sites: /schweiz and the internal path the Swiss domain is rewritten to, and so on. */
-export const ALL_MOUNTS = LOCAL_SITES.flatMap((s) => [SITES[s].mount!, SITES[s].domainMount!])
+export const ALL_MOUNTS = [...LOCAL_SITES.flatMap((s) => [SITES[s].mount!, SITES[s].domainMount!]), 'fr', 'it']
 
 /** Which country site a mount belongs to, and the link prefix its pages use there. */
-export function mountInfo(mount: string): { site: LocalSiteId; base: string } {
+export function mountInfo(mount: string): { site: LocalSiteId; base: string; locale: Locale } {
+  if (mount === 'fr') return { site: 'ch', base: '', locale: 'fr-CH' }
+  if (mount === 'it') return { site: 'ch', base: '', locale: 'it-CH' }
   for (const site of LOCAL_SITES) {
-    if (mount === SITES[site].mount) return { site, base: `/${mount}` }
-    if (mount === SITES[site].domainMount) return { site, base: '' }
+    if (mount === SITES[site].mount) return { site, base: `/${mount}`, locale: SITES[site].locale }
+    if (mount === SITES[site].domainMount) return { site, base: '', locale: SITES[site].locale }
   }
   throw new Error(`Unknown mount ${mount}`)
 }

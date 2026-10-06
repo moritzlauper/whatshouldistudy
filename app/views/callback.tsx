@@ -21,13 +21,13 @@ const NAMES: Record<Provider, string> = { google: 'YouTube', spotify: 'Spotify',
  * and, above all, its store.
  */
 export function CallbackView({ provider }: { provider: string }) {
-  const { site, base } = useSite()
+  const { site, base, locale } = useSite()
   const [from, setFrom] = useState<AuthOrigin | null | undefined>(undefined)
   useEffect(() => setFrom(authOrigin()), [])
   if (from === undefined) return <div className="min-h-[60vh]" aria-busy="true" />
-  if (from && (from.site !== site || from.base !== base)) {
+  if (from && (from.site !== site || from.base !== base || (from.locale && from.locale !== locale))) {
     return (
-      <SiteProvider site={from.site} base={from.base}>
+      <SiteProvider site={from.site} base={from.base} locale={from.locale}>
         <Finish provider={provider} />
       </SiteProvider>
     )

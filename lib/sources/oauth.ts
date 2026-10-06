@@ -7,7 +7,7 @@
 
 import { BASE_PATH } from '../site.ts'
 import { SITES } from '../site/config.ts'
-import type { SiteId } from '../site/config.ts'
+import type { Locale, SiteId } from '../site/config.ts'
 
 export type Provider = 'google' | 'spotify' | 'reddit'
 
@@ -47,6 +47,7 @@ export function redirectUri(p: Provider): string {
 export interface AuthOrigin {
   site: SiteId
   base: string
+  locale?: Locale
 }
 
 const ORIGIN_KEY = 'wsis:oauth-from'
@@ -57,7 +58,9 @@ export function authOrigin(): AuthOrigin | null {
     const o = JSON.parse(session()?.getItem(ORIGIN_KEY) ?? 'null') as AuthOrigin | null
     if (!o || !(o.site in SITES)) return null
     const mount = SITES[o.site].mount
-    return o.base === '' || (mount && o.base === `/${mount}`) ? o : null
+    const validBase = o.base === '' || (mount && o.base === `/${mount}`)
+    const validLocale = !o.locale || ['en', 'de-CH', 'de-DE', 'de-AT', 'fr-CH', 'it-CH'].includes(o.locale)
+    return validBase && validLocale ? o : null
   } catch {
     return null
   }
@@ -93,7 +96,7 @@ export async function startAuth(p: Provider, from: AuthOrigin): Promise<void> {
   if (!clientId) throw new Error(`${p} is not configured on this deployment`)
   const state = randomString(16)
   session()?.setItem(`wsis:oauth-state:${p}`, state)
-  session()?.setItem(ORIGIN_KEY, JSON.stringify({ site: from.site, base: from.base }))
+  session()?.setItem(ORIGIN_KEY, JSON.stringify({ site: from.site, base: from.base, locale: from.locale }))
   const params = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri(p), state, scope: SCOPES[p] })
 
   let url: string

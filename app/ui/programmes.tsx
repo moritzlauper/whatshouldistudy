@@ -14,7 +14,7 @@ import { Contributions } from './contributions.tsx'
 import { COUNTRIES, flag } from '@/lib/countries.ts'
 import type { Level, ResearchInstitution } from '@/lib/programmes.ts'
 import type { RankResult, RankedProgramme } from '@/lib/server/rank.ts'
-import { TYPE_LABEL, TYPE_STYLE, admissionText, typeShort } from '@/lib/institutions.ts'
+import { TYPE_LABEL, TYPE_STYLE, admissionText, typeLabel, typeShort } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
 import { withBase } from '@/lib/site.ts'
 import { formatPrice } from '@/lib/pricing.ts'
@@ -456,7 +456,7 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
   const perSemester = isLocal(site)
   const feeAmount = p.fee ? (perSemester ? Math.round(p.fee.amount / 2) : p.fee.amount) : 0
   const type = p.institutionType as InstType | undefined
-  const lang = locale === 'en' ? 'en' : 'de'
+  const lang = locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it'
   const hits = useTopicHits(p)
   const example = hits.flatMap((h) => h.examples)[0]
   return (
@@ -490,7 +490,7 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
 
         <div className="flex shrink-0 items-center gap-2">
           {type && TYPE_LABEL[type] && (
-            <span className="on-color rounded-full border-2 border-line px-2.5 py-0.5 text-xs font-bold" style={{ background: TYPE_STYLE[type].color }} title={TYPE_LABEL[type][lang]}>
+            <span className="on-color rounded-full border-2 border-line px-2.5 py-0.5 text-xs font-bold" style={{ background: TYPE_STYLE[type].color }} title={typeLabel(type, p.country, lang)}>
               {typeShort(type, p.country)}
             </span>
           )}

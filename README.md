@@ -15,7 +15,9 @@ and leads with them. Until they get their own domains they live at `/schweiz`,
 `/deutschland` and `/oesterreich`.
 
 The app serves at the domain root. `WSIS_BASE_PATH` mounts it under a path
-instead (see *Deploy on Vercel*).
+instead (see *Deploy on Vercel*). The Swiss site also speaks French (`/fr`) and
+Italian (`/it`) on its own domain; a switch in its header leads to the same page
+in German, French, Italian or, on the global site, English.
 
 The field results are free. The full programme list (every matching programme
 with the fee for the student's citizenship, earnings, admission rates, filters,

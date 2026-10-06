@@ -10,16 +10,32 @@ import { ConsentLink, Measurement } from './measurement.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
 import { OrgCapture } from './org-capture.tsx'
+import { LangSwitch } from './lang-switch.tsx'
+import type { LangOption } from './lang-switch.tsx'
+import { FIELDS } from '@/lib/taxonomy/fields.ts'
 
 const ALL: SiteId[] = ['global', 'ch', 'de', 'at']
 
+/**
+ * The Swiss site switches between German, French, Italian and the English
+ * global site; French and Italian only exist on its own domain.
+ */
+function languageOptions(site: SiteId, base: string): LangOption[] | null {
+  if (site !== 'ch') return null
+  const en: LangOption = { site: 'global', locale: 'en', code: 'EN', name: 'English' }
+  const de: LangOption = { site: 'ch', locale: 'de-CH', code: 'DE', name: 'Deutsch' }
+  if (base !== '') return [de, en]
+  return [de, { site: 'ch', locale: 'fr-CH', code: 'FR', name: 'Français' }, { site: 'ch', locale: 'it-CH', code: 'IT', name: 'Italiano' }, en]
+}
+
 /** Header, footer and the client context around every page of a site. */
-export function Shell({ site, base, children }: SiteProps & { children: React.ReactNode }) {
-  const k = kit(site, base)
+export function Shell({ site, base, locale, children }: SiteProps & { children: React.ReactNode }) {
+  const k = kit(site, base, locale)
   const { t, r, conf } = k
   const o = orgsText(k.locale)
+  const languages = languageOptions(site, base)
   return (
-    <SiteProvider site={site} base={base}>
+    <SiteProvider site={site} base={base} locale={locale}>
       <header className="sticky top-0 z-30 border-b-2 border-line bg-bg/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link href={r.home} className="flex min-w-0 items-center gap-2" aria-label={t.misc.home(conf.name)}>
@@ -38,6 +54,7 @@ export function Shell({ site, base, children }: SiteProps & { children: React.Re
             <Link href={r.orgs} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 md:inline-block">
               {o.nav}
             </Link>
+            {languages && <LangSwitch from={{ site, base, locale: k.locale }} options={languages} label={t.misc.language} fieldIds={FIELDS.map((f) => f.id)} />}
             <Link href={r.start} className="btn btn-primary btn-sm ml-1">
               {t.nav.start}
             </Link>

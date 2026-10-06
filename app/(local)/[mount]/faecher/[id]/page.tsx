@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
 import { mountInfo } from '@/lib/site/kit.ts'
 import { localMeta } from '@/lib/site/meta.ts'
-import { SITES } from '@/lib/site/config.ts'
 import { fieldBlurb, fieldName } from '@/lib/site/labels.ts'
 import { FIELD_ID_BY_SLUG_DE, fieldSlugDe } from '@/lib/site/slugs-de.ts'
 import { FieldView } from '../../../../views/field.tsx'
@@ -21,7 +20,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { mount, id: slug } = await params
   const id = FIELD_ID_BY_SLUG_DE[slug]
   if (!id) return {}
-  const locale = SITES[mountInfo(mount).site].locale
+  const locale = mountInfo(mount).locale
   const name = fieldName(id, locale)
   return localMeta(params, (r) => r.field(id), (t) => ({ title: t.fields.metaTitle(name), description: t.meta.fieldDesc(name, fieldBlurb(id, locale)) }))
 }

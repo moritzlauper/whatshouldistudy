@@ -6,8 +6,8 @@ import { OrgPlans } from '../ui/org-plans.tsx'
 import { Sparkle } from '../ui/shapes.tsx'
 
 /** Plans for schools and counselling services. */
-export function OrgsView({ site, base }: SiteProps) {
-  const { locale } = kit(site, base)
+export function OrgsView({ site, base, locale: lang }: SiteProps) {
+  const { locale } = kit(site, base, lang)
   const o = orgsText(locale)
   return (
     <>

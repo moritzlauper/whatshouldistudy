@@ -1,8 +1,12 @@
 import type { Metadata } from 'next'
 import { dict } from '@/lib/site/dict.ts'
+import { mountInfo } from '@/lib/site/kit.ts'
 import { CallbackView } from '../../../../views/callback.tsx'
 
-export const metadata: Metadata = { title: dict('de-CH').meta.connecting, robots: { index: false } }
+export async function generateMetadata({ params }: { params: Promise<{ mount: string; provider: string }> }): Promise<Metadata> {
+  const { mount } = await params
+  return { title: dict(mountInfo(mount).locale).meta.connecting, robots: { index: false } }
+}
 
 export default async function Callback({ params }: { params: Promise<{ provider: string }> }) {
   const { provider } = await params

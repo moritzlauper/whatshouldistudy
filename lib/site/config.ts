@@ -11,7 +11,7 @@ import { fieldSlugDe } from './slugs-de.ts'
 export type SiteId = 'global' | 'ch' | 'de' | 'at'
 export type LocalSiteId = Exclude<SiteId, 'global'>
 /** Language and region: Swiss, German and Austrian Standard German differ in spelling and words. */
-export type Locale = 'en' | 'de-CH' | 'de-DE' | 'de-AT'
+export type Locale = 'en' | 'de-CH' | 'de-DE' | 'de-AT' | 'fr-CH' | 'it-CH'
 
 export interface SiteConf {
   id: SiteId
@@ -105,7 +105,16 @@ export const SITES: Record<SiteId, SiteConf> = {
 
 export const LOCAL_SITES: LocalSiteId[] = ['ch', 'de', 'at']
 export const isLocal = (site: SiteId): site is LocalSiteId => site !== 'global'
-export const isGerman = (locale: Locale) => locale !== 'en'
+export const isGerman = (locale: Locale) => locale.startsWith('de-')
+
+/** Path prefixes of the Swiss site's French and Italian versions, on its own domain. */
+export const CH_LANGUAGES = ['fr', 'it'] as const
+
+const ANCHORS: Record<'de' | 'fr' | 'it', Routes['anchors']> = {
+  de: { sources: 'quellen', questionnaire: 'fragebogen', prefs: 'wohin', programmes: 'studiengaenge', data: 'daten' },
+  fr: { sources: 'sources', questionnaire: 'questionnaire', prefs: 'preferences', programmes: 'programmes', data: 'donnees' },
+  it: { sources: 'fonti', questionnaire: 'questionario', prefs: 'preferenze', programmes: 'corsi', data: 'dati' },
+}
 
 export interface Routes {
   home: string
@@ -126,23 +135,26 @@ export interface Routes {
 }
 
 /** Links inside a site. `base` is '' on the site's own domain, '/schweiz' etc. under the global one. */
-export function routes(site: SiteId, base = ''): Routes {
+export function routes(site: SiteId, base = '', locale = SITES[site].locale): Routes {
   if (isLocal(site)) {
+    // French and Italian live below /fr and /it of the Swiss site, with the same page names.
+    const lang = locale === 'fr-CH' ? 'fr' : locale === 'it-CH' ? 'it' : ''
+    const root = lang ? `${base}/${lang}` : base
     return {
-      home: base || '/',
-      start: `${base}/start`,
-      results: `${base}/resultat`,
-      fields: `${base}/faecher`,
-      field: (id) => `${base}/faecher/${fieldSlugDe(id)}`,
-      how: `${base}/so-funktionierts`,
-      privacy: `${base}/datenschutz`,
-      terms: `${base}/agb`,
-      imprint: `${base}/impressum`,
-      unlocked: `${base}/freigeschaltet`,
-      orgs: `${base}/organisationen`,
-      orgWelcome: `${base}/organisationen/willkommen`,
-      callback: (p) => `${base}/callback/${p}`,
-      anchors: { sources: 'quellen', questionnaire: 'fragebogen', prefs: 'wohin', programmes: 'studiengaenge', data: 'daten' },
+      home: root || '/',
+      start: `${root}/start`,
+      results: `${root}/resultat`,
+      fields: `${root}/faecher`,
+      field: (id) => `${root}/faecher/${fieldSlugDe(id)}`,
+      how: `${root}/so-funktionierts`,
+      privacy: `${root}/datenschutz`,
+      terms: `${root}/agb`,
+      imprint: `${root}/impressum`,
+      unlocked: `${root}/freigeschaltet`,
+      orgs: `${root}/organisationen`,
+      orgWelcome: `${root}/organisationen/willkommen`,
+      callback: (p) => `${root}/callback/${p}`,
+      anchors: ANCHORS[lang || 'de'],
     }
   }
   return {
@@ -167,4 +179,5 @@ export function routes(site: SiteId, base = ''): Routes {
 export interface SiteProps {
   site: SiteId
   base: string
+  locale?: Locale
 }

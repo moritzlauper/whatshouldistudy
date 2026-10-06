@@ -3,7 +3,7 @@ import { headers } from 'next/headers'
 import { siteForHost } from '@/lib/site.ts'
 import { LOCAL_SITES, SITES, routes } from '@/lib/site/config.ts'
 import type { SiteId } from '@/lib/site/config.ts'
-import { languages, pageUrl } from '@/lib/site/meta.ts'
+import { languages, pageUrl, variants } from '@/lib/site/meta.ts'
 import type { Page } from '@/lib/site/meta.ts'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
 
@@ -30,9 +30,12 @@ function priority(page: Page): number {
 }
 
 // No lastModified: the pages carry no real edit date, and "now" on every request teaches crawlers to ignore it.
-const entries = (site: SiteId) => PAGES.map((page) => ({ url: pageUrl(site, page), priority: priority(page), alternates: { languages: languages(page) } }))
+const entries = (site: SiteId) =>
+  variants()
+    .filter((v) => v.site === site)
+    .flatMap((v) => PAGES.map((page) => ({ url: pageUrl(site, page, v.locale), priority: priority(page), alternates: { languages: languages(page) } })))
 
-/** One sitemap per host: a country domain lists its own pages, the global one everything still under it. */
+/** One sitemap per host: a country domain lists its own pages in each of its languages, the global one everything still under it. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const own = siteForHost((await headers()).get('host') ?? '')
   if (own) return entries(own)
