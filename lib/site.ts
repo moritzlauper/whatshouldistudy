@@ -7,7 +7,7 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://angebunden
 /** Path prefix of the whole app (next.config.ts basePath), '/whatshouldistudy' inside angebunden. */
 export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 /** Where the code lives. The site is open source (MIT). */
-export const SOURCE_URL = (process.env.NEXT_PUBLIC_SOURCE_URL || 'https://github.com/moritzlauper/angebunden/tree/main/whatshouldistudy').replace(/\/$/, '')
+export const SOURCE_URL = (process.env.NEXT_PUBLIC_SOURCE_URL || 'https://github.com/moritzlauper/whatshouldistudy').replace(/\/$/, '')
 export const CONTACT = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'hello@whatshouldistudy.com'
 
 /** A path inside the app as the browser must request it (fetch, plain links). next/link adds it by itself. */

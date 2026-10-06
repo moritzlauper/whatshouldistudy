@@ -27,3 +27,12 @@ Data
 The MIT licence above covers the code. The programme data the scrapers
 collect stays under the licences of its publishers (listed in README.md,
 "Programme database").
+
+---
+
+Paywall
+
+The licence covers the source code only. It does not grant access to the paid
+features of the hosted service. Do not circumvent, forge or share the payment
+and unlock mechanism (Stripe checkout, signed unlock tokens, the paid API
+endpoints) of the hosted site.

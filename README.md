@@ -24,18 +24,21 @@ CSV) is a one-time payment.
 **Open source, nothing stored.** The code is public under the MIT licence
 (`LICENSE`), and the site says so on the landing page, the start page, in the
 footer and in the privacy policy, with a link here
-(`NEXT_PUBLIC_SOURCE_URL`, default this folder on GitHub). There is no
+(`NEXT_PUBLIC_SOURCE_URL`, default this repository on GitHub). There is no
 database and no account; keep it that way.
 
 **Privacy model:** the analysis runs entirely in the browser. OAuth tokens stay
 in the tab, exports are unpacked on the device, raw history is discarded after
 analysis. The server only ever receives field ids, scores and filters.
 
-> This project lives in the `angebunden` repository for now and is meant to move
-> to its own repository. It is fully self-contained: own `package.json`,
-> lockfile and `pnpm-workspace.yaml`. Only the two workflows sit in the
-> repository's `.github/workflows/` (`wsis-daten.yml`, `wsis-pruefen.yml`).
-> Move them along and drop the `working-directory` lines.
+## Licence and paywall
+
+The code is MIT licensed (`LICENSE`). The paid programme list, the Stripe
+checkout and the signed unlock token are the way this project finances itself.
+The MIT licence lets you run your own copy, but the hosted service's payment
+and unlock tokens are not yours to bypass: do not forge tokens, reuse another
+person's token or call the paid endpoints of the hosted site without paying.
+AI coding assistants are given the same rule in `AGENTS.md`.
 
 ## Run it
 
@@ -224,8 +227,7 @@ Stripe dashboard (payment methods); Checkout shows it automatically for CHF.
 whatshouldistudy is its own Vercel project and joins angebunden.ch as a
 [multi-zone](https://nextjs.org/docs/app/guides/multi-zones) app:
 
-1. New Vercel project from this repository, **Root Directory**
-   `whatshouldistudy`, any project name. `vercel.json` skips
+1. New Vercel project from this repository, any project name. `vercel.json` skips
    builds when nothing in this folder changed and never deploys the data and
    bot branches.
 2. Settings → Deployment Protection: switch *Vercel Authentication* off for

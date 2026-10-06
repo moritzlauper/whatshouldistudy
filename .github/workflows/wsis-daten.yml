@@ -1,0 +1,172 @@
+name: whatshouldistudy data
+
+# Refreshes the study programme database of whatshouldistudy every Monday:
+# US (College Scorecard), UK (Discover Uni), France (Parcoursup), Switzerland
+# (BFS enrolment by institution and subject, graduate salaries, the
+# studyprogrammes.ch catalogue), research
+# profiles of universities worldwide (OpenAlex) and a world university
+# directory. The result goes to the branch «whatshouldistudy-data», always a
+# single commit, which the site reads via raw.githubusercontent.com.
+#
+# A scraper that fails doesn't stop the run: its data from the previous run is
+# kept (see scrapers/build.ts). Runs on other branches only
+# build and upload the result as an artifact, they never publish.
+#
+# Secrets: SCORECARD_API_KEY (free at api.data.gov/signup; without it the
+# DEMO_KEY stops after ~1,000 of ~2,700 US institutions), optionally
+# OPENALEX_API_KEY and OPENALEX_EMAIL. Variable: UK_DISCOVERUNI_URL, the
+# Discover Uni .zip (HESA's download page sits behind a bot challenge).
+
+on:
+  schedule:
+    - cron: '23 2 * * 1' # Mondays 02:23 UTC
+  workflow_dispatch:
+    inputs:
+      only:
+        description: 'Run only these sources (comma list: us,uk,fr,ch,de,at,research,directory); empty = all'
+        required: false
+        default: ''
+  push:
+    # Only main: work branches get the same commits, a second hour-long run
+    # there adds nothing. Test a branch with «Run workflow» instead.
+    branches: [main]
+    paths:
+      - 'scrapers/**'
+      - 'lib/taxonomy/**'
+      - 'lib/programmes.ts'
+      - '.github/workflows/wsis-daten.yml'
+
+concurrency:
+  group: wsis-daten-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  ZWEIG: whatshouldistudy-data
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Previous data
+        run: |
+          if git ls-remote --exit-code --heads origin "${ZWEIG}" >/dev/null 2>&1; then
+            git fetch -q --depth 1 origin "${ZWEIG}"
+            mkdir -p ../previous
+            git archive FETCH_HEAD | tar -x -C ../previous
+            echo "Previous data: $(ls ../previous)"
+          fi
+
+      - name: United States (College Scorecard)
+        if: ${{ !inputs.only || contains(inputs.only, 'us') }}
+        continue-on-error: true
+        env:
+          SCORECARD_API_KEY: ${{ secrets.SCORECARD_API_KEY }}
+        run: node scrapers/us-scorecard.ts
+
+      - name: United Kingdom (Discover Uni)
+        if: ${{ !inputs.only || contains(inputs.only, 'uk') }}
+        continue-on-error: true
+        env:
+          UK_DISCOVERUNI_URL: ${{ vars.UK_DISCOVERUNI_URL }}
+        run: node scrapers/uk-discoveruni.ts
+
+      - name: France (Parcoursup)
+        if: ${{ !inputs.only || contains(inputs.only, 'fr') }}
+        continue-on-error: true
+        run: node scrapers/fr-parcoursup.ts
+
+      - name: Switzerland (BFS, opendata.swiss)
+        if: ${{ !inputs.only || contains(inputs.only, 'ch') }}
+        continue-on-error: true
+        run: node scrapers/ch-bfs.ts
+
+      - name: Switzerland salaries (BFS graduate survey)
+        if: ${{ !inputs.only || contains(inputs.only, 'ch') }}
+        continue-on-error: true
+        run: node scrapers/ch-salaries.ts
+
+      - name: Switzerland programme catalogue (studyprogrammes.ch)
+        if: ${{ !inputs.only || contains(inputs.only, 'ch') }}
+        continue-on-error: true
+        run: node scrapers/ch-studyprogrammes.ts
+
+      - name: Germany (Studiensuche, Bundesagentur für Arbeit)
+        if: ${{ !inputs.only || contains(inputs.only, 'de') }}
+        continue-on-error: true
+        run: node scrapers/de-studiensuche.ts
+
+      - name: Austria (universities, FH, PH)
+        if: ${{ !inputs.only || contains(inputs.only, 'at') }}
+        continue-on-error: true
+        run: node scrapers/at-hochschulen.ts
+
+      - name: Research profiles worldwide (OpenAlex)
+        if: ${{ !inputs.only || contains(inputs.only, 'research') }}
+        continue-on-error: true
+        env:
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+          OPENALEX_EMAIL: ${{ secrets.OPENALEX_EMAIL }}
+        run: node scrapers/global-openalex.ts
+
+      - name: University directory worldwide
+        if: ${{ !inputs.only || contains(inputs.only, 'directory') }}
+        continue-on-error: true
+        run: node scrapers/global-directory.ts
+
+      - name: Build
+        run: |
+          ARGS="--out ../dist"
+          [ -d ../previous/programmes ] && ARGS="$ARGS --previous ../previous"
+          node scrapers/build.ts $ARGS
+          node -e '
+            const m = require("../dist/meta.json")
+            const lines = [`### ${m.totals.programmes.toLocaleString("en")} programmes, ${m.totals.institutions.toLocaleString("en")} institutions, ${m.totals.countries} countries`, ""]
+            for (const s of m.sources) lines.push(`- ${s.ok ? "✅" : "⚠️"} ${s.name}: ${s.count.toLocaleString("en")}${s.error ? ` (${s.error})` : ""}`)
+            lines.push("", `New in the last 90 days: ${m.totals.newLast90Days}`)
+            require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n")
+            if (!m.totals.programmes) { console.error("No programmes at all, not publishing."); process.exit(1) }
+          '
+
+      - name: Upload result
+        if: github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: whatshouldistudy-data
+          path: dist
+          retention-days: 7
+
+      - name: Publish to the data branch
+        if: github.ref == 'refs/heads/main'
+        working-directory: dist
+        env:
+          REPO_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+        run: |
+          set -euo pipefail
+          git init -q -b "${ZWEIG}"
+          git config user.name  "whatshouldistudy-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # The branch only carries data. Without this Vercel would try to build it as a site.
+          echo '{"git":{"deploymentEnabled":false}}' > vercel.json
+          git add -A
+          TOTAL=$(node -e 'console.log(require("./meta.json").totals.programmes)')
+          git commit -q -m "whatshouldistudy data: ${TOTAL} programmes"
+          git push -q --force "${REPO_URL}" "HEAD:${ZWEIG}"
