@@ -8,7 +8,7 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://whatshould
 export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 /** Where the code lives. The site is open source (MIT). */
 export const SOURCE_URL = (process.env.NEXT_PUBLIC_SOURCE_URL || 'https://github.com/moritzlauper/whatshouldistudy').replace(/\/$/, '')
-export const CONTACT = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'hello@whatshouldistudy.com'
+export const CONTACT = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'team@whatshouldistudy.com'
 
 /** A path inside the app as the browser must request it (fetch, plain links). next/link adds it by itself. */
 export function withBase(path: string): string {
