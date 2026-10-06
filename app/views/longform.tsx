@@ -102,9 +102,9 @@ export async function HowView({ site, base, locale }: SiteProps) {
   const sources = meta?.sources ?? []
   if (k.locale === 'fr-CH') {
     return (
-      <Page title="Comment ça marche" lead={`Nous analysons vos activités numériques, les comparons à ${FIELDS.length} domaines d’études et les mettons en regard de vos réponses. Voici les étapes et les limites du résultat.`}>
-        <h2>1. Vos sources restent dans votre navigateur</h2>
-        <p>Lorsque vous connectez YouTube, Spotify ou Reddit, vous vous authentifiez directement auprès du service. Le jeton de lecture reste dans votre navigateur et les données sont récupérées depuis votre appareil. Les fichiers Google Takeout, Spotify, Instagram et TikTok sont également lus localement. Ils ne sont pas envoyés à notre serveur.</p>
+      <Page title="Comment ça marche" lead={`Nous analysons tes activités numériques, les comparons à ${FIELDS.length} domaines d’études et les mettons en regard de tes réponses. Voici les étapes et les limites du résultat.`}>
+        <h2>1. Tes sources restent dans ton navigateur</h2>
+        <p>Lorsque tu connectes YouTube, Spotify ou Reddit, tu t’authentifies directement auprès du service. Le jeton de lecture reste dans ton navigateur et les données sont récupérées depuis ton appareil. Les fichiers Google Takeout, Spotify, Instagram et TikTok sont également lus localement. Ils ne sont pas envoyés à notre serveur.</p>
         <ul>
           <li><strong>YouTube et Google :</strong> abonnements, vidéos aimées, playlists, historique de visionnage et recherches, ainsi que les pages, cartes et applications répertoriées dans Google Takeout.</li>
           <li><strong>Spotify :</strong> podcasts, épisodes enregistrés, livres audio, playlists et artistes les plus écoutés.</li>
@@ -113,23 +113,23 @@ export async function HowView({ site, base, locale }: SiteProps) {
         </ul>
         <h2>2. Des signaux aux domaines d’études</h2>
         <p>Chaque élément est comparé à un lexique multilingue et à des thèmes associés aux domaines. Un abonnement ou un projet créé pèse davantage qu’une consultation isolée. Nous tenons compte de la répétition dans le temps, puis comparons la part de chaque domaine à sa fréquence générale. Les signaux provenant de sources différentes peuvent se renforcer.</p>
-        <h2>3. Vos réponses complètent l’analyse</h2>
+        <h2>3. Tes réponses complètent l’analyse</h2>
         <ul>
-          <li><strong>Intérêts :</strong> le modèle RIASEC de John Holland décrit six types d’intérêts. Le questionnaire et les thèmes de votre historique contribuent à votre profil.</li>
+          <li><strong>Intérêts :</strong> le modèle RIASEC de John Holland décrit six types d’intérêts. Le questionnaire et les thèmes de ton historique contribuent à ton profil.</li>
           <li><strong>Personnalité :</strong> le Mini-IPIP de Donnellan et ses collègues (2006) contient 20 questions issues de l’International Personality Item Pool. La personnalité pèse moins que les intérêts dans le calcul.</li>
-          <li><strong>Matières et priorités :</strong> vos matières préférées, vos points forts et ce que vous recherchez dans un métier sont comparés aux contenus des domaines.</li>
+          <li><strong>Matières et priorités :</strong> tes matières préférées, tes points forts et ce que tu recherches dans un métier sont comparés aux contenus des domaines.</li>
         </ul>
         <h2>4. Ce que le résultat ne dit pas</h2>
         <ul>
-          <li>Votre historique indique ce qui vous intéresse, pas vos notes ni vos compétences.</li>
+          <li>Ton historique indique ce qui t’intéresse, pas tes notes ni tes compétences.</li>
           <li>Les comptes partagés, la lecture automatique et les intérêts passagers peuvent fausser le profil.</li>
           <li>Les contenus dans d’autres langues que le français, l’anglais, l’allemand, l’italien et l’espagnol sont moins bien reconnus.</li>
-          <li>Le résultat est un point de départ. Vérifiez les plans d’études et échangez avec des étudiants avant de choisir.</li>
+          <li>Le résultat est un point de départ. Vérifie les plans d’études et échange avec des étudiants avant de choisir.</li>
         </ul>
         <h2 id="donnees">Données sur les formations</h2>
-        <p>Pour la Suisse, les données de l’Office fédéral de la statistique indiquent les effectifs par haute école, domaine et niveau. Une formation est répertoriée lorsqu’un établissement compte des étudiants en Bachelor ou en Master dans le domaine. Vérifiez les intitulés, spécialisations et délais sur le site de l’établissement.</p>
+        <p>Pour la Suisse, les données de l’Office fédéral de la statistique indiquent les effectifs par haute école, domaine et niveau. Une formation est répertoriée lorsqu’un établissement compte des étudiants en Bachelor ou en Master dans le domaine. Vérifie les intitulés, spécialisations et délais sur le site de l’établissement.</p>
         <DataSources k={k} sources={sources} updated={meta?.updated} sample={sample} />
-        <p>Les frais affichés sont ceux publiés par l’établissement pour votre catégorie de nationalité, ou une estimation signalée comme telle. Confirmez toujours les montants et conditions sur le site officiel.</p>
+        <p>Les frais affichés sont ceux publiés par l’établissement pour ta catégorie de nationalité, ou une estimation signalée comme telle. Confirme toujours les montants et conditions sur le site officiel.</p>
         <p className="mt-10"><Link href={k.r.start}>Essayer →</Link></p>
       </Page>
     )
@@ -353,41 +353,41 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
   const k = kit(site, base, locale)
   if (k.locale === 'fr-CH') {
     return (
-      <Page title="Confidentialité" lead="Nous ne conservons pas votre historique. L’analyse se déroule dans votre navigateur et les résumés restent sur votre appareil.">
+      <Page title="Confidentialité" lead="Nous ne conservons pas ton historique. L’analyse se déroule dans ton navigateur et les résumés restent sur ton appareil.">
         <p><strong>Traduction :</strong> en cas de divergence, la version allemande fait foi.</p>
         <h2>Responsable</h2>
         <p>{OPERATOR ? `${OPERATOR}. ` : ''}Contact : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Le droit suisse de la protection des données s’applique. Le RGPD s’applique également lorsque la législation européenne le prévoit.</p>
         <h2>Ce que nous conservons</h2>
-        <p>Nous n’avons ni compte ni base de données contenant vos réponses. Le résumé de l’analyse, vos réponses au questionnaire et vos préférences sont enregistrés dans le stockage local de votre navigateur. Vous pouvez tout supprimer depuis la page de démarrage. L’hébergeur Vercel conserve brièvement des journaux techniques. Stripe traite les paiements si vous achetez le rapport complet.</p>
+        <p>Nous n’avons ni compte ni base de données contenant tes réponses. Le résumé de l’analyse, tes réponses au questionnaire et tes préférences sont enregistrés dans le stockage local de ton navigateur. Tu peux tout supprimer depuis la page de démarrage. L’hébergeur Vercel conserve brièvement des journaux techniques. Stripe traite les paiements si tu achètes le rapport complet.</p>
         <h2>Sources connectées et fichiers</h2>
-        <p>Pour YouTube, Spotify et Reddit, vous vous authentifiez directement auprès du service. Le jeton de lecture reste dans la mémoire de session de l’onglet et disparaît lorsque vous le fermez. Votre navigateur récupère les données auprès du service. Les exports de Google Takeout, Spotify, Instagram et TikTok sont lus et décompressés sur votre appareil. Nous ne recevons ni ces fichiers ni les jetons.</p>
+        <p>Pour YouTube, Spotify et Reddit, tu t’authentifies directement auprès du service. Le jeton de lecture reste dans la mémoire de session de l’onglet et disparaît lorsque tu le fermes. Ton navigateur récupère les données auprès du service. Les exports de Google Takeout, Spotify, Instagram et TikTok sont lus et décompressés sur ton appareil. Nous ne recevons ni ces fichiers ni les jetons.</p>
         <h2>Recherche de formations</h2>
-        <p>Pour rechercher des formations, votre navigateur transmet les identifiants et scores de vos domaines principaux, jusqu’à 80 thèmes pondérés et vos filtres de recherche. Il ne transmet ni titres consultés, ni recherches, ni chaînes, ni noms permettant de vous identifier. Nous ne conservons pas cette requête.</p>
+        <p>Pour rechercher des formations, ton navigateur transmet les identifiants et scores de tes domaines principaux, jusqu’à 80 thèmes pondérés et tes filtres de recherche. Il ne transmet ni titres consultés, ni recherches, ni chaînes, ni noms permettant de t’identifier. Nous ne conservons pas cette requête.</p>
         <h2>Paiements et hébergement</h2>
-        <p>Stripe traite le paiement et nous indique s’il a abouti, sans nous transmettre les données de votre carte. Le site est hébergé par Vercel, qui peut enregistrer temporairement l’adresse IP, l’heure et la page consultée. Nous utilisons l’adresse IP uniquement pour déterminer le pays et afficher la devise correspondante.</p>
+        <p>Stripe traite le paiement et nous indique s’il a abouti, sans nous transmettre les données de ta carte. Le site est hébergé par Vercel, qui peut enregistrer temporairement l’adresse IP, l’heure et la page consultée. Nous utilisons l’adresse IP uniquement pour déterminer le pays et afficher la devise correspondante.</p>
         <h2>Données Google et YouTube</h2>
-        <p>Notre utilisation des données Google respecte la <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, y compris les règles Limited Use. Nous demandons uniquement l’autorisation de lecture <code>youtube.readonly</code> afin de calculer votre profil dans votre navigateur. Ces données ne nous sont pas transmises, ne servent pas à la publicité et ne servent pas à entraîner des modèles d’IA. Vous pouvez révoquer l’accès sur <a href="https://myaccount.google.com/permissions">les autorisations de votre compte Google</a>. Les <a href="https://www.youtube.com/t/terms">conditions YouTube</a> et la <a href="https://policies.google.com/privacy">politique de confidentialité de Google</a> s’appliquent également.</p>
+        <p>Notre utilisation des données Google respecte la <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, y compris les règles Limited Use. Nous demandons uniquement l’autorisation de lecture <code>youtube.readonly</code> afin de calculer ton profil dans ton navigateur. Ces données ne nous sont pas transmises, ne servent pas à la publicité et ne servent pas à entraîner des modèles d’IA. Tu peux révoquer l’accès sur <a href="https://myaccount.google.com/permissions">les autorisations de ton compte Google</a>. Les <a href="https://www.youtube.com/t/terms">conditions YouTube</a> et la <a href="https://policies.google.com/privacy">politique de confidentialité de Google</a> s’appliquent également.</p>
         <h2>Liens partagés</h2>
         <p>Le résultat partagé est placé après le caractère « # » dans le lien. Cette partie n’est pas envoyée aux serveurs. Toute personne disposant du lien peut voir les domaines, les scores et le profil qu’il contient. Le partage est facultatif.</p>
         <h2>Cookies et mesure</h2>
         {!GOOGLE_TAG && !VERCEL_ANALYTICS && <p>Nous n’utilisons ni cookies de suivi ni outil d’analyse d’audience.</p>}
         {VERCEL_ANALYTICS && (
-          <p>Vercel Web Analytics compte les pages vues sans cookies et sans identifiant qui vous reconnaîtrait d’un jour à l’autre. Vercel reçoit pour cela la page consultée, la page de provenance, votre pays et le type d’appareil. Nous retirons auparavant de l’adresse les éléments comme les codes de connexion ou les numéros de paiement. Base juridique : notre intérêt légitime à savoir comment le site est utilisé (art. 6, al. 1, let. f RGPD).</p>
+          <p>Vercel Web Analytics compte les pages vues sans cookies et sans identifiant qui te reconnaîtrait d’un jour à l’autre. Vercel reçoit pour cela la page consultée, la page de provenance, ton pays et le type d’appareil. Nous retirons auparavant de l’adresse les éléments comme les codes de connexion ou les numéros de paiement. Base juridique : notre intérêt légitime à savoir comment le site est utilisé (art. 6, al. 1, let. f RGPD).</p>
         )}
         {GOOGLE_TAG && (
           <>
-            <p>Pour savoir quelles publicités amènent des visiteurs et combien d’entre eux achètent le rapport, nous utilisons Google Analytics et Google Ads de Google Ireland Limited (Gordon House, Barrow Street, Dublin 4, Irlande). Google dépose pour cela des cookies et apprend quelles pages vous consultez et si vous affichez un résultat, commencez un achat ou payez, avec le montant et la devise. S’y ajoutent votre adresse IP et des informations sur le navigateur et l’appareil. Lors d’un achat, un hachage (SHA-256) de votre adresse e-mail est transmis à Google Ads afin d’attribuer l’achat à une annonce. L’adresse elle-même n’est pas transmise.</p>
-            <p>Votre historique, vos sources, vos réponses, vos domaines et votre résultat n’entrent jamais dans cette mesure. Nous n’utilisons pas les données de l’interface YouTube à des fins publicitaires.</p>
-            <p>La mesure dépend de l’endroit où vous vous trouvez. Depuis l’UE, l’EEE et le Royaume-Uni, nous ne déposons des cookies Google qu’avec votre consentement (art. 6, al. 1, let. a RGPD).{' '}
+            <p>Pour savoir quelles publicités amènent des visiteurs et combien d’entre eux achètent le rapport, nous utilisons Google Analytics et Google Ads de Google Ireland Limited (Gordon House, Barrow Street, Dublin 4, Irlande). Google dépose pour cela des cookies et apprend quelles pages tu consultes et si tu affiches un résultat, commences un achat ou paies, avec le montant et la devise. S’y ajoutent ton adresse IP et des informations sur le navigateur et l’appareil. Lors d’un achat, un hachage (SHA-256) de ton adresse e-mail est transmis à Google Ads afin d’attribuer l’achat à une annonce. L’adresse elle-même n’est pas transmise.</p>
+            <p>Ton historique, tes sources, tes réponses, tes domaines et ton résultat n’entrent jamais dans cette mesure. Nous n’utilisons pas les données de l’interface YouTube à des fins publicitaires.</p>
+            <p>La mesure dépend de l’endroit où tu te trouves. Depuis l’UE, l’EEE et le Royaume-Uni, nous ne déposons des cookies Google qu’avec ton consentement (art. 6, al. 1, let. a RGPD).{' '}
               {CONSENT_MODE === 'advanced'
                 ? 'Sans consentement, la balise Google envoie seulement des signaux sans cookies, par exemple qu’une page a été consultée, à partir desquels Google fait des estimations.'
                 : 'Sans consentement, la balise Google ne se charge pas.'}{' '}
-              Depuis la Suisse et tous les autres pays, la mesure est active tant que vous ne la refusez pas (art. 45c LTC). Vous pouvez modifier votre choix à tout moment via « Paramètres des cookies » en bas de chaque page.</p>
+              Depuis la Suisse et tous les autres pays, la mesure est active tant que tu ne la refuses pas (art. 45c LTC). Tu peux modifier ton choix à tout moment via « Paramètres des cookies » en bas de chaque page.</p>
             <p>Google peut transférer des données aux États-Unis et est certifié selon le EU-US Data Privacy Framework, y compris pour la Suisse. L’utilisation des données par Google est décrite sur <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.</p>
           </>
         )}
-        <h2>Vos droits et les mineurs</h2>
-        <p>Nous ne détenons pas de données personnelles issues de l’analyse et ne pouvons donc pas exporter ou supprimer des données que nous ne possédons pas. Vous gérez les données dans votre navigateur. Vous pouvez saisir l’autorité de protection des données de votre pays, en Suisse le Préposé fédéral à la protection des données et à la transparence. Pour toute question : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Si vous avez moins de 16 ans, parlez-en à vos parents avant de connecter des comptes ou d’effectuer un achat. En Autriche, cet âge est de 14 ans.</p>
+        <h2>Tes droits et les mineurs</h2>
+        <p>Nous ne détenons pas de données personnelles issues de l’analyse et ne pouvons donc pas exporter ou supprimer des données que nous ne possédons pas. Tu gères les données dans ton navigateur. Tu peux saisir l’autorité de protection des données de ton pays, en Suisse le Préposé fédéral à la protection des données et à la transparence. Pour toute question : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Si tu as moins de 16 ans, parles-en à tes parents avant de connecter des comptes ou d’effectuer un achat. En Autriche, cet âge est de 14 ans.</p>
       </Page>
     )
   }
@@ -629,9 +629,9 @@ export function TermsView({ site, base, locale }: SiteProps) {
     return (
       <Page title="Conditions">
         <p><strong>Traduction :</strong> en cas de divergence, la version allemande fait foi.</p>
-        <h2>Service</h2><p>{k.conf.name} fournit une orientation, pas une garantie. Les correspondances sont des estimations fondées sur vos données et sur des informations publiques qui peuvent être incomplètes ou obsolètes. Vérifiez les formations, les frais et les délais auprès de l’établissement avant de déposer votre candidature.</p>
-        <h2>Rapport complet</h2><p>Un paiement unique débloque le rapport complet dans le navigateur utilisé lors de l’achat, pour une durée de 12 mois. Les mises à jour hebdomadaires sont incluses. En cas de problème, contactez-nous dans les 14 jours pour demander un remboursement.</p>
-        <h2>YouTube et utilisation équitable</h2><p>En connectant YouTube, vous acceptez ses <a href="https://www.youtube.com/t/terms">conditions d’utilisation</a>. N’extrayez pas automatiquement les données de l’interface des formations et ne revendez pas ses résultats. Les données ouvertes restent disponibles auprès de leurs éditeurs selon leurs licences.</p>
+        <h2>Service</h2><p>{k.conf.name} fournit une orientation, pas une garantie. Les correspondances sont des estimations fondées sur tes données et sur des informations publiques qui peuvent être incomplètes ou obsolètes. Vérifie les formations, les frais et les délais auprès de l’établissement avant de déposer ta candidature.</p>
+        <h2>Rapport complet</h2><p>Un paiement unique débloque le rapport complet dans le navigateur utilisé lors de l’achat, pour une durée de 12 mois. Les mises à jour hebdomadaires sont incluses. En cas de problème, contacte-nous dans les 14 jours pour demander un remboursement.</p>
+        <h2>YouTube et utilisation équitable</h2><p>En connectant YouTube, tu acceptes ses <a href="https://www.youtube.com/t/terms">conditions d’utilisation</a>. N’extrais pas automatiquement les données de l’interface des formations et ne revends pas ses résultats. Les données ouvertes restent disponibles auprès de leurs éditeurs selon leurs licences.</p>
         <h2>Sources des données</h2><p>Suisse : Office fédéral de la statistique et studyprogrammes.ch (swissuniversities). Allemagne : Bundesagentur für Arbeit. Autriche : studienwahl.at (ministère fédéral). Autres sources : College Scorecard, Discover Uni, Parcoursup, OpenAlex et University Domains List, selon les licences indiquées par leurs éditeurs.</p>
         <h2>Droit applicable et contact</h2><p>Le droit suisse s’applique, sous réserve des règles impératives de protection des consommateurs. Contact : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
       </Page>

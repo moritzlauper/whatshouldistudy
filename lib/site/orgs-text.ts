@@ -197,10 +197,10 @@ const frCH: OrgsText = {
   },
 
   student: {
-    via: 'Débloquer via votre école',
-    note: 'Votre école ou votre service d’orientation prend ce rapport en charge.',
-    limit: 'Votre école a utilisé tous les rapports de ce mois. Vous pouvez toujours acheter le rapport vous-même.',
-    inactive: 'Le lien de votre école n’est plus actif.',
+    via: 'Débloquer via ton école',
+    note: 'Ton école ou ton service d’orientation prend ce rapport en charge.',
+    limit: 'Ton école a utilisé tous les rapports de ce mois. Tu peux toujours acheter le rapport toi-même.',
+    inactive: 'Le lien de ton école n’est plus actif.',
     failed: 'Le déblocage a échoué.',
   },
 }
