@@ -47,6 +47,8 @@ export interface Programme {
   focus?: string[]
   /** A short description from the institution. */
   description?: string
+  /** For a major listed as its own row: the id of the programme it belongs to. */
+  parent?: string
   source: string
   /** ISO date the programme first appeared in our data. */
   firstSeen?: string

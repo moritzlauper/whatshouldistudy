@@ -83,6 +83,22 @@ function focusOf(d: SpDetails): string[] {
   return out.slice(0, 8)
 }
 
+/**
+ * «Majors: Cast / Audiovisual Media, Game Design, …»: some schools (ZHdK) put
+ * their separate tracks in the description instead of the specialisation.
+ * Those are programmes of their own, with their own admission.
+ */
+const MAJORS = /^\s*(majors?|majorns|vertiefungen|studienrichtungen|fachrichtungen|orientations?|spécialisations?)\s*:\s*(.+)$/i
+
+export function majorsOf(d: SpDetails): string[] {
+  const m = MAJORS.exec(clean(d.description))
+  if (!m) return []
+  return m[2]
+    .split(/\s*,\s*/)
+    .map((x) => x.replace(/[.\s]+$/, '').trim())
+    .filter((x) => x.length >= 3 && x.length <= 60)
+}
+
 function years(d: SpDetails, level: Level): number {
   const sem = /(\d{1,2})/.exec(d.semester_count ?? '')?.[1]
   if (sem && Number(sem) >= 2 && Number(sem) <= 14) return Number(sem) / 2
@@ -134,6 +150,35 @@ export function parseSpDetails(d: SpDetails, level: Level, fetchedAt: string): P
   }
 }
 
+/**
+ * The catalogue entry as rows: one per major where the school lists majors
+ * («Bachelor in Design: Cast / Audiovisual Media»), else the programme itself.
+ * Each major gets its own fields and topics, so it can fit on its own.
+ */
+export function parseSpProgrammes(d: SpDetails, level: Level, fetchedAt: string): Programme[] {
+  const p = parseSpDetails(d, level, fetchedAt)
+  if (!p) return []
+  const majors = majorsOf(d)
+  if (majors.length < 2) return [p]
+  return majors.map((m) => {
+    const c = classify(m)
+    const own = FIELDS.map((f, i) => ({ id: f.id, raw: c.raw[i] }))
+      .filter((x) => x.raw >= 1.5)
+      .sort((a, b) => b.raw - a.raw)
+      .map((x) => x.id)
+    return {
+      ...p,
+      id: programmeId(['ch-sp', d.id, m]),
+      parent: p.id,
+      name: `${p.name}: ${m}`,
+      fields: [...new Set([...own.slice(0, 2), ...p.fields])].slice(0, 3),
+      focus: [m],
+      // Not the list of all majors: the other tracks shouldn't match your topics here.
+      description: `Einer von ${majors.length} Majors im ${p.name}.`,
+    }
+  })
+}
+
 async function json<T>(path: string): Promise<T> {
   const res = await fetchRetry(API + path, { headers: HEADERS })
   return (await res.json()) as T
@@ -165,8 +210,8 @@ async function main() {
       )
       for (const d of batch) {
         if (!d) continue
-        const p = parseSpDetails(d, level, fetchedAt)
-        if (p) programmes.push(p)
+        const rows = parseSpProgrammes(d, level, fetchedAt)
+        if (rows.length) programmes.push(...rows)
         else if (!findChInstitution(d.institute?.name ?? '')) unmatched.set(d.institute?.name ?? '?', (unmatched.get(d.institute?.name ?? '?') ?? 0) + 1)
         else unclassified++
       }
@@ -174,7 +219,7 @@ async function main() {
       await sleep(100)
     }
   }
-  log(`studyprogrammes.ch: ${programmes.length} programmes, ${programmes.filter((p) => p.focus?.length).length} with focus areas, ${unclassified} without a field`)
+  log(`studyprogrammes.ch: ${programmes.length} programmes, ${programmes.filter((p) => p.focus?.length).length} with focus areas, ${programmes.filter((p) => p.parent).length} majors as their own rows, ${unclassified} without a field`)
   if (unmatched.size) log(`  institutions not matched: ${[...unmatched].map(([n, c]) => `${n} (${c})`).join('; ')}`)
   if (programmes.length < 500) throw new Error(`only ${programmes.length} programmes, the API may have changed`)
   const out: ScrapeOutput = { source: 'ch-studyprogrammes', fetchedAt, programmes }

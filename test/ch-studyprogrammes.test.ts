@@ -21,3 +21,26 @@ test('reads a studyprogrammes.ch entry with its focus, own page and institution 
   assert.deepEqual(bern?.focus?.slice(0, 3), ['Soziale Ungleichheit', 'Migration', 'Bildungssoziologie'])
   assert.notDeepEqual(bern?.focus, luzern?.focus)
 })
+
+test('majors listed in the description become their own rows', async () => {
+  const { parseSpProgrammes } = await import('../scrapers/ch-studyprogrammes.ts')
+  const { textTopics } = await import('../lib/engine/classifier.ts')
+  const d = {
+    id: 99001,
+    institute: { name: 'Zürcher Hochschule der Künste', abbreviation: 'ZHdK' },
+    degree_level: { id: 0 },
+    name: 'Bachelor in Design',
+    description: 'Majors: Cast / Audiovisual Media, Game Design, Industrial Design, Interaction Design, Knowledge Visualization, Trends & Identity, Visual Communication',
+    ects_credits: '180',
+  }
+  const rows = parseSpProgrammes(d, 'bachelor', '2026-10-06')
+  assert.equal(rows.length, 7)
+  const cast = rows.find((r) => /Cast/.test(r.name))!
+  assert.equal(cast.name, 'Bachelor in Design: Cast / Audiovisual Media')
+  assert.ok(cast.parent)
+  assert.equal(cast.fields[0], 'film-production')
+  assert.equal(rows.find((r) => /Game Design/.test(r.name))!.fields[0], 'game-design')
+  // The other majors don't leak into this row's topics.
+  assert.ok(!textTopics(`${cast.name} \n ${(cast.focus ?? []).join(', ')} \n ${cast.description}`).some((k) => /game/.test(k)))
+  assert.equal(new Set(rows.map((r) => r.id)).size, 7)
+})

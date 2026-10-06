@@ -356,7 +356,8 @@ async function main() {
   for (const o of inputs.outputs) {
     for (const p of o.programmes) {
       // On the very first run nothing is "new"; mark everything as seen long ago.
-      p.firstSeen = firstSeen.get(p.id) ?? (isFirstRun ? '2000-01-01' : today)
+      // A major split out of a known programme isn't new.
+      p.firstSeen = firstSeen.get(p.id) ?? (p.parent ? firstSeen.get(p.parent) : undefined) ?? (isFirstRun ? '2000-01-01' : today)
       all.push(p)
     }
   }
