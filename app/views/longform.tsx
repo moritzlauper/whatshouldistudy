@@ -6,6 +6,7 @@ import type { Locale } from '@/lib/site/config.ts'
 import { getMeta } from '@/lib/server/data.ts'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
 import { CONTACT, SOURCE_URL } from '@/lib/site.ts'
+import { CONSENT_MODE, GOOGLE_TAG, VERCEL_ANALYTICS } from '@/lib/measure.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { Kit } from '@/lib/site/kit.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
@@ -292,6 +293,7 @@ export function PrivacyView({ site, base }: SiteProps) {
         <h2>Was wir speichern: nichts</h2>
         <p>
           Bei uns gibt es keine Datenbank, kein Konto und keine Kopie deiner Daten. Was die Analyse behält, eine Zusammenfassung, liegt nur im Speicher deines Browsers. Ein Klick auf «Alle meine Daten löschen» entfernt es. Zwei Dinge liegen nicht bei uns: Der Hoster Vercel führt kurz technische Protokolle, und wenn du bezahlst, speichert Stripe die Zahlung.
+          {GOOGLE_TAG && ' Dazu bekommt Google Messdaten zu unserer Werbung, wie unten unter «Cookies und Messung» beschrieben.'}
         </p>
 
         <h2>Open Source</h2>
@@ -334,12 +336,40 @@ export function PrivacyView({ site, base }: SiteProps) {
           Wenn du dein Resultat teilst, steckt es im Link nach dem «#». Diesen Teil schicken Browser an keinen Server, auch nicht an uns. Er enthält deine Fächer, Prozente und dein Profil, keine Videos, Suchen oder Namen. Wer den Link hat, sieht diese Angaben. Teilen ist freiwillig.
         </p>
 
-        <h2>Cookies und Analyse</h2>
-        <p>Wir setzen keine Tracking-Cookies und nutzen keine Analyse-Tools. Der Speicher im Browser (localStorage) dient nur den oben genannten Daten, die du selbst angestossen hast. Du löschst ihn mit «Alle meine Daten löschen».</p>
+        <h2>Cookies und Messung</h2>
+        {!GOOGLE_TAG && !VERCEL_ANALYTICS && <p>Wir setzen keine Tracking-Cookies und nutzen keine Analyse-Tools.</p>}
+        {VERCEL_ANALYTICS && (
+          <p>
+            Vercel Web Analytics zählt Seitenaufrufe ohne Cookies und ohne Kennung, die dich über mehrere Tage wiedererkennt. Vercel erfährt dafür die aufgerufene Seite, die verweisende Seite, dein Land und den Gerätetyp. Teile der Adresse wie Anmeldecodes oder Zahlungsnummern schneiden wir vorher ab.
+          </p>
+        )}
+        {GOOGLE_TAG && (
+          <>
+            <p>
+              Um zu sehen, welche Werbung Leute hierher bringt und wie viele davon den Report kaufen, nutzen wir Google Analytics und Google Ads von Google Ireland Limited (Gordon House, Barrow Street, Dublin 4, Irland). Google setzt dafür Cookies und erfährt, welche Seiten du aufrufst und ob du ein Resultat ansiehst, den Kauf beginnst oder bezahlst, mit Betrag und Währung. Dazu kommen deine IP-Adresse und Angaben zu Browser und Gerät. Bei einem Kauf geht ausserdem ein Hash deiner E-Mail-Adresse (SHA-256) an Google Ads, damit Google den Kauf einer Anzeige zuordnen kann. Die Adresse selbst geht nicht an Google.
+            </p>
+            <p>
+              Dein Verlauf, deine Quellen, deine Antworten, deine Fächer und dein Resultat fliessen nie in diese Messung ein. Daten aus der YouTube-Schnittstelle nutzen wir nicht für Werbung.
+            </p>
+            <p>
+              Ob die Messung läuft, hängt davon ab, wo du bist. Aus der EU, dem EWR und Grossbritannien setzen wir Google-Cookies erst, wenn du zustimmst.{' '}
+              {CONSENT_MODE === 'advanced'
+                ? 'Ohne Zustimmung schickt der Google-Tag nur Signale ohne Cookies, etwa dass eine Seite aufgerufen wurde, aus denen Google Zahlen hochrechnet.'
+                : 'Ohne Zustimmung lädt der Google-Tag nicht.'}{' '}
+              Aus der Schweiz und allen anderen Ländern läuft die Messung, bis du sie ablehnst. Deine Wahl änderst du jederzeit über «Cookie-Einstellungen» unten auf jeder Seite.
+            </p>
+            <p>
+              Google kann Daten in die USA übermitteln und ist unter dem EU-US Data Privacy Framework zertifiziert, auch für die Schweiz. Wie Google die Daten nutzt, steht unter <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.
+            </p>
+          </>
+        )}
+        <p>Den Speicher im Browser (localStorage) nutzen wir sonst nur für die oben genannten Daten{GOOGLE_TAG ? ' und deine Cookie-Wahl' : ''}. Du löschst ihn mit «Alle meine Daten löschen».</p>
 
         <h2>Rechtsgrundlagen</h2>
         <p>
           Die Analyse in deinem Browser und die Suche nach Studiengängen erfolgen, weil du sie anforderst (Art. 6 Abs. 1 lit. b DSGVO). Die Bezahlung dient dem Vertrag und den Aufbewahrungspflichten (lit. b und c). Die technischen Protokolle beim Hoster dienen dem sicheren Betrieb (lit. f). Vercel und Stripe sind unter dem EU-US Data Privacy Framework zertifiziert, auch für die Schweiz.
+          {GOOGLE_TAG && ' Die Messung mit Google stützt sich in der EU, im EWR und in Grossbritannien auf deine Einwilligung (lit. a, in Deutschland zusätzlich § 25 TDDDG, in Österreich § 165 TKG), in der Schweiz auf Art. 45c FMG mit der Möglichkeit, abzulehnen.'}
+          {VERCEL_ANALYTICS && ' Die Besuchszählung von Vercel dient unserem berechtigten Interesse zu wissen, wie die Seite genutzt wird (lit. f).'}
         </p>
         {EU_REPRESENTATIVE && (
           <>
@@ -364,6 +394,7 @@ export function PrivacyView({ site, base }: SiteProps) {
       <h2>What we store: nothing</h2>
       <p>
         There is no database, no account and no copy of your data on our side. What the analysis keeps, a summary, lives only in your browser’s storage, and «Delete all my data» removes it. Two things are outside our hands: our host Vercel keeps short-lived technical logs, and if you pay, Stripe stores the payment.
+        {GOOGLE_TAG && ' Google also receives measurement data about our ads, as described under «Cookies and measurement» below.'}
       </p>
 
       <h2>Open source</h2>
@@ -401,8 +432,32 @@ export function PrivacyView({ site, base }: SiteProps) {
         This site uses YouTube API Services. When you connect YouTube, the <a href="https://www.youtube.com/t/terms">YouTube Terms of Service</a> and the <a href="https://policies.google.com/privacy">Google Privacy Policy</a> also apply.
       </p>
 
-      <h2>Cookies and analytics</h2>
-      <p>We set no tracking cookies. Browser storage is used only for the data described above.</p>
+      <h2>Cookies and measurement</h2>
+      {!GOOGLE_TAG && !VERCEL_ANALYTICS && <p>We set no tracking cookies and use no analytics tools.</p>}
+      {VERCEL_ANALYTICS && (
+        <p>
+          Vercel Web Analytics counts page views without cookies and without an identifier that recognises you across days. Vercel sees the page, the referring page, your country and the device type. We cut parts of the address such as sign-in codes or payment ids before sending.
+        </p>
+      )}
+      {GOOGLE_TAG && (
+        <>
+          <p>
+            To see which ads bring people here and how many of them buy the report, we use Google Analytics and Google Ads by Google Ireland Limited (Gordon House, Barrow Street, Dublin 4, Ireland). Google sets cookies for this and learns which pages you open and whether you view a result, start checkout or pay, with amount and currency, along with your IP address and browser and device details. When you buy, a hash of your email address (SHA-256) also goes to Google Ads so Google can match the purchase to an ad. The address itself does not.
+          </p>
+          <p>Your history, your sources, your answers, your fields and your result never go into this measurement. Data from the YouTube API is not used for advertising.</p>
+          <p>
+            Whether it runs depends on where you are. From the EU, the EEA and the UK we set Google cookies only after you agree.{' '}
+            {CONSENT_MODE === 'advanced'
+              ? 'Without consent the Google tag sends only cookieless signals, such as that a page was opened, which Google uses to estimate totals.'
+              : 'Without consent the Google tag does not load.'}{' '}
+            From Switzerland and all other countries measurement runs until you refuse it. You can change your choice at any time under «Cookie settings» at the bottom of every page.
+          </p>
+          <p>
+            Google may transfer data to the US and is certified under the EU-US Data Privacy Framework. How Google uses the data: <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.
+          </p>
+        </>
+      )}
+      <p>Otherwise browser storage is used only for the data described above{GOOGLE_TAG ? ' and your cookie choice' : ''}.</p>
 
       <h2>Your rights</h2>
       <p>

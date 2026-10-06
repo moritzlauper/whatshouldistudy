@@ -52,7 +52,7 @@ const en = {
     privacyTitle: 'Your data stays yours.',
     privacyBody:
       'The analysis runs in your browser. Sign-ins are read-only and their tokens never touch our server. Files you drop are unpacked on your device. What’s kept is a summary, in your browser, deleted with one click. To find programmes we only send your top fields and filters.',
-    privacyPoints: ['We store nothing: no database, no account, no email', 'No tracking cookies', 'Read-only access you can revoke anytime', 'Raw history is thrown away after the analysis', 'Every step of the model is documented'],
+    privacyPoints: ['We store nothing: no database, no account, no email', 'No ad tracking from your history, ever', 'Read-only access you can revoke anytime', 'Raw history is thrown away after the analysis', 'Every step of the model is documented'],
     priceTitle: 'Free result. Full report when you’re ready.',
     free: 'Free',
     freeList: ['Your fields from place 2 down, with the evidence behind each', 'Hidden matches you’d never have checked', 'Interest profile (RIASEC) and Big Five', 'How your interests moved over the years', 'How many programmes match, and where'],
@@ -386,6 +386,15 @@ const en = {
     whereLocal: (f: string) => `Where to study ${f}`,
     whereLocalSub: 'Universities that teach this field, from official statistics.',
   },
+  consent: {
+    ask: 'May we measure which ads bring people here? Google Analytics and Google Ads set cookies for that. Your history, your answers and your result never go into it.',
+    info: 'We use Google Analytics and Google Ads to measure which ads bring people here. Your history, your answers and your result never go into it.',
+    accept: 'Allow',
+    ok: 'OK',
+    deny: 'Refuse',
+    more: 'Privacy',
+    settings: 'Cookie settings',
+  },
   trust: {
     openSource: 'Open source',
     nothingStored: 'We store nothing',
@@ -613,7 +622,7 @@ const deCH: Dict = {
     privacyTitle: 'Deine Daten bleiben deine.',
     privacyBody:
       'Die Analyse läuft in deinem Browser. Anmeldungen sind nur lesend, die Schlüssel landen nie auf unserem Server. Dateien, die du reinziehst, werden auf deinem Gerät entpackt. Übrig bleibt eine Zusammenfassung in deinem Browser, mit einem Klick gelöscht. Für die Studiengänge schicken wir nur deine Top-Fächer und Filter.',
-    privacyPoints: ['Wir speichern nichts: keine Datenbank, kein Konto, keine E-Mail', 'Keine Tracking-Cookies', 'Nur Lesezugriff, jederzeit widerrufbar', 'Der Rohverlauf wird nach der Analyse verworfen', 'Jeder Schritt des Modells ist offengelegt'],
+    privacyPoints: ['Wir speichern nichts: keine Datenbank, kein Konto, keine E-Mail', 'Dein Verlauf fliesst nie in Werbung', 'Nur Lesezugriff, jederzeit widerrufbar', 'Der Rohverlauf wird nach der Analyse verworfen', 'Jeder Schritt des Modells ist offengelegt'],
     priceTitle: 'Resultat gratis. Den vollen Report, wenn du so weit bist.',
     free: 'Gratis',
     freeList: ['Deine Fächer ab Platz 2, mit den Belegen dazu', 'Versteckte Treffer, an die du nie gedacht hättest', 'Interessenprofil (RIASEC) und Big Five', 'Wie sich deine Interessen über die Jahre verschoben haben', 'Wie viele Studiengänge passen, und wo'],
@@ -986,6 +995,15 @@ const deCH: Dict = {
     metaTitle: (f: string) => `${f} studieren: passt das zu mir?`,
     whereLocal: (f: string) => `Wo du ${f} in der Schweiz studieren kannst`,
     whereLocalSub: 'Hochschulen mit Bachelor- oder Master-Studierenden in diesem Fach, laut Bundesamt für Statistik.',
+  },
+  consent: {
+    ask: 'Dürfen wir messen, welche Werbung Leute hierher bringt? Google Analytics und Google Ads setzen dafür Cookies. Dein Verlauf, deine Antworten und dein Resultat fliessen nie ein.',
+    info: 'Wir messen mit Google Analytics und Google Ads, welche Werbung Leute hierher bringt. Dein Verlauf, deine Antworten und dein Resultat fliessen nie ein.',
+    accept: 'Erlauben',
+    ok: 'OK',
+    deny: 'Ablehnen',
+    more: 'Datenschutz',
+    settings: 'Cookie-Einstellungen',
   },
   trust: {
     openSource: 'Open Source',

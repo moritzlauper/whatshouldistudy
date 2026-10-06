@@ -22,6 +22,7 @@ import { useConfig } from './price.tsx'
 import type { Config } from './price.tsx'
 import { useSite } from './site-context.tsx'
 import { Burst } from './shapes.tsx'
+import { measureCheckout } from '@/lib/measure.ts'
 
 interface Teaser {
   total: number
@@ -111,6 +112,7 @@ function Locked({ teaser, config, results, hideFirst }: { teaser: Teaser | null;
   async function checkout() {
     setBusy(true)
     setError('')
+    measureCheckout(config?.price ?? { currency: conf.currency, amount: 15 })
     try {
       const res = await fetch(withBase(`/api/checkout?site=${site}&back=${encodeURIComponent(base)}&o=${encodeURIComponent(window.location.origin)}`), { method: 'POST' })
       const j = (await res.json()) as { url?: string; error?: string }

@@ -22,6 +22,7 @@ import { Contributions } from '../ui/contributions.tsx'
 import { useConfig } from '../ui/price.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 import { useSite } from '../ui/site-context.tsx'
+import { measureResult } from '@/lib/measure.ts'
 
 const CARD_COLORS = ['var(--pink)', 'var(--sky)', 'var(--lime)', 'var(--yellow)', 'var(--orange)', 'var(--violet)']
 const BIG5_COLORS: Record<string, string> = { O: 'var(--pink)', C: 'var(--sky)', E: 'var(--yellow)', A: 'var(--lime)', N: 'var(--orange)' }
@@ -75,6 +76,11 @@ export function ResultsView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [own])
   const prefs: Preferences = isShared ? { ...state.prefs, ...(shared as Snapshot).prefs } : state.prefs
+  // The step from analysis to result, for ads: that it happened, nothing of what it says.
+  useEffect(() => {
+    if (own && (summaries.length > 0 || Object.keys(state.answers.riasec ?? {}).length >= 6)) measureResult()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [own])
 
   if (shared === 'broken') {
     return (

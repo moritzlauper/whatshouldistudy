@@ -18,6 +18,7 @@ import { useSite } from '../ui/site-context.tsx'
 import { GitHubMark } from '../ui/trust.tsx'
 import { Sparkle } from '../ui/shapes.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
+import { measureConnect } from '@/lib/measure.ts'
 
 type Running = { source: string; message: string; count?: number } | null
 
@@ -44,6 +45,7 @@ export function StartView() {
 
   async function connect(p: Provider) {
     setErrors((x) => ({ ...x, [p]: '' }))
+    measureConnect(p === 'google' ? 'youtube' : p)
     try {
       await startAuth(p, { site, base })
     } catch (e) {
@@ -55,6 +57,7 @@ export function StartView() {
   async function onFiles(files: File[], card: string) {
     if (!files.length) return
     setErrors((x) => ({ ...x, [card]: '' }))
+    measureConnect('export')
     try {
       let result = await readExports(files, progress(card))
       // With a YouTube sign-in in this tab, ask YouTube itself what you watch:
@@ -90,6 +93,7 @@ export function StartView() {
 
   async function github(username: string) {
     setErrors((x) => ({ ...x, github: '' }))
+    measureConnect('github')
     try {
       setSummary(await collectGitHub(username, progress('github')))
     } catch (e) {

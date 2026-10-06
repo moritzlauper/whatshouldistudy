@@ -86,6 +86,12 @@ export function stripeAmount(p: Price): number {
   return ZERO_DECIMAL.has(p.currency) ? p.amount : p.amount * 100
 }
 
+/** Back from Stripe's smallest unit, e.g. amount_total of a Checkout session. */
+export function fromStripeAmount(amount: number, currency: string): Price {
+  const cur = currency.toUpperCase()
+  return { currency: cur, amount: ZERO_DECIMAL.has(cur) ? amount : amount / 100 }
+}
+
 export function formatPrice(p: Price, locale = 'en'): string {
   try {
     return new Intl.NumberFormat(locale, { style: 'currency', currency: p.currency, maximumFractionDigits: 0 }).format(p.amount)

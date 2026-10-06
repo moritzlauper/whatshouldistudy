@@ -4,6 +4,8 @@ import { withBase } from '@/lib/site.ts'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { update } from '@/lib/store.ts'
+import { measurePurchase } from '@/lib/measure.ts'
+import type { Price } from '@/lib/pricing.ts'
 import { useSite } from '../ui/site-context.tsx'
 import { Burst } from '../ui/shapes.tsx'
 
@@ -20,9 +22,10 @@ export function UnlockedView() {
     const sid = new URLSearchParams(window.location.search).get('session_id') ?? ''
     fetch(withBase(`/api/unlock?session_id=${encodeURIComponent(sid)}`))
       .then(async (res) => {
-        const j = (await res.json()) as { token?: string; expiresAt?: number; error?: string }
+        const j = (await res.json()) as { token?: string; expiresAt?: number; error?: string; price?: Price; emailHash?: string }
         if (!j.token || !j.expiresAt) throw new Error(j.error ?? t.misc.couldNotUnlock)
         update((s) => ({ ...s, unlock: { token: j.token!, expiresAt: j.expiresAt! } }))
+        if (j.price) measurePurchase({ id: sid, amount: j.price.amount, currency: j.price.currency, emailHash: j.emailHash })
         router.replace(`${r.results}#${r.anchors.programmes}`)
       })
       .catch((e: Error) => setError(e.message))

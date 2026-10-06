@@ -6,6 +6,7 @@ import { Logo, Wordmark } from './logo.tsx'
 import { SiteProvider } from './site-context.tsx'
 import { SiteFlag, Sparkle } from './shapes.tsx'
 import { GitHubMark } from './trust.tsx'
+import { ConsentLink, Measurement } from './measurement.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 
 const ALL: SiteId[] = ['global', 'ch', 'de', 'at']
@@ -66,6 +67,7 @@ export function Shell({ site, base, children }: SiteProps & { children: React.Re
             <Link href={r.privacy} className="opacity-80 hover:opacity-100">{t.footer.privacy}</Link>
             <Link href={r.terms} className="opacity-80 hover:opacity-100">{t.footer.terms}</Link>
             <Link href={r.imprint} className="opacity-80 hover:opacity-100">{t.footer.imprint}</Link>
+            <ConsentLink />
             <a href={SOURCE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-semibold opacity-90 hover:opacity-100">
               <GitHubMark /> {t.trust.footer}
             </a>
@@ -80,6 +82,7 @@ export function Shell({ site, base, children }: SiteProps & { children: React.Re
           </div>
         </div>
       </footer>
+      <Measurement />
     </SiteProvider>
   )
 }

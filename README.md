@@ -206,6 +206,33 @@ Next countries with official open data to add: Netherlands (Studiekeuzedatabase,
 licence on request), Italy (Universitaly), Spain (QEDU), Australia (QILT),
 Canada.
 
+## Measurement
+
+`lib/measure.ts` and `app/ui/measurement.tsx`, configured with the variables
+under *Measurement* in `.env.example`; without them nothing loads.
+
+- **Google tag** (gtag.js) with GA4 and Google Ads, Consent Mode v2. The
+  country comes from `/api/config` (`x-vercel-ip-country`): EU/EEA and UK
+  visitors are asked first (opt-in), everyone else, Switzerland included, gets
+  a notice and runs until they refuse (opt-out, Art. 45c FMG). Where consent is
+  missing, `NEXT_PUBLIC_CONSENT_MODE=advanced` (default) still loads the tag
+  denied for cookieless pings; `basic` loads nothing. «Cookie settings» in the
+  footer reopens the choice.
+- **Events:** `page_view` by hand on each route with a cleaned address (only
+  `utm_*` and click ids survive, OAuth callbacks are never measured),
+  `connect_source` (kind only), `generate_lead` (own result shown, once per
+  session), `begin_checkout`, `purchase` (Stripe session id as transaction id,
+  amount and currency from Stripe). Each of the last three can also fire a
+  Google Ads conversion by label. Purchases carry a SHA-256 of the buyer's email
+  for enhanced conversions, hashed in `/api/unlock`.
+- **Never measured:** anything derived from the sources or the questionnaire.
+  YouTube API data is under Google's Limited Use rules and may not reach
+  advertising, not even as a field id.
+- **Vercel Web Analytics** for cookieless page counts of every visitor
+  (`NEXT_PUBLIC_VERCEL_ANALYTICS=1`).
+
+The privacy page describes exactly what is switched on.
+
 ## Paywall
 
 `/api/checkout` creates a Stripe Checkout session (plain REST, no SDK);
