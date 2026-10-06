@@ -82,17 +82,23 @@ export async function rank(req: RankRequest): Promise<RankResult> {
     if (!shard) continue
     for (const p of shard.programmes) {
       // Its best requested field decides; secondary fields count a little less.
+      // A programme whose focus also covers another of your fields gets a bit
+      // on top, so two masters in the same subject come apart by focus.
       let best = 0
       let bestField = ''
+      const vs: number[] = []
       p.fields.forEach((fid, i) => {
         const s = scoreOf.get(fid)
         if (s === undefined) return
         const v = s * (i === 0 ? 1 : 0.85) * (0.85 + 0.15 * p.fieldConfidence)
+        vs.push(v)
         if (v > best) {
           best = v
           bestField = fid
         }
       })
+      vs.sort((a, b) => b - a)
+      if (vs.length > 1) best = Math.min(99, best + 0.08 * vs[1])
       const prev = byId.get(p.id)
       if (prev && prev.match >= best) continue
       const fee = feeFor(p, req.prefs.origin)

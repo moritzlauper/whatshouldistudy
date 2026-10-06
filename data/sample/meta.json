@@ -38,6 +38,18 @@
       "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
+      "id": "ch-studyprogrammes",
+      "name": "studyprogrammes.ch (swissuniversities)",
+      "countries": [
+        "CH"
+      ],
+      "url": "https://www.studyprogrammes.ch",
+      "licence": "Public catalogue of swissuniversities; descriptions © the institutions",
+      "ok": true,
+      "count": 3,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
       "id": "ch-bfs-salaries",
       "name": "Erwerbseinkommen ein Jahr nach Studienabschluss (Bundesamt für Statistik, EHA)",
       "countries": [
@@ -321,7 +333,7 @@
     },
     "economics": {
       "AT": 4,
-      "CH": 6,
+      "CH": 7,
       "DE": 3,
       "FR": 1,
       "GB": 1,
@@ -366,10 +378,12 @@
     },
     "sociology": {
       "AT": 6,
+      "CH": 2,
       "FR": 1
     },
     "anthropology": {
       "AT": 1,
+      "CH": 1,
       "GB": 1
     },
     "social-work": {
@@ -459,14 +473,15 @@
     },
     "culinary-arts": {},
     "agriculture": {
+      "CH": 1,
       "DE": 4
     },
     "aviation": {}
   },
   "totals": {
-    "programmes": 777,
+    "programmes": 780,
     "countries": 6,
-    "institutions": 49,
+    "institutions": 50,
     "newLast90Days": 0
   },
   "unclassified": 0,
@@ -487,12 +502,12 @@
       "byType": {}
     },
     "CH": {
-      "programmes": 117,
-      "institutions": 14,
+      "programmes": 120,
+      "institutions": 15,
       "byType": {
-        "uni": 33,
+        "fh": 59,
+        "uni": 35,
         "eth": 15,
-        "fh": 58,
         "ph": 11
       }
     },

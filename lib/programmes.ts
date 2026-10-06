@@ -43,6 +43,10 @@ export interface Programme {
   admission?: string
   /** Swiss institution type: uni, eth, fh, ph. */
   institutionType?: string
+  /** Specialisations and keywords, where the source lists them. */
+  focus?: string[]
+  /** A short description from the institution. */
+  description?: string
   source: string
   /** ISO date the programme first appeared in our data. */
   firstSeen?: string

@@ -476,7 +476,7 @@
     "salaryPercentile": 0.06
   },
   "economics": {
-    "programmes": 39,
+    "programmes": 40,
     "countries": 6,
     "usMedianEarnings": 57424.5,
     "ch": {
@@ -582,8 +582,8 @@
     "chSalaryPercentile": 1
   },
   "sociology": {
-    "programmes": 7,
-    "countries": 2,
+    "programmes": 9,
+    "countries": 3,
     "ch": {
       "year": "2024",
       "uhMaster": 87800
@@ -591,8 +591,8 @@
     "chSalaryPercentile": 0.49
   },
   "anthropology": {
-    "programmes": 2,
-    "countries": 2,
+    "programmes": 3,
+    "countries": 3,
     "ch": {
       "year": "2024",
       "uhMaster": 87800
@@ -810,8 +810,8 @@
     "chSalaryPercentile": 0.44
   },
   "agriculture": {
-    "programmes": 4,
-    "countries": 1,
+    "programmes": 5,
+    "countries": 2,
     "ch": {
       "year": "2024",
       "uhMaster": 84500,

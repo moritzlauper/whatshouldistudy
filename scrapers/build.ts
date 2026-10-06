@@ -13,7 +13,7 @@
  */
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import type { DataMeta, FieldStat, Programme, ProgrammeShard, ResearchInstitution, ResearchShard, SourceStatus } from '../lib/programmes.ts'
+import type { DataMeta, FieldStat, Level, Programme, ProgrammeShard, ResearchInstitution, ResearchShard, SourceStatus } from '../lib/programmes.ts'
 import { FIELDS } from '../lib/taxonomy/fields.ts'
 import { FIXTURES, OUT, ROOT, csvObjects, fetchRetry, log, readJson, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
@@ -25,6 +25,8 @@ import { rankInstitutions } from './global-openalex.ts'
 import type { RawInstitution } from './global-openalex.ts'
 import { buildDirectory } from './global-directory.ts'
 import { parseRows as parseChRows } from './ch-bfs.ts'
+import { parseSpDetails } from './ch-studyprogrammes.ts'
+import type { SpDetails } from './ch-studyprogrammes.ts'
 import { parseAngebot } from './de-studiensuche.ts'
 import type { RawAngebot } from './de-studiensuche.ts'
 import { parseItem as parseAtItem } from './at-hochschulen.ts'
@@ -32,6 +34,8 @@ import type { ListItem as AtListItem } from './at-hochschulen.ts'
 import type { DirectoryEntry, RawUniversity } from './global-directory.ts'
 import { chSalaryFor, chSalaryValue } from '../lib/ch-salary.ts'
 import type { ChSalaryTable } from '../lib/ch-salary.ts'
+
+const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-studyprogrammes', 'ch-bfs', 'de-studiensuche', 'at-studienwahl']
 
 const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>> = [
   {
@@ -54,6 +58,13 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['FR'],
     url: 'https://data.enseignementsup-recherche.gouv.fr/',
     licence: 'Licence Ouverte 2.0',
+  },
+  {
+    id: 'ch-studyprogrammes',
+    name: 'studyprogrammes.ch (swissuniversities)',
+    countries: ['CH'],
+    url: 'https://www.studyprogrammes.ch',
+    licence: 'Public catalogue of swissuniversities; descriptions © the institutions',
   },
   {
     id: 'ch-bfs-salaries',
@@ -126,7 +137,7 @@ interface Inputs {
 function readOutputs(): Inputs {
   const status = new Map<string, Partial<SourceStatus>>()
   const outputs: ScrapeOutput[] = []
-  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'de-studiensuche', 'at-studienwahl']) {
+  for (const id of PROGRAMME_SOURCES) {
     const o = readJson<ScrapeOutput>(join(OUT, `${id}.json`))
     if (o) {
       outputs.push(o)
@@ -173,6 +184,13 @@ function readFixtures(): Inputs {
     { source: 'us-college-scorecard', fetchedAt: at, programmes: us },
     { source: 'uk-discover-uni', fetchedAt: at, programmes: uk },
     { source: 'fr-parcoursup', fetchedAt: at, programmes: fr },
+    {
+      source: 'ch-studyprogrammes',
+      fetchedAt: at,
+      programmes: readJson<Array<{ level: Level; d: SpDetails }>>(join(FIXTURES, 'ch-studyprogrammes.json'))!
+        .map((x) => parseSpDetails(x.d, x.level, at))
+        .filter((p): p is Programme => !!p),
+    },
     { source: 'ch-bfs', fetchedAt: at, programmes: ch },
     { source: 'de-studiensuche', fetchedAt: at, programmes: de },
     { source: 'at-studienwahl', fetchedAt: at, programmes: atItems },
@@ -205,7 +223,7 @@ function previousFirstSeen(dir: string | undefined): Map<string, string> {
  */
 function carryOver(inputs: Inputs, dir: string) {
   const prevMeta = readJson<DataMeta>(join(dir, 'meta.json'))
-  for (const id of ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'de-studiensuche', 'at-studienwahl']) {
+  for (const id of PROGRAMME_SOURCES) {
     const fresh = inputs.outputs.find((o) => o.source === id && o.programmes.length)
     const prevCount = prevMeta?.sources.find((s) => s.id === id)?.count ?? 0
     // A source that suddenly shrinks by half is more likely broken than real.
@@ -253,6 +271,31 @@ function carryOver(inputs: Inputs, dir: string) {
     inputs.status.set('global-directory', { ...prevMeta?.sources.find((x) => x.id === 'global-directory'), ok: false, error: 'failed; kept data from the previous run' })
     log('Carry-over: university directory from the previous run')
   }
+}
+
+/**
+ * Switzerland has two sources: the studyprogrammes.ch catalogue (real
+ * programmes with their focus) and BFS enrolment (one entry per institution,
+ * subject and level, with student numbers). Where the catalogue covers an
+ * institution, level and field, the BFS entry goes; its student number moves
+ * over when exactly one catalogue programme matches.
+ */
+function dedupeSwiss(all: Programme[]) {
+  const key = (p: Programme) => `${p.institution}|${p.level}|${p.fields[0]}`
+  const sp = new Map<string, Programme[]>()
+  for (const p of all) if (p.source === 'ch-studyprogrammes') sp.set(key(p), [...(sp.get(key(p)) ?? []), p])
+  if (!sp.size) return
+  let dropped = 0
+  for (let i = all.length - 1; i >= 0; i--) {
+    const p = all[i]
+    if (p.source !== 'ch-bfs') continue
+    const match = sp.get(key(p))
+    if (!match) continue
+    if (match.length === 1 && p.capacity && !match[0].capacity) match[0].capacity = p.capacity
+    all.splice(i, 1)
+    dropped++
+  }
+  log(`Switzerland: ${dropped} BFS entries replaced by catalogue programmes`)
 }
 
 function median(xs: number[]): number | undefined {
@@ -317,6 +360,7 @@ async function main() {
       all.push(p)
     }
   }
+  dedupeSwiss(all)
   log(`Programmes: ${all.length}`)
   fillInstitutionUrls(all, inputs.directory)
 

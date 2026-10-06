@@ -220,7 +220,7 @@ function fitFor(p: RankedProgramme, results: Results) {
   const rank = results.fields.findIndex((f) => f.id === p.matchedField)
   const m: FieldMatch | undefined = results.fields[rank]
   if (!m) return null
-  const name = ` ${normalize(p.name)} `
+  const name = ` ${normalize([p.name, ...(p.focus ?? []), p.description ?? ''].join(' '))} `
   const named = new Set<string>()
   for (const f of results.fields.slice(0, 12)) {
     for (const term of f.terms) {
@@ -292,6 +292,18 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
           )}
         </div>
       )}
+      {(p.description || (p.focus && p.focus.length > 3)) && (
+        <div>
+          <h5 className="font-display text-lg">{d.about}</h5>
+          {p.description && <p className="mt-2 text-muted">{p.description}</p>}
+          {p.focus && p.focus.length > 0 && (
+            <p className="mt-2">
+              <span className="text-muted">{d.focus}: </span>
+              {p.focus.join(' · ')}
+            </p>
+          )}
+        </div>
+      )}
       <div>
         <h5 className="font-display text-lg">{d.facts}</h5>
         <dl className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
@@ -350,6 +362,12 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
             {' · '}
             {flag(p.country)} {[p.city, p.region].filter(Boolean).join(', ') || countryLabel(p.country, intl)}
           </div>
+          {p.focus && p.focus.length > 0 && (
+            <div className="mt-1.5 text-xs">
+              <span className="text-muted">{t.programmes.details.focus}: </span>
+              <span className="font-semibold">{p.focus.slice(0, 3).join(' · ')}</span>
+            </div>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {type && TYPE_LABEL[type] && (

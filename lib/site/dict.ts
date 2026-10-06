@@ -296,7 +296,9 @@ const en = {
       rank: (n: number, field: string) => `${field} is your number ${n}.`,
       items: (items: string, months: number) =>
         months > 1 ? `${items} of your videos, searches and posts are about it, over ${months} months.` : `${items} of your videos, searches and posts are about it.`,
-      named: (terms: string[]) => `In the name and in your own history: ${terms.map((x) => `“${x}”`).join(', ')}.`,
+      named: (terms: string[]) => `In this programme and in your own history: ${terms.map((x) => `“${x}”`).join(', ')}.`,
+      focus: 'Focus',
+      about: 'About the programme',
       also: (list: string[]) => `Also covers ${list.join(' and ')}.`,
       alsoRank: (field: string, n: number) => `${field} (your number ${n})`,
       topics: 'Your topics in this field',
@@ -833,7 +835,9 @@ const deCH: Dict = {
       rank: (n: number, field: string) => `${field} ist bei dir Platz ${n}.`,
       items: (items: string, months: number) =>
         months > 1 ? `${items} deiner Videos, Suchen und Beiträge drehen sich darum, über ${months} Monate verteilt.` : `${items} deiner Videos, Suchen und Beiträge drehen sich darum.`,
-      named: (terms: string[]) => `Steckt im Namen und in deinem eigenen Verlauf: ${terms.map((x) => `«${x}»`).join(', ')}.`,
+      named: (terms: string[]) => `Steckt im Studiengang und in deinem eigenen Verlauf: ${terms.map((x) => `«${x}»`).join(', ')}.`,
+      focus: 'Schwerpunkte',
+      about: 'Zum Studiengang',
       also: (list: string[]) => `Deckt auch ${list.join(' und ')} ab.`,
       alsoRank: (field: string, n: number) => `${field} (bei dir Platz ${n})`,
       topics: 'Deine Themen in diesem Fach',
