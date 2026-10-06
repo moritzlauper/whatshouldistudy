@@ -15,8 +15,7 @@ import { Price } from '../ui/price.tsx'
 import { Blob, Burst, Pill, Ring, Sparkle, Squiggle } from '../ui/shapes.tsx'
 import { GitHubMark, TrustStickers } from '../ui/trust.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
-
-const SOURCE_GLYPH = ['▶', '🎧', '📸', '👽', '🐙', '✍️']
+import { isConfigured } from '@/lib/sources/oauth.ts'
 
 export async function Landing({ site, base }: SiteProps) {
   const k = kit(site, base)
@@ -28,6 +27,8 @@ export async function Landing({ site, base }: SiteProps) {
   const own = country ? meta?.byCountry?.[country] : undefined
   const programmes = local ? (own?.programmes ?? 0) : (meta?.totals.programmes ?? 0)
   const institutions = local ? (own?.institutions ?? 0) : (meta?.totals.institutions ?? 0)
+  // Reddit only once this deployment has an approved Reddit app, as on the start page.
+  const sources = t.landing.sources.filter((s) => s.id !== 'reddit' || isConfigured('reddit'))
 
   return (
     <>
@@ -97,15 +98,17 @@ export async function Landing({ site, base }: SiteProps) {
           <p className="mt-4 text-lg text-muted">{t.landing.sourcesSub}</p>
         </div>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {t.landing.sources.map((s, i) => (
-            <div key={s.name} className={`card card-pop flex flex-col overflow-hidden ${i === t.landing.sources.length - 1 && t.landing.sources.length % 3 === 1 ? 'sm:col-span-2 lg:col-span-1 lg:col-start-2' : ''}`}>
-              <div className="on-color flex items-center justify-between border-b-2 border-line px-6 py-4" style={{ background: `var(--${s.color})` }}>
+          {sources.map((s, i) => (
+            <div key={s.id} className={`card card-pop flex flex-col overflow-hidden ${i === sources.length - 1 && sources.length % 3 === 1 ? 'sm:col-span-2 lg:col-span-1 lg:col-start-2' : ''}`}>
+              <div className={`${s.badge === 'optional' ? '' : 'on-color '}flex items-center justify-between gap-3 border-b-2 border-line px-6 py-4`} style={{ background: `var(--${s.color})` }}>
                 <span className="flex items-center gap-3">
                   <span className="flex h-11 w-11 items-center justify-center rounded-xl border-2 border-line bg-surface text-xl text-ink" aria-hidden="true">
-                    {SOURCE_GLYPH[i]}
+                    {s.glyph}
                   </span>
                   <span className="font-display text-2xl">{s.name}</span>
                 </span>
+                {s.badge === 'best' && <span className="rounded-full border-2 border-line bg-surface px-2.5 py-0.5 text-xs font-extrabold text-ink">{t.start.best}</span>}
+                {s.badge === 'optional' && <span className="rounded-full border-2 border-soft-line px-2.5 py-0.5 text-xs font-semibold text-muted">{t.start.optional}</span>}
               </div>
               <div className="flex flex-1 flex-col p-6">
                 <p className="font-semibold">{s.how}</p>

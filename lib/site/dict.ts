@@ -9,6 +9,9 @@ import type { Locale } from './config.ts'
  * components per language.
  */
 
+/** A source card on the landing page; Reddit only shows where its sign-in is set up. */
+export type LandingSource = { id: string; glyph: string; name: string; how: string; what: string; n: string; color: string; badge?: 'best' | 'optional' }
+
 const en = {
   nav: { how: 'How it works', fields: 'Fields', start: 'Start' },
   footer: {
@@ -42,13 +45,14 @@ const en = {
     sourcesTitle: 'Plug in what you like. Skip the rest.',
     sourcesSub: 'Every source is optional and read-only. The more you add, the sharper it gets.',
     sources: [
-      { name: 'YouTube & Google', how: 'One request at Google, one file', what: 'Every video you watched, often years of it, plus your Google searches, the pages you visited, Maps and apps. The richest source by far.', n: '5,000–100,000 signals', color: 'pink' },
-      { name: 'Spotify', how: 'Request it from Spotify, drop the file', what: 'Podcasts, saved episodes and audiobooks show what you want to understand. Music adds a light personality signal.', n: '200–20,000 signals', color: 'lime' },
-      { name: 'Instagram & TikTok', how: 'Request it from Instagram or TikTok, drop the file', what: 'The topics Instagram filed you under, the accounts you follow, what you liked, saved and searched, your hashtags.', n: '300–20,000 signals', color: 'yellow' },
-      { name: 'Reddit', how: 'Sign in, read-only', what: 'The communities you joined, what you saved and upvoted, what you posted. r/AskHistorians says a lot.', n: '100–3,000 signals', color: 'orange' },
-      { name: 'GitHub', how: 'Just your username', what: 'What you build and what you star. The strongest signal there is for people who make things.', n: '20–600 signals', color: 'sky' },
-      { name: 'Questionnaire', how: '5 minutes, all optional', what: 'Holland interests (RIASEC), the 20-item Mini-IPIP Big Five, your school subjects and what you want from work.', n: '60 answers', color: 'violet' },
-    ],
+      { id: 'takeout', glyph: '▶', name: 'YouTube & Google', how: 'One request at Google, one file', what: 'Every video you watched, often years of it, plus your Google searches, the pages you visited, Maps and apps. The richest source by far.', n: '5,000–100,000 signals', color: 'pink', badge: 'best' },
+      { id: 'instagram', glyph: '📸', name: 'Instagram', how: 'Request it in the app, drop the file', what: 'The topics Instagram files you under, the accounts you follow, what you like, save and search.', n: '300–20,000 signals', color: 'violet', badge: 'best' },
+      { id: 'tiktok', glyph: '🎵', name: 'TikTok', how: 'Request it in the app, drop the file', what: 'What you search for, the accounts you follow, your hashtags and comments.', n: '300–20,000 signals', color: 'sky', badge: 'best' },
+      { id: 'questionnaire', glyph: '✍️', name: 'Questionnaire', how: '5 minutes, all optional', what: 'Holland interests (RIASEC), the 20-item Mini-IPIP Big Five, your school subjects and what you want from work.', n: '60 answers', color: 'yellow' },
+      { id: 'github', glyph: '🐙', name: 'GitHub', how: 'Just your username', what: 'What you build and what you star. The strongest signal there is for people who make things.', n: '20–600 signals', color: 'lime' },
+      { id: 'reddit', glyph: '👽', name: 'Reddit', how: 'Sign in, read-only', what: 'The communities you joined, what you saved and upvoted, what you posted. r/AskHistorians says a lot.', n: '100–3,000 signals', color: 'orange' },
+      { id: 'spotify', glyph: '🎧', name: 'Spotify', how: 'Request it from Spotify, takes a few days', what: 'Podcasts, saved episodes and audiobooks show what you want to understand. Music counts only a little.', n: '200–20,000 signals', color: 'surface-2', badge: 'optional' },
+    ] as LandingSource[],
     privacyTitle: 'Your data stays yours.',
     privacyBody:
       'The analysis runs in your browser. Sign-ins are read-only and their tokens never touch our server. Files you drop are unpacked on your device. What’s kept is a summary, in your browser, deleted with one click. To find programmes we only send your top fields and filters.',
@@ -487,10 +491,10 @@ const en = {
   meta: {
     title: 'whatshouldistudy: find your field from what you actually watch, read and build',
     description:
-      'whatshouldistudy reads thousands of signals from your YouTube, Spotify, Reddit and GitHub, adds a 5-minute questionnaire built on established models, and matches you to fields of study and real programmes in the US, UK, Europe and worldwide. Your data never leaves your browser.',
+      'whatshouldistudy reads thousands of signals from your YouTube and Google history, Instagram, TikTok and GitHub, adds a 5-minute questionnaire built on established models, and matches you to fields of study and real programmes in the US, UK, Europe and worldwide. Your data never leaves your browser.',
     keywords: ['what should I study', 'which degree is right for me', 'college major quiz', 'study programme finder', 'university course finder', 'career test', 'RIASEC', 'Big Five', 'study abroad'],
     start: 'Find your field',
-    startDesc: 'Connect YouTube, Google Takeout, Spotify, Reddit or GitHub and answer a short questionnaire. Everything runs in your browser.',
+    startDesc: 'Drop in your YouTube and Google history, Instagram or TikTok, add GitHub and answer a short questionnaire. Everything runs in your browser.',
     results: 'Your result',
     fields: 'All fields of study',
     fieldsDesc: (n: number) => `${n} fields of study explained: what you learn, who they suit, where they lead, and how many programmes we track worldwide.`,
@@ -612,12 +616,13 @@ const deCH: Dict = {
     sourcesTitle: 'Verbinde, was du willst. Den Rest lässt du weg.',
     sourcesSub: 'Jede Quelle ist freiwillig und nur lesend. Je mehr, desto genauer.',
     sources: [
-      { name: 'YouTube & Google', how: 'Einmal bei Google anfordern, eine Datei', what: 'Jedes Video, das du geschaut hast, oft über Jahre, dazu deine Google-Suchen, besuchte Seiten, Maps und Apps. Mit Abstand die beste Quelle.', n: '5’000–100’000 Signale', color: 'pink' },
-      { name: 'Spotify', how: 'Bei Spotify anfordern, Datei reinziehen', what: 'Podcasts, gespeicherte Folgen und Hörbücher zeigen, was du verstehen willst. Musik gibt einen leisen Hinweis auf deine Persönlichkeit.', n: '200–20’000 Signale', color: 'lime' },
-      { name: 'Instagram & TikTok', how: 'Bei Instagram oder TikTok anfordern, Datei reinziehen', what: 'Die Themen, unter denen dich Instagram führt, wem du folgst, was du likest, speicherst und suchst, deine Hashtags.', n: '300–20’000 Signale', color: 'yellow' },
-      { name: 'Reddit', how: 'Anmelden, nur lesen', what: 'Die Communities, in denen du bist, was du speicherst und upvotest, was du selbst postest.', n: '100–3’000 Signale', color: 'orange' },
-      { name: 'GitHub', how: 'Nur dein Username', what: 'Was du baust und was du sternst. Für Leute, die Dinge machen, das stärkste Signal überhaupt.', n: '20–600 Signale', color: 'sky' },
-      { name: 'Fragebogen', how: '5 Minuten, alles freiwillig', what: 'Interessen nach Holland (RIASEC), die 20 Fragen des Mini-IPIP (Big Five), deine Schulfächer und was du vom Job willst.', n: '60 Antworten', color: 'violet' },
+      { id: 'takeout', glyph: '▶', name: 'YouTube & Google', how: 'Einmal bei Google anfordern, eine Datei', what: 'Jedes Video, das du geschaut hast, oft über Jahre, dazu deine Google-Suchen, besuchte Seiten, Maps und Apps. Mit Abstand die beste Quelle.', n: '5’000–100’000 Signale', color: 'pink', badge: 'best' },
+      { id: 'instagram', glyph: '📸', name: 'Instagram', how: 'In der App anfordern, Datei reinziehen', what: 'Die Themen, unter denen dich Instagram führt, wem du folgst, was du likest, speicherst und suchst.', n: '300–20’000 Signale', color: 'violet', badge: 'best' },
+      { id: 'tiktok', glyph: '🎵', name: 'TikTok', how: 'In der App anfordern, Datei reinziehen', what: 'Wonach du suchst, wem du folgst, deine Hashtags und Kommentare.', n: '300–20’000 Signale', color: 'sky', badge: 'best' },
+      { id: 'questionnaire', glyph: '✍️', name: 'Fragebogen', how: '5 Minuten, alles freiwillig', what: 'Interessen nach Holland (RIASEC), die 20 Fragen des Mini-IPIP (Big Five), deine Schulfächer und was du vom Job willst.', n: '60 Antworten', color: 'yellow' },
+      { id: 'github', glyph: '🐙', name: 'GitHub', how: 'Nur dein Username', what: 'Was du baust und was du sternst. Für Leute, die Dinge machen, das stärkste Signal überhaupt.', n: '20–600 Signale', color: 'lime' },
+      { id: 'reddit', glyph: '👽', name: 'Reddit', how: 'Anmelden, nur lesen', what: 'Die Communities, in denen du bist, was du speicherst und upvotest, was du selbst postest.', n: '100–3’000 Signale', color: 'orange' },
+      { id: 'spotify', glyph: '🎧', name: 'Spotify', how: 'Bei Spotify anfordern, dauert ein paar Tage', what: 'Podcasts, gespeicherte Folgen und Hörbücher zeigen, was du verstehen willst. Musik zählt nur wenig.', n: '200–20’000 Signale', color: 'surface-2', badge: 'optional' },
     ],
     privacyTitle: 'Deine Daten bleiben deine.',
     privacyBody:
@@ -1096,10 +1101,10 @@ const deCH: Dict = {
   meta: {
     title: `${CH_NAME}: Welches Studium passt zu mir?`,
     description:
-      'Finde dein Studienfach aus dem, was du wirklich schaust, hörst und baust: YouTube, Spotify, Reddit und GitHub plus ein kurzer Fragebogen. Dazu jeder passende Studiengang an Schweizer Unis, ETH, Fachhochschulen und PH. Deine Daten bleiben in deinem Browser.',
+      'Finde dein Studienfach aus dem, was du wirklich schaust, suchst und likest: YouTube, Google, Instagram, TikTok und GitHub plus ein kurzer Fragebogen. Dazu jeder passende Studiengang an Schweizer Unis, ETH, Fachhochschulen und PH. Deine Daten bleiben in deinem Browser.',
     keywords: ['Was soll ich studieren', 'Welches Studium passt zu mir', 'Studienwahl Test', 'Studiengänge Schweiz', 'Fachhochschule oder Uni', 'ETH Studium', 'Studienberatung', 'RIASEC', 'Big Five'],
     start: 'Finde dein Fach',
-    startDesc: 'Verbinde YouTube, Google Takeout, Spotify, Reddit oder GitHub und beantworte einen kurzen Fragebogen. Alles läuft in deinem Browser.',
+    startDesc: 'Lade deinen YouTube- und Google-Verlauf, Instagram oder TikTok hoch, ergänze GitHub und beantworte einen kurzen Fragebogen. Alles läuft in deinem Browser.',
     results: 'Dein Resultat',
     fields: 'Alle Studienfächer',
     fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du sie in der Schweiz studieren kannst.`,
@@ -1168,7 +1173,7 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
   meta: {
     title: `${DE_NAME}: Welches Studium passt zu mir?`,
     description:
-      'Finde dein Studienfach aus dem, was du wirklich schaust, hörst und baust: YouTube, Spotify, Reddit und GitHub plus ein kurzer Fragebogen. Dazu jeder passende Studiengang an deutschen Unis und Hochschulen. Deine Daten bleiben in deinem Browser.',
+      'Finde dein Studienfach aus dem, was du wirklich schaust, suchst und likest: YouTube, Google, Instagram, TikTok und GitHub plus ein kurzer Fragebogen. Dazu jeder passende Studiengang an deutschen Unis und Hochschulen. Deine Daten bleiben in deinem Browser.',
     keywords: ['Was soll ich studieren', 'Welches Studium passt zu mir', 'Studienwahltest', 'Studiengänge Deutschland', 'Uni oder FH', 'Studienorientierung', 'RIASEC', 'Big Five'],
     results: 'Dein Ergebnis',
     fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du sie in Deutschland studieren kannst.`,
@@ -1207,7 +1212,7 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
   meta: {
     title: `${AT_NAME}: Welches Studium passt zu mir?`,
     description:
-      'Finde dein Studienfach aus dem, was du wirklich schaust, hörst und baust: YouTube, Spotify, Reddit und GitHub plus ein kurzer Fragebogen. Dazu jedes passende Studium an österreichischen Unis, FHs und PHs. Deine Daten bleiben in deinem Browser.',
+      'Finde dein Studienfach aus dem, was du wirklich schaust, suchst und likest: YouTube, Google, Instagram, TikTok und GitHub plus ein kurzer Fragebogen. Dazu jedes passende Studium an österreichischen Unis, FHs und PHs. Deine Daten bleiben in deinem Browser.',
     keywords: ['Was soll ich studieren', 'Welches Studium passt zu mir', 'Studienwahl Test', 'Studieren in Österreich', 'Uni oder FH', 'Studienberatung', 'RIASEC', 'Big Five'],
     results: 'Dein Ergebnis',
     fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du sie in Österreich studieren kannst.`,
