@@ -17,6 +17,8 @@ import type { FieldEvidence, MusicProfile, SignalItem, SourceId, SourceSummary }
 
 const EVIDENCE_PER_FIELD = 8
 const STRONG = 0.35
+/** Older than this, an item still counts (scoring weighs it down by age) but isn't shown as evidence. */
+const EVIDENCE_MAX_AGE = 6 * 365.25 * 864e5
 
 export interface AccumulateOptions {
   source: SourceId
@@ -99,6 +101,7 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
 
     let vmax = 0
     for (let i = 0; i < FIELD_COUNT; i++) vmax = Math.max(vmax, vec[i])
+    const stale = !!it.time && Date.now() - it.time > EVIDENCE_MAX_AGE
     for (let i = 0; i < FIELD_COUNT; i++) {
       const s = vec[i]
       if (s <= 0.05) continue
@@ -110,7 +113,7 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
       const top = fieldTop[i]
       const ew = w * s
       // Evidence only where the item is (nearly) strongest.
-      if (s >= 0.8 * vmax && (top.length < EVIDENCE_PER_FIELD || ew > top[top.length - 1].w)) {
+      if (!stale && s >= 0.8 * vmax && (top.length < EVIDENCE_PER_FIELD || ew > top[top.length - 1].w)) {
         // Keep one entry per label (a channel shows up once, with its best weight).
         const existing = top.find((t) => t.label === it.label)
         if (existing) existing.w = Math.max(existing.w, ew)
@@ -118,7 +121,7 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
         top.sort((a, b) => b.w - a.w)
         if (top.length > EVIDENCE_PER_FIELD) top.length = EVIDENCE_PER_FIELD
       }
-      for (const t of termsForField(c, i)) fieldTerms[i].set(t, (fieldTerms[i].get(t) ?? 0) + 1)
+      if (!stale) for (const t of termsForField(c, i)) fieldTerms[i].set(t, (fieldTerms[i].get(t) ?? 0) + 1)
     }
   }
 

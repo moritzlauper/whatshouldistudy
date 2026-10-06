@@ -126,6 +126,13 @@ const EMPTY: Classification = {
   matched: [],
 }
 
+/**
+ * Product names that look like subject words: a «Samsung Galaxy S7» is not
+ * astronomy, an «Apple Watch» not botany. Removed before matching.
+ */
+const BRANDS =
+  /\b(samsung\s+galaxy|galaxy\s+(?:s|a|z|m|note|tab|watch|buds|fold|flip)\s*\d*\w*|apple\s+watch|iphone\s*\d*\w*|mercedes[\s-]benz|jaguar\s+land\s+rover|ford\s+mustang|red\s+bull|monster\s+energy|amazon\s+prime|apple\s+music|galaxus|python\s+(?:monty|flying circus))\b/gi
+
 const cache = new Map<string, Classification>()
 const CACHE_LIMIT = 60_000
 
@@ -136,7 +143,7 @@ export function classify(text: string, opts: { splitCamel?: boolean } = {}): Cla
   if (hit) return hit
 
   const lx = lexicon()
-  const norm = normalize(text, opts)
+  const norm = normalize(text.replace(BRANDS, ' '), opts)
   const toks = tokens(norm)
   const seen = new Set<number>()
   const raw = new Float32Array(FIELD_COUNT)

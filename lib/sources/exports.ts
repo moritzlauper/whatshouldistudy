@@ -135,7 +135,10 @@ function otherKind(product: string, url: string): OtherKind | null {
   return null
 }
 
-const OTHER_WEIGHT: Record<OtherKind, number> = { visit: 0.15, maps: 0.2, app: 0.4, book: 1, read: 0.3 }
+// Maps searches are about places (restaurants, hotels, routes), counted but not read as interests.
+const OTHER_WEIGHT: Record<OtherKind, number> = { visit: 0.15, maps: 0, app: 0.4, book: 1, read: 0.3 }
+/** Pages for buying, downloading or logging in say little about interests. */
+const TRANSACTIONAL = /\b(download|herunterladen|free trial|trial|testversion|login|log in|sign in|anmelden|einloggen|kaufen|buy|preis|price|pricing|shop|warenkorb|cart|checkout|bestell\w*|order|bezahlen|rechnung|invoice|tickets?)\b/i
 
 function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' | 'other' | null {
   const time = a.time ? Date.parse(a.time) : undefined
@@ -182,20 +185,24 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
     return null
   }
   if (isSearch && isYouTube) {
-    c.youtubeSearch.push({ kind: 'search', text: q, label: `«${truncate(q, 60)}»`, weight: 0.6, time })
+    c.youtubeSearch.push({ kind: 'search', text: q, label: `«${truncate(q, 140)}»`, weight: 0.6, time })
     return 'search'
   }
   const product = a.header ?? a.products?.[0] ?? ''
   if (isSearch && /google\./.test(url) && !/maps/i.test(url + product)) {
-    c.googleSearch.push({ kind: 'google', text: q, label: `«${truncate(q, 60)}»`, weight: 0.4, time })
+    c.googleSearch.push({ kind: 'google', text: q, label: `«${truncate(q, 140)}»`, weight: 0.4, time })
     return 'google'
   }
   if (isYouTube) return null
   const kind = otherKind(product, url)
   const title = (a.title ?? '').replace(ACTIVITY_VERB, '').trim()
-  if (kind === 'visit' && STUDY_INTENT.test(`${title} ${url}`)) return null
+  if (kind === 'visit' && (STUDY_INTENT.test(`${title} ${url}`) || TRANSACTIONAL.test(title))) return null
   if (!kind || !title || /^https?:/.test(title) || title.length < 3) return null
-  c.activity.push({ kind, text: title, label: truncate(title, 60), weight: OTHER_WEIGHT[kind], time, group: kind === 'app' || kind === 'book' ? title : undefined, url: kind === 'visit' ? undefined : url || undefined })
+  if (!OTHER_WEIGHT[kind]) {
+    c.activityCounts[kind] = (c.activityCounts[kind] ?? 0) + 1
+    return 'other'
+  }
+  c.activity.push({ kind, text: title, label: truncate(title, 140), weight: OTHER_WEIGHT[kind], time, group: kind === 'app' || kind === 'book' ? title : undefined, url: kind === 'visit' ? undefined : url || undefined })
   c.activityCounts[kind] = (c.activityCounts[kind] ?? 0) + 1
   return 'other'
 }
@@ -400,8 +407,9 @@ function parseCsvFile(c: Collected, name: string, text: string): boolean {
       c.comments.push({
         kind: 'comment',
         text,
-        label: `Your comment: "${truncate(text, 60)}"`,
-        weight: 0.8,
+        label: `“${truncate(text, 140)}”`,
+        // Comments are mostly chatter; they count a little.
+        weight: 0.4,
         time: Number.isFinite(t) ? t : undefined,
       })
       n++

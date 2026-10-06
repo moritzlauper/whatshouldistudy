@@ -4,14 +4,17 @@ import { withBase } from '@/lib/site.ts'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { useAppState } from '@/lib/store.ts'
+import { decodeSnapshot, encodeSnapshot, sharedParam } from '@/lib/share.ts'
+import type { Snapshot } from '@/lib/share.ts'
 import { score, sourceProfile } from '@/lib/engine/scoring.ts'
-import type { FieldMatch, Results, SourceSummary } from '@/lib/engine/types.ts'
+import type { FieldMatch, Preferences, Results, SourceSummary } from '@/lib/engine/types.ts'
 import type { FieldStat } from '@/lib/programmes.ts'
 import { BIG5_KEYS, FIELDS, FIELD_BY_ID, RIASEC_KEYS } from '@/lib/taxonomy/fields.ts'
 import { big5Label, emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel } from '@/lib/site/labels.ts'
 import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes } from '../ui/programmes.tsx'
+import { StudyingControl } from '../ui/prefs-form.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { Contributions } from '../ui/contributions.tsx'
 import { useConfig } from '../ui/price.tsx'
@@ -28,6 +31,26 @@ export function ResultsView() {
   const config = useConfig(k.site)
   const [stats, setStats] = useState<Record<string, FieldStat>>({})
   const [mounted, setMounted] = useState(false)
+  // A result opened from a shared link: undefined until checked, then the snapshot, null or 'broken'.
+  const [shared, setShared] = useState<Snapshot | null | 'broken' | undefined>(undefined)
+  const [sharedPaid, setSharedPaid] = useState(false)
+  useEffect(() => {
+    const read = () => {
+      const code = sharedParam(window.location.hash)
+      if (!code) return setShared(null)
+      const snap = decodeSnapshot(code)
+      setShared(snap ?? 'broken')
+      if (snap?.token) {
+        fetch(withBase('/api/unlock'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: snap.token }) })
+          .then((res) => res.json())
+          .then((j: { ok?: boolean }) => setSharedPaid(!!j.ok))
+          .catch(() => {})
+      }
+    }
+    read()
+    window.addEventListener('hashchange', read)
+    return () => window.removeEventListener('hashchange', read)
+  }, [])
   useEffect(() => {
     setMounted(true)
     fetch(withBase('/api/stats'))
@@ -36,18 +59,33 @@ export function ResultsView() {
       .catch(() => {})
   }, [])
 
-  const summaries = Object.values(state.summaries).filter(Boolean) as SourceSummary[]
-  const results = useMemo<Results | null>(() => {
-    if (!mounted) return null
+  const isShared = !!shared && shared !== 'broken'
+  const summaries = isShared ? [] : (Object.values(state.summaries).filter(Boolean) as SourceSummary[])
+  const own = useMemo<Results | null>(() => {
+    if (!mounted || shared === undefined || isShared) return null
     const swiss = k.site === 'ch' || (k.site === 'global' && state.prefs.countries.includes('CH'))
     const fieldStats = Object.fromEntries(Object.entries(stats).map(([id, s]) => [id, { salaryPercentile: swiss ? (s.chSalaryPercentile ?? s.salaryPercentile) : s.salaryPercentile }]))
-    return score({ summaries, answers: state.answers, fieldStats })
+    return score({ summaries, answers: state.answers, fieldStats, studying: state.prefs.studying })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, state, stats])
+  }, [mounted, state, stats, shared])
+  const results = isShared ? (shared as Snapshot).results : own
+  const prefs: Preferences = isShared ? { ...state.prefs, ...(shared as Snapshot).prefs } : state.prefs
+
+  if (shared === 'broken') {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-24 text-center">
+        <Burst className="mx-auto" size={90} />
+        <h1 className="mt-6 font-display text-4xl">{t.share.broken}</h1>
+        <Link href={r.start} className="btn btn-primary btn-lg mt-8">
+          {t.share.own}
+        </Link>
+      </div>
+    )
+  }
 
   if (!mounted || !results) return <div className="animate-soft mx-auto max-w-6xl px-4 py-24 font-display text-3xl text-muted sm:px-6">{t.results.calculating}</div>
 
-  const hasInput = summaries.length > 0 || Object.keys(state.answers.riasec ?? {}).length >= 6
+  const hasInput = isShared || summaries.length > 0 || Object.keys(state.answers.riasec ?? {}).length >= 6
   if (!hasInput) {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
@@ -65,7 +103,8 @@ export function ResultsView() {
   const top = rest.slice(0, 9)
   // Place 1 belongs to the paid report; the other places stay free. Without
   // payments set up on this deployment there is nothing to pay, so it's open.
-  const unlocked = (!!state.unlock && state.unlock.expiresAt > Date.now()) || config?.payments === 'off'
+  const paid = !!state.unlock && state.unlock.expiresAt > Date.now()
+  const unlocked = (isShared ? sharedPaid : paid) || config?.payments === 'off'
   const sourceList = results.sources.map((s) => t.sourceNames[s.id] ?? s.label).join(', ') || t.results.yourAnswers
 
   return (
@@ -77,13 +116,35 @@ export function ResultsView() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Confidence level={results.confidence} />
-          <Link href={r.start} className="btn btn-ghost btn-sm">
-            + {t.results.addMore}
-          </Link>
+          {!isShared && (
+            <Link href={r.start} className="btn btn-ghost btn-sm">
+              + {t.results.addMore}
+            </Link>
+          )}
         </div>
       </div>
 
-      {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop />}
+      {isShared ? (
+        <div className="card-sm mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent-soft p-4">
+          <p className="text-sm font-semibold">{t.share.banner(new Date((shared as Snapshot).at).toLocaleDateString(intl, { dateStyle: 'medium' }))}</p>
+          <Link href={r.start} className="btn btn-primary btn-sm">
+            {t.share.own}
+          </Link>
+        </div>
+      ) : (
+        <>
+          <ShareCard results={results} prefs={prefs} token={paid ? state.unlock!.token : undefined} />
+          <div className="card-sm mt-4 grid gap-2 p-4 sm:grid-cols-[1fr_1.2fr] sm:items-center">
+            <div>
+              <div className="font-bold">{t.prefs.studying}</div>
+              <div className="text-xs text-muted">{t.prefs.studyingHint}</div>
+            </div>
+            <StudyingControl />
+          </div>
+        </>
+      )}
+
+      {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop shared={isShared} />}
 
       <section className="mt-16">
         <h2 className="font-display text-4xl">{t.results.next}</h2>
@@ -224,12 +285,15 @@ export function ResultsView() {
               </li>
             ))}
           </ol>
+          {state.prefs.studying && !isShared && (
+            <p className="mt-5 text-xs text-muted">ℹ {t.results.timelineStudying(fieldName(state.prefs.studying.field, locale), state.prefs.studying.since)}</p>
+          )}
         </section>
       )}
 
-      {summaries.some((s) => s.source !== 'questionnaire') && <SourceInsights summaries={summaries} unlocked={unlocked} />}
+      {summaries.some((s) => s.source !== 'questionnaire') && <SourceInsights summaries={summaries} unlocked={unlocked} studying={state.prefs.studying} />}
 
-      <Programmes results={results} prefs={state.prefs} hideFirst={!unlocked} />
+      <Programmes results={results} prefs={prefs} hideFirst={!unlocked} />
     </div>
   )
 }
@@ -270,7 +334,7 @@ function Evidence({ m, n }: { m: FieldMatch; n: number }) {
       <summary className="cursor-pointer font-bold text-muted">{t.results.examples(Math.min(n, m.evidence.length))}</summary>
       <ul className="mt-2 grid gap-1">
         {m.evidence.slice(0, n).map((e) => (
-          <li key={e.label} className="truncate" title={`${e.label} (${t.sourceNames[e.source] ?? e.source})`}>
+          <li key={e.label} className="break-words" title={t.sourceNames[e.source] ?? e.source}>
             <span className="text-muted">{t.results.kinds[e.kind] ?? e.kind}:</span> {e.label}
           </li>
         ))}
@@ -300,7 +364,7 @@ function TopMatch({ m, stat }: { m: FieldMatch; stat?: FieldStat }) {
             {m.reasons.map((x) => (
               <li key={x.k} className="flex gap-3">
                 <span className="on-color flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-line bg-lime text-xs" aria-hidden="true">
-                  ✓
+                  {x.k === 'studying' ? 'i' : '✓'}
                 </span>
                 {reasonText(x, k)}
               </li>
@@ -331,8 +395,52 @@ function TopMatch({ m, stat }: { m: FieldMatch; stat?: FieldStat }) {
   )
 }
 
+/** Share or keep the result: everything lives in the link, nothing on a server. */
+function ShareCard({ results, prefs, token }: { results: Results; prefs: Preferences; token?: string }) {
+  const { t, conf } = useSite()
+  const s = t.share
+  const [copied, setCopied] = useState(false)
+  const [canShare, setCanShare] = useState(false)
+  const url = useMemo(() => `${window.location.origin}${window.location.pathname}#s=${encodeSnapshot(results, prefs, token)}`, [results, prefs, token])
+  useEffect(() => setCanShare(typeof navigator.share === 'function'), [])
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      window.prompt(s.copyFallback, url)
+    }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
+
+  return (
+    <section className="card on-color mt-6 overflow-hidden bg-lime p-5 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0 max-w-xl">
+          <h2 className="font-display text-2xl sm:text-3xl">{s.title}</h2>
+          <p className="mt-1 text-sm">{s.sub}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={copy} className="btn btn-primary btn-lg">
+            {copied ? s.copied : s.copy}
+          </button>
+          {canShare && (
+            <button type="button" onClick={() => navigator.share({ title: s.mailSubject(conf.name), url }).catch(() => {})} className="btn btn-ghost">
+              {s.share}
+            </button>
+          )}
+          <a href={`mailto:?subject=${encodeURIComponent(s.mailSubject(conf.name))}&body=${encodeURIComponent(s.mailBody(url))}`} className="btn btn-ghost">
+            {s.mail}
+          </a>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /** Each source on its own; part of the full report. */
-function SourceInsights({ summaries, unlocked }: { summaries: SourceSummary[]; unlocked: boolean }) {
+function SourceInsights({ summaries, unlocked, studying }: { summaries: SourceSummary[]; unlocked: boolean; studying?: Preferences['studying'] }) {
   const k = useSite()
   const { t, r, locale, intl } = k
   const s = t.sourceInsights
@@ -344,7 +452,7 @@ function SourceInsights({ summaries, unlocked }: { summaries: SourceSummary[]; u
       <div className="relative mt-6">
         <div className={`grid gap-5 md:grid-cols-2 ${unlocked ? '' : 'pointer-events-none select-none blur-[6px]'}`} aria-hidden={!unlocked}>
           {list.map((x, i) => {
-            const p = sourceProfile(x)
+            const p = sourceProfile(x, studying)
             const span = x.span ? `${x.span.from.slice(0, 4)}–${x.span.to.slice(0, 4)}` : undefined
             return (
               <article key={x.source} className="card overflow-hidden">
@@ -410,7 +518,7 @@ function SourceInsights({ summaries, unlocked }: { summaries: SourceSummary[]; u
 }
 
 /** Place 1 before the report is unlocked: the card's shape, nothing of its content. */
-function LockedTop() {
+function LockedTop({ shared = false }: { shared?: boolean }) {
   const { t, r } = useSite()
   const bar = (w: string) => <span className="block h-3 rounded-full bg-surface-2" style={{ width: w }} />
   return (
@@ -446,10 +554,16 @@ function LockedTop() {
           <div className="card max-w-md p-6 text-center sm:p-8">
             <div className="text-4xl" aria-hidden="true">🔒</div>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl">{t.results.lockedTitle}</h2>
-            <p className="mt-2 text-muted">{t.results.lockedText}</p>
-            <a href={`#${r.anchors.programmes}`} className="btn btn-primary mt-5">
-              {t.results.lockedCta}
-            </a>
+            <p className="mt-2 text-muted">{shared ? t.share.lockedText : t.results.lockedText}</p>
+            {shared ? (
+              <Link href={r.start} className="btn btn-primary mt-5">
+                {t.share.own}
+              </Link>
+            ) : (
+              <a href={`#${r.anchors.programmes}`} className="btn btn-primary mt-5">
+                {t.results.lockedCta}
+              </a>
+            )}
           </div>
         </div>
       </div>

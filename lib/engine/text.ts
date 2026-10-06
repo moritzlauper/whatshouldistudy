@@ -50,8 +50,9 @@ export function truncate(s: string, n: number): string {
 
 /**
  * Searches and pages about studying itself: programmes, universities,
- * deadlines, admission. Looking up «soziologie uzh master» shows a decision
- * already being made, so it mustn't feed the recommendation.
+ * deadlines, admission, and the coursework of a degree you're already in.
+ * Looking up «soziologie uzh master» or «psychologie prüfung zusammenfassung»
+ * is the study, not an interest, so it mustn't feed the recommendation.
  */
 export const STUDY_INTENT =
-  /\b(studium|studieren|studiengang|studiengänge|studienplan|studienordnung|bachelor|master|msc|bsc|doktorat|phd|vorlesungsverzeichnis|anmeldefrist|anmeldung studium|immatrikulation|zulassung|numerus clausus|minor|major|semestergebühr\w*|university|universität|universitaet|hochschule|fachhochschule|degree|admission|uzh|ethz?|epfl|unibe|unibas|unifr|unige|unil|unilu|unisg|hsg|usi|zhaw|fhnw|bfh|hslu|supsi|hes-so|zhdk|phzh|lmu|tum|kit|rwth|uni wien|tu wien|jku)\b/i
+  /\b(studium|studieren|studiengang|studiengänge|studienplan|studienordnung|bachelor|master|msc|bsc|doktorat|phd|vorlesungsverzeichnis|anmeldefrist|anmeldung studium|immatrikulation|zulassung|numerus clausus|minor|major|semestergebühr\w*|university|universität|universitaet|hochschule|fachhochschule|degree|admission|uzh|ethz?|epfl|unibe|unibas|unifr|unige|unil|unilu|unisg|hsg|usi|zhaw|fhnw|bfh|hslu|supsi|hes-so|zhdk|phzh|lmu|tum|kit|rwth|uni wien|tu wien|jku|klausur\w*|prüfung\w*|pruefung\w*|zusammenfassung|skript|hausarbeit|seminararbeit|bachelorarbeit|masterarbeit|moodle|ilias|olat|zitieren|literaturverzeichnis|exam|assignment|syllabus)\b/i

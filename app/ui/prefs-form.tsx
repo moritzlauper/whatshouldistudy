@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { update, useAppState } from '@/lib/store.ts'
 import { COUNTRIES, REGION_GROUPS, flag } from '@/lib/countries.ts'
 import type { Preferences } from '@/lib/engine/types.ts'
-import { countryLabel, fmtMoney } from '@/lib/site/labels.ts'
+import { countryLabel, fieldName, fmtMoney } from '@/lib/site/labels.ts'
+import { FIELDS } from '@/lib/taxonomy/fields.ts'
 import { useSite } from './site-context.tsx'
 
 const ORIGINS: Array<Preferences['origin']> = ['eu', 'ch', 'uk', 'us', 'other']
@@ -41,6 +42,9 @@ export function PrefsForm() {
             options={(['bachelor', 'master', 'any'] as const).map((l) => [l, t.prefs.levels[l]])}
             onChange={(level) => set({ level: level as Preferences['level'] })}
           />
+        </Field>
+        <Field label={t.prefs.studying} hint={t.prefs.studyingHint}>
+          <StudyingControl />
         </Field>
         <Field label={t.prefs.origin} hint={t.prefs.originHint}>
           <select value={prefs.origin} onChange={(e) => set({ origin: e.target.value as Preferences['origin'] })} className="input">
@@ -106,6 +110,48 @@ export function PrefsForm() {
           ))}
         </div>
       </div>
+    </div>
+  )
+}
+
+/** A degree already under way and since when: its coursework then hardly counts as interest. */
+export function StudyingControl() {
+  const { t, locale } = useSite()
+  const { prefs } = useAppState()
+  const studying = prefs.studying
+  const set = (v: Preferences['studying']) => update((s) => ({ ...s, prefs: { ...s.prefs, studying: v } }))
+  const fields = [...FIELDS].sort((a, b) => fieldName(a.id, locale).localeCompare(fieldName(b.id, locale), locale))
+  const year = new Date().getFullYear()
+  return (
+    <div className="flex flex-wrap gap-2">
+      <select
+        aria-label={t.prefs.studying}
+        value={studying?.field ?? ''}
+        onChange={(e) => set(e.target.value ? { field: e.target.value, since: studying?.since } : undefined)}
+        className="input min-w-0 flex-1"
+      >
+        <option value="">{t.prefs.notStudying}</option>
+        {fields.map((f) => (
+          <option key={f.id} value={f.id}>
+            {fieldName(f.id, locale)}
+          </option>
+        ))}
+      </select>
+      {studying && (
+        <select
+          aria-label={t.prefs.since}
+          value={studying.since ?? ''}
+          onChange={(e) => set({ field: studying.field, since: e.target.value ? Number(e.target.value) : undefined })}
+          className="input w-auto"
+        >
+          <option value="">{t.prefs.sinceUnknown}</option>
+          {Array.from({ length: 13 }, (_, i) => year - i).map((y) => (
+            <option key={y} value={y}>
+              {t.prefs.sinceYear(y)}
+            </option>
+          ))}
+        </select>
+      )}
     </div>
   )
 }

@@ -85,12 +85,20 @@ export interface QuestionnaireAnswers {
 
 export type DegreeLevel = 'bachelor' | 'master' | 'any'
 
+export interface Studying {
+  field: string
+  /** Year the degree started, if known. */
+  since?: number
+}
+
 export interface Preferences {
   level: DegreeLevel
   /** ISO country codes; empty = anywhere. */
   countries: string[]
   /** Max tuition per year in EUR; 0 = no limit. */
   maxTuitionEur: number
+  /** A degree already under way: its coursework shouldn't read as interest. */
+  studying?: Studying
   /** Where the student is from, for fee categories. */
   origin: 'eu' | 'us' | 'uk' | 'ch' | 'other'
   englishOnly: boolean
@@ -123,6 +131,7 @@ export type Reason =
   | { k: 'values'; values: ValueKey[] }
   | { k: 'personality'; trait: Big5Key; high: boolean }
   | { k: 'hidden' }
+  | { k: 'studying'; since?: number }
 
 export interface Insight {
   id: 'datapoints' | 'learning' | 'breadth' | 'consistency' | 'rhythm' | 'maker'

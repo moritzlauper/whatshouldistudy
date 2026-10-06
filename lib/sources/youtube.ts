@@ -251,7 +251,7 @@ export async function collectYouTube(token: string, onProgress: Progress = () =>
         topicNames.join(' '),
         l.channelTitle ?? '',
       ].join(' \n '),
-      label: l.channelTitle ? `${truncate(l.title, 70)} (${l.channelTitle})` : truncate(l.title, 80),
+      label: l.channelTitle ? `${truncate(l.title, 140)} (${l.channelTitle})` : truncate(l.title, 140),
       group: l.channelId,
       weight: 1.5,
       time: l.time,
@@ -282,7 +282,7 @@ export async function collectYouTube(token: string, onProgress: Progress = () =>
         items.push({
           kind: 'playlist',
           text: `${it.snippet.title} ${it.snippet.videoOwnerChannelTitle ?? ''} ${pl.snippet.title}`,
-          label: `Playlist "${truncate(pl.snippet.title, 40)}": ${truncate(it.snippet.title, 60)}`,
+          label: `Playlist "${truncate(pl.snippet.title, 60)}": ${truncate(it.snippet.title, 140)}`,
           group: it.snippet.videoOwnerChannelId,
           weight: 1,
           time: it.snippet.publishedAt ? Date.parse(it.snippet.publishedAt) : undefined,
@@ -310,7 +310,7 @@ export async function collectYouTube(token: string, onProgress: Progress = () =>
         items.push({
           kind: 'upload',
           text: `${it.snippet.title} ${truncate(it.snippet.description ?? '', 300)}`,
-          label: `Your video: ${truncate(it.snippet.title, 70)}`,
+          label: `Your video: ${truncate(it.snippet.title, 140)}`,
           weight: 4,
           time: it.snippet.publishedAt ? Date.parse(it.snippet.publishedAt) : undefined,
         })

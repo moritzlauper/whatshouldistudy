@@ -220,12 +220,16 @@ function fitFor(p: RankedProgramme, results: Results) {
   const rank = results.fields.findIndex((f) => f.id === p.matchedField)
   const m: FieldMatch | undefined = results.fields[rank]
   if (!m) return null
-  const name = ` ${normalize([p.name, ...(p.focus ?? []), p.description ?? ''].join(' '))} `
+  // Only what the programme says about itself counts: its name and the field's
+  // name would make every psychology master «match» the word psychology.
+  const about = ` ${normalize([...(p.focus ?? []), p.description ?? ''].join(' '))} `
+  const trivial = normalize([p.name, ...p.fields.flatMap((id) => [fieldName(id, 'en'), fieldName(id, 'de-CH')])].join(' '))
   const named = new Set<string>()
   for (const f of results.fields.slice(0, 12)) {
     for (const term of f.terms) {
       const core = normalize(term.replace(/…/g, ''))
-      if (core.length >= 4 && (term.includes('…') ? name.includes(core) : name.includes(` ${core} `))) named.add(term.replace(/…/g, ''))
+      if (core.length < 4 || trivial.includes(core)) continue
+      if (term.includes('…') ? about.includes(core) : about.includes(` ${core} `)) named.add(term.replace(/…/g, ''))
     }
   }
   const also = p.fields
@@ -233,7 +237,7 @@ function fitFor(p: RankedProgramme, results: Results) {
     .map((id) => ({ id, rank: results.fields.findIndex((f) => f.id === id) + 1 }))
     .filter((x) => x.rank > 0 && x.rank <= 12)
   const interest = m.reasons.find((r) => r.k === 'interest') as { items: number; months: number } | undefined
-  return { m, rank: rank + 1, named: [...named].slice(0, 5), also, interest }
+  return { m, rank: rank + 1, named: [...named].slice(0, 6), also, interest }
 }
 
 const SOURCE_NAMES: Record<string, string> = {
@@ -252,21 +256,55 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
   const fit = results ? fitFor(p, results) : null
   const d = t.programmes.details
   const home = p.institutionUrl ?? (p.url && isHomepage(p.url) ? p.url : undefined)
+  const hasAbout = !!(p.description || p.focus?.length)
+  const field = fieldName(p.matchedField, locale)
   return (
-    <div className="mt-4 grid gap-5 border-t-2 border-soft-line pt-4 text-sm">
+    <div className="mt-4 grid gap-6 border-t-2 border-soft-line pt-4 text-sm">
+      {/* 1. What the programme is. */}
+      <div>
+        <h5 className="font-display text-lg">{d.about}</h5>
+        {hasAbout ? (
+          <>
+            {p.description && <p className="mt-2 text-muted">{p.description}</p>}
+            {p.focus && p.focus.length > 0 && (
+              <ul className="mt-2 flex flex-wrap gap-1.5">
+                {p.focus.map((x) => (
+                  <li key={x} className={`chip-soft ${fit?.named.some((n) => normalize(x).includes(normalize(n))) ? 'ring-2 ring-accent' : ''}`}>
+                    {x}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        ) : (
+          <p className="mt-2 text-muted">{d.noInfo}</p>
+        )}
+      </div>
+
+      {/* 2. What in it fits you: only what this programme says about itself. */}
       {fit && (
         <div>
-          <h5 className="font-display text-lg">{d.why}</h5>
+          <h5 className="font-display text-lg">{d.forYou}</h5>
           <ul className="mt-2 grid gap-1.5">
-            <li>✓ {d.rank(fit.rank, fieldName(p.matchedField, locale))}</li>
-            {fit.interest && <li>✓ {d.items(fmtNumber(fit.interest.items, intl), fit.interest.months)}</li>}
             {fit.named.length > 0 && <li>✓ {d.named(fit.named)}</li>}
             {fit.also.length > 0 && <li>✓ {d.also(fit.also.map((a) => d.alsoRank(fieldName(a.id, locale), a.rank)))}</li>}
+            {!fit.named.length && !fit.also.length && <li className="text-muted">{hasAbout ? d.noOverlap(field) : d.onlyField(field)}</li>}
+          </ul>
+        </div>
+      )}
+
+      {/* 3. The field in general. */}
+      {fit && (
+        <div>
+          <h5 className="font-display text-lg">{d.fieldGeneral(field)}</h5>
+          <ul className="mt-2 grid gap-1.5">
+            <li>✓ {d.rank(fit.rank, field)}</li>
+            {fit.interest && <li>✓ {d.items(fmtNumber(fit.interest.items, intl), fit.interest.months)}</li>}
             {fit.m.reasons
               .filter((r) => r.k !== 'interest' && r.k !== 'hidden')
               .map((r) => (
                 <li key={r.k}>
-                  {r.k === 'subjectsLow' ? '△' : '✓'} {reasonText(r, kit)}
+                  {r.k === 'subjectsLow' ? '△' : r.k === 'studying' ? 'ℹ' : '✓'} {reasonText(r, kit)}
                 </li>
               ))}
           </ul>
@@ -283,7 +321,7 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
               <summary className="cursor-pointer font-bold text-muted">{d.seen}</summary>
               <ul className="mt-2 grid gap-1">
                 {fit.m.evidence.slice(0, 6).map((e) => (
-                  <li key={e.label} className="truncate" title={`${e.label} (${t.sourceNames[e.source] ?? e.source})`}>
+                  <li key={e.label} className="break-words" title={t.sourceNames[e.source] ?? e.source}>
                     <span className="text-muted">{t.results.kinds[e.kind] ?? e.kind}:</span> {e.label}
                   </li>
                 ))}
@@ -292,18 +330,7 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
           )}
         </div>
       )}
-      {(p.description || (p.focus && p.focus.length > 3)) && (
-        <div>
-          <h5 className="font-display text-lg">{d.about}</h5>
-          {p.description && <p className="mt-2 text-muted">{p.description}</p>}
-          {p.focus && p.focus.length > 0 && (
-            <p className="mt-2">
-              <span className="text-muted">{d.focus}: </span>
-              {p.focus.join(' · ')}
-            </p>
-          )}
-        </div>
-      )}
+
       <div>
         <h5 className="font-display text-lg">{d.facts}</h5>
         <dl className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">

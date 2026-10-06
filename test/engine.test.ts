@@ -141,3 +141,29 @@ test('summaries only keep aggregates, never the raw history', () => {
   assert.ok(!json.includes('Fortnite gameplay funny moments #1'))
   assert.ok(json.length < 60_000, `summary is ${json.length} bytes`)
 })
+
+test('old activity fades and a degree under way stops counting as interest', async () => {
+  const { ageWeight, score } = await import('../lib/engine/scoring.ts')
+  const now = 2026
+  assert.equal(ageWeight(2026, 'takeout', now), 1)
+  assert.equal(ageWeight(2025, 'takeout', now), 1)
+  assert.ok(ageWeight(2021, 'takeout', now) < 0.5)
+  assert.equal(ageWeight(2016, 'takeout', now), 0)
+  assert.equal(ageWeight(1961, 'takeout', now), 0)
+  assert.ok(ageWeight(2016, 'youtube', now) > 0)
+
+  const year = new Date().getFullYear()
+  const fields = { psychology: { score: 50, items: 60, months: [`${year}-01`], top: [], terms: {} }, sociology: { score: 20, items: 25, months: [`${year - 2}-01`], top: [], terms: {} } }
+  const summary: import('../lib/engine/types.ts').SourceSummary = {
+    source: 'google-search', label: 'Google', collectedAt: '', dataPoints: 5000, totalWeight: 100, learningWeight: 20, stats: {},
+    fields,
+    timeline: { [String(year - 2)]: { psychology: 5, sociology: 20 } as Record<string, number>, [String(year)]: { psychology: 45 } as Record<string, number> },
+  }
+  const plain = score({ summaries: [summary] })
+  const studying = score({ summaries: [summary], studying: { field: 'psychology', since: year } })
+  const rank = (r: typeof plain, id: string) => r.fields.findIndex((f) => f.id === id)
+  assert.ok(rank(studying, 'psychology') > rank(plain, 'psychology'), 'psychology should drop')
+  assert.ok(rank(studying, 'sociology') < rank(plain, 'sociology'), 'sociology should rise')
+  assert.ok(studying.fields.find((f) => f.id === 'psychology')!.reasons.some((r) => r.k === 'studying'))
+  assert.ok(!studying.timeline.find((y) => y.year === String(year))?.fields.some((f) => f.id === 'psychology'))
+})

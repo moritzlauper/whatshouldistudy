@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { paymentMode, signToken } from '@/lib/server/token.ts'
+import { paymentMode, signToken, verifyToken } from '@/lib/server/token.ts'
 
 /** Exchanges a paid Checkout session for an unlock token. */
 export async function GET(req: Request) {
@@ -19,4 +19,10 @@ export async function GET(req: Request) {
   const signed = signToken(mode === 'stripe' ? sid : 'free')
   if (!signed) return NextResponse.json({ error: 'WSIS_TOKEN_SECRET is not set.' }, { status: 500 })
   return NextResponse.json(signed)
+}
+
+/** Checks a token from a shared link; nothing is stored. */
+export async function POST(req: Request) {
+  const body = (await req.json().catch(() => null)) as { token?: string } | null
+  return NextResponse.json({ ok: !!verifyToken(body?.token) }, { headers: { 'Cache-Control': 'no-store' } })
 }

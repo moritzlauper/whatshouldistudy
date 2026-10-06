@@ -22,6 +22,8 @@ export function reasonText(r: Reason, k: Pick<Kit, 't' | 'locale'>): string {
       return t.reasons.personality(r.high, locale === 'en' ? big5Label(r.trait, locale).name.toLowerCase() : big5Label(r.trait, locale).name)
     case 'hidden':
       return t.reasons.hidden
+    case 'studying':
+      return t.reasons.studying(r.since)
   }
 }
 

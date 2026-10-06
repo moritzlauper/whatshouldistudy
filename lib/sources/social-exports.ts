@@ -107,7 +107,7 @@ export function parseInstagram(c: SocialCollected, name: string, data: unknown):
       if (kind === 'topic' || kind === 'search') {
         for (const v of igValues(e, ls)) {
           const topic = kind === 'topic'
-          c.instagram.push({ kind: topic ? 'topic' : 'search', text: v, label: topic ? v : `«${truncate(v, 60)}»`, weight: topic ? 3 : 0.6, time })
+          c.instagram.push({ kind: topic ? 'topic' : 'search', text: v, label: topic ? v : `«${truncate(v, 140)}»`, weight: topic ? 3 : 0.6, time })
           k++
         }
         continue
@@ -194,7 +194,7 @@ export function parseTikTok(c: SocialCollected, name: string, data: unknown): st
     const time = ttTime(o)
     const search = str(o, 'SearchTerm', 'searchTerm', 'Search Term')
     if (search) {
-      c.tiktok.push({ kind: 'search', text: search, label: `«${truncate(search, 60)}»`, weight: 0.6, time })
+      c.tiktok.push({ kind: 'search', text: search, label: `«${truncate(search, 140)}»`, weight: 0.6, time })
       return
     }
     const hashtag = str(o, 'HashtagName', 'hashtagName') ?? (/hashtag/i.test(path) ? /\/tag\/([^/?#]+)/.exec(str(o, 'Link', 'link') ?? '')?.[1] : undefined)
@@ -211,7 +211,7 @@ export function parseTikTok(c: SocialCollected, name: string, data: unknown): st
     }
     const comment = str(o, 'Comment', 'comment')
     if (comment && comment.length >= 3) {
-      c.tiktok.push({ kind: 'comment', text: comment, label: `“${truncate(comment, 60)}”`, weight: 0.8, time })
+      c.tiktok.push({ kind: 'comment', text: comment, label: `“${truncate(comment, 140)}”`, weight: 0.8, time })
       return
     }
     if (str(o, 'Link', 'link', 'VideoLink')) {
@@ -250,10 +250,10 @@ export function parseTikTokText(c: SocialCollected, name: string, text: string):
     const user = /^User ?name:\s*(.+)$/im.exec(b)?.[1]?.trim()
     const comment = /^Comment:\s*(.+)$/im.exec(b)?.[1]?.trim()
     const tag = /^Hashtag Name:\s*(.+)$/im.exec(b)?.[1]?.trim()
-    if (search) c.tiktok.push({ kind: 'search', text: search, label: `«${truncate(search, 60)}»`, weight: 0.6, time })
+    if (search) c.tiktok.push({ kind: 'search', text: search, label: `«${truncate(search, 140)}»`, weight: 0.6, time })
     else if (tag) c.tiktok.push({ kind: 'topic', text: tag, label: `#${tag}`, weight: 2, time, splitCamel: true })
     else if (user && following) c.tiktok.push({ kind: 'subscription', text: handleText(user), label: `@${user}`, group: user, weight: 1.5, time })
-    else if (comment && comment.length >= 3) c.tiktok.push({ kind: 'comment', text: comment, label: `“${truncate(comment, 60)}”`, weight: 0.8, time })
+    else if (comment && comment.length >= 3) c.tiktok.push({ kind: 'comment', text: comment, label: `“${truncate(comment, 140)}”`, weight: 0.8, time })
   }
   const n = c.tiktok.length - before
   if (!n) return null
@@ -339,10 +339,10 @@ export function parseInstagramHtml(c: SocialCollected, path: string, html: strin
       for (const [label, value] of pairs) {
         if (!value || TIME_LABEL.test(label) || URL_LABEL.test(label)) continue
         if (kind === 'comment') {
-          if (COMMENT.test(label) && value.length >= 3) c.instagram.push({ kind: 'comment', text: value, label: `“${truncate(value, 60)}”`, weight: 0.8, time: at })
+          if (COMMENT.test(label) && value.length >= 3) c.instagram.push({ kind: 'comment', text: value, label: `“${truncate(value, 140)}”`, weight: 0.8, time: at })
         } else if (kind === 'profileSearch') {
           if (USERNAME.test(value)) c.instagram.push({ kind: 'search', text: handleText(value), label: `@${value}`, group: value, weight: 0.4, time: at })
-        } else c.instagram.push({ kind: 'search', text: value, label: `«${truncate(value, 60)}»`, weight: 0.6, time: at })
+        } else c.instagram.push({ kind: 'search', text: value, label: `«${truncate(value, 140)}»`, weight: 0.6, time: at })
       }
     }
   } else {
@@ -358,7 +358,7 @@ export function parseInstagramHtml(c: SocialCollected, path: string, html: strin
       const tags = igHashtags(chunk)
       const text = [captions.join(' '), tags.join(' '), user ? handleText(user) : ''].join(' \n ').trim()
       if (!text) continue
-      const label = captions[0] ? truncate(captions[0], 60) : user ? `@${user}` : `#${tags[0]}`
+      const label = captions[0] ? truncate(captions[0], 140) : user ? `@${user}` : `#${tags[0]}`
       c.instagram.push({
         kind: kind === 'like' ? 'like' : kind === 'saved' ? 'saved' : 'watch',
         text,

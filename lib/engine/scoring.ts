@@ -2,7 +2,7 @@ import { BIG5_KEYS, FIELDS, SUBJECT_KEYS, VALUE_KEYS } from '../taxonomy/fields.
 import type { Big5, Field, Riasec, RiasecKey, SubjectKey } from '../taxonomy/fields.ts'
 import { musicBig5 } from './music.ts'
 import { riasecCode, riasecCompleteness, scoreBig5, scoreRiasec } from './questionnaire.ts'
-import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, SourceId, SourceSummary } from './types.ts'
+import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, SourceId, SourceSummary, Studying } from './types.ts'
 import { STUDY_INTENT } from './text.ts'
 
 /**
@@ -28,8 +28,8 @@ import { STUDY_INTENT } from './text.ts'
 
 export const SOURCE_RELIABILITY: Record<SourceId, number> = {
   takeout: 1,
-  'google-search': 0.7,
-  youtube: 0.9,
+  'google-search': 0.5,
+  youtube: 1,
   reddit: 0.85,
   github: 0.8,
   spotify: 0.6,
@@ -42,7 +42,7 @@ export const SOURCE_RELIABILITY: Record<SourceId, number> = {
 const BASE_WEIGHTS = { interest: 0.56, riasec: 0.16, personality: 0.05, subjects: 0.15, values: 0.08 }
 
 /** For showing evidence: what you watched and searched first, old subscriptions last. */
-const KIND_WEIGHT: Record<string, number> = { watch: 3, search: 3, google: 3, comment: 2.5, like: 1.5, saved: 2, post: 2.5, upload: 2.5, repo: 2.5, subscription: 0.2 }
+const KIND_WEIGHT: Record<string, number> = { watch: 3, search: 3, google: 3, comment: 0.3, like: 1.5, saved: 2, post: 2.5, upload: 2.5, repo: 2.5, subscription: 0.2 }
 
 const POP_SUM = FIELDS.reduce((s, f) => s + f.popularity, 0)
 /** Share of a typical person's recognised content that lands in a given field. */
@@ -55,9 +55,47 @@ function baseline(f: Field): number {
  * against everything in the source, a big Google history (mostly shopping,
  * news, logins) would make every field look rarer than average.
  */
-function fieldShare(s: SourceSummary, id: string): number {
-  const total = Object.values(s.fields).reduce((sum, ev) => sum + ev.score, 0)
-  return total > 0 ? (s.fields[id]?.score ?? 0) / total : 0
+function fieldShare(s: SourceSummary, id: string, studying?: Studying): number {
+  const total = Object.keys(s.fields).reduce((sum, f) => sum + effectiveScore(s, f, studying), 0)
+  return total > 0 ? effectiveScore(s, id, studying) / total : 0
+}
+
+/**
+ * How much an activity from a given year still says about you. The last two
+ * years count in full; a comment from ten years ago says nothing about who you
+ * are now. Subscriptions you still keep never drop to zero.
+ */
+export function ageWeight(year: number, source: SourceId, now = new Date().getFullYear()): number {
+  const d = now - year
+  if (!Number.isFinite(d) || d < -1 || year < 2004) return 0
+  const w = d <= 1 ? 1 : d <= 4 ? 1 - 0.15 * (d - 1) : d <= 7 ? 0.4 - 0.1 * (d - 5) : 0
+  return source === 'youtube' ? Math.max(w, 0.15) : w
+}
+
+/**
+ * A field's weight in a source, read from the per-year totals so it also
+ * works on data stored by older versions:
+ * - older years count less (ageWeight), misread years not at all;
+ * - a field you already study keeps only a small part of what came after you
+ *   started (Google 10 %, the rest 35 %): that's coursework, not interest.
+ */
+function effectiveScore(s: SourceSummary, id: string, studying?: Studying): number {
+  const ev = s.fields[id]
+  if (!ev) return 0
+  const studied = studying?.field === id
+  const keep = s.source === 'google-search' ? 0.1 : 0.35
+  let timed = 0
+  let eff = 0
+  for (const [y, m] of Object.entries(s.timeline ?? {})) {
+    const v = m[id] ?? 0
+    if (!v) continue
+    const year = Number(y)
+    timed += v
+    eff += v * ageWeight(year, s.source) * (studied && (!studying!.since || year >= studying!.since) ? keep : 1)
+  }
+  // Activity without a date (subscriptions from exports, some likes) counts as it is.
+  const undated = Math.max(0, ev.score - timed)
+  return eff + undated * (studied && !studying!.since ? keep : 1)
 }
 
 export interface FieldStats {
@@ -69,6 +107,7 @@ export interface ScoreInput {
   summaries: SourceSummary[]
   answers?: QuestionnaireAnswers
   fieldStats?: Record<string, FieldStats>
+  studying?: Studying
 }
 
 interface InterestDetail {
@@ -79,18 +118,14 @@ interface InterestDetail {
   bySource: Partial<Record<SourceId, number>>
 }
 
-export function computeInterest(summaries: SourceSummary[]): { byField: Map<string, InterestDetail>; confidence: number } {
+export function computeInterest(summaries: SourceSummary[], studying?: Studying): { byField: Map<string, InterestDetail>; confidence: number } {
   const byField = new Map<string, InterestDetail>()
   let weightSum = 0
   const perSource: Array<{ s: SourceSummary; w: number }> = []
-  // With a long watch history, the sign-in snapshot (subscriptions, likes)
-  // mostly repeats older choices, so it counts for less.
-  const watched = Number(summaries.find((s) => s.source === 'takeout')?.stats.watchedVideos ?? 0)
   for (const s of summaries) {
     if (s.totalWeight <= 0) continue
     const volume = Math.min(1, Math.log10(1 + s.dataPoints) / 3)
-    let w = (SOURCE_RELIABILITY[s.source] ?? 0.7) * volume
-    if (s.source === 'youtube' && watched >= 500) w *= 0.5
+    const w = (SOURCE_RELIABILITY[s.source] ?? 0.7) * volume
     perSource.push({ s, w })
     weightSum += w
   }
@@ -105,10 +140,10 @@ export function computeInterest(summaries: SourceSummary[]): { byField: Map<stri
     const bySource: Partial<Record<SourceId, number>> = {}
     for (const { s, w } of perSource) {
       const ev = s.fields[f.id]
-      const p = fieldShare(s, f.id)
+      const p = fieldShare(s, f.id, studying)
       const b = baseline(f)
       const lift = Math.log((p + 0.004) / (b + 0.004))
-      const n = ev?.items ?? 0
+      const n = ev ? ev.items * (ev.score > 0 ? effectiveScore(s, f.id, studying) / ev.score : 1) : 0
       const shrink = n / (n + 4)
       let factor = 0.9
       if (s.span && s.span.months >= 3 && ev) {
@@ -146,18 +181,21 @@ function cosine(a: number[], b: number[]): number {
 }
 
 export function score(input: ScoreInput): Results {
-  const { summaries, answers = {}, fieldStats = {} } = input
+  const { summaries, answers = {}, fieldStats = {}, studying } = input
   const footprint = summaries.filter((s) => s.source !== 'questionnaire')
-  const { byField: interest, confidence: footprintConf } = computeInterest(footprint)
+  const { byField: interest, confidence: footprintConf } = computeInterest(footprint, studying)
 
-  // Footprint RIASEC: fields you engage with, weighted by how much.
+  // Footprint RIASEC: what you actually spend your attention on. Unlike field
+  // interest this isn't measured against what everyone watches: making music
+  // is artistic even though music is common, so the plain share counts.
   let footRiasec: Riasec | null = null
   if (footprintConf > 0) {
     const acc = [0, 0, 0, 0, 0, 0]
     let tot = 0
+    const sourceW = footprint.filter((s) => s.totalWeight > 0).map((s) => ({ s, w: (SOURCE_RELIABILITY[s.source] ?? 0.7) * Math.min(1, Math.log10(1 + s.dataPoints) / 3) }))
     for (const f of FIELDS) {
-      const v = Math.max(0, interest.get(f.id)?.value ?? 0)
-      const w = v ** 1.5
+      const attention = sourceW.reduce((sum, { s, w }) => sum + w * fieldShare(s, f.id, studying), 0)
+      const w = attention ** 1.3
       if (!w) continue
       f.riasec.forEach((x, i) => (acc[i] += w * x))
       tot += w
@@ -286,7 +324,10 @@ export function score(input: ScoreInput): Results {
       num += wk * (comp[k as keyof typeof comp] ?? 0)
       den += wk
     }
-    const match = den ? num / den : 0
+    let match = den ? num / den : 0
+    // With plenty of data, a field you hardly engage with can't ride on the
+    // questionnaire alone: the less you engage, the more it drops.
+    if (comp.interest !== undefined) match -= 0.7 * Math.max(0, 0.5 - comp.interest) * footprintConf
 
     // Where the match comes from: the interest part split by source, the
     // questionnaire parts as they are.
@@ -325,10 +366,13 @@ export function score(input: ScoreInput): Results {
         if (t.w < 0.8 * (strongest?.get(t.label) ?? 0)) continue
         // Searching for a programme is the decision, not a reason for it.
         if ((t.kind === 'google' || t.kind === 'search' || t.kind === 'visit') && STUDY_INTENT.test(t.label)) continue
+        // Comments are chatter, often years old: not shown as evidence.
+        if (t.kind === 'comment') continue
         evidence.push({ label: t.label, kind: t.kind, source: s.source, url: t.url, w: t.w * (KIND_WEIGHT[t.kind] ?? 1) })
       }
       for (const [t, n] of Object.entries(ev.terms)) if (!t.includes('…')) terms.set(t, (terms.get(t) ?? 0) + n)
     }
+    if (studying?.field === f.id) reasons.push({ k: 'studying', since: studying.since })
     if (comp.interest !== undefined && comp.interest > 0.55 && items > 0) {
       reasons.push({ k: 'interest', items, months: months.size })
     }
@@ -419,7 +463,7 @@ export function score(input: ScoreInput): Results {
       : { profile: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5], code: '', from: [] },
     big5: big5 ? { z: big5, from: big5From, confidence: big5Conf } : undefined,
     insights: insights(footprint, interest, sorted),
-    timeline: timeline(footprint),
+    timeline: timeline(footprint, studying),
   }
 }
 
@@ -429,7 +473,7 @@ function dedupe<T extends { label: string }>(xs: T[]): T[] {
 }
 
 
-function timeline(summaries: SourceSummary[]): Results['timeline'] {
+function timeline(summaries: SourceSummary[], studying?: Studying): Results['timeline'] {
   const years = new Map<string, Map<string, number>>()
   for (const s of summaries) {
     if (!s.timeline) continue
@@ -438,7 +482,11 @@ function timeline(summaries: SourceSummary[]): Results['timeline'] {
       if (!/^\d{4}$/.test(y) || Number(y) < 2004 || Number(y) > new Date().getFullYear() + 1) continue
       const m = years.get(y) ?? new Map<string, number>()
       // Lift over baseline, so every year isn't just "the most common topic".
-      for (const [id, v] of Object.entries(fields)) m.set(id, (m.get(id) ?? 0) + v)
+      for (const [id, v] of Object.entries(fields)) {
+        // The degree you're in, from the year it started: coursework, not a shift in interest.
+        if (studying?.field === id && (!studying.since || Number(y) >= studying.since)) continue
+        m.set(id, (m.get(id) ?? 0) + v)
+      }
       years.set(y, m)
     }
   }
@@ -521,11 +569,11 @@ export interface SourceProfile {
 }
 
 /** What one source says on its own, for the detailed report. */
-export function sourceProfile(s: SourceSummary): SourceProfile {
+export function sourceProfile(s: SourceSummary, studying?: Studying): SourceProfile {
   const fields = FIELDS.map((f) => {
     const ev = s.fields[f.id]
     if (!ev || ev.items < 3) return null
-    const p = fieldShare(s, f.id)
+    const p = fieldShare(s, f.id, studying)
     return { id: f.id, share: p, lift: (ev.items / (ev.items + 4)) * Math.log((p + 0.004) / (baseline(f) + 0.004)) }
   })
     .filter((x): x is { id: string; share: number; lift: number } => !!x && x.lift > 0)
@@ -539,7 +587,7 @@ export function sourceProfile(s: SourceSummary): SourceProfile {
   // Examples: what was watched, searched or liked first, a subscription only if that's all there is.
   const examplesFor = (id: string) =>
     [...(s.fields[id]?.top ?? [])]
-      .filter((t) => !((t.kind === 'google' || t.kind === 'search' || t.kind === 'visit') && STUDY_INTENT.test(t.label)))
+      .filter((t) => t.kind !== 'comment' && !((t.kind === 'google' || t.kind === 'search' || t.kind === 'visit') && STUDY_INTENT.test(t.label)))
       .sort((a, b) => (a.kind === 'subscription' ? 1 : 0) - (b.kind === 'subscription' ? 1 : 0) || b.w - a.w)
       .slice(0, 2)
       .map((t) => ({ label: t.label, kind: t.kind }))
