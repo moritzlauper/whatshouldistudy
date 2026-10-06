@@ -171,7 +171,9 @@ export function parseSpProgrammes(d: SpDetails, level: Level, fetchedAt: string)
       id: programmeId(['ch-sp', d.id, m]),
       parent: p.id,
       name: `${p.name}: ${m}`,
-      fields: [...new Set([...own.slice(0, 2), ...p.fields])].slice(0, 3),
+      // An umbrella («Design»: graphic, industrial, game …) gives way to the
+      // major's own field; a single-field programme («Theater») stays first.
+      fields: p.fields.length >= 2 ? (own.length ? own.slice(0, 2) : p.fields) : [...new Set([...p.fields, ...own.slice(0, 1)])],
       focus: [m],
       // Not the list of all majors: the other tracks shouldn't match your topics here.
       description: `Einer von ${majors.length} Majors im ${p.name}.`,

@@ -39,7 +39,12 @@ test('majors listed in the description become their own rows', async () => {
   assert.equal(cast.name, 'Bachelor in Design: Cast / Audiovisual Media')
   assert.ok(cast.parent)
   assert.equal(cast.fields[0], 'film-production')
-  assert.equal(rows.find((r) => /Game Design/.test(r.name))!.fields[0], 'game-design')
+  const game = rows.find((r) => /Game Design/.test(r.name))!
+  assert.equal(game.fields[0], 'game-design')
+  assert.ok(!game.fields.includes('film-production'), game.fields.join())
+  assert.ok(!cast.fields.includes('game-design'), cast.fields.join())
+  const theater = parseSpProgrammes({ ...d, id: 99002, name: 'Bachelor in Theater', description: 'Majors: Regie, Schauspiel, Szenischer Raum, Theaterpädagogik' }, 'bachelor', '2026-10-06')
+  assert.ok(theater.every((r) => r.fields[0] === 'performing-arts'), theater.map((r) => r.fields.join('+')).join(' / '))
   // The other majors don't leak into this row's topics.
   assert.ok(!textTopics(`${cast.name} \n ${(cast.focus ?? []).join(', ')} \n ${cast.description}`).some((k) => /game/.test(k)))
   assert.equal(new Set(rows.map((r) => r.id)).size, 7)
