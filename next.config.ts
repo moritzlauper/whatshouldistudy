@@ -21,8 +21,11 @@ const nextConfig: NextConfig = {
     globalNotFound: true,
   },
   // Under a base path the domain has nothing at its root; send visitors to the app.
+  // At the root, old links from the time under /whatshouldistudy lose that prefix.
   async redirects() {
-    return basePath ? [{ source: '/', destination: basePath, basePath: false, permanent: false }] : []
+    return basePath
+      ? [{ source: '/', destination: basePath, basePath: false, permanent: false }]
+      : [{ source: '/whatshouldistudy/:path*', destination: '/:path*', permanent: true }]
   },
   async headers() {
     return [
