@@ -84,6 +84,12 @@ export const LIKERT_INTEREST = ['Dislike', 'Not really', 'Neutral', 'Like', 'Lov
 export const LIKERT_ACCURACY = ['Very inaccurate', 'Inaccurate', 'Neither', 'Accurate', 'Very accurate']
 
 /** RIASEC profile in 0..1 from the activity items, or null if too few answers. */
+/** Share of the RIASEC items answered, 0..1. */
+export function riasecCompleteness(a: QuestionnaireAnswers): number {
+  if (!a.riasec) return 0
+  return RIASEC_ITEMS.filter((i) => typeof a.riasec![i.id] === 'number').length / RIASEC_ITEMS.length
+}
+
 export function scoreRiasec(a: QuestionnaireAnswers): Riasec | null {
   if (!a.riasec) return null
   const out: number[] = []

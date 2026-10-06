@@ -87,7 +87,8 @@ function compile(): Compiled {
         else pushAffix(c.suffixes, core.slice(-3), core, hit)
         continue
       }
-      push(c.phrases, core, { term: termId(core, core), field, weight })
+      // Show the term as written in the lexicon, umlauts and all.
+      push(c.phrases, core, { term: termId(core, term.toLowerCase()), field, weight })
       const parts = core.split(' ')
       for (let i = 1; i < parts.length; i++) c.partial.add(parts.slice(0, i).join(' '))
     }
@@ -114,6 +115,8 @@ export interface Classification {
   entertainment: number
   /** Matched (term, field) pairs encoded as term * 256 + field + 2, for evidence. */
   matched: number[]
+  /** For stems (soziolog…): the word that actually matched, as written in the text. */
+  words?: Map<number, string>
 }
 
 const EMPTY: Classification = {
@@ -140,8 +143,10 @@ export function classify(text: string, opts: { splitCamel?: boolean } = {}): Cla
   let learning = 0
   let entertainment = 0
 
-  const apply = (hits: Hit[]) => {
+  let words: Map<number, string> | undefined
+  const apply = (hits: Hit[], word?: string) => {
     for (const h of hits) {
+      if (word && !words?.has(h.term)) (words ??= new Map()).set(h.term, surface(text, word))
       const k = h.term * 256 + (h.field + 2)
       if (seen.has(k)) continue
       seen.add(k)
@@ -163,9 +168,9 @@ export function classify(text: string, opts: { splitCamel?: boolean } = {}): Cla
     }
     if (tok.length >= 4) {
       const pre = lx.prefixes.get(tok.slice(0, 3))
-      if (pre) for (const a of pre) if (tok.length >= a.stem.length && tok.startsWith(a.stem)) apply(a.hits)
+      if (pre) for (const a of pre) if (tok.length >= a.stem.length && tok.startsWith(a.stem)) apply(a.hits, tok)
       const suf = lx.suffixes.get(tok.slice(-3))
-      if (suf) for (const a of suf) if (tok.length > a.stem.length && tok.endsWith(a.stem)) apply(a.hits)
+      if (suf) for (const a of suf) if (tok.length > a.stem.length && tok.endsWith(a.stem)) apply(a.hits, tok)
     }
   }
   if (lx.caseSensitive.size) {
@@ -180,10 +185,17 @@ export function classify(text: string, opts: { splitCamel?: boolean } = {}): Cla
     learning,
     entertainment,
     matched: [...seen],
+    words,
   }
   if (cache.size >= CACHE_LIMIT) cache.clear()
   cache.set(key, result)
   return result
+}
+
+/** The word in the original text whose normalised form is `tok`, lowercased. */
+function surface(text: string, tok: string): string {
+  for (const w of text.split(/[^\p{L}\p{N}]+/u)) if (w && normalize(w) === tok) return w.toLowerCase()
+  return tok
 }
 
 /** Maps raw weights to 0..1 per field: one strong term ≈ 0.7, two ≈ 0.9. */
@@ -201,8 +213,12 @@ export function fieldVector(c: Classification): Float32Array {
 export function termsForField(c: Classification, field: number): string[] {
   const lx = lexicon()
   const out: string[] = []
-  for (const k of c.matched) if ((k % 256) - 2 === field) out.push(lx.terms[Math.floor(k / 256)])
-  return out
+  for (const k of c.matched) {
+    if ((k % 256) - 2 !== field) continue
+    const term = Math.floor(k / 256)
+    out.push(c.words?.get(term) ?? lx.terms[term])
+  }
+  return [...new Set(out)]
 }
 
 /** Top fields of a single text, for quick checks and the scrapers. */

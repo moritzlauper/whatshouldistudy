@@ -1060,7 +1060,7 @@ export const FIELDS: Field[] = [
     big5: { O: 0.35, E: 0.2 },
     subjects: { lang: 1, hist: 0.55, social: 0.6, forlang: 0.4 },
     values: v([0.4, 0.3, 0.85, 0.5, 0.4, 0.3, 0.65, 0.85]),
-    popularity: 1.9,
+    popularity: 2.6,
     careers: ['Journalist', 'Investigative reporter', 'Editor', 'Documentary maker', 'Foreign correspondent'],
     cip: ['09.04', '09.10'],
     cah: ['CAH24-01-01'],

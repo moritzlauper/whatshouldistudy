@@ -29,14 +29,14 @@ const en = {
     h1c: '10,000 choices',
     h1d: 'you’ve already made.',
     lead: (n: number) =>
-      `Not another quiz about what you think you like. We read what you actually watch, listen to, follow and build, add five minutes of real psychology, and match you to ${n} fields of study and programmes around the world.`,
+      `Drop in your YouTube and Google history, your Instagram or TikTok export, and Reddit or GitHub if you like. Your browser reads them on your own device and counts which topics you keep coming back to. Add a short questionnaire on interests, school subjects and values, and you get your best fields out of ${n}, with matching programmes around the world. Nothing gets stored.`,
     cta: 'Find my field',
     cta2: 'How it works',
     totals: (p: string, i: string) => `${p} programmes at ${i} institutions, refreshed every week.`,
     marquee: 'fields to discover',
     cols: [
-      ['Quizzes ask', 'what you think you like. The answers depend on what sounds good, what your parents said and how you feel today.'],
       ['Your footprint shows', 'what you actually spend your attention on, month after month. Years of history don’t care how a question is phrased.'],
+      ['Quizzes ask', 'what you think you like. The answer depends on what sounds good and how you feel that day.'],
       ['We combine both', 'because a footprint can’t know your grades or your values. Each part covers the other’s blind spots.'],
     ] as Array<[string, string]>,
     sourcesTitle: 'Plug in what you like. Skip the rest.',
@@ -493,14 +493,14 @@ const deCH: Dict = {
     h1c: '10’000 Entscheidungen,',
     h1d: 'die du schon getroffen hast.',
     lead: (n: number) =>
-      `Kein weiteres Quiz darüber, was dir angeblich gefällt. Wir lesen, was du wirklich schaust, hörst, abonnierst und baust, nehmen fünf Minuten echte Psychologie dazu und finden so deine Fächer: ${n} Studienfelder, dazu jeder passende Bachelor an Uni, ETH, FH und PH.`,
+      `Du lädst deinen YouTube- und Google-Verlauf hier rein, deinen Instagram- oder TikTok-Export, wenn du willst auch Reddit und GitHub. Dein Browser liest das direkt auf deinem Gerät und zählt, zu welchen Themen du immer wieder zurückkommst. Dazu ein kurzer Fragebogen zu Interessen, Schulfächern und Werten. Heraus kommen deine Fächer aus ${n} Studienfeldern und die passenden Studiengänge an Uni, ETH, FH und PH. Gespeichert wird nichts.`,
     cta: 'Mein Fach finden',
     cta2: 'So funktioniert’s',
     totals: (p: string, i: string) => `${p} Studiengänge an ${i} Hochschulen, jede Woche aktualisiert.`,
     marquee: 'Fächer zum Entdecken',
     cols: [
-      ['Quizze fragen,', 'was dir angeblich gefällt. Die Antwort hängt davon ab, was gut klingt, was die Eltern sagen und wie du dich heute fühlst.'],
       ['Dein Verlauf zeigt,', 'wofür du deine Zeit wirklich brauchst, Monat für Monat. Drei Jahre YouTube lassen sich nicht schönreden.'],
+      ['Quizze fragen,', 'was dir angeblich gefällt. Die Antwort hängt davon ab, was gut klingt und wie du dich an dem Tag fühlst.'],
       ['Wir nehmen beides,', 'weil dein Verlauf deine Noten nicht kennt. Und der Fragebogen nicht weiss, dass du nachts Doku über Vulkane schaust.'],
     ],
     sourcesTitle: 'Verbinde, was du willst. Den Rest lässt du weg.',
@@ -929,7 +929,7 @@ const deCH: Dict = {
 const DE_OVERRIDES: DeepPartial<Dict> = {
   landing: {
     lead: (n: number) =>
-      `Kein weiteres Quiz darüber, was dir angeblich gefällt. Wir lesen, was du wirklich schaust, hörst, abonnierst und baust, nehmen fünf Minuten echte Psychologie dazu und finden so deine Fächer: ${n} Studienfelder, dazu jeder passende Studiengang an Unis, Hochschulen für angewandte Wissenschaften und dualen Hochschulen.`,
+      `Du lädst deinen YouTube- und Google-Verlauf hier rein, deinen Instagram- oder TikTok-Export, wenn du willst auch Reddit und GitHub. Dein Browser liest das direkt auf deinem Gerät und zählt, zu welchen Themen du immer wieder zurückkommst. Dazu ein kurzer Fragebogen zu Interessen, Schulfächern und Werten. Heraus kommen deine Fächer aus ${n} Studienfeldern und die passenden Studiengänge an Unis, Hochschulen für angewandte Wissenschaften und dualen Hochschulen. Gespeichert wird nichts.`,
     fullList: ['Dein Platz 1, mit allen Belegen', 'Jeder passende Studiengang, für dich sortiert', 'Abschluss, Studienform und Semesterbeitrag', 'Uni, HAW und duales Studium im Vergleich', 'Auch Ausland: Österreich, Schweiz, Frankreich, UK, USA und 60 weitere Länder', 'Filter, Suche, CSV-Export, neue Studiengänge markiert'],
     faq: [
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
@@ -969,7 +969,7 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
 const AT_OVERRIDES: DeepPartial<Dict> = {
   landing: {
     lead: (n: number) =>
-      `Kein weiteres Quiz darüber, was dir angeblich gefällt. Wir lesen, was du wirklich schaust, hörst, abonnierst und baust, nehmen fünf Minuten echte Psychologie dazu und finden so deine Fächer: ${n} Studienfelder, dazu jedes passende Studium an Unis, Fachhochschulen und Pädagogischen Hochschulen.`,
+      `Du lädst deinen YouTube- und Google-Verlauf hier rein, deinen Instagram- oder TikTok-Export, wenn du willst auch Reddit und GitHub. Dein Browser liest das direkt auf deinem Gerät und zählt, zu welchen Themen du immer wieder zurückkommst. Dazu ein kurzer Fragebogen zu Interessen, Schulfächern und Werten. Heraus kommen deine Fächer aus ${n} Studienfeldern und die passenden Studien an Unis, Fachhochschulen und Pädagogischen Hochschulen. Gespeichert wird nichts.`,
     fullList: ['Dein Platz 1, mit allen Belegen', 'Jedes passende Studium, für dich sortiert', 'Studienbeitrag und Aufnahmeverfahren', 'Uni, FH und PH im Vergleich', 'Auch Ausland: Deutschland, Schweiz, Frankreich, UK, USA und 60 weitere Länder', 'Filter, Suche, CSV-Export, neue Studien markiert'],
     faq: [
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],

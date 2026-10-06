@@ -1,7 +1,7 @@
 import { BIG5_KEYS, FIELDS, SUBJECT_KEYS, VALUE_KEYS } from '../taxonomy/fields.ts'
 import type { Big5, Field, Riasec, RiasecKey, SubjectKey } from '../taxonomy/fields.ts'
 import { musicBig5 } from './music.ts'
-import { riasecCode, scoreBig5, scoreRiasec } from './questionnaire.ts'
+import { riasecCode, riasecCompleteness, scoreBig5, scoreRiasec } from './questionnaire.ts'
 import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, SourceId, SourceSummary } from './types.ts'
 
 /**
@@ -153,7 +153,8 @@ export function score(input: ScoreInput): Results {
   let riasec: Riasec | null = null
   const riasecFrom: string[] = []
   if (qRiasec && footRiasec) {
-    const wf = 0.6 * footprintConf
+    // The more of the questionnaire is answered, the less the footprint shifts the profile.
+    const wf = 0.6 * footprintConf * (1 - 0.6 * riasecCompleteness(answers))
     riasec = qRiasec.map((x, i) => (x + wf * footRiasec![i]) / (1 + wf)) as Riasec
     riasecFrom.push('questionnaire', 'footprint')
   } else if (qRiasec) {
