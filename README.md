@@ -14,8 +14,8 @@ degree programmes of its own universities and universities of applied sciences
 and leads with them. Until they get their own domains they live at `/schweiz`,
 `/deutschland` and `/oesterreich`.
 
-The whole app runs under the base path `/whatshouldistudy`, so it can sit inside
-angebunden.ch as a second Vercel project (see *Deploy on Vercel*).
+The app serves at the domain root. `WSIS_BASE_PATH` mounts it under a path
+instead (see *Deploy on Vercel*).
 
 The field results are free. The full programme list (every matching programme
 with the fee for the student's citizenship, earnings, admission rates, filters,
@@ -92,10 +92,8 @@ give a country site its own domain:
    others). Its host with and without `www.` is then that country's; more hosts
    via `WSIS_CH_HOSTS` / `WSIS_DE_HOSTS` / `WSIS_AT_HOSTS`. Old `/schweiz/…`
    links redirect to the new domain.
-3. Set `WSIS_BASE_PATH=/` if the project should serve at the domain root
-   instead of under `/whatshouldistudy`.
-4. Optionally rename it: `NEXT_PUBLIC_CH_NAME` / `_DE_NAME` / `_AT_NAME`.
-5. Register `https://wasstudiere.ch/callback/google` (and spotify) with the
+3. Optionally rename it: `NEXT_PUBLIC_CH_NAME` / `_DE_NAME` / `_AT_NAME`.
+4. Register `https://wasstudiere.ch/callback/google` (and spotify) with the
    OAuth providers. Reddit takes a single redirect URI per app, so Reddit
    sign-in works on one domain only (or with a second Reddit app).
 
@@ -270,29 +268,21 @@ Customer portal) so organisations can change plans, see invoices and cancel.
 
 ## Deploy on Vercel
 
-whatshouldistudy is its own Vercel project and joins angebunden.ch as a
-[multi-zone](https://nextjs.org/docs/app/guides/multi-zones) app:
+whatshouldistudy is its own Vercel project and serves at the root of its domain:
 
 1. New Vercel project from this repository, any project name. `vercel.json` skips
-   builds when nothing in this folder changed and never deploys the data and
-   bot branches.
-2. Settings → Deployment Protection: switch *Vercel Authentication* off for
-   production, otherwise angebunden's rewrite gets a login page.
+   builds when nothing changed and never deploys the data and bot branches.
+2. Add the domain under Settings → Domains.
 3. Set the variables from `.env.example`, at least `NEXT_PUBLIC_SITE_URL`
-   (`https://angebunden.ch`).
-4. angebunden's `next.config.ts` rewrites `/whatshouldistudy/*` to
-   `https://angebunden-7o69.vercel.app`, the production domain of the project
-   as it was created. For another project, set `WHATSHOULDISTUDY_URL` in the
-   **angebunden** project to the domain listed under its Settings → Domains
-   (no trailing slash). Once both are deployed from `main`, the site is at
-   `angebunden.ch/whatshouldistudy`.
-
-Before that, every deployment of this project works on its own at
-`<deployment-url>/whatshouldistudy`; its root redirects there.
+   (the public origin, e.g. `https://whatshouldistudy.de`).
 
 With the system environment variables exposed (Vercel default), the data branch
-is found automatically, also after moving the repository. When the site moves to
-its own domain, set `WSIS_BASE_PATH=/` and drop the rewrite in angebunden.
+is found automatically, also after moving the repository.
+
+To run it as a [multi-zone](https://nextjs.org/docs/app/guides/multi-zones) app
+inside another site, set `WSIS_BASE_PATH=/whatshouldistudy`, switch *Vercel
+Authentication* off for production and let the host site rewrite that path to
+this deployment. The deployment's root then redirects to the base path.
 
 ## Next: whatshouldiwork
 

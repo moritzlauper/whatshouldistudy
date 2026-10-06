@@ -9,7 +9,7 @@ import { siteForHost } from './lib/site.ts'
  * (/ch-site/…, /de-site/…, /at-site/…), whose pages link without a prefix.
  * On the global host the same pages live at /schweiz/…, /deutschland/… and
  * /oesterreich/…; once a country has its own domain, those move there.
- * Own domains need the app at the root (WSIS_BASE_PATH=/).
+ * Own domains need the app at the root (no WSIS_BASE_PATH).
  */
 
 const under = (path: string, prefix: string) => path === prefix || path.startsWith(`${prefix}/`)

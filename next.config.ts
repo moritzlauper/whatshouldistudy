@@ -1,11 +1,10 @@
 import type { NextConfig } from 'next'
 
 /**
- * While the project lives inside angebunden it runs under angebunden.ch/whatshouldistudy:
- * angebunden rewrites that path to this deployment (Next.js multi-zones). On its
- * own domain set WSIS_BASE_PATH=/ to serve it at the root.
+ * The app serves at the domain root. WSIS_BASE_PATH (e.g. /whatshouldistudy)
+ * mounts it under a path instead, for running it as a zone inside another site.
  */
-const basePath = (process.env.WSIS_BASE_PATH || '/whatshouldistudy').replace(/\/+$/, '')
+const basePath = (process.env.WSIS_BASE_PATH || '').replace(/\/+$/, '')
 
 const nextConfig: NextConfig = {
   basePath: basePath || undefined,
@@ -21,7 +20,7 @@ const nextConfig: NextConfig = {
   experimental: {
     globalNotFound: true,
   },
-  // The zone's own domain has nothing at its root; send visitors to the app.
+  // Under a base path the domain has nothing at its root; send visitors to the app.
   async redirects() {
     return basePath ? [{ source: '/', destination: basePath, basePath: false, permanent: false }] : []
   },

@@ -4,7 +4,7 @@ import type { LocalSiteId, SiteId } from './site/config.ts'
 export const SITE_NAME = 'whatshouldistudy'
 /** Public origin of the global site. While the project lives inside angebunden, that is angebunden.ch. */
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://angebunden.ch').replace(/\/$/, '')
-/** Path prefix of the whole app (next.config.ts basePath), '/whatshouldistudy' inside angebunden. */
+/** Path prefix of the whole app (next.config.ts basePath), empty at the domain root. */
 export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 /** Where the code lives. The site is open source (MIT). */
 export const SOURCE_URL = (process.env.NEXT_PUBLIC_SOURCE_URL || 'https://github.com/moritzlauper/whatshouldistudy').replace(/\/$/, '')
