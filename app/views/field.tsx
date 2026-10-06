@@ -13,6 +13,7 @@ import { big5Label, countryLabel, emoji, fieldBlurb, fieldCareers, fieldName, fm
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 import { Earnings } from '../ui/earnings.tsx'
+import { JsonLd, fieldLd } from '../ui/json-ld.tsx'
 
 
 export async function FieldView({ site, base, id }: SiteProps & { id: string }) {
@@ -47,6 +48,7 @@ export async function FieldView({ site, base, id }: SiteProps & { id: string }) 
 
   return (
     <div className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
+      <JsonLd data={fieldLd(site, id, name)} />
       <Link href={r.fields} className="text-sm font-semibold text-muted hover:text-ink">
         ← {t.fields.back} · {groupLabel(f.group, locale)}
       </Link>

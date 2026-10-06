@@ -14,6 +14,7 @@ import { Marquee } from '../ui/marquee.tsx'
 import { Price } from '../ui/price.tsx'
 import { Blob, Burst, Pill, Ring, Sparkle, Squiggle } from '../ui/shapes.tsx'
 import { GitHubMark, TrustStickers } from '../ui/trust.tsx'
+import { JsonLd, homeLd } from '../ui/json-ld.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 import { isConfigured } from '@/lib/sources/oauth.ts'
 
@@ -32,6 +33,7 @@ export async function Landing({ site, base }: SiteProps) {
 
   return (
     <>
+      <JsonLd data={homeLd(site, t.landing.faq)} />
       {/* Hero */}
       <section className="dots relative overflow-hidden border-b-2 border-line">
         <Burst className="spin-slow absolute -right-6 top-10 hidden md:block" size={130} color="var(--yellow)" />

@@ -1,4 +1,4 @@
-import { siteUrl } from '@/lib/site.ts'
+import { pageMeta } from '@/lib/site/meta.ts'
 import type { Metadata } from 'next'
 import { FIELDS, FIELD_BY_ID } from '@/lib/taxonomy/fields.ts'
 import { dict } from '@/lib/site/dict.ts'
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params
   const f = FIELD_BY_ID[id]
   if (!f) return {}
-  return { title: t.fields.metaTitle(f.name), description: t.meta.fieldDesc(f.name, f.blurb), alternates: { canonical: siteUrl('global', `/fields/${id}`) } }
+  return pageMeta('global', (r) => r.field(id), { title: t.fields.metaTitle(f.name), description: t.meta.fieldDesc(f.name, f.blurb) })
 }
 
 export default async function FieldPage({ params }: { params: Promise<{ id: string }> }) {

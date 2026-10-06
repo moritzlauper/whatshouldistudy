@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!FIELD_BY_ID[id]) return {}
   const locale = SITES[mountInfo(mount).site].locale
   const name = fieldName(id, locale)
-  return localMeta(params, `/faecher/${id}`, (t) => ({ title: t.fields.metaTitle(name), description: t.meta.fieldDesc(name, fieldBlurb(id, locale)) }))
+  return localMeta(params, (r) => r.field(id), (t) => ({ title: t.fields.metaTitle(name), description: t.meta.fieldDesc(name, fieldBlurb(id, locale)) }))
 }
 
 export default async function Fach({ params }: Params) {

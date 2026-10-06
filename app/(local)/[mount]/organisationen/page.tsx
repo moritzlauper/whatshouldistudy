@@ -9,7 +9,7 @@ export const revalidate = 3600
 export const generateMetadata = async ({ params }: { params: Promise<{ mount: string }> }) => {
   const { site } = mountInfo((await params).mount)
   const o = orgsText(SITES[site].locale)
-  return localMeta(params, '/organisationen', () => ({ title: o.title, description: o.metaDesc(site === 'ch' ? '1’000' : '1.000') }))
+  return localMeta(params, (r) => r.orgs, () => ({ title: o.title, description: o.metaDesc(site === 'ch' ? '1’000' : '1.000') }))
 }
 
 export default async function Page({ params }: { params: Promise<{ mount: string }> }) {
