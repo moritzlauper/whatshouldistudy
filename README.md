@@ -62,7 +62,7 @@ development. `.env.example` lists everything else.
 | Path | `/` | `/schweiz` | `/deutschland` | `/oesterreich` |
 | Language | English | Swiss Standard German | German (Germany) | German (Austria) |
 | Default filter | anywhere | Switzerland, Swiss citizenship | Germany, EU citizenship | Austria, EU citizenship |
-| Price | 15 in the visitor's currency | CHF 15 | EUR 15 | EUR 15 |
+| Price | 17 in the visitor's currency | CHF 17 | EUR 17 | EUR 17 |
 | Browser storage | `wsis:v1` | `wsis:v1:ch` | `wsis:v1:de` | `wsis:v1:at` |
 
 All four render the same views (`app/views/`, `app/ui/`). The global routes are
@@ -241,13 +241,32 @@ The privacy page describes exactly what is switched on.
 and `/api/research` require it. No database. Free tier: `/api/teaser` (counts
 plus the top 3 programmes).
 
-Price: 15 in the visitor's currency (`lib/pricing.ts`, country from Vercel's
-`x-vercel-ip-country`): CHF 15, EUR 15, USD 15, GBP 13, CAD 20, AUD 22, SEK 169,
-NOK 169, DKK 109, PLN 65, JPY 2,300, INR 999 and more. Without
-`STRIPE_PRICE_ID` the amount is sent as `price_data`, so nothing has to be set
-up in Stripe besides the key. With a Price, give it a currency option for each
-currency in `lib/pricing.ts`. For TWINT on the Swiss site, enable it in the
-Stripe dashboard (payment methods); Checkout shows it automatically for CHF.
+Price: 17 in the visitor's currency (`lib/pricing.ts`, country from Vercel's
+`x-vercel-ip-country`): CHF 17, EUR 17, USD 17, GBP 15, CAD 23, AUD 25, SEK 189,
+NOK 189, DKK 125, PLN 75, JPY 2,600, INR 1,099 and more. Checkout uses the
+Stripe price with lookup key `wsis_report` (or `STRIPE_PRICE_ID`); without one
+the amount is sent as `price_data`, so nothing has to be set up in Stripe
+besides the key. For TWINT on the Swiss site, enable it in the Stripe dashboard
+(payment methods); Checkout shows it automatically for CHF.
+
+**Plans for organisations** (`/organisations`, `/organisationen`): 100, 1,000
+or unlimited full reports a month, CHF/EUR/USD 99, 349 or 949 a month billed
+yearly, 119, 419 or 1,139 billed monthly (about 17% more), and the same price
+levels in every other currency (`ORG_PRICES`). After Checkout the organisation
+gets a student link (`/start?org=…`) and an admin link to its dashboard
+(usage, Stripe customer portal). Both are the subscription id signed with
+`WSIS_TOKEN_SECRET` under different prefixes; nothing is stored on our side.
+A student's unlock through the link sends a Stripe meter event
+(`wsis_report`); the meter's count for the calendar month enforces the limit.
+
+`pnpm stripe:setup` creates the products, prices (with a currency option per
+currency) and the meter from `lib/pricing.ts`, and moves a lookup key to a new
+price when an amount changes. Run it with `STRIPE_SECRET_KEY=…` or
+`STRIPE_CLI=live` (a logged-in Stripe CLI whose key may write Products, Prices
+and Meters). The site's own key needs: Checkout Sessions write, Prices read,
+Subscriptions read, Billing Meters read, Meter Events write, Customer portal
+write. Enable the customer portal in the Stripe dashboard (Settings → Billing →
+Customer portal) so organisations can change plans, see invoices and cancel.
 
 ## Deploy on Vercel
 

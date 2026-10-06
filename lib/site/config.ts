@@ -117,6 +117,9 @@ export interface Routes {
   terms: string
   imprint: string
   unlocked: string
+  /** Plans for schools and counselling services, and where their subscription lands. */
+  orgs: string
+  orgWelcome: string
   callback: (provider: string) => string
   anchors: { sources: string; questionnaire: string; prefs: string; programmes: string; data: string }
 }
@@ -135,6 +138,8 @@ export function routes(site: SiteId, base = ''): Routes {
       terms: `${base}/agb`,
       imprint: `${base}/impressum`,
       unlocked: `${base}/freigeschaltet`,
+      orgs: `${base}/organisationen`,
+      orgWelcome: `${base}/organisationen/willkommen`,
       callback: (p) => `${base}/callback/${p}`,
       anchors: { sources: 'quellen', questionnaire: 'fragebogen', prefs: 'wohin', programmes: 'studiengaenge', data: 'daten' },
     }
@@ -150,6 +155,8 @@ export function routes(site: SiteId, base = ''): Routes {
     terms: '/terms',
     imprint: '/imprint',
     unlocked: '/unlocked',
+    orgs: '/organisations',
+    orgWelcome: '/organisations/welcome',
     callback: (p) => `/callback/${p}`,
     anchors: { sources: 'sources', questionnaire: 'questionnaire', prefs: 'preferences', programmes: 'programmes', data: 'data' },
   }

@@ -8,6 +8,8 @@ import { SiteFlag, Sparkle } from './shapes.tsx'
 import { GitHubMark } from './trust.tsx'
 import { ConsentLink, Measurement } from './measurement.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
+import { orgsText } from '@/lib/site/orgs-text.ts'
+import { OrgCapture } from './org-capture.tsx'
 
 const ALL: SiteId[] = ['global', 'ch', 'de', 'at']
 
@@ -15,6 +17,7 @@ const ALL: SiteId[] = ['global', 'ch', 'de', 'at']
 export function Shell({ site, base, children }: SiteProps & { children: React.ReactNode }) {
   const k = kit(site, base)
   const { t, r, conf } = k
+  const o = orgsText(k.locale)
   return (
     <SiteProvider site={site} base={base}>
       <header className="sticky top-0 z-30 border-b-2 border-line bg-bg/90 backdrop-blur">
@@ -31,6 +34,9 @@ export function Shell({ site, base, children }: SiteProps & { children: React.Re
             </Link>
             <Link href={r.fields} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 sm:inline-block">
               {t.nav.fields}
+            </Link>
+            <Link href={r.orgs} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 md:inline-block">
+              {o.nav}
             </Link>
             <Link href={r.start} className="btn btn-primary btn-sm ml-1">
               {t.nav.start}
@@ -62,6 +68,7 @@ export function Shell({ site, base, children }: SiteProps & { children: React.Re
             <Link href={r.how} className="opacity-80 hover:opacity-100">{t.nav.how}</Link>
             <Link href={r.fields} className="opacity-80 hover:opacity-100">{t.footer.allFields}</Link>
             <Link href={`${r.how}#${r.anchors.data}`} className="opacity-80 hover:opacity-100">{t.footer.sources}</Link>
+            <Link href={r.orgs} className="opacity-80 hover:opacity-100">{o.title}</Link>
           </div>
           <div className="flex flex-col gap-2.5">
             <Link href={r.privacy} className="opacity-80 hover:opacity-100">{t.footer.privacy}</Link>
@@ -83,6 +90,7 @@ export function Shell({ site, base, children }: SiteProps & { children: React.Re
         </div>
       </footer>
       <Measurement />
+      <OrgCapture />
     </SiteProvider>
   )
 }

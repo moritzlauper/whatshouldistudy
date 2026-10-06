@@ -10,6 +10,7 @@
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit -p tsconfig.json",
     "test": "node --test test/*.test.ts",
+    "stripe:setup": "node scripts/stripe-setup.ts",
     "data:us": "node scrapers/us-scorecard.ts",
     "data:fr": "node scrapers/fr-parcoursup.ts",
     "data:uk": "node scrapers/uk-discoveruni.ts",

@@ -66,3 +66,31 @@ export function paymentMode(): 'stripe' | 'free' | 'off' {
   if (process.env.WSIS_FREE_UNLOCK === '1' || process.env.NODE_ENV !== 'production') return 'free'
   return 'off'
 }
+
+/**
+ * An organisation's links: the Stripe subscription id, signed. They never
+ * expire by themselves; whether the subscription is still active is asked from
+ * Stripe each time. Two kinds under separate prefixes: the student link only
+ * unlocks reports, the admin link opens the dashboard and Stripe's customer
+ * portal. Neither can pass as an unlock token or the other way round.
+ */
+export type OrgLink = 'student' | 'admin'
+
+export function signOrg(subscription: string, kind: OrgLink): string | null {
+  const key = secret()
+  if (!key) return null
+  const body = b64(subscription)
+  return `${body}.${createHmac('sha256', key).update(`org-${kind}:${body}`).digest('base64url')}`
+}
+
+export function verifyOrg(token: string | null | undefined, kind: OrgLink): string | null {
+  const key = secret()
+  if (!key || !token) return null
+  const [body, sig] = token.split('.')
+  if (!body || !sig) return null
+  const expected = createHmac('sha256', key).update(`org-${kind}:${body}`).digest()
+  const given = Buffer.from(sig, 'base64url')
+  if (given.length !== expected.length || !timingSafeEqual(given, expected)) return null
+  const sub = Buffer.from(body, 'base64url').toString()
+  return /^sub_[A-Za-z0-9]+$/.test(sub) ? sub : null
+}

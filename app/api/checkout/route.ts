@@ -1,45 +1,22 @@
 import { NextResponse } from 'next/server'
-import { priceFor, stripeAmount } from '@/lib/pricing.ts'
+import { REPORT_LOOKUP_KEY, priceFor, stripeAmount } from '@/lib/pricing.ts'
+import { returnTo } from '@/lib/server/origin.ts'
+import { priceId } from '@/lib/server/stripe.ts'
 import { paymentMode, visitorCountry } from '@/lib/server/token.ts'
-import { LOCAL_SITES, SITES, isLocal, routes } from '@/lib/site/config.ts'
-import type { SiteId } from '@/lib/site/config.ts'
-import { BASE_PATH, SITE_URL } from '@/lib/site.ts'
+import { SITES, isLocal } from '@/lib/site/config.ts'
 
 /**
  * Starts a Stripe Checkout session in the visitor's currency (or, without
- * Stripe, unlocks directly). With STRIPE_PRICE_ID the Stripe Price is used;
- * it needs a currency option for every currency in lib/pricing.ts. Without it
- * the amount comes from lib/pricing.ts and nothing has to be set up in Stripe.
+ * Stripe, unlocks directly). Uses the Stripe price STRIPE_PRICE_ID, else the
+ * one with lookup key «wsis_report» (scripts/stripe-setup.ts); both need a
+ * currency option for every currency in lib/pricing.ts. Without either the
+ * amount comes from lib/pricing.ts and nothing has to be set up in Stripe.
  */
-
-const origin = (u: string) => {
-  try {
-    return u ? new URL(u).origin : ''
-  } catch {
-    return ''
-  }
-}
-
-/** Where buyers may be sent back to: our own domains. Anything else would be an open redirect. */
-function returnOrigin(req: Request, claimed: string | null): string {
-  const own = new URL(req.url).origin
-  const allowed = new Set([own, origin(SITE_URL), ...LOCAL_SITES.map((s) => origin(SITES[s].domainUrl)), ...(process.env.WSIS_ALLOWED_ORIGINS ?? '').split(',').map((o) => origin(o.trim()))])
-  allowed.delete('')
-  // Behind angebunden's rewrite the request arrives at this deployment's own address; the page tells us where the buyer is.
-  return claimed && allowed.has(claimed) ? claimed : own
-}
-
 export async function POST(req: Request) {
-  const url = new URL(req.url)
-  const asked = url.searchParams.get('site') as SiteId | null
-  const site: SiteId = asked && asked in SITES ? asked : 'global'
+  const { site, r, abs } = returnTo(req)
   const conf = SITES[site]
-  // The site's pages live at its mount on the global domain, or at the root of its own domain.
-  const back = isLocal(site) && url.searchParams.get('back') === `/${conf.mount}` ? `/${conf.mount}` : ''
-  const r = routes(site, back)
-  const base = `${returnOrigin(req, url.searchParams.get('o'))}${BASE_PATH}`
-  const unlocked = `${base}${r.unlocked}`
-  const cancel = `${base}${r.results}#${r.anchors.programmes}`
+  const unlocked = abs(r.unlocked)
+  const cancel = abs(`${r.results}#${r.anchors.programmes}`)
 
   const mode = paymentMode()
   if (mode === 'off') return NextResponse.json({ error: 'Payments are not configured on this deployment.' }, { status: 503 })
@@ -58,8 +35,9 @@ export async function POST(req: Request) {
     'line_items[0][quantity]': '1',
     'metadata[site]': site,
   })
-  if (process.env.STRIPE_PRICE_ID) {
-    form.set('line_items[0][price]', process.env.STRIPE_PRICE_ID)
+  const stripePrice = process.env.STRIPE_PRICE_ID || (await priceId(REPORT_LOOKUP_KEY).catch(() => null))
+  if (stripePrice) {
+    form.set('line_items[0][price]', stripePrice)
     form.set('currency', price.currency.toLowerCase())
   } else {
     form.set('line_items[0][price_data][currency]', price.currency.toLowerCase())

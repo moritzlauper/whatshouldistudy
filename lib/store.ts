@@ -14,6 +14,10 @@ export interface State {
   answers: QuestionnaireAnswers
   prefs: Preferences
   unlock?: { token: string; expiresAt: number }
+  /** Student link of a school or counselling service this visitor came through. */
+  org?: string
+  /** Random id of this browser, so an organisation's plan counts one student once a month. */
+  student?: string
 }
 
 export const DEFAULT_PREFS: Preferences = {
@@ -122,4 +126,13 @@ export function useAppState(): State {
 export function unlockToken(): string | null {
   const u = getState().unlock
   return u && u.expiresAt > Date.now() ? u.token : null
+}
+
+/** The random id that counts this browser once against an organisation's plan. */
+export function studentId(): string {
+  const have = getState().student
+  if (have) return have
+  const id = (crypto.randomUUID?.() ?? `${Date.now()}${Math.random()}`).replace(/[^A-Za-z0-9]/g, '').slice(0, 32)
+  update((s) => ({ ...s, student: id }))
+  return id
 }

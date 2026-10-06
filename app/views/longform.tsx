@@ -319,6 +319,9 @@ export function PrivacyView({ site, base }: SiteProps) {
             <strong>Bezahlung:</strong> läuft über Stripe. Wir erfahren, ob eine Zahlung erfolgt ist, nicht deine Kartendaten. Für die Zahlung gilt die Datenschutzerklärung von Stripe. Stripe kann Daten in die USA übermitteln.
           </li>
           <li>
+            <strong>Abos für Organisationen:</strong> Schliesst eine Schule oder Beratungsstelle ein Abo ab, speichert Stripe deren Namen, Rechnungsadresse, Steuernummer und E-Mail für Rechnungen. Schaltest du den Report über den Link deiner Schule frei, melden wir Stripe nur, dass das Abo einen Report verbraucht hat, zusammen mit einer zufälligen Kennung deines Browsers, damit du im selben Monat nicht doppelt zählst. Wer du bist und was dein Ergebnis ist, erfährt weder deine Schule noch Stripe.
+          </li>
+          <li>
             <strong>Hosting:</strong> Die Website läuft bei Vercel. Wie bei jeder Website fallen dort technische Protokolle an (IP-Adresse, Zeitpunkt, aufgerufene Seite), die Vercel kurz aufbewahrt. Aus deiner IP-Adresse leiten wir nur das Land ab, um den Preis in deiner Währung zu zeigen.
           </li>
         </ul>
@@ -418,6 +421,9 @@ export function PrivacyView({ site, base }: SiteProps) {
         </li>
         <li>
           <strong>Payments:</strong> handled by Stripe. We receive whether a checkout session was paid, not your card details. Stripe’s privacy policy applies to the payment.
+        </li>
+        <li>
+          <strong>Plans for organisations:</strong> when a school or counselling service subscribes, Stripe stores its name, billing address, tax number and email for invoices. If you unlock the report through your school’s link, we only tell Stripe that the plan used one report, with a random id of your browser so you don’t count twice in the same month. Neither your school nor Stripe learns who you are or what your result is.
         </li>
         <li>
           <strong>Hosting:</strong> the site runs on Vercel, which keeps short-lived technical logs (IP address, time, page). We use your IP address only to infer your country and show the price in your currency.

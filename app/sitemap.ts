@@ -5,8 +5,8 @@ import { LOCAL_SITES, SITES } from '@/lib/site/config.ts'
 import type { LocalSiteId } from '@/lib/site/config.ts'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
 
-const LOCAL_PAGES = ['', '/start', '/so-funktionierts', '/faecher', ...FIELDS.map((f) => `/faecher/${f.id}`), '/datenschutz', '/agb', '/impressum']
-const GLOBAL_PAGES = ['', '/start', '/how-it-works', '/fields', ...FIELDS.map((f) => `/fields/${f.id}`), '/privacy', '/terms', '/imprint']
+const LOCAL_PAGES = ['', '/start', '/so-funktionierts', '/faecher', ...FIELDS.map((f) => `/faecher/${f.id}`), '/organisationen', '/datenschutz', '/agb', '/impressum']
+const GLOBAL_PAGES = ['', '/start', '/how-it-works', '/fields', ...FIELDS.map((f) => `/fields/${f.id}`), '/organisations', '/privacy', '/terms', '/imprint']
 const priority = (p: string) => (p === '' ? 1 : p === '/start' ? 0.9 : /\/(fields|faecher)\//.test(p) ? 0.6 : /privacy|terms|imprint|datenschutz|agb|impressum/.test(p) ? 0.2 : 0.7)
 
 /** One sitemap per host: a country domain lists its own pages, the global one everything still under it. */

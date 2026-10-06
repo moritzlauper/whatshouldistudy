@@ -32,10 +32,10 @@ export function useConfig(site: SiteId): Config | null {
   return config
 }
 
-/** «CHF 15» or «€15», in the visitor's currency once known. */
+/** «CHF 17» or «€17», in the visitor's currency once known. */
 export function Price({ site }: { site: SiteId }) {
   const config = useConfig(site)
   const conf = SITES[site]
-  const price = config?.price ?? { currency: conf.currency, amount: 15 }
+  const price = config?.price ?? { currency: conf.currency, amount: 17 }
   return <span>{formatPrice(price, conf.intl)}</span>
 }

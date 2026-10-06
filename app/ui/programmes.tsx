@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { unlockToken } from '@/lib/store.ts'
+import { studentId, unlockToken, update, useAppState } from '@/lib/store.ts'
+import { orgsText } from '@/lib/site/orgs-text.ts'
 import { isLocal } from '@/lib/site/config.ts'
 import type { FieldMatch, Preferences, Results } from '@/lib/engine/types.ts'
 import { normalize } from '@/lib/engine/text.ts'
@@ -93,7 +94,7 @@ export function Programmes({ results, prefs, topics = [], hideFirst = true }: { 
         {token || config?.payments === 'off' ? (
           <Explorer token={token} fields={fields} prefs={prefs} topics={weights} onInvalid={() => setToken(null)} />
         ) : (
-          <Locked teaser={teaser} config={config} results={results} hideFirst={hideFirst} />
+          <Locked teaser={teaser} config={config} results={results} hideFirst={hideFirst} onUnlocked={setToken} />
         )}
 
         {noDataCountries.length > 0 && <Research token={token} fields={fields.map((f) => f.id)} countries={noDataCountries} />}
@@ -103,16 +104,35 @@ export function Programmes({ results, prefs, topics = [], hideFirst = true }: { 
   )
 }
 
-function Locked({ teaser, config, results, hideFirst }: { teaser: Teaser | null; config: Config | null; results: Results; hideFirst: boolean }) {
+function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Teaser | null; config: Config | null; results: Results; hideFirst: boolean; onUnlocked: (token: string) => void }) {
   const { t, r, site, base, locale, intl, conf } = useSite()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const price = formatPrice(config?.price ?? { currency: conf.currency, amount: 15 }, intl)
+  const { org } = useAppState()
+  const os = orgsText(locale).student
+  const [orgError, setOrgError] = useState('')
+
+  /** Through a school's link: counts one report of its plan instead of a payment. */
+  async function unlockViaOrg() {
+    setBusy(true)
+    setOrgError('')
+    try {
+      const res = await fetch(withBase('/api/org/redeem'), { method: 'POST', body: JSON.stringify({ org, student: studentId() }) })
+      const j = (await res.json()) as { token?: string; expiresAt?: number; error?: string }
+      if (!j.token || !j.expiresAt) throw new Error(j.error === 'limit' ? os.limit : j.error === 'inactive' || j.error === 'invalid' ? os.inactive : os.failed)
+      update((s) => ({ ...s, unlock: { token: j.token!, expiresAt: j.expiresAt! } }))
+      onUnlocked(j.token)
+    } catch (e) {
+      setOrgError((e as Error).message)
+      setBusy(false)
+    }
+  }
+  const price = formatPrice(config?.price ?? { currency: conf.currency, amount: 17 }, intl)
 
   async function checkout() {
     setBusy(true)
     setError('')
-    measureCheckout(config?.price ?? { currency: conf.currency, amount: 15 })
+    measureCheckout(config?.price ?? { currency: conf.currency, amount: 17 })
     try {
       const res = await fetch(withBase(`/api/checkout?site=${site}&back=${encodeURIComponent(base)}&o=${encodeURIComponent(window.location.origin)}`), { method: 'POST' })
       const j = (await res.json()) as { url?: string; error?: string }
@@ -179,9 +199,18 @@ function Locked({ teaser, config, results, hideFirst }: { teaser: Teaser | null;
             <li key={x}>★ {x}</li>
           ))}
         </ul>
+        {org && config?.payments !== 'off' && !orgError && (
+          <>
+            <button type="button" disabled={busy || !config} onClick={unlockViaOrg} className="btn btn-lime btn-lg mt-6 w-full">
+              {busy ? t.programmes.opening : os.via}
+            </button>
+            <p className="mt-2 text-center text-xs opacity-85">{os.note}</p>
+          </>
+        )}
+        {orgError && <p className="mt-6 rounded-xl bg-surface p-2 text-sm font-semibold text-ink">{orgError}</p>}
         {config?.payments === 'off' ? (
           <p className="mt-6 text-sm opacity-85">{t.programmes.paymentsOff}</p>
-        ) : (
+        ) : org && !orgError ? null : (
           <button type="button" disabled={busy || !config} onClick={checkout} className="btn btn-lime btn-lg mt-6 w-full">
             {busy ? t.programmes.opening : config?.payments === 'free' ? t.programmes.unlockFree : t.programmes.unlock(price)}
           </button>
