@@ -85,3 +85,33 @@ test('old YouTube subscriptions count less than fresh ones', async () => {
   assert.equal(subscriptionWeight(Date.parse('2023-06-01'), now), 1.8)
   assert.equal(subscriptionWeight(Date.parse('2019-06-01'), now), 1)
 })
+
+test('reads a Reddit data export and never its messages', async () => {
+  const { readTexts } = await import('../lib/sources/exports.ts')
+  const year = new Date().getFullYear()
+  const r = await readTexts([
+    { name: 'export_user/subscribed_subreddits.csv', text: 'subreddit\nsociology\nAskHistorians\ngonewild\n' },
+    {
+      name: 'export_user/post_votes.csv',
+      text: 'id,permalink,direction\na1,https://www.reddit.com/r/sociology/comments/a1/why_does_class_still_shape_who_goes_to_university/,up\na2,https://www.reddit.com/r/AskHistorians/comments/a2/how_did_medieval_cities_feed_themselves/,up\na3,https://www.reddit.com/r/memes/comments/a3/funny_cat/,down\n',
+    },
+    { name: 'export_user/saved_posts.csv', text: 'id,permalink\nb1,https://www.reddit.com/r/sociology/comments/b1/bourdieu_and_cultural_capital_explained/\n' },
+    {
+      name: 'export_user/comments.csv',
+      text: `id,permalink,date,ip,subreddit,gildings,link,parent,body,media\nc1,https://www.reddit.com/r/sociology/comments/x/precarity/c1/,${year}-03-01 10:00:00 UTC,1.2.3.4,sociology,0,https://www.reddit.com/r/sociology/comments/x/,,"Precarity and social inequality go together, see Bourdieu",\n`,
+    },
+    { name: 'export_user/messages.csv', text: 'id,permalink,thread_id,date,ip,from,to,subject,body\nm1,,t1,2025-01-01 00:00:00 UTC,,someone,me,hi,private sociology talk\n' },
+    { name: 'export_user/chat_history.csv', text: 'message_id,created_at,updated_at,username,message,thread_parent_message_id,channel_url,subreddit,channel_name,conversation_type\n1,,,a,secret,,,sociology,,direct\n' },
+  ])
+  const s = r.summaries.find((x) => x.source === 'reddit')!
+  assert.ok(s, 'reddit summary')
+  assert.equal(s.stats.communities, 2)
+  assert.equal(s.stats.upvoted, 2)
+  assert.equal(s.stats.saved, 1)
+  assert.equal(s.stats.comments, 1)
+  assert.equal(r.summaries[0].source === 'reddit' || r.summaries.some((x) => x.source === 'reddit'), true)
+  assert.ok(s.fields.sociology.score > 0)
+  // Nothing from messages or chats, nothing from NSFW communities.
+  const all = JSON.stringify(s)
+  assert.ok(!/private sociology talk|secret|gonewild/.test(all))
+})

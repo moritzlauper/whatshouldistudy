@@ -6,6 +6,8 @@ import { videoSignal } from './youtube.ts'
 import type { ChannelInfo, VideoResource } from './youtube.ts'
 import { learningPriorFrom, ytTopicSignal } from '../taxonomy/youtube-topics.ts'
 import type { Progress } from './oauth.ts'
+import { REDDIT_PRIVATE, readRedditCsv } from './reddit-export.ts'
+import type { RedditStats } from './reddit-export.ts'
 import { newSocial, parseInstagram, parseInstagramHtml, parseTikTok, parseTikTokText } from './social-exports.ts'
 import type { SocialCollected } from './social-exports.ts'
 
@@ -102,6 +104,8 @@ interface Collected {
   spotifyPlays: number
   channelCounts: Map<string, { name: string; n: number }>
   social: SocialCollected
+  reddit: SignalItem[]
+  redditStats: RedditStats
   recognised: string[]
   skipped: string[]
   takeoutProducts?: string[]
@@ -146,6 +150,8 @@ function newCollected(): Collected {
     spotifyPlays: 0,
     channelCounts: new Map(),
     social: newSocial(),
+    reddit: [],
+    redditStats: {},
     recognised: [],
     skipped: [],
   }
@@ -396,6 +402,15 @@ function parseCsvFile(c: Collected, name: string, text: string): boolean {
   if (rows.length < 2) return false
   const header = rows[0].map((h) => h.toLowerCase())
   const body = rows.slice(1)
+  // Reddit's messages and chats: not read, not even looked at.
+  if (REDDIT_PRIVATE.test(name)) return false
+  // Reddit's data export: communities, votes, saves, posts, comments.
+  const reddit = readRedditCsv(name, header, body, c.redditStats)
+  if (reddit) {
+    c.reddit.push(...reddit)
+    c.recognised.push(`${name}: ${reddit.length} Reddit entries`)
+    return true
+  }
   // Subscriptions: one column holds channel URLs.
   const urlCol = header.findIndex((_, i) => body.slice(0, 5).some((r) => /youtube\.com\/channel\/UC/.test(r[i] ?? '')))
   if (urlCol >= 0 && header.length <= 4) {
@@ -504,6 +519,8 @@ async function readZip(c: Collected, file: File, onProgress: Progress): Promise<
     if (/\/(videos?|fotos?|photos?)\//i.test(f.name) && !/history|verlauf|historique|historial|cronologia/i.test(f.name)) return
     // Instagram and TikTok downloads: direct messages stay unread.
     if (/(^|\/)(messages|inbox|message_requests|direct_messages?)\//i.test(f.name)) return
+    // Reddit: messages and chats stay unread too.
+    if (REDDIT_PRIVATE.test(f.name)) return
     const chunks: Uint8Array[] = []
     pending.push(
       new Promise<void>((resolve) => {
@@ -627,6 +644,16 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>, video
         label: 'TikTok',
         stats: ig.tiktokStats,
         dataPoints: ig.tiktok.length + (ig.tiktokStats.watchedVideos ?? 0) + (ig.tiktokStats.likes ?? 0),
+      }),
+    )
+  }
+  if (c.reddit.length) {
+    summaries.push(
+      accumulate(c.reddit, {
+        source: 'reddit',
+        label: 'Reddit data export',
+        stats: { ...c.redditStats },
+        maker: (c.redditStats.posts ?? 0) > 20 ? 1 : 0,
       }),
     )
   }

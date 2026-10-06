@@ -191,7 +191,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
             <strong>Spotify:</strong> gespeicherte Podcasts und Folgen, Hörbücher, Playlists und deine Top-Artists mit ihren Genres.
           </li>
           <li>
-            <strong>Reddit:</strong> deine Communities, gespeicherte und upgevotete Posts, eigene Posts und Kommentare. Communities für Erwachsene lassen wir weg.
+            <strong>Reddit (Datenexport):</strong> deine Communities, gespeicherte und upgevotete Posts, eigene Posts und Kommentare. Communities für Erwachsene lassen wir weg. Direktnachrichten und Chats im Export werden nicht geöffnet.
           </li>
           <li>
             <strong>GitHub:</strong> deine öffentlichen Repos und Sterne, mit Namen, Beschreibung, Themen und Programmiersprachen.
@@ -281,7 +281,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
           <strong>Spotify:</strong> saved podcasts and episodes, audiobooks, playlists, and your top and followed artists with their genres.
         </li>
         <li>
-          <strong>Reddit:</strong> the communities you joined, saved and upvoted posts, your own posts and comments (adult communities are skipped).
+          <strong>Reddit (data export):</strong> the communities you joined, saved and upvoted posts, your own posts and comments (adult communities are skipped). Direct messages and chats in the export are never opened.
         </li>
         <li>
           <strong>GitHub:</strong> your public repositories and stars: names, descriptions, topics and languages.

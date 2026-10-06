@@ -187,11 +187,21 @@ export function StartView() {
             notes={notes.tiktok}
             onFiles={(f) => onFiles(f, 'tiktok')}
           />
-          {/* Reddit only once this deployment has an approved Reddit app; no dead buttons. */}
-          {mounted && (isConfigured('reddit') || state.summaries.reddit) && (
-            <OAuthCard id="reddit" provider="reddit" title="Reddit" glyph="👽" color="var(--orange)" text={t.start.reddit} summary={state.summaries.reddit} error={errors.reddit} onConnect={() => connect('reddit')} mounted={mounted} />
-          )}
-          <GitHubCard wide={mounted && (isConfigured('reddit') || !!state.summaries.reddit)} summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
+          {/* Reddit by its data export: its public API takes no new apps and closes in March 2027. */}
+          <ExportCard
+            title="Reddit"
+            glyph="👽"
+            color="var(--orange)"
+            text={t.start.reddit}
+            summaries={[state.summaries.reddit]}
+            requests={[{ href: 'https://www.reddit.com/settings/data-request', label: t.start.request.reddit }]}
+            hint={t.start.hint.reddit}
+            running={running?.source === 'reddit' ? running : null}
+            error={errors.reddit}
+            notes={notes.reddit}
+            onFiles={(f) => onFiles(f, 'reddit')}
+          />
+          <GitHubCard wide summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
         </div>
         <SpotifyRow
           summaries={[state.summaries['spotify-export'], state.summaries.spotify]}
