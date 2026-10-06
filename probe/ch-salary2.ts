@@ -18,7 +18,7 @@ if (buf[0] === 0x50 && buf[1] === 0x4b) {
         return `${c[1]}=${/t="s"/.test(c[2]) ? shared[Number(v)] : v}`
       })
       if (cells.length) console.log(cells.join(' | '))
-      if (++n > 34) break
+      if (++n > 1) break
     }
   }
 }
