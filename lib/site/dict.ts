@@ -12,7 +12,7 @@ import type { Locale } from './config.ts'
 const en = {
   nav: { how: 'How it works', fields: 'Fields', start: 'Start' },
   footer: {
-    about: 'Your digital footprint plus a short, validated questionnaire, matched to fields of study and real programmes.',
+    about: 'Your digital footprint plus a short questionnaire built on established interest and personality models, matched to fields of study and real programmes.',
     allFields: 'All fields of study',
     sources: 'Programme data sources',
     privacy: 'Privacy',
@@ -294,7 +294,8 @@ const en = {
     boxList: (n: string) => ['Your #1 field, with all the evidence', `All ${n} matching programmes`, 'The fee for your citizenship', 'Earnings, debt and admission rates where published', 'Strongest universities in 60+ more countries', 'Filters, search and CSV export', 'New programmes flagged, refreshed weekly'],
     paymentsOff: 'Payments aren’t set up on this deployment yet.',
     unlockFree: 'Unlock (free in this deployment)',
-    unlock: (p: string) => `Unlock for ${p}`,
+    unlock: (p: string) => `Buy now · ${p}`,
+    minors: 'Under 18? Please only buy with your parents’ consent.',
     opening: 'Opening checkout …',
     boxNote: 'One-time · valid 12 months · secure checkout by Stripe',
     row: { field: 'Field', level: 'Level', duration: 'Duration', yrs: 'yrs', fee: 'Tuition/yr', feeSemester: 'Tuition/semester', free: 'Free', approx: ' (approx.)', seePage: 'See programme page', openPage: 'Open the programme page', earnings: (y: number) => `Earnings ${y} yr after`, debt: 'Median debt', admission: 'Admission rate', places: 'Places', students: 'Students', language: 'Language', entry: 'Entry', isNew: 'New', matchTip: 'How well this programme matches your fields' },
@@ -404,6 +405,7 @@ const en = {
     hours: (from: number, to: number) => `Most active between ${from}:00 and ${to}:00`,
     nothing: 'Nothing here stands out against what everyone does.',
     locked: 'In the full report: what each of your sources says on its own.',
+    teaser: (fields: number, topics: number) => `${fields} field${fields === 1 ? '' : 's'} stand${fields === 1 ? 's' : ''} out · ${topics} topics`,
   },
   contrib: {
     title: 'Where this comes from',
@@ -444,7 +446,7 @@ const en = {
   meta: {
     title: 'whatshouldistudy: find your field from what you actually watch, read and build',
     description:
-      'whatshouldistudy reads thousands of signals from your YouTube, Spotify, Reddit and GitHub, adds a 5-minute validated questionnaire, and matches you to fields of study and real programmes in the US, UK, Europe and worldwide. Your data never leaves your browser.',
+      'whatshouldistudy reads thousands of signals from your YouTube, Spotify, Reddit and GitHub, adds a 5-minute questionnaire built on established models, and matches you to fields of study and real programmes in the US, UK, Europe and worldwide. Your data never leaves your browser.',
     keywords: ['what should I study', 'which degree is right for me', 'college major quiz', 'study programme finder', 'university course finder', 'career test', 'RIASEC', 'Big Five', 'study abroad'],
     start: 'Find your field',
     startDesc: 'Connect YouTube, Google Takeout, Spotify, Reddit or GitHub and answer a short questionnaire. Everything runs in your browser.',
@@ -539,7 +541,7 @@ const DE_MESSAGES: Array<[RegExp, string]> = [
 const deCH: Dict = {
   nav: { how: 'So funktioniert’s', fields: 'Fächer', start: 'Los geht’s' },
   footer: {
-    about: 'Dein digitaler Fussabdruck plus ein kurzer, wissenschaftlicher Fragebogen. Daraus: Studienfächer und echte Studiengänge, die passen.',
+    about: 'Dein digitaler Fussabdruck plus ein kurzer Fragebogen nach bewährten Interessen- und Persönlichkeitsmodellen. Daraus: Studienfächer und echte Studiengänge, die passen.',
     allFields: 'Alle Studienfächer',
     sources: 'Woher die Studiengänge kommen',
     privacy: 'Datenschutz',
@@ -861,7 +863,8 @@ const deCH: Dict = {
     boxList: (n: string) => ['Dein Platz 1, mit allen Belegen', `Alle ${n} passenden Studiengänge`, 'Gebühren und Zulassung für dich', 'Uni, ETH, FH und PH im Vergleich', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche und CSV-Export', 'Neue Studiengänge markiert, wöchentlich aktualisiert'],
     paymentsOff: 'Bezahlen ist hier noch nicht eingerichtet.',
     unlockFree: 'Freischalten (hier gratis)',
-    unlock: (p: string) => `Für ${p} freischalten`,
+    unlock: (p: string) => `Zahlungspflichtig bestellen · ${p}`,
+    minors: 'Unter 18? Bitte nur mit Einverständnis deiner Eltern kaufen.',
     opening: 'Öffne Bezahlung …',
     boxNote: 'Einmalig · 12 Monate gültig · sichere Bezahlung über Stripe (Karte, TWINT)',
     row: { field: 'Fach', level: 'Stufe', duration: 'Dauer', yrs: 'Jahre', fee: 'Gebühr/Jahr', feeSemester: 'Gebühr/Semester', free: 'Gratis', approx: ' (ca.)', seePage: 'Siehe Website', openPage: 'Seite des Studiengangs öffnen', earnings: (y: number) => `Lohn ${y} J. danach`, debt: 'Median-Schulden', admission: 'Zulassungsquote', places: 'Plätze', students: 'Studierende', language: 'Sprache', entry: 'Zulassung', isNew: 'Neu', matchTip: 'Wie gut dieser Studiengang zu deinen Fächern passt' },
@@ -971,6 +974,7 @@ const deCH: Dict = {
     hours: (from: number, to: number) => `Am aktivsten zwischen ${from} und ${to} Uhr`,
     nothing: 'Hier sticht nichts heraus gegenüber dem, was alle machen.',
     locked: 'Im vollen Bericht: was jede deiner Quellen einzeln über dich sagt.',
+    teaser: (fields: number, topics: number) => `${fields} ${fields === 1 ? 'Fach sticht' : 'Fächer stechen'} heraus · ${topics} Themen`,
   },
   contrib: {
     title: 'Woher das kommt',

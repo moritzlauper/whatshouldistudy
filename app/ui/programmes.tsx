@@ -97,7 +97,7 @@ export function Programmes({ results, prefs, hideFirst = true }: { results: Resu
 }
 
 function Locked({ teaser, config, results, hideFirst }: { teaser: Teaser | null; config: Config | null; results: Results; hideFirst: boolean }) {
-  const { t, site, base, locale, intl, conf } = useSite()
+  const { t, r, site, base, locale, intl, conf } = useSite()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const price = formatPrice(config?.price ?? { currency: conf.currency, amount: 15 }, intl)
@@ -180,6 +180,14 @@ function Locked({ teaser, config, results, hideFirst }: { teaser: Teaser | null;
         )}
         {error && <p className="mt-3 rounded-xl bg-surface p-2 text-sm font-semibold text-bad">{error}</p>}
         <p className="mt-3 text-center text-xs opacity-80">{t.programmes.boxNote}</p>
+        {config?.payments !== 'off' && (
+          <p className="mt-2 text-center text-xs opacity-80">
+            {t.programmes.minors}{' '}
+            <Link href={r.terms} className="underline">
+              {t.footer.terms}
+            </Link>
+          </p>
+        )}
       </div>
     </div>
   )

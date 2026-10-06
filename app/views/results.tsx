@@ -445,6 +445,7 @@ function SourceInsights({ summaries, unlocked, studying }: { summaries: SourceSu
   const { t, r, locale, intl } = k
   const s = t.sourceInsights
   const list = summaries.filter((x) => x.source !== 'questionnaire').sort((a, b) => b.dataPoints - a.dataPoints)
+  const profiles = new Map(list.map((x) => [x.source, sourceProfile(x, studying)]))
   return (
     <section className="mt-16">
       <h2 className="font-display text-4xl sm:text-5xl">{s.title}</h2>
@@ -452,7 +453,7 @@ function SourceInsights({ summaries, unlocked, studying }: { summaries: SourceSu
       <div className="relative mt-6">
         <div className={`grid gap-5 md:grid-cols-2 ${unlocked ? '' : 'pointer-events-none select-none blur-[6px]'}`} aria-hidden={!unlocked}>
           {list.map((x, i) => {
-            const p = sourceProfile(x, studying)
+            const p = profiles.get(x.source)!
             const span = x.span ? `${x.span.from.slice(0, 4)}–${x.span.to.slice(0, 4)}` : undefined
             return (
               <article key={x.source} className="card overflow-hidden">
@@ -506,6 +507,18 @@ function SourceInsights({ summaries, unlocked, studying }: { summaries: SourceSu
             <div className="card max-w-md p-6 text-center">
               <div className="text-4xl" aria-hidden="true">🔒</div>
               <p className="mt-3 font-semibold">{s.locked}</p>
+              {/* A teaser with real counts, nothing of the content. */}
+              <ul className="mt-4 grid gap-1 text-left text-sm">
+                {list.map((x) => {
+                  const p = profiles.get(x.source)!
+                  return (
+                    <li key={x.source} className="flex justify-between gap-3">
+                      <span className="font-semibold">{t.sourceNames[x.source] ?? x.label}</span>
+                      <span className="text-muted">{s.teaser(p.fields.length, p.terms.length)}</span>
+                    </li>
+                  )
+                })}
+              </ul>
               <a href={`#${r.anchors.programmes}`} className="btn btn-primary mt-5">
                 {t.results.lockedCta}
               </a>

@@ -15,6 +15,12 @@ import { Sparkle } from '../ui/shapes.tsx'
 /** Who runs the site, for the privacy notice and imprint. Set NEXT_PUBLIC_OPERATOR, e.g. «Vorname Name, Zürich». */
 const OPERATOR = process.env.NEXT_PUBLIC_OPERATOR
 const OPERATOR_ADDRESS = process.env.NEXT_PUBLIC_OPERATOR_ADDRESS
+/** A second fast way to reach us besides email (§ 5 DDG), e.g. a phone number. */
+const OPERATOR_PHONE = process.env.NEXT_PUBLIC_OPERATOR_PHONE
+/** Swiss UID (CHE-…) or VAT number, if there is one. */
+const OPERATOR_UID = process.env.NEXT_PUBLIC_OPERATOR_UID
+/** Representative in the EU under Art. 27 GDPR: name and address. */
+const EU_REPRESENTATIVE = process.env.NEXT_PUBLIC_EU_REPRESENTATIVE
 
 /** The German pages are written in Swiss spelling; Germany and Austria get theirs. */
 function rz(node: ReactNode, l: Locale): ReactNode {
@@ -305,7 +311,7 @@ export function PrivacyView({ site, base }: SiteProps) {
             <strong>Was gespeichert bleibt:</strong> pro Quelle eine Zusammenfassung (wie viel deiner Inhalte zu welchem Fach gehört, ein paar Beispieltitel als Beleg, Zahlen), dazu deine Antworten im Fragebogen und deine Einstellungen. Alles im lokalen Speicher deines Browsers, nur auf deinem Gerät. «Alle meine Daten löschen» auf der Startseite entfernt es.
           </li>
           <li>
-            <strong>Was wir bekommen:</strong> Für die Suche nach Studiengängen schickt dein Browser die Kennungen und Werte deiner Top-Fächer und deine Filter (Stufe, Länder, Budget, Herkunft). Nichts, was dich identifiziert, nichts aus deinem Verlauf.
+            <strong>Was wir bekommen:</strong> Für die Suche nach Studiengängen schickt dein Browser die Kennungen und Werte deiner Top-Fächer und deine Filter (Stufe, Länder, Budget, Herkunft), im Inhalt der Anfrage, nicht in der Adresse. Nichts, was dich identifiziert, nichts aus deinem Verlauf.
           </li>
           <li>
             <strong>Bezahlung:</strong> läuft über Stripe. Wir erfahren, ob eine Zahlung erfolgt ist, nicht deine Kartendaten. Für die Zahlung gilt die Datenschutzerklärung von Stripe. Stripe kann Daten in die USA übermitteln.
@@ -323,12 +329,31 @@ export function PrivacyView({ site, base }: SiteProps) {
           Diese Seite nutzt die YouTube API Services. Wenn du YouTube verbindest, gelten zusätzlich die <a href="https://www.youtube.com/t/terms">Nutzungsbedingungen von YouTube</a> und die <a href="https://policies.google.com/privacy">Datenschutzerklärung von Google</a>.
         </p>
 
+        <h2>Geteilte Links</h2>
+        <p>
+          Wenn du dein Resultat teilst, steckt es im Link nach dem «#». Diesen Teil schicken Browser an keinen Server, auch nicht an uns. Er enthält deine Fächer, Prozente und dein Profil, keine Videos, Suchen oder Namen. Wer den Link hat, sieht diese Angaben. Teilen ist freiwillig.
+        </p>
+
         <h2>Cookies und Analyse</h2>
-        <p>Wir setzen keine Tracking-Cookies und nutzen keine Analyse-Tools. Der Speicher im Browser dient nur den oben genannten Daten.</p>
+        <p>Wir setzen keine Tracking-Cookies und nutzen keine Analyse-Tools. Der Speicher im Browser (localStorage) dient nur den oben genannten Daten, die du selbst angestossen hast. Du löschst ihn mit «Alle meine Daten löschen».</p>
+
+        <h2>Rechtsgrundlagen</h2>
+        <p>
+          Die Analyse in deinem Browser und die Suche nach Studiengängen erfolgen, weil du sie anforderst (Art. 6 Abs. 1 lit. b DSGVO). Die Bezahlung dient dem Vertrag und den Aufbewahrungspflichten (lit. b und c). Die technischen Protokolle beim Hoster dienen dem sicheren Betrieb (lit. f). Vercel und Stripe sind unter dem EU-US Data Privacy Framework zertifiziert, auch für die Schweiz.
+        </p>
+        {EU_REPRESENTATIVE && (
+          <>
+            <h2>Vertreter in der EU</h2>
+            <p>{EU_REPRESENTATIVE}</p>
+          </>
+        )}
+
+        <h2>Bist du unter 16?</h2>
+        <p>In Österreich gilt das ab 14. Sprich mit deinen Eltern, bevor du Konten verbindest oder etwas kaufst. Exporte, die du reinziehst, bleiben ohnehin auf deinem Gerät.</p>
 
         <h2>Deine Rechte</h2>
         <p>
-          Über deine Nutzung der Analyse halten wir keine Personendaten. Es gibt bei uns also nichts herauszugeben oder zu löschen, du steuerst alles in deinem Browser. Für Zahlungsbelege oder Fragen: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
+          Über deine Nutzung der Analyse halten wir keine Personendaten. Es gibt bei uns also nichts herauszugeben oder zu löschen, du steuerst alles in deinem Browser. Du kannst dich bei einer Aufsichtsbehörde beschweren: in der Schweiz beim EDÖB, in der EU bei der Datenschutzbehörde deines Landes. Für Zahlungsbelege oder Fragen: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
         </p>
       </Page>,
       k.locale,
@@ -409,7 +434,7 @@ export function TermsView({ site, base }: SiteProps) {
         <p>Die Schnittstelle für Studiengänge ist nicht zum automatischen Auslesen oder Weiterverkaufen gedacht. Die offenen Daten dahinter bleiben bei ihren Herausgebern unter deren Lizenzen frei verfügbar.</p>
         <h2>Datenquellen</h2>
         <p>
-          Schweiz: Bundesamt für Statistik (BFS), freie Nutzung mit Quellenangabe. Deutschland: Studiensuche der Bundesagentur für Arbeit. Österreich: studienwahl.at (BMFWF). Weitere Länder: College Scorecard des US-Bildungsministeriums (gemeinfrei), Discover Uni (Office for Students, CC BY 4.0), Parcoursup (Licence Ouverte 2.0), OpenAlex (CC0), University Domains List (MIT).
+          Schweiz: Bundesamt für Statistik (BFS: Studierende, Absolventenbefragung), freie Nutzung mit Quellenangabe; Studienangebote von studyprogrammes.ch (swissuniversities). Deutschland: Studiensuche der Bundesagentur für Arbeit. Österreich: studienwahl.at (BMFWF). Weitere Länder: College Scorecard des US-Bildungsministeriums (gemeinfrei), Discover Uni (Office for Students, CC BY 4.0), Parcoursup (Licence Ouverte 2.0), OpenAlex (CC0), University Domains List (MIT).
         </p>
         {k.site !== 'ch' && (
           <>
@@ -445,7 +470,7 @@ export function TermsView({ site, base }: SiteProps) {
       <p>Don’t scrape the programme API or resell its output. The underlying open data remains available from its original publishers under their licences.</p>
       <h2>Data sources</h2>
       <p>
-        Programme data: U.S. Department of Education College Scorecard (public domain), Discover Uni dataset (Office for Students, CC BY 4.0), Parcoursup open data (Licence Ouverte 2.0), Swiss Federal Statistical Office (BFS, open use with attribution), Studiensuche of the German Federal Employment Agency, studienwahl.at (Austrian Federal Ministry of Science), OpenAlex (CC0), University Domains List (MIT).
+        Programme data: U.S. Department of Education College Scorecard (public domain), Discover Uni dataset (Office for Students, CC BY 4.0), Parcoursup open data (Licence Ouverte 2.0), Swiss Federal Statistical Office (BFS: enrolment and graduate survey, open use with attribution), studyprogrammes.ch (swissuniversities), Studiensuche of the German Federal Employment Agency, studienwahl.at (Austrian Federal Ministry of Science), OpenAlex (CC0), University Domains List (MIT).
       </p>
       <h2>Contact</h2>
       <p>
@@ -460,9 +485,14 @@ export function ImprintView({ site, base }: SiteProps) {
   const de = k.locale !== 'en'
   return rz(
     <Page title={de ? 'Impressum' : 'Imprint'}>
-      <h2>{de ? 'Betreiber' : 'Operator'}</h2>
       <p>
-        {OPERATOR ?? (de ? 'Angaben folgen.' : 'Details to follow.')}
+        {de
+          ? 'Angaben nach § 5 DDG (Deutschland), § 5 ECG und § 25 MedienG (Österreich) sowie Art. 3 Abs. 1 lit. s UWG (Schweiz).'
+          : 'Information under § 5 DDG (Germany), § 5 ECG and § 25 MedienG (Austria) and Art. 3(1)(s) UWG (Switzerland).'}
+      </p>
+      <h2>{de ? 'Anbieter und Medieninhaber' : 'Provider'}</h2>
+      <p>
+        {OPERATOR ? `${OPERATOR}, ${de ? 'Einzelunternehmen' : 'sole proprietorship'}` : de ? 'Angaben folgen.' : 'Details to follow.'}
         {OPERATOR_ADDRESS ? (
           <>
             <br />
@@ -473,6 +503,36 @@ export function ImprintView({ site, base }: SiteProps) {
       <h2>{de ? 'Kontakt' : 'Contact'}</h2>
       <p>
         <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
+        {OPERATOR_PHONE ? (
+          <>
+            <br />
+            {de ? 'Telefon' : 'Phone'}: {OPERATOR_PHONE}
+          </>
+        ) : null}
+      </p>
+      {OPERATOR_UID && (
+        <>
+          <h2>{de ? 'Unternehmens-Identifikationsnummer' : 'Business ID'}</h2>
+          <p>{OPERATOR_UID}</p>
+        </>
+      )}
+      <h2>{de ? 'Unternehmensgegenstand' : 'Business purpose'}</h2>
+      <p>
+        {de
+          ? 'Online-Studienorientierung: Auswertung eigener Daten im Browser und Vorschläge für Studienfächer und Studiengänge.'
+          : 'Online study guidance: analysing your own data in your browser and suggesting fields of study and programmes.'}
+      </p>
+      {EU_REPRESENTATIVE && (
+        <>
+          <h2>{de ? 'Vertreter in der EU (Art. 27 DSGVO)' : 'EU representative (Art. 27 GDPR)'}</h2>
+          <p>{EU_REPRESENTATIVE}</p>
+        </>
+      )}
+      <h2>{de ? 'Streitbeilegung' : 'Dispute resolution'}</h2>
+      <p>
+        {de
+          ? 'Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.'
+          : 'We are neither willing nor obliged to take part in dispute resolution proceedings before a consumer arbitration board.'}
       </p>
       <h2>{de ? 'Haftung' : 'Liability'}</h2>
       <p>

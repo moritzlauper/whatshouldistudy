@@ -15,6 +15,7 @@ import { Questionnaire } from '../ui/questionnaire.tsx'
 import { PrefsForm } from '../ui/prefs-form.tsx'
 import { useSite } from '../ui/site-context.tsx'
 import { GitHubMark } from '../ui/trust.tsx'
+import { Sparkle } from '../ui/shapes.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 
 type Running = { source: string; message: string; count?: number } | null
@@ -90,6 +91,7 @@ export function StartView() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-36 pt-12 sm:px-6">
+      {running && running.source !== 'github' && <ReadingOverlay running={running} />}
       <h1 className="font-display text-5xl sm:text-6xl">
         <span className="hl">{t.start.title}</span>
       </h1>
@@ -159,8 +161,11 @@ export function StartView() {
             notes={notes.tiktok}
             onFiles={(f) => onFiles(f, 'tiktok')}
           />
-          <OAuthCard id="reddit" provider="reddit" title="Reddit" glyph="👽" color="var(--orange)" text={t.start.reddit} summary={state.summaries.reddit} error={errors.reddit} onConnect={() => connect('reddit')} mounted={mounted} />
-          <GitHubCard wide summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
+          {/* Reddit only once this deployment has an approved Reddit app; no dead buttons. */}
+          {mounted && (isConfigured('reddit') || state.summaries.reddit) && (
+            <OAuthCard id="reddit" provider="reddit" title="Reddit" glyph="👽" color="var(--orange)" text={t.start.reddit} summary={state.summaries.reddit} error={errors.reddit} onConnect={() => connect('reddit')} mounted={mounted} />
+          )}
+          <GitHubCard wide={mounted && (isConfigured('reddit') || !!state.summaries.reddit)} summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
         </div>
         <SpotifyRow
           summaries={[state.summaries['spotify-export'], state.summaries.spotify]}
@@ -282,6 +287,25 @@ function Card({ title, text, glyph, color, badge, children, className }: { title
       <div className="flex flex-1 flex-col p-5">
         <p className="text-sm text-muted">{text}</p>
         <div className="mt-auto">{children}</div>
+      </div>
+    </div>
+  )
+}
+
+/** The same screen as after a sign-in, while an export is read in the browser. */
+function ReadingOverlay({ running }: { running: NonNullable<Running> }) {
+  const { t, intl } = useSite()
+  const names: Record<string, string> = { takeout: 'YouTube & Google', instagram: 'Instagram', tiktok: 'TikTok', spotify: 'Spotify' }
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/95 px-6 backdrop-blur" role="status" aria-live="polite">
+      <div className="max-w-md text-center">
+        <Sparkle className="spin-slow mx-auto" size={72} color="var(--accent)" />
+        <h2 className="mt-8 font-display text-4xl">{t.callback.reading(names[running.source] ?? running.source)}</h2>
+        <p className="animate-soft mt-4 font-semibold text-muted">
+          {running.message}
+          {running.count !== undefined ? ` · ${fmtNumber(running.count, intl)}` : ''}
+        </p>
+        <p className="mt-10 text-xs text-muted">🔒 {t.callback.local}</p>
       </div>
     </div>
   )
