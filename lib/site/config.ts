@@ -29,7 +29,7 @@ export interface SiteConf {
   country?: string
   mount?: string
   domainMount?: string
-  /** The site's own domain, once it has one (e.g. https://wasstudiere.ch). */
+  /** The site's own domain, once it has one (e.g. https://whatshouldistudy.ch). */
   domainUrl: string
 }
 
@@ -37,7 +37,7 @@ const clean = (u: string | undefined) => (u ?? '').trim().replace(/\/$/, '')
 const wordmark = (name: string, fallback: string, split: [string, string]): [string, string] => (name === fallback ? split : [name, ''])
 
 // Literal process.env reads: Next inlines NEXT_PUBLIC_ values only when written out.
-export const CH_NAME = process.env.NEXT_PUBLIC_CH_NAME || 'wasstudiere'
+export const CH_NAME = process.env.NEXT_PUBLIC_CH_NAME || 'wasstudieren'
 export const DE_NAME = process.env.NEXT_PUBLIC_DE_NAME || 'wassollichstudieren'
 export const AT_NAME = process.env.NEXT_PUBLIC_AT_NAME || 'wasstudierich'
 
@@ -62,7 +62,7 @@ export const SITES: Record<SiteId, SiteConf> = {
     intl: 'de-CH',
     ogLocale: 'de_CH',
     name: CH_NAME,
-    wordmark: wordmark(CH_NAME, 'wasstudiere', ['was', 'studiere']),
+    wordmark: wordmark(CH_NAME, 'wasstudieren', ['was', 'studieren']),
     storeKey: 'wsis:v1:ch',
     defaultPrefs: prefs(['CH'], 'ch'),
     currency: 'CHF',

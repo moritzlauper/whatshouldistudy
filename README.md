@@ -8,7 +8,7 @@ real programmes in Switzerland, Germany, Austria, the US, the UK, France and,
 through research profiles and a university directory, 60+ more countries.
 
 Four sites from one codebase: the global English site and three German-language
-country sites for Switzerland (`wasstudiere`), Germany (`wassollichstudieren`)
+country sites for Switzerland (`wasstudieren`), Germany (`wassollichstudieren`)
 and Austria (`wasstudierich`), all working names. Each country site lists the
 degree programmes of its own universities and universities of applied sciences
 and leads with them. Until they get their own domains they live at `/schweiz`,
@@ -86,14 +86,14 @@ law) is in `DE_OVERRIDES` and `AT_OVERRIDES` in `dict.ts` and in
 mount, so a country domain serves the pages at its root with plain links. To
 give a country site its own domain:
 
-1. Add the domain (e.g. `wasstudiere.ch`, and `www.`) to the whatshouldistudy
+1. Add the domain (e.g. `whatshouldistudy.ch`, and `www.`) to the whatshouldistudy
    Vercel project.
-2. Set `NEXT_PUBLIC_CH_URL=https://wasstudiere.ch` (`_DE_URL`, `_AT_URL` for the
+2. Set `NEXT_PUBLIC_CH_URL=https://whatshouldistudy.ch` (`_DE_URL`, `_AT_URL` for the
    others). Its host with and without `www.` is then that country's; more hosts
    via `WSIS_CH_HOSTS` / `WSIS_DE_HOSTS` / `WSIS_AT_HOSTS`. Old `/schweiz/…`
    links redirect to the new domain.
 3. Optionally rename it: `NEXT_PUBLIC_CH_NAME` / `_DE_NAME` / `_AT_NAME`.
-4. Register `https://wasstudiere.ch/callback/google` (and spotify) with the
+4. Register `https://whatshouldistudy.ch/callback/google` (and spotify) with the
    OAuth providers. Reddit takes a single redirect URI per app, so Reddit
    sign-in works on one domain only (or with a second Reddit app).
 
