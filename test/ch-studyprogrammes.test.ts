@@ -43,6 +43,9 @@ test('majors listed in the description become their own rows', async () => {
   assert.equal(game.fields[0], 'game-design')
   assert.ok(!game.fields.includes('film-production'), game.fields.join())
   assert.ok(!cast.fields.includes('game-design'), cast.fields.join())
+  // No field of its own: only the umbrella's main field, not Film or Game Design.
+  assert.equal(rows.find((r) => /Trends/.test(r.name))!.fields.length, 1)
+  assert.equal(rows.find((r) => /Knowledge/.test(r.name))!.fields[0], 'graphic-design')
   const theater = parseSpProgrammes({ ...d, id: 99002, name: 'Bachelor in Theater', description: 'Majors: Regie, Schauspiel, Szenischer Raum, Theaterpädagogik' }, 'bachelor', '2026-10-06')
   assert.ok(theater.every((r) => r.fields[0] === 'performing-arts'), theater.map((r) => r.fields.join('+')).join(' / '))
   // The other majors don't leak into this row's topics.
