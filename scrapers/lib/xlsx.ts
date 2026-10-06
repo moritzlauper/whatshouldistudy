@@ -46,7 +46,8 @@ export function readXlsx(data: Uint8Array): Sheet[] {
         const inline = /<t[^>]*>([\s\S]*?)<\/t>/.exec(body)?.[1]
         cells[colIndex(c[1])] = /t="s"/.test(c[2]) ? (shared[Number(v)] ?? '') : decode(v ?? inline ?? '')
       }
-      rows.push(Array.from(cells, (x) => (x ?? '').trim()))
+      // Statistics offices like non-breaking spaces; make them plain.
+      rows.push(Array.from(cells, (x) => (x ?? '').replace(/\s+/g, ' ').trim()))
     }
     sheets.push({ name: decode(m[1]), rows })
   }

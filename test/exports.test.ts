@@ -134,3 +134,13 @@ test('reads the rest of My Activity: pages, Maps, apps, without double-counting 
   const y = r.summaries.find((x) => x.source === 'takeout')!
   assert.equal(y.stats.watchedVideos, 1)
 })
+
+test('searches about studying itself are left out', async () => {
+  const search = [
+    { header: 'Search', title: 'Searched for soziologie uzh master anmeldefrist', titleUrl: 'https://www.google.com/search?q=soziologie+uzh+master+anmeldefrist', time: '2024-04-02T10:00:00.000Z' },
+    { header: 'Search', title: 'Searched for soziale ungleichheit statistik', titleUrl: 'https://www.google.com/search?q=soziale+ungleichheit+statistik', time: '2024-04-02T10:01:00.000Z' },
+  ]
+  const r = await readTexts([{ name: 'Takeout/My Activity/Search/MyActivity.json', text: JSON.stringify(search) }])
+  const g = r.summaries.find((x) => x.source === 'google-search')!
+  assert.equal(g.stats.googleSearches, 1)
+})

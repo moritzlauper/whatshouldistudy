@@ -12,8 +12,8 @@ const watch = Array.from({ length: 40 }, (_, i) => ({
 }))
 const searches = Array.from({ length: 20 }, (_, i) => ({
   header: 'Search',
-  title: `Searched for soziologie studium ${i}`,
-  titleUrl: `https://www.google.com/search?q=soziologie+studium+${i}`,
+  title: `Searched for ${['soziale ungleichheit schweiz', 'bourdieu kapitalsorten', 'klassismus beispiele', 'soziologie gesellschaft'][i % 4]} ${i}`,
+  titleUrl: `https://www.google.com/search?q=${encodeURIComponent(['soziale ungleichheit schweiz', 'bourdieu kapitalsorten', 'klassismus beispiele', 'soziologie gesellschaft'][i % 4] + ' ' + i)}`,
   time: new Date(Date.UTC(2024, i % 12, 3)).toISOString(),
 }))
 

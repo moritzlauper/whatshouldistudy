@@ -400,7 +400,7 @@ const en = {
     usSource: 'College Scorecard, US Department of Education',
   },
   sourceNames: {
-    youtube: 'YouTube (sign-in)', takeout: 'YouTube watch history', 'google-search': 'Google activity', spotify: 'Spotify', 'spotify-export': 'Spotify (file)', instagram: 'Instagram', tiktok: 'TikTok', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Questionnaire',
+    youtube: 'YouTube subscriptions & likes', takeout: 'YouTube watch history', 'google-search': 'Google activity', spotify: 'Spotify', 'spotify-export': 'Spotify (file)', instagram: 'Instagram', tiktok: 'TikTok', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Questionnaire',
   } as Record<string, string>,
   stats: {
     subscriptions: 'subscriptions', likedVideos: 'liked videos', musicLikes: 'music likes', playlists: 'playlists', playlistItems: 'playlist items', uploads: 'uploads',
@@ -939,7 +939,7 @@ const deCH: Dict = {
     usSource: 'College Scorecard, US-Bildungsministerium',
   },
   sourceNames: {
-    youtube: 'YouTube (Anmeldung)', takeout: 'YouTube-Verlauf', 'google-search': 'Google-Aktivität', spotify: 'Spotify', 'spotify-export': 'Spotify (Datei)', instagram: 'Instagram', tiktok: 'TikTok', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Fragebogen',
+    youtube: 'YouTube-Abos & Likes', takeout: 'YouTube-Verlauf', 'google-search': 'Google-Aktivität', spotify: 'Spotify', 'spotify-export': 'Spotify (Datei)', instagram: 'Instagram', tiktok: 'TikTok', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Fragebogen',
   },
   stats: {
     subscriptions: 'Abos', likedVideos: 'gelikte Videos', musicLikes: 'Musik-Likes', playlists: 'Playlists', playlistItems: 'Videos in Playlists', uploads: 'Uploads',

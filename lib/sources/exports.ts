@@ -1,6 +1,6 @@
 import { Unzip, UnzipInflate } from 'fflate'
 import { accumulate } from '../engine/accumulate.ts'
-import { truncate } from '../engine/text.ts'
+import { STUDY_INTENT, truncate } from '../engine/text.ts'
 import type { SignalItem, SourceSummary } from '../engine/types.ts'
 import type { ChannelInfo } from './youtube.ts'
 import type { Progress } from './oauth.ts'
@@ -52,6 +52,8 @@ interface Activity {
 }
 
 interface Collected {
+  /** Searches about studying itself, left out of the analysis. */
+  studySearches?: number
   watch: SignalItem[]
   youtubeSearch: SignalItem[]
   googleSearch: SignalItem[]
@@ -174,6 +176,11 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
   const q = searchQuery(url)
   // «Visited …» entries carry the visited page in q, not a search.
   const isSearch = !!q && !/^https?:/.test(q) && !/\/url\?/.test(url)
+  // Searching for programmes is the decision itself, not a sign of interest.
+  if (isSearch && STUDY_INTENT.test(q)) {
+    c.studySearches = (c.studySearches ?? 0) + 1
+    return null
+  }
   if (isSearch && isYouTube) {
     c.youtubeSearch.push({ kind: 'search', text: q, label: `«${truncate(q, 60)}»`, weight: 0.6, time })
     return 'search'
@@ -186,6 +193,7 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
   if (isYouTube) return null
   const kind = otherKind(product, url)
   const title = (a.title ?? '').replace(ACTIVITY_VERB, '').trim()
+  if (kind === 'visit' && STUDY_INTENT.test(`${title} ${url}`)) return null
   if (!kind || !title || /^https?:/.test(title) || title.length < 3) return null
   c.activity.push({ kind, text: title, label: truncate(title, 60), weight: OTHER_WEIGHT[kind], time, group: kind === 'app' || kind === 'book' ? title : undefined, url: kind === 'visit' ? undefined : url || undefined })
   c.activityCounts[kind] = (c.activityCounts[kind] ?? 0) + 1

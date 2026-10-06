@@ -12,7 +12,7 @@ const uh = {
     ['', '', '', 'Total', '', '', '', '', '', 'Suisse'],
     ['', '', '', '1. quartile', '', 'Médiane', '', '3. quartile', '', '1. quartile', '', 'Médiane', '', '3. quartile'],
     ['', '', '', '1. quartile', 'CV', 'Médiane', 'CV', '3. quartile', 'CV', '1. quartile', 'CV', 'Médiane', 'CV', '3. quartile', 'CV'],
-    ['Master', 'Sciences humaines et sociales', 'Total', '70000', '1', '84000', '1', '98000', '1', '71000', '1', '85000', '1', '99000', '1'],
+    ['Master', 'Sciences\u00a0humaines et sociales', 'Total', '70000', '1', '84000', '1', '98000', '1', '71000', '1', '85000', '1', '99000', '1'],
     ['', '', 'Homme', '70000', '1', '83000', '1', '98000', '1', '71000', '1', '84000', '1', '99000', '1'],
     ['', 'Médecine et pharmacie', 'Total', '78000', '0.8', '90000', '0.6', '95000', '0.5', '78000', '1.3', '90000', '0.6', '95500', '0.3'],
     ['Doctorat', 'Droit', 'Total', '100000', '9.9', '126800', '2.4', '150000', '3.1', '112000', '6.2', '130000', '2.4', '150000', '3.2'],
@@ -30,7 +30,7 @@ const fh = {
     ['HEP', "Diplôme d'enseignement", 'Formation des enseignants', 'Total', '83900', '0.5', '98300', '0.7', '115700', '0.5', '84000', '0.5', '98600', '0.6', '115800', '0.5'],
   ],
 }
-const other = { name: 'T14', rows: head('TA3E61-14 … HES ou HEP selon le lieu de travail, le niveau d’examen, la haute école et le domaine d’études') }
+const other = { name: 'T1', rows: [['TA3E61-1 Revenu … série temporelle'], ['Années de diplôme 2002 à 2024']] }
 
 test('reads the Swiss median per subject group from the BFS graduate tables', () => {
   const t = parseSalaryWorkbook([other, uh, fh], '2026-10-06', 'x')

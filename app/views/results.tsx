@@ -356,13 +356,21 @@ function SourceInsights({ summaries, unlocked }: { summaries: SourceSummary[]; u
                   {p.fields.length ? (
                     <div>
                       <div className="text-xs font-bold uppercase tracking-wider text-muted">{s.fields}</div>
-                      <ul className="mt-2 grid gap-1.5">
+                      <ul className="mt-2 grid gap-2.5">
                         {p.fields.map((f) => (
-                          <li key={f.id} className="flex flex-wrap items-baseline justify-between gap-x-3">
-                            <span className="font-semibold">
-                              {emoji(f.id)} {fieldName(f.id, locale)}
-                            </span>
-                            <span className="text-xs text-muted">{s.share(Math.round(f.share * 100))}</span>
+                          <li key={f.id}>
+                            <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                              <span className="font-semibold">
+                                {emoji(f.id)} {fieldName(f.id, locale)}
+                              </span>
+                              <span className="text-xs text-muted">{s.share(Math.round(f.share * 100))}</span>
+                            </div>
+                            {f.examples.length > 0 && (
+                              <div className="mt-0.5 text-xs">
+                                <span className="text-muted">{s.examples}: </span>
+                                {f.examples.map((e) => `${t.results.kinds[e.kind] ?? e.kind} ${e.label}`).join(' · ')}
+                              </div>
+                            )}
                           </li>
                         ))}
                       </ul>
@@ -374,12 +382,6 @@ function SourceInsights({ summaries, unlocked }: { summaries: SourceSummary[]; u
                     <p>
                       <span className="text-muted">{s.topics}: </span>
                       {p.terms.join(' · ')}
-                    </p>
-                  )}
-                  {p.examples.length > 0 && (
-                    <p className="text-xs">
-                      <span className="text-muted">{s.examples}: </span>
-                      {p.examples.join(' · ')}
                     </p>
                   )}
                   <div className="grid gap-1 text-xs text-muted">

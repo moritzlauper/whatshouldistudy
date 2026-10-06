@@ -47,3 +47,11 @@ export function parseWeighted(entry: string): { term: string; weight: number } {
 export function truncate(s: string, n: number): string {
   return s.length <= n ? s : s.slice(0, n - 1).trimEnd() + '…'
 }
+
+/**
+ * Searches and pages about studying itself: programmes, universities,
+ * deadlines, admission. Looking up «soziologie uzh master» shows a decision
+ * already being made, so it mustn't feed the recommendation.
+ */
+export const STUDY_INTENT =
+  /\b(studium|studieren|studiengang|studiengänge|studienplan|studienordnung|bachelor|master|msc|bsc|doktorat|phd|vorlesungsverzeichnis|anmeldefrist|anmeldung studium|immatrikulation|zulassung|numerus clausus|minor|major|semestergebühr\w*|university|universität|universitaet|hochschule|fachhochschule|degree|admission|uzh|ethz?|epfl|unibe|unibas|unifr|unige|unil|unilu|unisg|hsg|usi|zhaw|fhnw|bfh|hslu|supsi|hes-so|zhdk|phzh|lmu|tum|kit|rwth|uni wien|tu wien|jku)\b/i

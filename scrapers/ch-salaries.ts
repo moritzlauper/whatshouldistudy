@@ -64,7 +64,7 @@ export function parseSalaryWorkbook(sheets: Sheet[], fetchedAt: string, url: str
   const bySex = sheets.filter((s) => /(sexe|geschlecht|sesso)/i.test(title(s)))
   const uhSheet = bySex.find((s) => /\b(HEU|UH|SUP|universit)/i.test(title(s)) && !/\b(HES|FH)\b/.test(title(s)))
   const fhSheet = bySex.find((s) => /\b(HES|FH|SUP)\b/.test(title(s)) && /\b(HEP|PH|ASP)\b/.test(title(s)))
-  t.year = /\b(20\d\d)\b/.exec(sheets.map((s) => s.rows[1]?.[0] ?? '').join(' '))?.[1]
+  t.year = /\b(20\d\d)\b/.exec([uhSheet, fhSheet].map((s) => s?.rows[1]?.[0] ?? '').join(' '))?.[1]
   for (const [sheet, kind] of [
     [uhSheet, 'uh'],
     [fhSheet, 'fh'],
@@ -75,6 +75,7 @@ export function parseSalaryWorkbook(sheets: Sheet[], fetchedAt: string, url: str
     }
     log(`CH salaries: ${kind} from «${title(sheet).slice(0, 90)}…»`)
     for (const row of tableRows(sheet)) {
+      row.labels = row.labels.map((l) => (l ?? '').replace(/\s+/g, ' ').trim())
       const sex = row.labels.at(-1) ?? ''
       if (!/^total$/i.test(sex) || !row.median) continue
       const level = LEVEL.find(([re]) => row.labels.some((l) => re.test(l)))?.[1]
