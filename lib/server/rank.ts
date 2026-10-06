@@ -1,5 +1,6 @@
 import 'server-only'
 import { COUNTRIES, feeFor } from '../countries.ts'
+import { textTopics } from '../engine/classifier.ts'
 import type { Preferences } from '../engine/types.ts'
 import type { Level, Programme } from '../programmes.ts'
 import { FIELD_BY_ID } from '../taxonomy/fields.ts'
@@ -15,11 +16,17 @@ export interface RankRequest {
   q?: string
   page?: number
   pageSize?: number
+  /** Your topics (lexicon keys) with 0..1 weights; no titles, nothing else. */
+  topics?: Record<string, number>
 }
 
 export interface RankedProgramme extends Programme {
   match: number
   matchedField: string
+  /** Your topics that this programme names, strongest first. */
+  topicHits?: string[]
+  /** Points those topics added; breaks ties between equal matches. */
+  topicBonus?: number
   fee?: { amount: number; currency: string; eur: number; estimated: boolean }
   isNew: boolean
 }
@@ -32,6 +39,33 @@ export interface RankResult {
   facets: { countries: Record<string, number>; levels: Record<string, number>; fields: Record<string, number> }
   updated?: string
   sample: boolean
+}
+
+/** A programme's topics, from its name, focus and description; cached per programme. */
+const topicCache = new Map<string, string[]>()
+function programmeTopics(p: Programme): string[] {
+  let t = topicCache.get(p.id)
+  if (!t) {
+    if (topicCache.size > 200_000) topicCache.clear()
+    t = textTopics(`${p.name} \n ${(p.focus ?? []).join(', ')} \n ${p.description ?? ''}`)
+    topicCache.set(p.id, t)
+  }
+  return t
+}
+
+/**
+ * Your topics this programme names, and the points they add: up to 10, so two
+ * masters in the same field come apart by what they actually teach.
+ */
+function topicBonus(p: Programme, topics: Record<string, number>): { hits: string[]; bonus: number } {
+  const core = (k: string) => k.replace(/^[ps=]:?/, '')
+  const all = programmeTopics(p).filter((k) => topics[k])
+  // «ungleichheit» inside «soziale ungleichheit» is the same hit, counted once.
+  const hits = all
+    .filter((k) => !all.some((o) => o !== k && core(o).length > core(k).length && core(o).includes(core(k))))
+    .sort((a, b) => topics[b] - topics[a])
+  const overlap = hits.reduce((s, k) => s + topics[k], 0)
+  return { hits: hits.slice(0, 5), bonus: 10 * (1 - Math.exp(-overlap / 0.8)) }
 }
 
 const LEVELS_FOR: Record<Preferences['level'], Level[] | null> = {
@@ -58,9 +92,17 @@ export function sanitizeRequest(body: unknown): RankRequest | null {
     origin: (['eu', 'us', 'uk', 'ch', 'other'] as const).includes(p.origin as never) ? (p.origin as Preferences['origin']) : 'eu',
     englishOnly: !!p.englishOnly,
   }
+  const topics: Record<string, number> = {}
+  if (b.topics && typeof b.topics === 'object') {
+    for (const [k, v] of Object.entries(b.topics as Record<string, unknown>).slice(0, 100)) {
+      const n = Number(v)
+      if (k.length <= 60 && Number.isFinite(n) && n > 0) topics[k] = Math.min(1, n)
+    }
+  }
   return {
     fields,
     prefs,
+    topics: Object.keys(topics).length ? topics : undefined,
     country: typeof b.country === 'string' && /^[A-Z]{2}$/.test(b.country) ? b.country : undefined,
     level: typeof b.level === 'string' ? (b.level as Level | 'any') : undefined,
     sort: (['match', 'cost', 'earnings', 'new'] as const).includes(b.sort as never) ? (b.sort as RankRequest['sort']) : 'match',
@@ -122,6 +164,15 @@ export async function rank(req: RankRequest): Promise<RankResult> {
     if (q && !`${p.name} ${p.institution} ${p.city ?? ''}`.toLowerCase().includes(q)) return false
     return true
   })
+  if (req.topics) {
+    for (const p of base) {
+      const { hits, bonus } = topicBonus(p, req.topics)
+      if (!hits.length) continue
+      p.topicHits = hits
+      p.topicBonus = Math.round(bonus * 10) / 10
+      p.match = Math.min(100, Math.round(p.match + bonus))
+    }
+  }
 
   const facets: RankResult['facets'] = { countries: {}, levels: {}, fields: {} }
   for (const p of base) {
@@ -132,7 +183,7 @@ export async function rank(req: RankRequest): Promise<RankResult> {
   const filtered = base.filter((p) => (!req.country || p.country === req.country) && (!req.level || req.level === 'any' || p.level === req.level))
 
   const sorters: Record<NonNullable<RankRequest['sort']>, (a: RankedProgramme, b: RankedProgramme) => number> = {
-    match: (a, b) => b.match - a.match || (b.earnings?.median ?? 0) - (a.earnings?.median ?? 0) || a.name.localeCompare(b.name),
+    match: (a, b) => b.match - a.match || (b.topicBonus ?? 0) - (a.topicBonus ?? 0) || (b.earnings?.median ?? 0) - (a.earnings?.median ?? 0) || a.name.localeCompare(b.name),
     cost: (a, b) => (a.fee?.eur ?? Infinity) - (b.fee?.eur ?? Infinity) || b.match - a.match,
     earnings: (a, b) => (b.earnings?.median ?? -1) - (a.earnings?.median ?? -1) || b.match - a.match,
     new: (a, b) => (b.firstSeen ?? '').localeCompare(a.firstSeen ?? '') || b.match - a.match,

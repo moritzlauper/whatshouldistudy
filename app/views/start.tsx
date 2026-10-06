@@ -352,7 +352,8 @@ function ExportCard(props: {
   badge?: string
   summaries: Array<SourceSummary | undefined>
   requests: Array<{ href: string; label: string }>
-  hint: string
+  /** One line, or steps; a step starting with «!» is the one people miss. */
+  hint: string | string[]
   running: Running
   error?: string
   notes?: string[]
@@ -376,7 +377,21 @@ function ExportCard(props: {
               </a>
             ))}
           </div>
-          <p className="mt-2 text-xs text-muted">{props.hint}</p>
+          {typeof props.hint === 'string' ? (
+            <p className="mt-2 text-xs text-muted">{props.hint}</p>
+          ) : (
+            <ol className="mt-2 grid list-decimal gap-1 pl-4 text-xs text-muted">
+              {props.hint.map((h) =>
+                h.startsWith('!') ? (
+                  <li key={h} className="on-color rounded-lg border-2 border-line bg-yellow px-2 py-1 font-semibold">
+                    {h.slice(1)}
+                  </li>
+                ) : (
+                  <li key={h}>{h}</li>
+                ),
+              )}
+            </ol>
+          )}
         </div>
       </div>
       <div className="flex gap-3">

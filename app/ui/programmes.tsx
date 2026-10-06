@@ -6,6 +6,8 @@ import { unlockToken } from '@/lib/store.ts'
 import { isLocal } from '@/lib/site/config.ts'
 import type { FieldMatch, Preferences, Results } from '@/lib/engine/types.ts'
 import { normalize } from '@/lib/engine/text.ts'
+import { topicWeights } from '@/lib/engine/topics.ts'
+import type { UserTopic } from '@/lib/engine/topics.ts'
 import { reasonText } from '@/lib/site/explain.ts'
 import { Contributions } from './contributions.tsx'
 import { COUNTRIES, flag } from '@/lib/countries.ts'
@@ -49,21 +51,23 @@ function requestFields(results: Results) {
 /** Until the report is unlocked, place 1 stays hidden, also from the free teaser. */
 const teaserFields = (fields: ReturnType<typeof requestFields>, hideFirst: boolean) => (hideFirst ? fields.slice(1) : fields)
 
-export function Programmes({ results, prefs, hideFirst = true }: { results: Results; prefs: Preferences; hideFirst?: boolean }) {
+export function Programmes({ results, prefs, topics = [], hideFirst = true }: { results: Results; prefs: Preferences; topics?: UserTopic[]; hideFirst?: boolean }) {
   const { t, r, site, locale, intl } = useSite()
   const [token, setToken] = useState<string | null>(null)
   const [teaser, setTeaser] = useState<Teaser | null>(null)
   const config = useConfig(site)
   const fields = useMemo(() => requestFields(results), [results])
+  const weights = useMemo(() => (topics.length ? topicWeights(topics) : undefined), [topics])
+  const topicMap = useMemo(() => new Map(topics.map((x) => [x.key, x])), [topics])
 
   useEffect(() => setToken(unlockToken()), [])
 
   useEffect(() => {
-    fetch(withBase('/api/teaser'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: teaserFields(fields, hideFirst), prefs }) })
+    fetch(withBase('/api/teaser'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: teaserFields(fields, hideFirst), prefs, topics: weights }) })
       .then((res) => res.json())
       .then(setTeaser)
       .catch(() => setTeaser(null))
-  }, [fields, prefs, hideFirst])
+  }, [fields, prefs, hideFirst, weights])
 
   const noDataCountries = prefs.countries.filter((c) => !COUNTRIES[c]?.programmeData)
   const where = prefs.countries.length
@@ -74,6 +78,7 @@ export function Programmes({ results, prefs, hideFirst = true }: { results: Resu
 
   return (
     <ResultsContext.Provider value={results}>
+     <TopicsContext.Provider value={topicMap}>
       <section id={r.anchors.programmes} className="mt-20 scroll-mt-24">
         <h2 className="font-display text-4xl sm:text-5xl">{t.programmes.title}</h2>
         <p className="mt-3 max-w-2xl text-muted">
@@ -85,13 +90,14 @@ export function Programmes({ results, prefs, hideFirst = true }: { results: Resu
         {teaser?.sample && <p className="on-color mt-5 rounded-2xl border-2 border-line bg-yellow px-4 py-3 text-sm font-semibold">⚠ {t.programmes.demo}</p>}
 
         {token || config?.payments === 'off' ? (
-          <Explorer token={token} fields={fields} prefs={prefs} onInvalid={() => setToken(null)} />
+          <Explorer token={token} fields={fields} prefs={prefs} topics={weights} onInvalid={() => setToken(null)} />
         ) : (
           <Locked teaser={teaser} config={config} results={results} hideFirst={hideFirst} />
         )}
 
         {noDataCountries.length > 0 && <Research token={token} fields={fields.map((f) => f.id)} countries={noDataCountries} />}
       </section>
+     </TopicsContext.Provider>
     </ResultsContext.Provider>
   )
 }
@@ -222,6 +228,19 @@ function programmeLink(p: RankedProgramme): string {
 
 /** The person's results, so each programme can say why it fits. */
 const ResultsContext = createContext<Results | null>(null)
+/** The person's topics by key, with counts and examples (these never leave the browser). */
+const TopicsContext = createContext<Map<string, UserTopic>>(new Map())
+
+/** Your topics this programme names, with what you looked at. */
+function useTopicHits(p: RankedProgramme): UserTopic[] {
+  const topics = useContext(TopicsContext)
+  const hits = (p.topicHits ?? []).map((k) => topics.get(k)).filter((x): x is UserTopic => !!x)
+  // Data from before the server merged nested topics: «ungleichheit» next to «soziale ungleichheit».
+  return hits.filter((h) => !hits.some((o) => o !== h && o.word.length > h.word.length && o.word.toLowerCase().includes(h.word.toLowerCase())))
+}
+
+/** Search queries and comments come quoted already. */
+const quoted = (label: string) => (/^[«“#@]/.test(label) ? label : `«${label}»`)
 
 /** What in the person's own data points to this programme. */
 function fitFor(p: RankedProgramme, results: Results) {
@@ -262,6 +281,7 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
   const { t, locale, intl } = kit
   const results = useContext(ResultsContext)
   const fit = results ? fitFor(p, results) : null
+  const hits = useTopicHits(p)
   const d = t.programmes.details
   const home = p.institutionUrl ?? (p.url && isHomepage(p.url) ? p.url : undefined)
   const hasAbout = !!(p.description || p.focus?.length)
@@ -277,7 +297,7 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
             {p.focus && p.focus.length > 0 && (
               <ul className="mt-2 flex flex-wrap gap-1.5">
                 {p.focus.map((x) => (
-                  <li key={x} className={`chip-soft ${fit?.named.some((n) => normalize(x).includes(normalize(n))) ? 'ring-2 ring-accent' : ''}`}>
+                  <li key={x} className={`chip-soft ${[...(fit?.named ?? []), ...hits.map((h) => h.word)].some((n) => normalize(x).includes(normalize(n))) ? 'ring-2 ring-accent' : ''}`}>
                     {x}
                   </li>
                 ))}
@@ -289,19 +309,49 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
         )}
       </div>
 
-      {/* 2. What in it fits you: only what this programme says about itself. */}
-      {fit && (
+      {/* 2. Why this programme: your topics it names, with what you looked at. */}
+      {hits.length > 0 && (
+        <div>
+          <h5 className="font-display text-lg">{t.programmes.fit.title}</h5>
+          <p className="mt-1 text-muted">{t.programmes.fit.intro}</p>
+          <ul className="mt-3 grid gap-3">
+            {hits.map((h) => (
+              <li key={h.key}>
+                <div>
+                  <span className="font-bold">«{h.word}»</span>{' '}
+                  <span className="text-muted">
+                    {t.programmes.fit.inData(fmtNumber(h.n, intl), h.bySource.map((x) => `${t.sourceNames[x.source] ?? x.source} ${fmtNumber(x.n, intl)}`).join(', '))}
+                  </span>
+                </div>
+                {h.examples.length > 0 && (
+                  <ul className="mt-1 grid gap-0.5 border-l-2 border-accent pl-3 text-xs">
+                    {h.examples.map((e) => (
+                      <li key={e.label} className="break-words">
+                        {quoted(e.label)} <span className="text-muted">· {t.sourceNames[e.source] ?? e.source}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-muted">{t.programmes.fit.bonus}</p>
+        </div>
+      )}
+
+      {/* 3. What else in it fits you: only what this programme says about itself. */}
+      {fit && (!hits.length || fit.also.length > 0) && (
         <div>
           <h5 className="font-display text-lg">{d.forYou}</h5>
           <ul className="mt-2 grid gap-1.5">
-            {fit.named.length > 0 && <li>✓ {d.named(fit.named)}</li>}
+            {!hits.length && fit.named.length > 0 && <li>✓ {d.named(fit.named)}</li>}
             {fit.also.length > 0 && <li>✓ {d.also(fit.also.map((a) => d.alsoRank(fieldName(a.id, locale), a.rank)))}</li>}
-            {!fit.named.length && !fit.also.length && <li className="text-muted">{hasAbout ? d.noOverlap(field) : d.onlyField(field)}</li>}
+            {!hits.length && !fit.named.length && !fit.also.length && <li className="text-muted">{hasAbout ? d.noOverlap(field) : d.onlyField(field)}</li>}
           </ul>
         </div>
       )}
 
-      {/* 3. The field in general. */}
+      {/* 4. The field in general. */}
       {fit && (
         <div>
           <h5 className="font-display text-lg">{d.fieldGeneral(field)}</h5>
@@ -376,6 +426,8 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
   const feeAmount = p.fee ? (perSemester ? Math.round(p.fee.amount / 2) : p.fee.amount) : 0
   const type = p.institutionType as InstType | undefined
   const lang = locale === 'en' ? 'en' : 'de'
+  const hits = useTopicHits(p)
+  const example = hits.flatMap((h) => h.examples)[0]
   return (
     <article className="card-sm p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -404,6 +456,7 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
             </div>
           )}
         </div>
+
         <div className="flex shrink-0 items-center gap-2">
           {type && TYPE_LABEL[type] && (
             <span className="on-color rounded-full border-2 border-line px-2.5 py-0.5 text-xs font-bold" style={{ background: TYPE_STYLE[type].color }} title={TYPE_LABEL[type][lang]}>
@@ -415,6 +468,21 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
           </span>
         </div>
       </div>
+      {hits.length > 0 && (
+        <div className="mt-3 rounded-xl bg-accent-soft px-3 py-2 text-sm">
+          <span className="font-bold">✨ {t.programmes.fit.why} </span>
+          {hits.slice(0, 3).map((h, i) => (
+            <span key={h.key}>
+              {i > 0 && ', '}«{h.word}» <span className="text-muted">({fmtNumber(h.n, intl)}×)</span>
+            </span>
+          ))}
+          {example && (
+            <div className="mt-1 break-words text-xs text-muted">
+              {t.programmes.fit.example} {quoted(example.label)}
+            </div>
+          )}
+        </div>
+      )}
       <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted">
         <Item k={t.programmes.row.field} v={`${emoji(p.matchedField)} ${fieldName(p.matchedField, locale)}`} />
         <Item k={t.programmes.row.level} v={levelLabel(p.level as Level, locale)} />
@@ -452,7 +520,19 @@ function Item({ k, v }: { k: string; v?: string }) {
   )
 }
 
-function Explorer({ token, fields, prefs, onInvalid }: { token: string | null; fields: Array<{ id: string; score: number }>; prefs: Preferences; onInvalid: () => void }) {
+function Explorer({
+  token,
+  fields,
+  prefs,
+  topics,
+  onInvalid,
+}: {
+  token: string | null
+  fields: Array<{ id: string; score: number }>
+  prefs: Preferences
+  topics?: Record<string, number>
+  onInvalid: () => void
+}) {
   const { t, locale, intl, conf, site } = useSite()
   const [country, setCountry] = useState('')
   const [level, setLevel] = useState<Level | 'any'>('any')
@@ -467,7 +547,7 @@ function Explorer({ token, fields, prefs, onInvalid }: { token: string | null; f
       const res = await fetch(withBase('/api/programmes'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ fields, prefs, country: country || undefined, level, sort, q: q || undefined, page, ...extra }),
+        body: JSON.stringify({ fields, prefs, topics, country: country || undefined, level, sort, q: q || undefined, page, ...extra }),
       })
       if (res.status === 401) {
         onInvalid()
@@ -475,7 +555,7 @@ function Explorer({ token, fields, prefs, onInvalid }: { token: string | null; f
       }
       return (await res.json()) as RankResult
     },
-    [token, fields, prefs, country, level, sort, q, page, onInvalid],
+    [token, fields, prefs, topics, country, level, sort, q, page, onInvalid],
   )
 
   useEffect(() => {

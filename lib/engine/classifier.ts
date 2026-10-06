@@ -30,6 +30,12 @@ interface Compiled {
   suffixes: Map<string, Affix[]>
   caseSensitive: Map<string, Hit[]>
   terms: string[]
+  /** Stable key per term (the lexicon entry), for matching topics across texts. */
+  keys: string[]
+  keyIndex: Map<string, number>
+  /** Fields per term and the strongest weight it has in any of them. */
+  termFields: number[][]
+  termWeight: number[]
 }
 
 let compiled: Compiled | null = null
@@ -42,23 +48,37 @@ function compile(): Compiled {
     suffixes: new Map(),
     caseSensitive: new Map(),
     terms: [],
+    keys: [],
+    keyIndex: new Map(),
+    termFields: [],
+    termWeight: [],
   }
-  const termIds = new Map<string, number>()
+  const termIds = c.keyIndex
   const termId = (key: string, display: string) => {
     let id = termIds.get(key)
     if (id === undefined) {
       id = c.terms.length
       termIds.set(key, id)
       c.terms.push(display)
+      c.keys.push(key)
+      c.termFields.push([])
+      c.termWeight.push(0)
     }
     return id
   }
+  const note = (hit: Hit) => {
+    if (hit.field < 0) return
+    if (!c.termFields[hit.term].includes(hit.field)) c.termFields[hit.term].push(hit.field)
+    c.termWeight[hit.term] = Math.max(c.termWeight[hit.term], hit.weight)
+  }
   const push = <K>(map: Map<K, Hit[]>, key: K, hit: Hit) => {
+    note(hit)
     const list = map.get(key)
     if (list) list.push(hit)
     else map.set(key, [hit])
   }
   const pushAffix = (map: Map<string, Affix[]>, key: string, stem: string, hit: Hit) => {
+    note(hit)
     let list = map.get(key)
     if (!list) map.set(key, (list = []))
     let affix = list.find((a) => a.stem === stem)
@@ -131,7 +151,7 @@ const EMPTY: Classification = {
  * astronomy, an «Apple Watch» not botany. Removed before matching.
  */
 const BRANDS =
-  /\b(samsung\s+galaxy|galaxy\s+(?:s|a|z|m|note|tab|watch|buds|fold|flip)\s*\d*\w*|apple\s+watch|iphone\s*\d*\w*|mercedes[\s-]benz|jaguar\s+land\s+rover|ford\s+mustang|red\s+bull|monster\s+energy|amazon\s+prime|apple\s+music|galaxus|python\s+(?:monty|flying circus))\b/gi
+  /\b(samsung\s+galaxy|galaxy\s+(?:s|a|z|m|note|tab|watch|buds|fold|flip)\s*\d*\w*|apple\s+watch|iphone\s*\d*\w*|mercedes[\s-]benz|jaguar\s+land\s+rover|ford\s+mustang|red\s+bull|monster\s+energy|amazon\s+prime|apple\s+music|opera\s+(?:gx|mini|browser)|(?:home|movie)\s+theat(?:er|re)s?|galaxus|python\s+(?:monty|flying circus))\b/gi
 
 const cache = new Map<string, Classification>()
 const CACHE_LIMIT = 60_000
@@ -226,6 +246,52 @@ export function termsForField(c: Classification, field: number): string[] {
     out.push(c.words?.get(term) ?? lx.terms[term])
   }
   return [...new Set(out)]
+}
+
+/**
+ * Topics: the lexicon terms a text matched, by stable key, with the word as
+ * written. Only terms that say something on their own (weight ≥ 1 in some
+ * field), so «media» or «food» don't make two things look alike.
+ */
+export function topics(c: Classification): Array<{ key: string; word: string }> {
+  const lx = lexicon()
+  // One topic per word: «Psychologie» matches both «psychologie» and the stem
+  // «psycholog…»; the stem wins, so «psychologisch» elsewhere meets it too.
+  const byWord = new Map<string, { key: string; word: string; stem: boolean }>()
+  for (const k of c.matched) {
+    const field = (k % 256) - 2
+    if (field < 0) continue
+    const term = Math.floor(k / 256)
+    if (lx.termWeight[term] < 1) continue
+    const key = lx.keys[term]
+    const word = c.words?.get(term) ?? lx.terms[term].replace(/…/g, '')
+    const stem = /^[ps]:/.test(key)
+    const id = normalize(word)
+    const prev = byWord.get(id)
+    if (!prev || (stem && (!prev.stem || key.length < prev.key.length))) byWord.set(id, { key, word, stem })
+  }
+  const out = new Map<string, string>()
+  for (const t of byWord.values()) if (!out.has(t.key)) out.set(t.key, t.word)
+  return [...out].map(([key, word]) => ({ key, word }))
+}
+
+/** Topic keys of a text, e.g. a programme's name and description. */
+export function textTopics(text: string): string[] {
+  return topics(classify(text)).map((t) => t.key)
+}
+
+/** The fields a topic counts towards. */
+export function topicFields(key: string): string[] {
+  const lx = lexicon()
+  const i = lx.keyIndex.get(key) ?? -1
+  return i < 0 ? [] : lx.termFields[i].map((f) => FIELDS[f].id)
+}
+
+/** How a topic reads when there is no example word for it. */
+export function topicLabel(key: string): string {
+  const lx = lexicon()
+  const i = lx.keyIndex.get(key) ?? -1
+  return i < 0 ? key.replace(/^[ps=]:?/, '') : lx.terms[i].replace(/…/g, '')
 }
 
 /** Top fields of a single text, for quick checks and the scrapers. */

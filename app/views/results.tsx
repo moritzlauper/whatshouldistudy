@@ -7,6 +7,8 @@ import { useAppState } from '@/lib/store.ts'
 import { decodeSnapshot, encodeSnapshot, sharedParam } from '@/lib/share.ts'
 import type { Snapshot } from '@/lib/share.ts'
 import { score, sourceProfile } from '@/lib/engine/scoring.ts'
+import { userTopics } from '@/lib/engine/topics.ts'
+import { SUMMARY_VERSION } from '@/lib/engine/accumulate.ts'
 import type { FieldMatch, Preferences, Results, SourceSummary } from '@/lib/engine/types.ts'
 import type { FieldStat } from '@/lib/programmes.ts'
 import { BIG5_KEYS, FIELDS, FIELD_BY_ID, RIASEC_KEYS } from '@/lib/taxonomy/fields.ts'
@@ -69,6 +71,9 @@ export function ResultsView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, state, stats, shared])
   const results = isShared ? (shared as Snapshot).results : own
+  const topics = useMemo(() => (own ? userTopics(summaries, state.prefs.studying) : []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [own])
   const prefs: Preferences = isShared ? { ...state.prefs, ...(shared as Snapshot).prefs } : state.prefs
 
   if (shared === 'broken') {
@@ -141,6 +146,7 @@ export function ResultsView() {
             </div>
             <StudyingControl />
           </div>
+          <StudyInfoNote summaries={summaries} />
         </>
       )}
 
@@ -293,7 +299,7 @@ export function ResultsView() {
 
       {summaries.some((s) => s.source !== 'questionnaire') && <SourceInsights summaries={summaries} unlocked={unlocked} studying={state.prefs.studying} />}
 
-      <Programmes results={results} prefs={prefs} hideFirst={!unlocked} />
+      <Programmes results={results} prefs={prefs} topics={topics} hideFirst={!unlocked} />
     </div>
   )
 }
@@ -440,6 +446,59 @@ function ShareCard({ results, prefs, token }: { results: Results; prefs: Prefere
 }
 
 /** Each source on its own; part of the full report. */
+/** What was left out as degree research, and whether stored data predates the current reader. */
+function StudyInfoNote({ summaries }: { summaries: SourceSummary[] }) {
+  const { t, r, locale, intl } = useSite()
+  const s = t.studyInfo
+  const data = summaries.filter((x) => x.source !== 'questionnaire')
+  const stale = data.some((x) => (x.v ?? 0) < SUMMARY_VERSION)
+  let n = 0
+  const fields = new Map<string, number>()
+  const ex: string[] = []
+  for (const x of data) {
+    if (!x.studyInfo) continue
+    n += x.studyInfo.n
+    for (const [id, c] of Object.entries(x.studyInfo.fields)) fields.set(id, (fields.get(id) ?? 0) + c)
+    for (const e of x.studyInfo.ex) if (ex.length < 6 && !ex.includes(e)) ex.push(e)
+  }
+  if (!n && !stale) return null
+  const top = [...fields]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([id, c]) => `${fieldName(id, locale)} (${fmtNumber(c, intl)})`)
+    .join(', ')
+  return (
+    <div className="card-sm mt-4 grid gap-3 p-4 text-sm">
+      {stale && (
+        <div className="on-color flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-line bg-yellow px-3 py-2">
+          <p className="max-w-2xl font-semibold">⚠ {s.stale}</p>
+          <Link href={r.start} className="btn btn-primary btn-sm">
+            {s.staleCta}
+          </Link>
+        </div>
+      )}
+      {n > 0 && (
+        <div>
+          <div className="font-bold">🎓 {s.title(fmtNumber(n, intl))}</div>
+          <p className="mt-1 max-w-3xl text-muted">{s.text(top)}</p>
+          {ex.length > 0 && (
+            <details className="mt-2 text-xs">
+              <summary className="cursor-pointer font-bold text-muted">{s.examples}</summary>
+              <ul className="mt-1 grid gap-0.5">
+                {ex.map((e) => (
+                  <li key={e} className="break-words">
+                    {e}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function SourceInsights({ summaries, unlocked, studying }: { summaries: SourceSummary[]; unlocked: boolean; studying?: Preferences['studying'] }) {
   const k = useSite()
   const { t, r, locale, intl } = k

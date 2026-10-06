@@ -1,6 +1,6 @@
 import { accumulate } from '../engine/accumulate.ts'
 import { genresToProfile } from '../engine/music.ts'
-import { truncate } from '../engine/text.ts'
+import { cleanDescription, truncate } from '../engine/text.ts'
 import type { SignalItem, SourceSummary } from '../engine/types.ts'
 import { YOUTUBE_CATEGORIES } from '../taxonomy/known.ts'
 import { ApiError, getJson } from './oauth.ts'
@@ -93,7 +93,7 @@ export async function fetchChannels(ids: string[], token: string, onProgress?: P
         title,
         text: [
           title,
-          truncate(c.snippet?.description ?? '', 700),
+          truncate(cleanDescription(c.snippet?.description ?? ''), 700),
           c.brandingSettings?.channel?.keywords ?? '',
           topics(c.topicDetails?.topicCategories).join(' '),
         ].join(' \n '),
@@ -220,7 +220,7 @@ export async function collectYouTube(token: string, onProgress: Progress = () =>
   for (const s of subs) {
     items.push({
       kind: 'subscription',
-      text: channels.get(s.id)?.text ?? `${s.title} ${truncate(s.description, 500)}`,
+      text: channels.get(s.id)?.text ?? `${s.title} ${truncate(cleanDescription(s.description), 500)}`,
       label: s.title,
       group: s.id,
       // A subscription from years ago says less about today than recent viewing.
@@ -247,7 +247,7 @@ export async function collectYouTube(token: string, onProgress: Progress = () =>
       text: [
         d?.snippet?.title ?? l.title,
         (d?.snippet?.tags ?? []).slice(0, 15).join(' '),
-        truncate(d?.snippet?.description ?? '', 300),
+        truncate(cleanDescription(d?.snippet?.description ?? ''), 300),
         topicNames.join(' '),
         l.channelTitle ?? '',
       ].join(' \n '),
@@ -309,7 +309,7 @@ export async function collectYouTube(token: string, onProgress: Progress = () =>
         uploads++
         items.push({
           kind: 'upload',
-          text: `${it.snippet.title} ${truncate(it.snippet.description ?? '', 300)}`,
+          text: `${it.snippet.title} ${truncate(cleanDescription(it.snippet.description ?? ''), 300)}`,
           label: `Your video: ${truncate(it.snippet.title, 140)}`,
           weight: 4,
           time: it.snippet.publishedAt ? Date.parse(it.snippet.publishedAt) : undefined,

@@ -3,7 +3,7 @@ import type { Big5, Field, Riasec, RiasecKey, SubjectKey } from '../taxonomy/fie
 import { musicBig5 } from './music.ts'
 import { riasecCode, riasecCompleteness, scoreBig5, scoreRiasec } from './questionnaire.ts'
 import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, SourceId, SourceSummary, Studying } from './types.ts'
-import { STUDY_INTENT } from './text.ts'
+import { isStudyInfo } from './text.ts'
 
 /**
  * The matching model. Five components per field, each in 0..1:
@@ -72,18 +72,36 @@ export function ageWeight(year: number, source: SourceId, now = new Date().getFu
   return source === 'youtube' ? Math.max(w, 0.15) : w
 }
 
+/** What a source keeps of a degree's coursework: Google is mostly looking things up for it. */
+export const studiedKeep = (source: SourceId) => (source === 'google-search' ? 0.1 : 0.35)
+
+/**
+ * The most a year counts for a field you already study, from the start of the
+ * degree on: an average year before it. Studying something makes you look at
+ * it a lot; that mustn't make it a bigger interest than it was.
+ */
+export function studiedCap(activeYears: number[], valueOf: (year: number) => number, since?: number): number {
+  if (!since) return Infinity
+  const before = activeYears.filter((y) => y >= 2004 && y < since)
+  if (!before.length) return Infinity
+  return before.reduce((sum, y) => sum + valueOf(y), 0) / before.length
+}
+
 /**
  * A field's weight in a source, read from the per-year totals so it also
  * works on data stored by older versions:
  * - older years count less (ageWeight), misread years not at all;
  * - a field you already study keeps only a small part of what came after you
- *   started (Google 10 %, the rest 35 %): that's coursework, not interest.
+ *   started (Google 10 %, the rest 35 %), and never more than an average year
+ *   before: that's coursework, not interest.
  */
 function effectiveScore(s: SourceSummary, id: string, studying?: Studying): number {
   const ev = s.fields[id]
   if (!ev) return 0
   const studied = studying?.field === id
-  const keep = s.source === 'google-search' ? 0.1 : 0.35
+  const keep = studiedKeep(s.source)
+  const since = studying?.since
+  const cap = studied ? studiedCap(Object.keys(s.timeline ?? {}).map(Number), (y) => s.timeline![y]?.[id] ?? 0, since) : Infinity
   let timed = 0
   let eff = 0
   for (const [y, m] of Object.entries(s.timeline ?? {})) {
@@ -91,7 +109,8 @@ function effectiveScore(s: SourceSummary, id: string, studying?: Studying): numb
     if (!v) continue
     const year = Number(y)
     timed += v
-    eff += v * ageWeight(year, s.source) * (studied && (!studying!.since || year >= studying!.since) ? keep : 1)
+    const counted = studied && (!since || year >= since) ? Math.min(v * keep, cap) : v
+    eff += counted * ageWeight(year, s.source)
   }
   // Activity without a date (subscriptions from exports, some likes) counts as it is.
   const undated = Math.max(0, ev.score - timed)
@@ -365,7 +384,7 @@ export function score(input: ScoreInput): Results {
         // A channel about music that also mentions society is evidence for music, not sociology.
         if (t.w < 0.8 * (strongest?.get(t.label) ?? 0)) continue
         // Searching for a programme is the decision, not a reason for it.
-        if ((t.kind === 'google' || t.kind === 'search' || t.kind === 'visit') && STUDY_INTENT.test(t.label)) continue
+        if (isStudyInfo(t.label, t.kind)) continue
         // Comments are chatter, often years old: not shown as evidence.
         if (t.kind === 'comment') continue
         evidence.push({ label: t.label, kind: t.kind, source: s.source, url: t.url, w: t.w * (KIND_WEIGHT[t.kind] ?? 1) })
@@ -587,7 +606,7 @@ export function sourceProfile(s: SourceSummary, studying?: Studying): SourceProf
   // Examples: what was watched, searched or liked first, a subscription only if that's all there is.
   const examplesFor = (id: string) =>
     [...(s.fields[id]?.top ?? [])]
-      .filter((t) => t.kind !== 'comment' && !((t.kind === 'google' || t.kind === 'search' || t.kind === 'visit') && STUDY_INTENT.test(t.label)))
+      .filter((t) => t.kind !== 'comment' && !isStudyInfo(t.label, t.kind))
       .sort((a, b) => (a.kind === 'subscription' ? 1 : 0) - (b.kind === 'subscription' ? 1 : 0) || b.w - a.w)
       .slice(0, 2)
       .map((t) => ({ label: t.label, kind: t.kind }))

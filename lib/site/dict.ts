@@ -116,7 +116,13 @@ const en = {
       instagram: 'Pick «Download to device» and «All time». A few minutes later an email brings the download.',
       tiktok: 'Choose «All data» and request it. TikTok lets you know as soon as the download is ready.',
       spotify: 'Request your «Account data». Spotify emails the download, which takes a few days.',
-      takeout: '«My Activity» is ticked already: your YouTube watch and search history, Google searches, Maps and apps. Worth adding in the same export: tick «YouTube and YouTube Music», open its «All YouTube data included» list and untick «videos», or the file gets huge. That adds subscriptions, comments and playlists. Then «Next step» and «Create export». About 3 minutes later an email arrives: open it, scroll all the way down and press «Download». That file goes here.',
+      takeout: [
+        '«My Activity» is ticked already: YouTube watch and search history, Google searches, Maps and apps.',
+        'Further down, tick «YouTube and YouTube Music» too. That adds subscriptions, comments and playlists.',
+        '!Important: under YouTube, click «All YouTube data included» and untick «videos». Those are videos you uploaded yourself; we don’t need them and Google won’t let us untick them for you.',
+        '«Next step», then «Create export».',
+        'About 3 minutes later an email arrives: open it, scroll all the way down and press «Download». That file goes here.',
+      ],
     },
     drop: 'When the email arrives: drop the file here',
     addAnother: 'Add or replace a file',
@@ -299,6 +305,14 @@ const en = {
     opening: 'Opening checkout …',
     boxNote: 'One-time · valid 12 months · secure checkout by Stripe',
     row: { field: 'Field', level: 'Level', duration: 'Duration', yrs: 'yrs', fee: 'Tuition/yr', feeSemester: 'Tuition/semester', free: 'Free', approx: ' (approx.)', seePage: 'See programme page', openPage: 'Open the programme page', earnings: (y: number) => `Earnings ${y} yr after`, debt: 'Median debt', admission: 'Admission rate', places: 'Places', students: 'Students', language: 'Language', entry: 'Entry', isNew: 'New', matchTip: 'How well this programme matches your fields' },
+    fit: {
+      why: 'Fits you because of',
+      example: 'e.g. you looked at',
+      title: 'Why this programme fits you',
+      intro: 'It names topics that keep coming up in your data:',
+      inData: (n: string, sources: string) => `${n}× in your data (${sources})`,
+      bonus: 'These topics move it up your list. The examples stay in your browser; only the topic words went to our server for sorting.',
+    },
     details: {
       open: 'Details and why it fits you',
       close: 'Hide details',
@@ -406,6 +420,14 @@ const en = {
     nothing: 'Nothing here stands out against what everyone does.',
     locked: 'In the full report: what each of your sources says on its own.',
     teaser: (fields: number, topics: number) => `${fields} field${fields === 1 ? '' : 's'} stand${fields === 1 ? 's' : ''} out · ${topics} topics`,
+  },
+  studyInfo: {
+    title: (n: string) => `${n} items about choosing a degree don’t count`,
+    text: (fields: string) =>
+      `Videos, searches and pages like “Should you study psychology?” or “sociology master zurich” are about the decision, not the subject. So they don’t count as interest.${fields ? ` Most were about ${fields}.` : ''}`,
+    examples: 'Examples we left out',
+    stale: 'Part of your data was read by an older version. Since then we spot degree research in every source and match your topics to single programmes. Upload the files again (or reconnect) for that to apply.',
+    staleCta: 'Upload again',
   },
   contrib: {
     title: 'Where this comes from',
@@ -645,7 +667,13 @@ const deCH: Dict = {
       instagram: '«Auf Gerät herunterladen» und «Gesamter Zeitraum» wählen. Nach ein paar Minuten kommt ein E-Mail mit dem Download.',
       tiktok: '«Alle Daten» wählen und anfordern. TikTok meldet sich, sobald der Download bereit ist.',
       spotify: 'Deine «Kontodaten» anfordern. Spotify schickt den Download per E-Mail, das dauert ein paar Tage.',
-      takeout: '«Meine Aktivitäten» ist schon angekreuzt: dein YouTube-Verlauf und deine YouTube-Suchen, Google-Suchen, Maps und Apps. Lohnt sich im selben Export: «YouTube und YouTube Music» ankreuzen, dort die Liste der YouTube-Daten öffnen und «Videos» abwählen, sonst wird die Datei riesig. Das bringt Abos, Kommentare und Playlists dazu. Dann «Nächster Schritt» und «Export erstellen». Nach etwa 3 Minuten kommt ein E-Mail: öffnen, ganz nach unten scrollen und «Download» drücken. Diese Datei hier reinziehen.',
+      takeout: [
+        '«Meine Aktivitäten» ist schon angekreuzt: YouTube-Verlauf und -Suchen, Google-Suchen, Maps und Apps.',
+        'Weiter unten auch «YouTube und YouTube Music» ankreuzen. Das bringt Abos, Kommentare und Playlists dazu.',
+        '!Wichtig: Bei YouTube auf «Alle YouTube-Daten …» klicken und «Videos» abwählen. Das sind Videos, die du selbst hochgeladen hast. Wir brauchen sie nicht, und Google lässt uns das nicht für dich abwählen.',
+        '«Nächster Schritt», dann «Export erstellen».',
+        'Nach etwa 3 Minuten kommt ein E-Mail: öffnen, ganz nach unten scrollen und «Download» drücken. Diese Datei hier reinziehen.',
+      ],
     },
     drop: 'Wenn das E-Mail da ist: Datei hier reinziehen',
     addAnother: 'Weitere Datei hinzufügen oder ersetzen',
@@ -868,6 +896,14 @@ const deCH: Dict = {
     opening: 'Öffne Bezahlung …',
     boxNote: 'Einmalig · 12 Monate gültig · sichere Bezahlung über Stripe (Karte, TWINT)',
     row: { field: 'Fach', level: 'Stufe', duration: 'Dauer', yrs: 'Jahre', fee: 'Gebühr/Jahr', feeSemester: 'Gebühr/Semester', free: 'Gratis', approx: ' (ca.)', seePage: 'Siehe Website', openPage: 'Seite des Studiengangs öffnen', earnings: (y: number) => `Lohn ${y} J. danach`, debt: 'Median-Schulden', admission: 'Zulassungsquote', places: 'Plätze', students: 'Studierende', language: 'Sprache', entry: 'Zulassung', isNew: 'Neu', matchTip: 'Wie gut dieser Studiengang zu deinen Fächern passt' },
+    fit: {
+      why: 'Passt zu dir wegen',
+      example: 'z.B. hast du angeschaut oder gesucht:',
+      title: 'Warum dieser Studiengang zu dir passt',
+      intro: 'Er nennt Themen, die in deinen Daten immer wieder vorkommen:',
+      inData: (n: string, sources: string) => `${n}× in deinen Daten (${sources})`,
+      bonus: 'Diese Themen schieben ihn in deiner Liste nach oben. Die Beispiele bleiben in deinem Browser, an unseren Server gingen fürs Sortieren nur die Themenwörter.',
+    },
     details: {
       open: 'Details und warum es zu dir passt',
       close: 'Details ausblenden',
@@ -975,6 +1011,14 @@ const deCH: Dict = {
     nothing: 'Hier sticht nichts heraus gegenüber dem, was alle machen.',
     locked: 'Im vollen Bericht: was jede deiner Quellen einzeln über dich sagt.',
     teaser: (fields: number, topics: number) => `${fields} ${fields === 1 ? 'Fach sticht' : 'Fächer stechen'} heraus · ${topics} Themen`,
+  },
+  studyInfo: {
+    title: (n: string) => `${n} Einträge über die Studienwahl zählen nicht`,
+    text: (fields: string) =>
+      `Videos, Suchen und Seiten wie «Psychologie studieren: lohnt sich das?» oder «soziologie uzh master» drehen sich um die Entscheidung, nicht um das Thema. Darum zählen sie nicht als Interesse.${fields ? ` Am meisten ging es um ${fields}.` : ''}`,
+    examples: 'Beispiele, die wir weggelassen haben',
+    stale: 'Ein Teil deiner Daten wurde mit einer älteren Version gelesen. Seither erkennen wir Studienwahl-Inhalte in allen Quellen und vergleichen deine Themen mit einzelnen Studiengängen. Lade die Dateien nochmals hoch (oder verbinde neu), damit das wirkt.',
+    staleCta: 'Neu hochladen',
   },
   contrib: {
     title: 'Woher das kommt',

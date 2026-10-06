@@ -311,7 +311,7 @@ export function PrivacyView({ site, base }: SiteProps) {
             <strong>Was gespeichert bleibt:</strong> pro Quelle eine Zusammenfassung (wie viel deiner Inhalte zu welchem Fach gehört, ein paar Beispieltitel als Beleg, Zahlen), dazu deine Antworten im Fragebogen und deine Einstellungen. Alles im lokalen Speicher deines Browsers, nur auf deinem Gerät. «Alle meine Daten löschen» auf der Startseite entfernt es.
           </li>
           <li>
-            <strong>Was wir bekommen:</strong> Für die Suche nach Studiengängen schickt dein Browser die Kennungen und Werte deiner Top-Fächer und deine Filter (Stufe, Länder, Budget, Herkunft), im Inhalt der Anfrage, nicht in der Adresse. Nichts, was dich identifiziert, nichts aus deinem Verlauf.
+            <strong>Was wir bekommen:</strong> Für die Suche nach Studiengängen schickt dein Browser die Kennungen und Werte deiner Top-Fächer, bis zu 80 Themenwörter mit einer Gewichtung (etwa «theater» 0.8, damit einzelne Studiengänge nach deinen Themen sortiert werden) und deine Filter (Stufe, Länder, Budget, Herkunft), im Inhalt der Anfrage, nicht in der Adresse. Keine Titel, keine Suchanfragen, keine Kanäle, nichts, was dich identifiziert. Wir speichern die Anfrage nicht.
           </li>
           <li>
             <strong>Bezahlung:</strong> läuft über Stripe. Wir erfahren, ob eine Zahlung erfolgt ist, nicht deine Kartendaten. Für die Zahlung gilt die Datenschutzerklärung von Stripe. Stripe kann Daten in die USA übermitteln.
@@ -383,7 +383,7 @@ export function PrivacyView({ site, base }: SiteProps) {
           <strong>What is kept:</strong> a summary per source (how much of your content relates to each field, a few example titles as evidence, counts), your questionnaire answers and preferences. These are stored in your browser’s local storage, on your device only. “Delete all my data” on the start page removes them.
         </li>
         <li>
-          <strong>What we receive:</strong> to look up programmes, your browser sends us the ids and scores of your top fields and your filters (level, countries, budget, citizenship category). Nothing that identifies you, and nothing from your history.
+          <strong>What we receive:</strong> to look up programmes, your browser sends us the ids and scores of your top fields, up to 80 topic words with a weight (say “theatre” 0.8, so single programmes can be sorted by your topics) and your filters (level, countries, budget, citizenship category). No titles, no searches, no channels, nothing that identifies you. We don’t store the request.
         </li>
         <li>
           <strong>Payments:</strong> handled by Stripe. We receive whether a checkout session was paid, not your card details. Stripe’s privacy policy applies to the payment.

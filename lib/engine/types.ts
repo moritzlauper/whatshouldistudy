@@ -32,6 +32,8 @@ export interface SignalItem {
   /** Direct field mapping (known subreddit), added on top of the text match. */
   fieldHints?: string[]
   url?: string
+  /** About choosing or doing a degree (e.g. a page on a university site); never counts as interest. */
+  studyInfo?: boolean
 }
 
 export interface FieldEvidence {
@@ -74,6 +76,23 @@ export interface SourceSummary {
   /** Things this source showed about making rather than consuming. */
   maker?: number
   notes?: string[]
+  /** Topics (lexicon terms) by key, so single programmes can be matched to what you looked at. */
+  topics?: Record<string, Topic>
+  /** Items about choosing or doing a degree, left out: how many, for which fields, a few examples. */
+  studyInfo?: { n: number; fields: Record<string, number>; ex: string[] }
+  /** Version of the reader that made this summary; older ones miss later fixes. */
+  v?: number
+}
+
+export interface Topic {
+  /** The word as it appeared in your data. */
+  w: string
+  /** Items that mentioned it. */
+  n: number
+  /** Weight per year ('0' = undated), so age and a degree under way can be applied later. */
+  y: Record<string, number>
+  /** Up to two example titles. */
+  ex: string[]
 }
 
 export interface QuestionnaireAnswers {

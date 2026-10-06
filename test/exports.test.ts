@@ -142,5 +142,33 @@ test('searches about studying itself are left out', async () => {
   ]
   const r = await readTexts([{ name: 'Takeout/My Activity/Search/MyActivity.json', text: JSON.stringify(search) }])
   const g = r.summaries.find((x) => x.source === 'google-search')!
-  assert.equal(g.stats.googleSearches, 1)
+  // Read, noted as study info, and kept out of every field.
+  assert.equal(g.studyInfo?.n, 1)
+  assert.ok(g.studyInfo?.fields.sociology)
+  assert.ok(!g.fields.sociology?.top.some((t) => /uzh/.test(t.label)))
+})
+
+test('videos and pages about choosing a degree are study info, not interest', async () => {
+  const at = (m: number) => `2025-0${m}-02T10:00:00.000Z`
+  const watch = [
+    { header: 'YouTube', title: 'Watched Psychologie studieren: lohnt sich das?', titleUrl: 'https://www.youtube.com/watch?v=a1', subtitles: [{ name: 'Studi Tipps' }], time: at(1) },
+    { header: 'YouTube', title: 'Watched Mein Psychologiestudium: ehrliche Erfahrungen', titleUrl: 'https://www.youtube.com/watch?v=a2', subtitles: [{ name: 'Lea' }], time: at(2) },
+    { header: 'YouTube', title: 'Watched A day in the life of a psychology student', titleUrl: 'https://www.youtube.com/watch?v=a3', subtitles: [{ name: 'Sam' }], time: at(3) },
+    { header: 'YouTube', title: 'Watched Das Milgram-Experiment: Gehorsam und Autorität erklärt', titleUrl: 'https://www.youtube.com/watch?v=a4', subtitles: [{ name: 'Psych Explained' }], time: at(4) },
+  ]
+  const visits = [
+    { header: 'Chrome', title: 'Visited Psychologie – Universität Zürich', titleUrl: 'https://www.psychologie.uzh.ch/de/studium.html', time: at(5) },
+  ]
+  const r = await readTexts([
+    { name: 'Takeout/My Activity/YouTube/MyActivity.json', text: JSON.stringify(watch) },
+    { name: 'Takeout/My Activity/Chrome/MyActivity.json', text: JSON.stringify(visits) },
+  ])
+  const y = r.summaries.find((x) => x.source === 'takeout')!
+  assert.equal(y.studyInfo?.n, 3)
+  assert.ok((y.studyInfo?.fields.psychology ?? 0) >= 2)
+  // The one real psychology video still counts.
+  assert.ok(y.fields.psychology.score > 0)
+  assert.equal(y.fields.psychology.items, 1)
+  const g = r.summaries.find((x) => x.source === 'google-search')
+  assert.equal(g?.fields.psychology, undefined)
 })

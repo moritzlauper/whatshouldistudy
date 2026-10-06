@@ -45,7 +45,7 @@ test('classifies programme names from the data sources', () => {
 })
 
 function video(title: string, channel: string, time: number, extra: Partial<SignalItem> = {}): SignalItem {
-  return { kind: 'watch', text: `${title} ${channel}`, label: channel, group: channel, weight: 0.3, time, ...extra }
+  return { kind: 'watch', text: `${title} \n ${channel}`, label: channel, group: channel, weight: 0.3, time, ...extra }
 }
 
 const MONTH = 30.44 * 864e5
@@ -91,7 +91,7 @@ test('engineering footprint ranks engineering and space fields on top', () => {
   assert.ok(r.fields[0].score >= 85 && r.fields[0].score <= 100)
   assert.ok(r.riasec.code.startsWith('R') || r.riasec.code.startsWith('I'), r.riasec.code)
   const aero = r.fields.find((f) => f.id === 'aerospace-engineering')!
-  assert.ok(aero.evidence.some((e) => e.label === 'Everyday Astronaut'))
+  assert.ok(aero.evidence.some((e) => e.label.endsWith('· Everyday Astronaut')))
   assert.ok((aero.persistence ?? 0) > 0.8)
 })
 
