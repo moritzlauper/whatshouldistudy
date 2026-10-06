@@ -94,7 +94,9 @@ const en = {
     step3: 'Where and what',
     step3sub: 'Used to filter programmes and show the fees that apply to you.',
     yt: 'Your watch history, every video often going back years, plus what Google logs: your searches, pages you visited, Maps and apps. The richest source.',
-    ytLogin: 'Or sign in for subscriptions and likes only, without the watch history:',
+    ytLogin: (n: string) =>
+      `Worth it: sign in with YouTube first, then drop the Takeout file. Your subscriptions and likes come in, and your browser asks YouTube how it files your newest ${n} videos (category, tags, YouTube’s own topics). That goes straight to YouTube, not to us.`,
+    ytLinked: (n: string) => `Signed in with YouTube. Drop the Takeout file now and we add YouTube’s own topics for your newest ${n} videos.`,
     spotify: 'Podcasts, saved episodes and audiobooks, plus your top artists for music taste.',
     reddit: 'Your communities, saved and upvoted posts, and what you wrote yourself.',
     github: 'What you build and what you star. Public data, just your username.',
@@ -420,6 +422,14 @@ const en = {
     nothing: 'Nothing here stands out against what everyone does.',
     locked: 'In the full report: what each of your sources says on its own.',
     teaser: (fields: number, topics: number) => `${fields} field${fields === 1 ? '' : 's'} stand${fields === 1 ? 's' : ''} out · ${topics} topics`,
+    platform: (n: string) => `How YouTube itself files it (${n} videos)`,
+    platformNote: 'YouTube’s own topics. They nudge the fields a little; what the titles, tags and descriptions say counts more.',
+    ytGroups: {
+      society: 'Society', politics: 'Politics', knowledge: 'Knowledge', business: 'Business', health: 'Health', religion: 'Religion', military: 'Military',
+      technology: 'Technology', music: 'Music', gaming: 'Gaming', sport: 'Sport', entertainment: 'Entertainment', humour: 'Humour', film: 'Film', tv: 'TV shows',
+      'performing-arts': 'Performing arts', lifestyle: 'Lifestyle', fashion: 'Fashion', fitness: 'Fitness', food: 'Food', hobby: 'Hobbies', pets: 'Pets', beauty: 'Beauty',
+      travel: 'Travel', vehicles: 'Vehicles',
+    } as Record<string, string>,
   },
   studyInfo: {
     title: (n: string) => `${n} items about choosing a degree don’t count`,
@@ -645,7 +655,9 @@ const deCH: Dict = {
     step3: 'Wohin und was',
     step3sub: 'Damit filtern wir die Studiengänge und zeigen die Gebühren, die für dich gelten.',
     yt: 'Dein Wiedergabeverlauf, jedes Video oft über Jahre, dazu was Google sonst festhält: deine Suchen, besuchte Seiten, Maps und Apps. Die beste Quelle.',
-    ytLogin: 'Oder anmelden, dann nur Abos und Likes, ohne Verlauf:',
+    ytLogin: (n: string) =>
+      `Lohnt sich: zuerst mit YouTube anmelden, dann die Takeout-Datei reinziehen. Deine Abos und Likes kommen dazu, und dein Browser fragt YouTube, wie es deine letzten ${n} Videos einordnet (Kategorie, Tags, YouTubes eigene Themen). Das geht direkt an YouTube, nicht an uns.`,
+    ytLinked: (n: string) => `Mit YouTube angemeldet. Ziehst du jetzt die Takeout-Datei rein, holen wir YouTubes eigene Themen zu deinen letzten ${n} Videos dazu.`,
     spotify: 'Podcasts, gespeicherte Folgen und Hörbücher, dazu deine Top-Artists für den Musikgeschmack.',
     reddit: 'Deine Communities, gespeicherte und upgevotete Posts, und was du selbst schreibst.',
     github: 'Was du baust und was du sternst. Öffentliche Daten, nur dein Username.',
@@ -1011,6 +1023,14 @@ const deCH: Dict = {
     nothing: 'Hier sticht nichts heraus gegenüber dem, was alle machen.',
     locked: 'Im vollen Bericht: was jede deiner Quellen einzeln über dich sagt.',
     teaser: (fields: number, topics: number) => `${fields} ${fields === 1 ? 'Fach sticht' : 'Fächer stechen'} heraus · ${topics} Themen`,
+    platform: (n: string) => `So ordnet YouTube selbst es ein (${n} Videos)`,
+    platformNote: 'YouTubes eigene Themen. Sie verschieben die Fächer leicht; mehr zählt, was in Titeln, Tags und Beschreibungen steht.',
+    ytGroups: {
+      society: 'Gesellschaft', politics: 'Politik', knowledge: 'Wissen', business: 'Wirtschaft', health: 'Gesundheit', religion: 'Religion', military: 'Militär',
+      technology: 'Technik', music: 'Musik', gaming: 'Gaming', sport: 'Sport', entertainment: 'Unterhaltung', humour: 'Humor', film: 'Film', tv: 'Serien & TV',
+      'performing-arts': 'Darstellende Kunst', lifestyle: 'Lifestyle', fashion: 'Mode', fitness: 'Fitness', food: 'Essen', hobby: 'Hobbys', pets: 'Haustiere', beauty: 'Beauty',
+      travel: 'Reisen', vehicles: 'Fahrzeuge',
+    } as Record<string, string>,
   },
   studyInfo: {
     title: (n: string) => `${n} Einträge über die Studienwahl zählen nicht`,

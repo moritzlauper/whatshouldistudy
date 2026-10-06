@@ -2,7 +2,9 @@ import { Unzip, UnzipInflate } from 'fflate'
 import { accumulate } from '../engine/accumulate.ts'
 import { STUDY_INTENT, isStudyInfo, truncate } from '../engine/text.ts'
 import type { SignalItem, SourceSummary } from '../engine/types.ts'
-import type { ChannelInfo } from './youtube.ts'
+import { videoSignal } from './youtube.ts'
+import type { ChannelInfo, VideoResource } from './youtube.ts'
+import { learningPriorFrom, ytTopicSignal } from '../taxonomy/youtube-topics.ts'
 import type { Progress } from './oauth.ts'
 import { newSocial, parseInstagram, parseInstagramHtml, parseTikTok, parseTikTokText } from './social-exports.ts'
 import type { SocialCollected } from './social-exports.ts'
@@ -37,8 +39,40 @@ export interface ExportResult {
   takeoutProducts?: string[]
   /** What the archive's table of contents says the whole export holds. */
   takeoutExport?: { files: number; size: string }
-  /** Re-runs the analysis with channel descriptions fetched from the YouTube API. */
-  rebuild: (channels: Map<string, ChannelInfo>) => ExportResult
+  /** Video ids of the watch history, newest first, for API enrichment. */
+  recentVideoIds: string[]
+  /** Re-runs the analysis with channel and video details fetched from the YouTube API. */
+  rebuild: (channels?: Map<string, ChannelInfo>, videos?: Map<string, VideoResource>) => ExportResult
+}
+
+const videoId = (url?: string) => /[?&]v=([\w-]{6,})/.exec(url ?? '')?.[1]
+
+/**
+ * A watched video with what YouTube itself says about it (tags, description,
+ * category, topics), or at least its channel's topics. That is the closest we
+ * get to how YouTube's algorithm sees your viewing.
+ */
+function withYouTubeDetails(it: SignalItem, channels?: Map<string, ChannelInfo>, videos?: Map<string, VideoResource>): SignalItem {
+  const id = videoId(it.url)
+  const v = id ? videos?.get(id) : undefined
+  if (v) {
+    const sig = videoSignal(v)
+    return {
+      ...it,
+      // Study info is judged on title and channel only, before tags join in.
+      studyInfo: it.studyInfo ?? isStudyInfo(it.text, it.kind),
+      text: sig.text ? `${it.text} \n ${sig.text}` : it.text,
+      learningPrior: sig.learningPrior,
+      isMusic: it.isMusic || sig.isMusic,
+      boost: sig.boost,
+      platformTopics: sig.groups,
+    }
+  }
+  const ch = it.group ? channels?.get(it.group) : undefined
+  if (!ch?.topics.length) return it
+  // The channel's topics say less about a single video: half the nudge.
+  const sig = ytTopicSignal(ch.topics, 0.5)
+  return { ...it, boost: sig.boost, platformTopics: sig.groups, isMusic: it.isMusic || (sig.music && sig.groups.length === 1), learningPrior: learningPriorFrom(it.learningPrior, sig) }
 }
 
 interface Activity {
@@ -523,13 +557,21 @@ export async function readExports(files: File[], onProgress: Progress = () => {}
   return buildSummaries(c)
 }
 
-function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>): ExportResult {
+function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>, videos?: Map<string, VideoResource>): ExportResult {
   const summaries: SourceSummary[] = []
   // Google searches (My Activity) are their own source, so the two downloads don't overwrite each other.
   // Subscriptions in Takeout carry no date and can be years old; with a real
   // watch history, what someone watches now leads.
   const subscriptions = c.watch.length >= 200 ? c.subscriptions.map((x) => ({ ...x, weight: 1 })) : c.subscriptions
-  const youtubeItems = [...c.watch, ...c.music, ...c.youtubeSearch, ...c.comments, ...subscriptions]
+  const watch = channels || videos ? c.watch.map((it) => withYouTubeDetails(it, channels, videos)) : c.watch
+  const enriched = videos ? c.watch.filter((it) => videos.has(videoId(it.url) ?? '')).length : 0
+  const subs = channels
+    ? subscriptions.map((x) => {
+        const sig = ytTopicSignal(channels.get(x.group ?? '')?.topics ?? [])
+        return { ...x, boost: sig.boost, platformTopics: sig.groups }
+      })
+    : subscriptions
+  const youtubeItems = [...watch, ...c.music, ...c.youtubeSearch, ...c.comments, ...subs]
   if (youtubeItems.length) {
     const groupText = new Map<string, string>()
     if (channels) for (const [id, ch] of channels) groupText.set(id, ch.text)
@@ -545,6 +587,7 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>): Expo
           comments: c.comments.length,
           subscriptions: c.subscriptions.length,
           channels: c.channelCounts.size,
+          ...(enriched ? { videosWithYouTubeTopics: enriched } : {}),
         },
         maker: 0,
       }),
@@ -591,14 +634,23 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>): Expo
     .filter(([id]) => id.startsWith('UC'))
     .sort((a, b) => b[1].n - a[1].n)
     .map(([id]) => id)
+  const recentVideoIds = [
+    ...new Set(
+      [...c.watch]
+        .sort((a, b) => (b.time ?? 0) - (a.time ?? 0))
+        .map((it) => videoId(it.url))
+        .filter((x): x is string => !!x),
+    ),
+  ]
   return {
     summaries,
     topChannelIds,
+    recentVideoIds,
     recognised: c.recognised,
     skipped: c.skipped,
     takeoutProducts: c.takeoutProducts,
     takeoutExport: c.takeoutExport,
-    rebuild: (ch) => buildSummaries(c, ch),
+    rebuild: (ch, v) => buildSummaries(c, ch, v),
   }
 }
 

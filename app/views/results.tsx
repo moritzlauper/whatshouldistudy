@@ -552,6 +552,25 @@ function SourceInsights({ summaries, unlocked, studying }: { summaries: SourceSu
                       {p.terms.join(' · ')}
                     </p>
                   )}
+                  {x.platform && (
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-wider text-muted">{s.platform(fmtNumber(x.platform.n, intl))}</div>
+                      <ul className="mt-2 grid gap-1">
+                        {Object.entries(x.platform.topics)
+                          .slice(0, 6)
+                          .map(([g, share]) => (
+                            <li key={g} className="flex items-center gap-2 text-xs">
+                              <span className="w-28 shrink-0 truncate font-semibold">{s.ytGroups[g] ?? g}</span>
+                              <span className="bar h-2 flex-1">
+                                <span className="bg-accent" style={{ width: `${Math.round(share * 100)}%` }} />
+                              </span>
+                              <span className="w-9 shrink-0 text-right text-muted">{Math.round(share * 100)} %</span>
+                            </li>
+                          ))}
+                      </ul>
+                      <p className="mt-1.5 text-xs text-muted">{s.platformNote}</p>
+                    </div>
+                  )}
                   <div className="grid gap-1 text-xs text-muted">
                     {p.learning !== undefined && <span>📚 {s.learning(Math.round(p.learning * 100))}</span>}
                     {p.peakHour !== undefined && <span>🕘 {s.hours(p.peakHour, (p.peakHour + 3) % 24)}</span>}

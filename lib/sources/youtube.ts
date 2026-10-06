@@ -1,8 +1,9 @@
 import { accumulate } from '../engine/accumulate.ts'
 import { genresToProfile } from '../engine/music.ts'
-import { cleanDescription, truncate } from '../engine/text.ts'
+import { cleanDescription, isStudyInfo, truncate } from '../engine/text.ts'
 import type { SignalItem, SourceSummary } from '../engine/types.ts'
 import { YOUTUBE_CATEGORIES } from '../taxonomy/known.ts'
+import { learningPriorFrom, ytTopicNames, ytTopicSignal } from '../taxonomy/youtube-topics.ts'
 import { ApiError, getJson } from './oauth.ts'
 import type { Progress } from './oauth.ts'
 
@@ -50,7 +51,7 @@ interface ChannelResource {
   topicDetails?: { topicCategories?: string[] }
 }
 
-interface VideoResource {
+export interface VideoResource {
   id: string
   snippet?: Snippet
   topicDetails?: { topicCategories?: string[] }
@@ -59,10 +60,26 @@ interface VideoResource {
 export interface ChannelInfo {
   title: string
   text: string
+  /** YouTube's topics for the channel (Society, Politics, Music …). */
+  topics: string[]
 }
 
-function topics(urls?: string[]): string[] {
-  return (urls ?? []).map((u) => decodeURIComponent(u.split('/').pop() ?? '').replace(/_/g, ' '))
+/**
+ * What YouTube itself says about a video: tags and description as text,
+ * category and topics as learning prior, music flag and small field nudges.
+ */
+export function videoSignal(v: VideoResource | undefined) {
+  const cat = v?.snippet?.categoryId ? YOUTUBE_CATEGORIES[v.snippet.categoryId] : undefined
+  const names = ytTopicNames(v?.topicDetails?.topicCategories)
+  const sig = ytTopicSignal(names)
+  return {
+    text: [(v?.snippet?.tags ?? []).slice(0, 15).join(' '), truncate(cleanDescription(v?.snippet?.description ?? ''), 300)].filter(Boolean).join(' \n '),
+    learningPrior: learningPriorFrom(cat?.learning, sig),
+    isMusic: !!cat?.music,
+    boost: sig.boost,
+    groups: sig.groups,
+    topicNames: names,
+  }
 }
 
 async function* paginate<T>(url: string, token: string, max: number): AsyncGenerator<T> {
@@ -91,12 +108,9 @@ export async function fetchChannels(ids: string[], token: string, onProgress?: P
       const title = c.snippet?.title ?? ''
       out.set(c.id, {
         title,
-        text: [
-          title,
-          truncate(cleanDescription(c.snippet?.description ?? ''), 700),
-          c.brandingSettings?.channel?.keywords ?? '',
-          topics(c.topicDetails?.topicCategories).join(' '),
-        ].join(' \n '),
+        // YouTube's topics are not words to match: «Lifestyle (sociology)» would read as sociology.
+        text: [title, truncate(cleanDescription(c.snippet?.description ?? ''), 700), c.brandingSettings?.channel?.keywords ?? ''].join(' \n '),
+        topics: ytTopicNames(c.topicDetails?.topicCategories),
       })
     }
     onProgress?.('Reading channel details', out.size)
@@ -104,7 +118,7 @@ export async function fetchChannels(ids: string[], token: string, onProgress?: P
   return out
 }
 
-async function fetchVideos(ids: string[], token: string, onProgress?: Progress): Promise<Map<string, VideoResource>> {
+export async function fetchVideos(ids: string[], token: string, onProgress?: Progress): Promise<Map<string, VideoResource>> {
   const out = new Map<string, VideoResource>()
   for (let i = 0; i < ids.length; i += 50) {
     const page = await getJson<Page<VideoResource>>(
@@ -218,9 +232,13 @@ export async function collectYouTube(token: string, onProgress: Progress = () =>
   for (const [id, c] of channels) groupText.set(id, c.text)
 
   for (const s of subs) {
+    const sig = ytTopicSignal(channels.get(s.id)?.topics ?? [])
     items.push({
       kind: 'subscription',
       text: channels.get(s.id)?.text ?? `${s.title} ${truncate(cleanDescription(s.description), 500)}`,
+      studyInfo: isStudyInfo(s.title, 'subscription'),
+      boost: sig.boost,
+      platformTopics: sig.groups,
       label: s.title,
       group: s.id,
       // A subscription from years ago says less about today than recent viewing.
@@ -234,28 +252,25 @@ export async function collectYouTube(token: string, onProgress: Progress = () =>
   let musicLikes = 0
   for (const l of liked) {
     const d = details.get(l.videoId)
-    const cat = d?.snippet?.categoryId
-    const catInfo = cat ? YOUTUBE_CATEGORIES[cat] : undefined
-    const topicNames = topics(d?.topicDetails?.topicCategories)
-    const isMusic = !!catInfo?.music
+    const v = videoSignal(d)
+    const topicNames = v.topicNames
+    const isMusic = v.isMusic
     if (isMusic) {
       musicLikes++
       for (const t of topicNames) if (/music|jazz|rock|pop|hip hop|reggae|soul|blues|country|electronic|classical|metal|punk|folk|r&b|rhythm/i.test(t)) genres.set(t, (genres.get(t) ?? 0) + 1)
     }
     items.push({
       kind: 'like',
-      text: [
-        d?.snippet?.title ?? l.title,
-        (d?.snippet?.tags ?? []).slice(0, 15).join(' '),
-        truncate(cleanDescription(d?.snippet?.description ?? ''), 300),
-        topicNames.join(' '),
-        l.channelTitle ?? '',
-      ].join(' \n '),
+      text: [d?.snippet?.title ?? l.title, l.channelTitle ?? '', v.text].join(' \n '),
+      // Judged on title and channel: tags say «Studium» on plenty of real lessons.
+      studyInfo: isStudyInfo(`${l.title} ${l.channelTitle ?? ''}`, 'like'),
+      boost: v.boost,
+      platformTopics: v.groups,
       label: l.channelTitle ? `${truncate(l.title, 140)} (${l.channelTitle})` : truncate(l.title, 140),
       group: l.channelId,
       weight: 1.5,
       time: l.time,
-      learningPrior: catInfo?.learning ?? 0.3,
+      learningPrior: v.learningPrior,
       isMusic,
       url: `https://www.youtube.com/watch?v=${l.videoId}`,
     })

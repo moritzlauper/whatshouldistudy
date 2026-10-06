@@ -26,7 +26,7 @@ const TOPICS_KEPT = 200
  * pick up (new filters, new lexicon terms); the results page then suggests
  * reading the files again.
  */
-export const SUMMARY_VERSION = 3
+export const SUMMARY_VERSION = 4
 
 export interface AccumulateOptions {
   source: SourceId
@@ -70,6 +70,8 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
   const timeline: Record<string, Float64Array> = {}
   const topicMap = new Map<string, Topic>()
   const study = { n: 0, fields: new Map<string, number>(), ex: [] as string[] }
+  const platform = new Map<string, number>()
+  let platformItems = 0
   const hours = new Array<number>(24).fill(0)
   let totalWeight = 0
   let learningWeight = 0
@@ -91,10 +93,14 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
   }
 
   for (const it of items) {
+    if (it.platformTopics?.length) {
+      platformItems += 1
+      for (const g of it.platformTopics) platform.set(g, (platform.get(g) ?? 0) + 1)
+    }
     if (it.isMusic) continue
     const c = classify(it.text, { splitCamel: it.splitCamel })
     // Looking into a degree is the decision itself, not an interest: noted, never counted.
-    if (it.studyInfo || isStudyInfo(it.text, it.kind)) {
+    if (it.studyInfo ?? isStudyInfo(it.text, it.kind)) {
       study.n += 1
       const v = fieldVector(c)
       for (let i = 0; i < FIELD_COUNT; i++) if (v[i] >= STRONG) study.fields.set(FIELDS[i].id, (study.fields.get(FIELDS[i].id) ?? 0) + 1)
@@ -105,6 +111,12 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
     const vec = fieldVector(c)
     const g = it.group ? groupVec.get(it.group) : undefined
     if (g) for (let i = 0; i < FIELD_COUNT; i++) vec[i] = Math.min(1, vec[i] + 0.5 * g[i])
+    if (it.boost) {
+      for (const [id, b] of Object.entries(it.boost)) {
+        const i = FIELD_INDEX[id]
+        if (i !== undefined) vec[i] = Math.min(1, vec[i] + b)
+      }
+    }
     if (it.fieldHints) {
       for (const id of it.fieldHints) {
         const i = FIELD_INDEX[id]
@@ -194,6 +206,17 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
     maker: opts.maker,
     notes: opts.notes,
     v: SUMMARY_VERSION,
+  }
+  if (platformItems >= 20) {
+    summary.platform = {
+      n: platformItems,
+      topics: Object.fromEntries(
+        [...platform]
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .map(([g, n]) => [g, round(n / platformItems)]),
+      ),
+    }
   }
   if (study.n) {
     summary.studyInfo = {

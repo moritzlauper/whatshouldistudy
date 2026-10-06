@@ -110,7 +110,7 @@ export async function HowView({ site, base }: SiteProps) {
             <strong>YouTube:</strong> Abos mit dem Datum, an dem du abonniert hast, gelikte Videos mit Datum, Tags, Kategorie und Thema, deine Playlists und Uploads. Dazu die Beschreibung und die Stichworte jedes Kanals dahinter.
           </li>
           <li>
-            <strong>Google Takeout:</strong> dein ganzer Wiedergabe- und Suchverlauf, Kommentare und Abos, dazu aus «Meine Aktivitäten» deine Google-Suchen, besuchte Seiten, Maps-Suchen, Apps, Bücher und Artikel. YouTube gibt den Wiedergabeverlauf nicht über die Schnittstelle heraus, deshalb dieser Umweg. Oft stecken Jahre drin. Werbeeinträge lesen wir nicht.
+            <strong>Google Takeout:</strong> dein ganzer Wiedergabe- und Suchverlauf, Kommentare und Abos, dazu aus «Meine Aktivitäten» deine Google-Suchen, besuchte Seiten, Maps-Suchen, Apps, Bücher und Artikel. YouTube gibt den Wiedergabeverlauf nicht über die Schnittstelle heraus, deshalb dieser Umweg. Oft stecken Jahre drin. Werbeeinträge lesen wir nicht. Bist du im selben Tab mit YouTube angemeldet, fragt dein Browser bei YouTube die öffentlichen Angaben zu deinen bis zu 2'500 neusten Videos und 300 meistgeschauten Kanälen ab: Kategorie, Tags, Beschreibung und YouTubes eigene Themen. Dafür gehen die Video- und Kanal-Kennungen an YouTube, nicht an uns.
           </li>
           <li>
             <strong>Instagram und TikTok:</strong> aus deinem Daten-Download die Themen, unter denen dich Instagram führt, die Konten, denen du folgst, deine Likes, Gespeichertes, Suchen, Hashtags und eigene Kommentare. Per Login geben beide das nicht heraus, deshalb der Download. Direktnachrichten lesen wir nicht.
@@ -200,7 +200,7 @@ export async function HowView({ site, base }: SiteProps) {
           <strong>YouTube:</strong> subscriptions (with the date you subscribed), liked videos (with the date you liked them, plus tags, category and topic), your playlists and uploads, and the description and keywords of every channel behind them.
         </li>
         <li>
-          <strong>Google Takeout:</strong> your full watch history and search history, comments and subscriptions, plus from «My Activity» your Google searches, pages you visited, Maps searches, apps, books and articles. YouTube doesn’t offer watch history through its API, so this is the way to get it, often years of it. Ad entries are skipped.
+          <strong>Google Takeout:</strong> your full watch history and search history, comments and subscriptions, plus from «My Activity» your Google searches, pages you visited, Maps searches, apps, books and articles. YouTube doesn’t offer watch history through its API, so this is the way to get it, often years of it. Ad entries are skipped. If you are signed in with YouTube in the same tab, your browser asks YouTube for the public details of up to 2,500 of your newest videos and your 300 most watched channels: category, tags, description and YouTube’s own topics. The video and channel ids go to YouTube for that, not to us.
         </li>
         <li>
           <strong>Instagram and TikTok:</strong> from your data download, the topics Instagram files you under, the accounts you follow, your likes, saved posts, searches, hashtags and your own comments. Neither offers this through a sign-in, hence the download. We don’t read direct messages.

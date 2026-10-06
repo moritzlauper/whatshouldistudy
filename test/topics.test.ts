@@ -82,3 +82,61 @@ test('film and TV stars are not theatre', () => {
 test('social media and Gen Z read as society, not media studies', () => {
   assert.equal(topFields('Gen Z is nihilistic??? social media made us lonely', 1)[0]?.id, 'sociology')
 })
+
+test('YouTube topics nudge fields instead of being read as words', async () => {
+  const { ytTopicSignal } = await import('../lib/taxonomy/youtube-topics.ts')
+  const lifestyle = ytTopicSignal(['Lifestyle (sociology)', 'Fashion'])
+  assert.equal(lifestyle.boost?.sociology, undefined)
+  assert.ok((lifestyle.boost?.['fashion-design'] ?? 0) > 0)
+  assert.ok(ytTopicSignal(['Hip hop music']).music)
+  assert.ok(ytTopicSignal(['Knowledge']).learning)
+})
+
+test('a Takeout watch history gains YouTube’s own details after sign-in', async () => {
+  const { readTexts } = await import('../lib/sources/exports.ts')
+  const at = (i: number) => new Date(Date.UTC(year, 0, 1 + i)).toISOString()
+  const watch = Array.from({ length: 30 }, (_, i) => ({
+    header: 'YouTube',
+    title: `Watched Folge ${i}: Wie geht es weiter?`,
+    titleUrl: `https://www.youtube.com/watch?v=vid${String(i).padStart(8, '0')}`,
+    subtitles: [{ name: 'Reportage Kanal', url: 'https://www.youtube.com/channel/UCreportage' }],
+    time: at(i),
+  }))
+  const r = await readTexts([{ name: 'Takeout/My Activity/YouTube/MyActivity.json', text: JSON.stringify(watch) }])
+  assert.equal(r.recentVideoIds[0], 'vid00000029')
+  const plain = r.summaries.find((s) => s.source === 'takeout')!
+  assert.equal(plain.fields.sociology, undefined)
+  const videos = new Map(
+    r.recentVideoIds.map((id) => [
+      id,
+      {
+        id,
+        snippet: { title: 'x', categoryId: '25', tags: ['Armut', 'Obdachlosigkeit', 'Sozialreportage'], description: 'Wie Menschen in der Schweiz mit wenig Geld leben.\nFolgt uns auf Instagram: @kanal' },
+        topicDetails: { topicCategories: ['https://en.wikipedia.org/wiki/Society', 'https://en.wikipedia.org/wiki/Lifestyle_(sociology)'] },
+      },
+    ]),
+  )
+  const channels = new Map([['UCreportage', { title: 'Reportage Kanal', text: 'Reportage Kanal', topics: ['Society'] }]])
+  const rich = r.rebuild(channels, videos).summaries.find((s) => s.source === 'takeout')!
+  assert.ok(rich.fields.sociology.score > 0)
+  assert.equal(rich.stats.videosWithYouTubeTopics, 30)
+  assert.equal(rich.platform?.topics.society, 1)
+  // The promo line in the description doesn't make it media studies.
+  assert.equal(rich.fields['media-communication'], undefined)
+})
+
+test('tags that say «Studium» don’t turn a real lesson into study info', async () => {
+  const { readTexts } = await import('../lib/sources/exports.ts')
+  const watch = Array.from({ length: 5 }, (_, i) => ({
+    header: 'YouTube',
+    title: `Watched Bourdieu: Habitus und Kapital erklärt ${i}`,
+    titleUrl: `https://www.youtube.com/watch?v=bou${String(i).padStart(8, '0')}`,
+    subtitles: [{ name: 'Soziologie Kanal' }],
+    time: new Date(Date.UTC(year, 1, 1 + i)).toISOString(),
+  }))
+  const r = await readTexts([{ name: 'Takeout/My Activity/YouTube/MyActivity.json', text: JSON.stringify(watch) }])
+  const videos = new Map(r.recentVideoIds.map((id) => [id, { id, snippet: { title: 'x', categoryId: '27', tags: ['studium', 'student', 'uni', 'soziologie'] } }]))
+  const s = r.rebuild(undefined, videos).summaries.find((x) => x.source === 'takeout')!
+  assert.equal(s.studyInfo, undefined)
+  assert.equal(s.fields.sociology.items, 5)
+})

@@ -7,7 +7,8 @@ import type { SourceId, SourceSummary } from '@/lib/engine/types.ts'
 import { getToken, isConfigured, startAuth } from '@/lib/sources/oauth.ts'
 import type { Provider } from '@/lib/sources/oauth.ts'
 import { readExports } from '@/lib/sources/exports.ts'
-import { fetchChannels } from '@/lib/sources/youtube.ts'
+import { fetchChannels, fetchVideos } from '@/lib/sources/youtube.ts'
+import type { ChannelInfo, VideoResource } from '@/lib/sources/youtube.ts'
 import { collectGitHub } from '@/lib/sources/github.ts'
 import { questionnaireProgress } from '@/lib/engine/questionnaire.ts'
 import { fmtNumber } from '@/lib/site/labels.ts'
@@ -19,6 +20,10 @@ import { Sparkle } from '../ui/shapes.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 
 type Running = { source: string; message: string; count?: number } | null
+
+/** How much we ask YouTube for per upload: about 56 of the project's 10'000 daily quota units. */
+const YT_CHANNELS = 300
+const YT_VIDEOS = 2500
 
 export function StartView() {
   const { t, r, intl, site, base } = useSite()
@@ -52,15 +57,20 @@ export function StartView() {
     setErrors((x) => ({ ...x, [card]: '' }))
     try {
       let result = await readExports(files, progress(card))
-      // With a YouTube sign-in in this tab, add descriptions of the channels you watch most.
+      // With a YouTube sign-in in this tab, ask YouTube itself what you watch:
+      // the channels you watch most and your newest videos, with their tags,
+      // category and YouTube's own topics. Straight from your browser to YouTube.
       const token = getToken('google')
-      if (token && result.topChannelIds.length) {
+      if (token && (result.topChannelIds.length || result.recentVideoIds.length)) {
+        let channels: Map<string, ChannelInfo> | undefined
+        let videos: Map<string, VideoResource> | undefined
         try {
-          const channels = await fetchChannels(result.topChannelIds.slice(0, 200), token, progress(card))
-          result = result.rebuild(channels)
+          if (result.topChannelIds.length) channels = await fetchChannels(result.topChannelIds.slice(0, YT_CHANNELS), token, progress(card))
+          if (result.recentVideoIds.length) videos = await fetchVideos(result.recentVideoIds.slice(0, YT_VIDEOS), token, progress(card))
         } catch {
-          // Optional enrichment.
+          // Optional: whatever arrived before an error (quota, expired sign-in) still counts.
         }
+        if (channels || videos) result = result.rebuild(channels, videos)
       }
       if (!result.summaries.length && result.takeoutExport?.files) {
         throw new Error(t.start.takeoutPartMissing(fmtNumber(result.takeoutExport.files, intl)))
@@ -124,12 +134,18 @@ export function StartView() {
             onFiles={(f) => onFiles(f, 'takeout')}
             footer={
               mounted && isConfigured('google') ? (
-                <p className="mt-4 flex flex-wrap items-center gap-2 border-t-2 border-soft-line pt-4 text-xs text-muted">
-                  {t.start.ytLogin}
-                  <button type="button" onClick={() => connect('google')} className="btn btn-ghost btn-sm">
-                    {state.summaries.youtube ? t.start.refresh : t.start.connect('YouTube')}
-                  </button>
-                </p>
+                <div className="mt-4 grid gap-2 border-t-2 border-soft-line pt-4 text-xs text-muted">
+                  {getToken('google') ? (
+                    <p className="font-semibold text-good">✓ {t.start.ytLinked(fmtNumber(YT_VIDEOS, intl))}</p>
+                  ) : (
+                    <p>{t.start.ytLogin(fmtNumber(YT_VIDEOS, intl))}</p>
+                  )}
+                  <div>
+                    <button type="button" onClick={() => connect('google')} className="btn btn-ghost btn-sm">
+                      {state.summaries.youtube ? t.start.refresh : t.start.connect('YouTube')}
+                    </button>
+                  </div>
+                </div>
               ) : null
             }
           />

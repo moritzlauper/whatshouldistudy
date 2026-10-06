@@ -32,8 +32,16 @@ export interface SignalItem {
   /** Direct field mapping (known subreddit), added on top of the text match. */
   fieldHints?: string[]
   url?: string
-  /** About choosing or doing a degree (e.g. a page on a university site); never counts as interest. */
+  /**
+   * About choosing or doing a degree (e.g. a page on a university site); never
+   * counts as interest. Unset: decided from the text. Set it where the text
+   * carries tags or descriptions, which say «Studium» on plenty of real lessons.
+   */
   studyInfo?: boolean
+  /** Small field nudges from the platform's own topics (YouTube: Society, Politics …). */
+  boost?: Record<string, number>
+  /** How the platform files this item (YouTube topic groups), for the source report. */
+  platformTopics?: string[]
 }
 
 export interface FieldEvidence {
@@ -82,6 +90,8 @@ export interface SourceSummary {
   studyInfo?: { n: number; fields: Record<string, number>; ex: string[] }
   /** Version of the reader that made this summary; older ones miss later fixes. */
   v?: number
+  /** How the platform itself files what you watched: share of items per topic group, and how many items had topics. */
+  platform?: { topics: Record<string, number>; n: number }
 }
 
 export interface Topic {
