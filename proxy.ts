@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { LOCAL_SITES, SITES } from './lib/site/config.ts'
 import { siteForHost } from './lib/site.ts'
+import { FIELD_SLUG_DE } from './lib/site/slugs-de.ts'
 
 /**
  * Serves each country site on its own domain without a second deployment.
@@ -15,6 +16,18 @@ import { siteForHost } from './lib/site.ts'
 const under = (path: string, prefix: string) => path === prefix || path.startsWith(`${prefix}/`)
 const rest = (path: string, prefix: string) => path.slice(prefix.length)
 
+/** The field pages of the country sites moved from the English id (/faecher/computer-science) to a German address. */
+function movedField(path: string): string | null {
+  const id = /^\/faecher\/([^/]+)\/?$/.exec(path)?.[1]
+  const slug = id ? FIELD_SLUG_DE[id] : undefined
+  return slug && slug !== id ? `/faecher/${slug}` : null
+}
+const redirectTo = (url: NextRequest['nextUrl'], pathname: string) => {
+  const to = url.clone()
+  to.pathname = pathname
+  return NextResponse.redirect(to, 308)
+}
+
 export function proxy(req: NextRequest) {
   const url = req.nextUrl
   const path = url.pathname
@@ -23,12 +36,10 @@ export function proxy(req: NextRequest) {
   if (local) {
     const c = SITES[local]
     for (const prefix of [`/${c.mount}`, `/${c.domainMount}`]) {
-      if (under(path, prefix)) {
-        const to = url.clone()
-        to.pathname = rest(path, prefix) || '/'
-        return NextResponse.redirect(to, 308)
-      }
+      if (under(path, prefix)) return redirectTo(url, rest(path, prefix) || '/')
     }
+    const moved = movedField(path)
+    if (moved) return redirectTo(url, moved)
     const to = url.clone()
     to.pathname = `/${c.domainMount}${path === '/' ? '' : path}`
     return NextResponse.rewrite(to)
@@ -36,14 +47,12 @@ export function proxy(req: NextRequest) {
 
   for (const site of LOCAL_SITES) {
     const c = SITES[site]
-    if (under(path, `/${c.domainMount}`)) {
-      const to = url.clone()
-      to.pathname = `/${c.mount}${rest(path, `/${c.domainMount}`)}`
-      return NextResponse.redirect(to, 308)
-    }
+    if (under(path, `/${c.domainMount}`)) return redirectTo(url, `/${c.mount}${rest(path, `/${c.domainMount}`)}`)
     if (c.domainUrl && under(path, `/${c.mount}`)) {
       return NextResponse.redirect(`${c.domainUrl}${rest(path, `/${c.mount}`) || '/'}${url.search}`, 308)
     }
+    const moved = under(path, `/${c.mount}`) && movedField(rest(path, `/${c.mount}`))
+    if (moved) return redirectTo(url, `/${c.mount}${moved}`)
   }
   return NextResponse.next()
 }

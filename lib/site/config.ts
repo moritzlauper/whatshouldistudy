@@ -1,4 +1,5 @@
 import type { Preferences } from '../engine/types.ts'
+import { fieldSlugDe } from './slugs-de.ts'
 
 /**
  * One codebase, four sites: the global English site and a German-language site
@@ -132,7 +133,7 @@ export function routes(site: SiteId, base = ''): Routes {
       start: `${base}/start`,
       results: `${base}/resultat`,
       fields: `${base}/faecher`,
-      field: (id) => `${base}/faecher/${id}`,
+      field: (id) => `${base}/faecher/${fieldSlugDe(id)}`,
       how: `${base}/so-funktionierts`,
       privacy: `${base}/datenschutz`,
       terms: `${base}/agb`,
