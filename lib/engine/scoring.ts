@@ -40,6 +40,9 @@ export const SOURCE_RELIABILITY: Record<SourceId, number> = {
 
 const BASE_WEIGHTS = { interest: 0.45, riasec: 0.2, personality: 0.07, subjects: 0.18, values: 0.1 }
 
+/** For showing evidence: what you watched and searched first, old subscriptions last. */
+const KIND_WEIGHT: Record<string, number> = { watch: 3, search: 3, google: 3, comment: 2.5, like: 1.5, saved: 2, post: 2.5, upload: 2.5, repo: 2.5, subscription: 0.2 }
+
 const POP_SUM = FIELDS.reduce((s, f) => s + f.popularity, 0)
 /** Share of a typical person's content that lands in a given field. */
 function baseline(f: Field): number {
@@ -61,6 +64,8 @@ interface InterestDetail {
   value: number
   persistence?: number
   sources: SourceId[]
+  /** What each source added to the interest value (only positive parts). */
+  bySource: Partial<Record<SourceId, number>>
 }
 
 export function computeInterest(summaries: SourceSummary[]): { byField: Map<string, InterestDetail>; confidence: number } {
@@ -86,6 +91,7 @@ export function computeInterest(summaries: SourceSummary[]): { byField: Map<stri
     let persSum = 0
     let persW = 0
     const sources: SourceId[] = []
+    const bySource: Partial<Record<SourceId, number>> = {}
     for (const { s, w } of perSource) {
       const ev = s.fields[f.id]
       const p = ev ? ev.score / s.totalWeight : 0
@@ -102,6 +108,7 @@ export function computeInterest(summaries: SourceSummary[]): { byField: Map<stri
       }
       const v = lift > 0 ? shrink * lift * factor : 0.3 * lift * Math.max(shrink, 0.3)
       acc += w * v
+      if (v > 0) bySource[s.source] = (bySource[s.source] ?? 0) + w * v
       if (v > 0.5) {
         strongSources++
         sources.push(s.source)
@@ -109,7 +116,7 @@ export function computeInterest(summaries: SourceSummary[]): { byField: Map<stri
     }
     let value = acc / weightSum
     if (strongSources >= 2) value += 0.15 * (strongSources - 1)
-    byField.set(f.id, { value, persistence: persW ? persSum / persW : undefined, sources })
+    byField.set(f.id, { value, persistence: persW ? persSum / persW : undefined, sources, bySource })
   }
   return { byField, confidence: Math.min(1, weightSum) }
 }
@@ -200,6 +207,14 @@ export function score(input: ScoreInput): Results {
 
   const userR = riasec ? centeredUnit(riasec) : null
 
+  // Per source and label, the field where an evidence item weighs most.
+  const bestEvidence = new Map<SourceId, Map<string, number>>()
+  for (const s of footprint) {
+    const m = new Map<string, number>()
+    for (const ev of Object.values(s.fields)) for (const t of ev.top) m.set(t.label, Math.max(m.get(t.label) ?? 0, t.w))
+    bestEvidence.set(s.source, m)
+  }
+
   const matches: FieldMatch[] = FIELDS.map((f) => {
     const comp: FieldMatch['components'] = {}
     const w: Record<string, number> = {}
@@ -262,6 +277,27 @@ export function score(input: ScoreInput): Results {
     }
     const match = den ? num / den : 0
 
+    // Where the match comes from: the interest part split by source, the
+    // questionnaire parts as they are.
+    const parts: Record<string, number> = {}
+    for (const [k, wk] of Object.entries(w)) {
+      const c = wk * (comp[k as keyof typeof comp] ?? 0)
+      if (k !== 'interest') {
+        // Without a questionnaire the interest type is inferred from the data.
+        parts[k === 'riasec' && !qRiasec ? 'riasecData' : k] = c
+        continue
+      }
+      const src = Object.entries(it?.bySource ?? {}) as Array<[string, number]>
+      const total = src.reduce((s, [, v]) => s + v, 0)
+      if (total > 0) for (const [id, v] of src) parts[id] = (parts[id] ?? 0) + (c * v) / total
+      else parts.footprint = c
+    }
+    const partSum = Object.values(parts).reduce((s, v) => s + v, 0) || 1
+    const contributions = Object.entries(parts)
+      .map(([key, v]) => ({ key, share: v / partSum }))
+      .filter((x) => x.share >= 0.005)
+      .sort((a, b) => b.share - a.share)
+
     // Reasons, strongest first.
     const evidence: Array<FieldMatch['evidence'][number] & { w: number }> = []
     const terms = new Map<string, number>()
@@ -272,7 +308,12 @@ export function score(input: ScoreInput): Results {
       if (!ev) continue
       items += ev.items
       months = new Set([...months, ...ev.months])
-      for (const t of ev.top) evidence.push({ label: t.label, kind: t.kind, source: s.source, url: t.url, w: t.w })
+      const strongest = bestEvidence.get(s.source)
+      for (const t of ev.top) {
+        // A channel about music that also mentions society is evidence for music, not sociology.
+        if (t.w < 0.8 * (strongest?.get(t.label) ?? 0)) continue
+        evidence.push({ label: t.label, kind: t.kind, source: s.source, url: t.url, w: t.w * (KIND_WEIGHT[t.kind] ?? 1) })
+      }
       for (const [t, n] of Object.entries(ev.terms)) terms.set(t, (terms.get(t) ?? 0) + n)
     }
     if (comp.interest !== undefined && comp.interest > 0.55 && items > 0) {
@@ -314,8 +355,10 @@ export function score(input: ScoreInput): Results {
       interest: it?.value,
       reasons,
       evidence: dedupe(evidence)
+        .filter((e, i, all) => e.kind !== 'subscription' || all.slice(0, i).filter((x) => x.kind === 'subscription').length < 2)
         .slice(0, 10)
         .map(({ w: _w, ...e }) => e),
+      contributions,
       terms: [...terms.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([t]) => t),
       persistence: it?.persistence,
       sources: it?.sources ?? [],
@@ -450,4 +493,46 @@ function insights(
   const maker = summaries.reduce((s, x) => s + (x.maker ?? 0), 0)
   if (maker > 0) out.push({ id: 'maker', data: { count: maker } })
   return out
+}
+
+export interface SourceProfile {
+  /** Fields this source leans to (most above the usual share first), with their share of the source. */
+  fields: Array<{ id: string; share: number }>
+  terms: string[]
+  examples: string[]
+  /** Share of attention that looks like learning, 0..1. */
+  learning?: number
+  /** Busiest three hours of the day, start hour. */
+  peakHour?: number
+}
+
+/** What one source says on its own, for the detailed report. */
+export function sourceProfile(s: SourceSummary): SourceProfile {
+  const fields = FIELDS.map((f) => {
+    const ev = s.fields[f.id]
+    if (!ev || s.totalWeight <= 0 || ev.items < 3) return null
+    const p = ev.score / s.totalWeight
+    return { id: f.id, share: p, lift: (ev.items / (ev.items + 4)) * Math.log((p + 0.001) / (baseline(f) + 0.001)) }
+  })
+    .filter((x): x is { id: string; share: number; lift: number } => !!x && x.lift > 0)
+    .sort((a, b) => b.lift - a.lift)
+    .slice(0, 3)
+  const termCounts = new Map<string, number>()
+  for (const ev of Object.values(s.fields)) for (const [t, n] of Object.entries(ev.terms)) termCounts.set(t, (termCounts.get(t) ?? 0) + n)
+  const examples = fields[0] ? (s.fields[fields[0].id]?.top ?? []).filter((t) => t.kind !== 'subscription').slice(0, 3).map((t) => t.label) : []
+  let peakHour: number | undefined
+  if (s.hours && s.hours.reduce((a, b) => a + b, 0) >= 50) {
+    let best = -1
+    for (let h = 0; h < 24; h++) {
+      const v = s.hours[h] + s.hours[(h + 1) % 24] + s.hours[(h + 2) % 24]
+      if (v > best) [best, peakHour] = [v, h]
+    }
+  }
+  return {
+    fields: fields.map(({ id, share }) => ({ id, share })),
+    terms: [...termCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([t]) => t),
+    examples,
+    learning: s.totalWeight > 0 ? s.learningWeight / s.totalWeight : undefined,
+    peakHour,
+  }
 }

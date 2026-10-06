@@ -97,6 +97,8 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
     }
     const year = it.time ? String(new Date(it.time).getFullYear()) : ''
 
+    let vmax = 0
+    for (let i = 0; i < FIELD_COUNT; i++) vmax = Math.max(vmax, vec[i])
     for (let i = 0; i < FIELD_COUNT; i++) {
       const s = vec[i]
       if (s <= 0.05) continue
@@ -107,7 +109,8 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
       if (month) fieldMonths[i].add(month)
       const top = fieldTop[i]
       const ew = w * s
-      if (top.length < EVIDENCE_PER_FIELD || ew > top[top.length - 1].w) {
+      // Evidence only where the item is (nearly) strongest.
+      if (s >= 0.8 * vmax && (top.length < EVIDENCE_PER_FIELD || ew > top[top.length - 1].w)) {
         // Keep one entry per label (a channel shows up once, with its best weight).
         const existing = top.find((t) => t.label === it.label)
         if (existing) existing.w = Math.max(existing.w, ew)

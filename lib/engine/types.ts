@@ -110,6 +110,8 @@ export interface FieldMatch {
   terms: string[]
   persistence?: number
   sources: SourceId[]
+  /** Share of the match from each source and questionnaire part, largest first. */
+  contributions?: Array<{ key: string; share: number }>
 }
 
 /** Why a field matches; rendered per language by the site. */

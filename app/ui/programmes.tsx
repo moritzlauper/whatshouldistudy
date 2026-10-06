@@ -7,6 +7,7 @@ import { isLocal } from '@/lib/site/config.ts'
 import type { FieldMatch, Preferences, Results } from '@/lib/engine/types.ts'
 import { normalize } from '@/lib/engine/text.ts'
 import { reasonText } from '@/lib/site/explain.ts'
+import { Contributions } from './contributions.tsx'
 import { COUNTRIES, flag } from '@/lib/countries.ts'
 import type { Level, ResearchInstitution } from '@/lib/programmes.ts'
 import type { RankResult, RankedProgramme } from '@/lib/server/rank.ts'
@@ -269,22 +270,25 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
                 </li>
               ))}
           </ul>
+          <div className="mt-3">
+            <Contributions m={fit.m} />
+          </div>
           {fit.m.terms.length > 0 && (
             <p className="mt-3 text-muted">
               {d.topics}: <span className="font-semibold text-ink">{fit.m.terms.slice(0, 8).map((x) => x.replace(/…/g, '')).join(' · ')}</span>
             </p>
           )}
           {fit.m.evidence.length > 0 && (
-            <>
-              <p className="mt-3 text-muted">{d.seen}:</p>
-              <ul className="mt-1.5 flex flex-wrap gap-1.5">
+            <details className="mt-3 text-xs">
+              <summary className="cursor-pointer font-bold text-muted">{d.seen}</summary>
+              <ul className="mt-2 grid gap-1">
                 {fit.m.evidence.slice(0, 6).map((e) => (
-                  <li key={e.label} className="chip-soft max-w-full truncate" title={`${e.label} (${t.sourceNames[e.source] ?? e.source})`}>
-                    <span className="text-muted">{t.results.kinds[e.kind] ?? e.kind}:</span>&nbsp;{e.label}
+                  <li key={e.label} className="truncate" title={`${e.label} (${t.sourceNames[e.source] ?? e.source})`}>
+                    <span className="text-muted">{t.results.kinds[e.kind] ?? e.kind}:</span> {e.label}
                   </li>
                 ))}
               </ul>
-            </>
+            </details>
           )}
         </div>
       )}

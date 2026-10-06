@@ -277,7 +277,7 @@ function Card({ title, text, glyph, color, badge, children, className }: { title
           </span>
           <h3 className="font-display text-2xl">{title}</h3>
         </span>
-        {badge && <span className="sticker" style={{ background: 'var(--surface)', color: 'var(--ink)' }}>★ {badge}</span>}
+        {badge && <span className="sticker shrink-0 whitespace-nowrap" style={{ background: 'var(--surface)', color: 'var(--ink)' }}>★ {badge}</span>}
       </div>
       <div className="flex flex-1 flex-col p-5">
         <p className="text-sm text-muted">{text}</p>

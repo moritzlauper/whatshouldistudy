@@ -4,7 +4,7 @@ import { withBase } from '@/lib/site.ts'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { useAppState } from '@/lib/store.ts'
-import { score } from '@/lib/engine/scoring.ts'
+import { score, sourceProfile } from '@/lib/engine/scoring.ts'
 import type { FieldMatch, Results, SourceSummary } from '@/lib/engine/types.ts'
 import type { FieldStat } from '@/lib/programmes.ts'
 import { BIG5_KEYS, FIELDS, FIELD_BY_ID, RIASEC_KEYS } from '@/lib/taxonomy/fields.ts'
@@ -13,6 +13,7 @@ import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes } from '../ui/programmes.tsx'
 import { Earnings } from '../ui/earnings.tsx'
+import { Contributions } from '../ui/contributions.tsx'
 import { useConfig } from '../ui/price.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 import { useSite } from '../ui/site-context.tsx'
@@ -226,6 +227,8 @@ export function ResultsView() {
         </section>
       )}
 
+      {summaries.some((s) => s.source !== 'questionnaire') && <SourceInsights summaries={summaries} unlocked={unlocked} />}
+
       <Programmes results={results} prefs={state.prefs} hideFirst={!unlocked} />
     </div>
   )
@@ -258,17 +261,21 @@ function Components({ m }: { m: FieldMatch }) {
   )
 }
 
+/** A few examples from the data, small and folded away: the bar above tells the story. */
 function Evidence({ m, n }: { m: FieldMatch; n: number }) {
   const { t } = useSite()
   if (!m.evidence.length) return null
   return (
-    <ul className="flex flex-wrap gap-1.5">
-      {m.evidence.slice(0, n).map((e) => (
-        <li key={e.label} className="chip-soft max-w-full truncate" title={`${e.label} (${t.sourceNames[e.source] ?? e.source})`}>
-          <span className="text-muted">{t.results.kinds[e.kind] ?? e.kind}:</span>&nbsp;{e.label}
-        </li>
-      ))}
-    </ul>
+    <details className="text-xs">
+      <summary className="cursor-pointer font-bold text-muted">{t.results.examples(Math.min(n, m.evidence.length))}</summary>
+      <ul className="mt-2 grid gap-1">
+        {m.evidence.slice(0, n).map((e) => (
+          <li key={e.label} className="truncate" title={`${e.label} (${t.sourceNames[e.source] ?? e.source})`}>
+            <span className="text-muted">{t.results.kinds[e.kind] ?? e.kind}:</span> {e.label}
+          </li>
+        ))}
+      </ul>
+    </details>
   )
 }
 
@@ -299,7 +306,8 @@ function TopMatch({ m, stat }: { m: FieldMatch; stat?: FieldStat }) {
               </li>
             ))}
           </ul>
-          <div className="mt-6">
+          <div className="mt-6 grid gap-4">
+            <Contributions m={m} />
             <Evidence m={m} n={8} />
           </div>
         </div>
@@ -318,6 +326,82 @@ function TopMatch({ m, stat }: { m: FieldMatch; stat?: FieldStat }) {
             {t.results.more}
           </Link>
         </div>
+      </div>
+    </section>
+  )
+}
+
+/** Each source on its own; part of the full report. */
+function SourceInsights({ summaries, unlocked }: { summaries: SourceSummary[]; unlocked: boolean }) {
+  const k = useSite()
+  const { t, r, locale, intl } = k
+  const s = t.sourceInsights
+  const list = summaries.filter((x) => x.source !== 'questionnaire').sort((a, b) => b.dataPoints - a.dataPoints)
+  return (
+    <section className="mt-16">
+      <h2 className="font-display text-4xl sm:text-5xl">{s.title}</h2>
+      <p className="mt-2 max-w-2xl text-muted">{s.sub}</p>
+      <div className="relative mt-6">
+        <div className={`grid gap-5 md:grid-cols-2 ${unlocked ? '' : 'pointer-events-none select-none blur-[6px]'}`} aria-hidden={!unlocked}>
+          {list.map((x, i) => {
+            const p = sourceProfile(x)
+            const span = x.span ? `${x.span.from.slice(0, 4)}–${x.span.to.slice(0, 4)}` : undefined
+            return (
+              <article key={x.source} className="card overflow-hidden">
+                <div className="on-color border-b-2 border-line px-5 py-3" style={{ background: CARD_COLORS[i % CARD_COLORS.length] }}>
+                  <h3 className="font-display text-xl">{t.sourceNames[x.source] ?? x.label}</h3>
+                  <div className="text-xs font-semibold">{s.points(fmtNumber(x.dataPoints, intl), span)}</div>
+                </div>
+                <div className="grid gap-4 p-5 text-sm">
+                  {p.fields.length ? (
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-wider text-muted">{s.fields}</div>
+                      <ul className="mt-2 grid gap-1.5">
+                        {p.fields.map((f) => (
+                          <li key={f.id} className="flex flex-wrap items-baseline justify-between gap-x-3">
+                            <span className="font-semibold">
+                              {emoji(f.id)} {fieldName(f.id, locale)}
+                            </span>
+                            <span className="text-xs text-muted">{s.share(Math.round(f.share * 100))}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <p className="text-muted">{s.nothing}</p>
+                  )}
+                  {p.terms.length > 0 && (
+                    <p>
+                      <span className="text-muted">{s.topics}: </span>
+                      {p.terms.join(' · ')}
+                    </p>
+                  )}
+                  {p.examples.length > 0 && (
+                    <p className="text-xs">
+                      <span className="text-muted">{s.examples}: </span>
+                      {p.examples.join(' · ')}
+                    </p>
+                  )}
+                  <div className="grid gap-1 text-xs text-muted">
+                    {p.learning !== undefined && <span>📚 {s.learning(Math.round(p.learning * 100))}</span>}
+                    {p.peakHour !== undefined && <span>🕘 {s.hours(p.peakHour, (p.peakHour + 3) % 24)}</span>}
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+        {!unlocked && (
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="card max-w-md p-6 text-center">
+              <div className="text-4xl" aria-hidden="true">🔒</div>
+              <p className="mt-3 font-semibold">{s.locked}</p>
+              <a href={`#${r.anchors.programmes}`} className="btn btn-primary mt-5">
+                {t.results.lockedCta}
+              </a>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   )
@@ -395,8 +479,8 @@ function FieldCard({ m, rank, stat, color }: { m: FieldMatch; rank: number; stat
           </div>
         </div>
         <p className="mt-3 text-sm text-muted">{m.reasons[0] ? reasonText(m.reasons[0], k) : fieldBlurb(m.id, locale)}</p>
-        <div className="mt-3">
-          <Evidence m={m} n={3} />
+        <div className="mt-4">
+          <Contributions m={m} />
         </div>
         <button type="button" onClick={() => setOpen(!open)} className="mt-4 self-start text-sm font-bold text-accent" aria-expanded={open}>
           {open ? t.results.less : t.results.why}
@@ -404,6 +488,7 @@ function FieldCard({ m, rank, stat, color }: { m: FieldMatch; rank: number; stat
         {open && (
           <div className="mt-3 grid gap-3 border-t-2 border-soft-line pt-3">
             <Components m={m} />
+            <Evidence m={m} n={5} />
             {m.reasons.slice(1).map((x) => (
               <p key={x.k} className="text-xs text-muted">
                 {reasonText(x, k)}
