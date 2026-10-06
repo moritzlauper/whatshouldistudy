@@ -8,7 +8,7 @@ if (buf[0] === 0x50 && buf[1] === 0x4b) {
   console.log(Object.keys(files).join(' '))
   const shared = [...strFromU8(files['xl/sharedStrings.xml'] ?? new Uint8Array()).matchAll(/<si>([\s\S]*?)<\/si>/g)].map((m) => m[1].replace(/<[^>]+>/g, ''))
   console.log('workbook:', strFromU8(files['xl/workbook.xml']).match(/<sheet [^>]+>/g)?.join(' '))
-  for (const name of Object.keys(files).filter((n) => /^xl\/worksheets\/sheet\d+\.xml$/.test(n))) {
+  for (const name of Object.keys(files).filter((n) => /^xl\/worksheets\/sheet(1[45])\.xml$/.test(n))) {
     const xml = strFromU8(files[name])
     console.log(`### ${name}`)
     let n = 0
@@ -18,7 +18,7 @@ if (buf[0] === 0x50 && buf[1] === 0x4b) {
         return `${c[1]}=${/t="s"/.test(c[2]) ? shared[Number(v)] : v}`
       })
       if (cells.length) console.log(cells.join(' | '))
-      if (++n > 1) break
+      if (++n > 60) break
     }
   }
 }
