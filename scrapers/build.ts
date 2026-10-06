@@ -5,7 +5,7 @@
  *   research/<field>.json     strongest universities per country (OpenAlex)
  *   directory/<CC>.json       all universities of a country
  *   meta.json                 sources, counts per field and country, FX rates
- *   stats.json                per field: programme counts, US earnings
+ *   stats.json                per field: programme counts, US earnings, Swiss salaries
  *
  * `--previous <dir>` carries over when each programme was first seen, so new
  * programmes can be flagged. `--sample` builds the small demo dataset in
@@ -30,6 +30,8 @@ import type { RawAngebot } from './de-studiensuche.ts'
 import { parseItem as parseAtItem } from './at-hochschulen.ts'
 import type { ListItem as AtListItem } from './at-hochschulen.ts'
 import type { DirectoryEntry, RawUniversity } from './global-directory.ts'
+import { chSalaryFor, chSalaryValue } from '../lib/ch-salary.ts'
+import type { ChSalaryTable } from '../lib/ch-salary.ts'
 
 const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>> = [
   {
@@ -52,6 +54,13 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['FR'],
     url: 'https://data.enseignementsup-recherche.gouv.fr/',
     licence: 'Licence Ouverte 2.0',
+  },
+  {
+    id: 'ch-bfs-salaries',
+    name: 'Erwerbseinkommen ein Jahr nach Studienabschluss (Bundesamt für Statistik, EHA)',
+    countries: ['CH'],
+    url: 'https://www.bfs.admin.ch/bfs/de/home/statistiken/bildung-wissenschaft/uebertritte-verlaeufe-bildungsbereich/absolventen-hochschulen.html',
+    licence: 'Open use, source must be credited (BFS)',
   },
   {
     id: 'ch-bfs',
@@ -107,6 +116,8 @@ async function fetchFx(): Promise<Record<string, number>> {
 
 interface Inputs {
   outputs: ScrapeOutput[]
+  chSalaries: ChSalaryTable | null
+  carriedChSalaries?: Record<string, FieldStat['ch']>
   research: Record<string, Record<string, ResearchInstitution[]>> | null
   directory: Record<string, DirectoryEntry[]> | null
   status: Map<string, Partial<SourceStatus>>
@@ -129,7 +140,12 @@ function readOutputs(): Inputs {
     'global-directory',
     d ? { ok: true, count: Object.values(d.byCountry ?? {}).reduce((s, l) => s + l.length, 0), fetchedAt: d.fetchedAt } : { ok: false, count: 0, error: 'no output' },
   )
-  return { outputs, research: r?.byField ?? null, directory: d?.byCountry ?? null, status }
+  const chSalaries = readJson<ChSalaryTable>(join(OUT, 'ch-salaries.json'))
+  status.set(
+    'ch-bfs-salaries',
+    chSalaries ? { ok: true, count: Object.keys(chSalaries.uh).length + Object.keys(chSalaries.fh).length, fetchedAt: chSalaries.fetchedAt } : { ok: false, count: 0, error: 'no output' },
+  )
+  return { outputs, chSalaries, research: r?.byField ?? null, directory: d?.byCountry ?? null, status }
 }
 
 function readFixtures(): Inputs {
@@ -166,7 +182,9 @@ function readFixtures(): Inputs {
   const directory = buildDirectory(readJson<RawUniversity[]>(join(FIXTURES, 'directory.json'))!)
   status.set('global-openalex', { ok: true, count: 12, fetchedAt: at })
   status.set('global-directory', { ok: true, count: Object.values(directory).reduce((s, l) => s + l.length, 0), fetchedAt: at })
-  return { outputs, research, directory, status }
+  const chSalaries = readJson<ChSalaryTable>(join(FIXTURES, 'ch-salaries.json'))
+  status.set('ch-bfs-salaries', { ok: true, count: 20, fetchedAt: at })
+  return { outputs, chSalaries, research, directory, status }
 }
 
 function previousFirstSeen(dir: string | undefined): Map<string, string> {
@@ -209,6 +227,14 @@ function carryOver(inputs: Inputs, dir: string) {
     const st = inputs.status.get(id) ?? {}
     inputs.status.set(id, { ...st, ok: false, count: byId.size, fetchedAt: prev?.fetchedAt, error: `${st.error ?? 'failed'}; kept data from the previous run` })
     log(`Carry-over: ${id} ${byId.size} programmes from the previous run`)
+  }
+  if (!inputs.chSalaries) {
+    const prevStats = readJson<Record<string, FieldStat>>(join(dir, 'stats.json'))
+    if (prevStats && Object.values(prevStats).some((s) => s.ch)) {
+      inputs.carriedChSalaries = Object.fromEntries(Object.entries(prevStats).map(([id, s]) => [id, s.ch]))
+      inputs.status.set('ch-bfs-salaries', { ...prevMeta?.sources.find((x) => x.id === 'ch-bfs-salaries'), ok: false, error: 'failed; kept data from the previous run' })
+      log('Carry-over: Swiss salaries from the previous run')
+    }
   }
   if (!inputs.research && existsSync(join(dir, 'research'))) {
     const research: NonNullable<Inputs['research']> = {}
@@ -308,7 +334,13 @@ async function main() {
     counts[f.id] = byCountry
     const earnings = list.filter((p) => p.fields[0] === f.id && p.level === 'bachelor' && p.earnings?.currency === 'USD').map((p) => p.earnings!.median)
     stats[f.id] = { programmes: list.length, countries: Object.keys(byCountry).length, usMedianEarnings: earnings.length >= 3 ? median(earnings) : undefined }
+    const ch = inputs.chSalaries ? chSalaryFor(f.id, inputs.chSalaries) : inputs.carriedChSalaries?.[f.id]
+    if (ch) stats[f.id].ch = ch
   }
+  const withChSalary = Object.entries(stats)
+    .filter(([, s]) => chSalaryValue(s.ch))
+    .sort((a, b) => chSalaryValue(a[1].ch)! - chSalaryValue(b[1].ch)!)
+  withChSalary.forEach(([id], i) => (stats[id].chSalaryPercentile = withChSalary.length > 1 ? Math.round((i / (withChSalary.length - 1)) * 100) / 100 : 0.5))
   // Salary percentile among fields with US earnings data.
   const withEarnings = Object.entries(stats)
     .filter(([, s]) => s.usMedianEarnings)

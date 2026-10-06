@@ -38,6 +38,18 @@
       "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
+      "id": "ch-bfs-salaries",
+      "name": "Erwerbseinkommen ein Jahr nach Studienabschluss (Bundesamt für Statistik, EHA)",
+      "countries": [
+        "CH"
+      ],
+      "url": "https://www.bfs.admin.ch/bfs/de/home/statistiken/bildung-wissenschaft/uebertritte-verlaeufe-bildungsbereich/absolventen-hochschulen.html",
+      "licence": "Open use, source must be credited (BFS)",
+      "ok": true,
+      "count": 20,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
       "id": "ch-bfs",
       "name": "Studierende nach Hochschule und Fachrichtung (Bundesamt für Statistik)",
       "countries": [

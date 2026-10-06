@@ -1,0 +1,28 @@
+{
+  "fetchedAt": "2026-01-01T00:00:00.000Z",
+  "year": "2024",
+  "url": "https://dam-api.bfs.admin.ch/hub/api/dam/assets/36732661/master",
+  "uh": {
+    "humanities-social": { "master": 87800, "doctorate": 101000 },
+    "economics": { "master": 90000, "doctorate": 115000 },
+    "law": { "master": 93000, "doctorate": 130000 },
+    "natural-sciences": { "master": 90000, "doctorate": 97000 },
+    "medicine": { "master": 90000, "doctorate": 108000 },
+    "technical": { "master": 84500 },
+    "interdisciplinary": { "master": 83100 }
+  },
+  "fh": {
+    "architecture": { "bachelor": 78800, "master": 84000 },
+    "tech-it": { "bachelor": 88000, "master": 92000 },
+    "chem-life": { "bachelor": 79600, "master": 91700 },
+    "agriculture": { "bachelor": 83000 },
+    "business": { "bachelor": 85000, "master": 100000 },
+    "design": { "bachelor": 60000, "master": 83300 },
+    "arts": { "bachelor": 62400, "master": 80000 },
+    "linguistics": { "bachelor": 78000 },
+    "social-work": { "bachelor": 85700 },
+    "psychology": { "bachelor": 82000 },
+    "health": { "bachelor": 74800 },
+    "teaching": { "diploma": 98600 }
+  }
+}

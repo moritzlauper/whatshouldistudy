@@ -1,3 +1,4 @@
+import type { ChSalary } from './ch-salary.ts'
 /**
  * The programme record every scraper produces and the paid API serves.
  * Shared by the scrapers (Node) and the site (server routes and UI).
@@ -116,6 +117,10 @@ export interface FieldStat {
   usMedianEarnings?: number
   /** Rank of usMedianEarnings among fields (0..1). */
   salaryPercentile?: number
+  /** Swiss median income one year after graduating (BFS). */
+  ch?: ChSalary
+  /** Rank of the Swiss salary among fields (0..1). */
+  chSalaryPercentile?: number
 }
 
 /** Stable short id from the identifying parts of a programme. */

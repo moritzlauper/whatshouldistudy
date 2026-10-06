@@ -8,11 +8,11 @@ import { score } from '@/lib/engine/scoring.ts'
 import type { FieldMatch, Results, SourceSummary } from '@/lib/engine/types.ts'
 import type { FieldStat } from '@/lib/programmes.ts'
 import { BIG5_KEYS, FIELDS, FIELD_BY_ID, RIASEC_KEYS } from '@/lib/taxonomy/fields.ts'
-import { isLocal } from '@/lib/site/config.ts'
-import { big5Label, emoji, fieldBlurb, fieldCareers, fieldName, fmtMoney, fmtNumber, groupLabel, riasecLabel } from '@/lib/site/labels.ts'
+import { big5Label, emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel } from '@/lib/site/labels.ts'
 import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes } from '../ui/programmes.tsx'
+import { Earnings } from '../ui/earnings.tsx'
 import { useConfig } from '../ui/price.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 import { useSite } from '../ui/site-context.tsx'
@@ -38,7 +38,8 @@ export function ResultsView() {
   const summaries = Object.values(state.summaries).filter(Boolean) as SourceSummary[]
   const results = useMemo<Results | null>(() => {
     if (!mounted) return null
-    const fieldStats = Object.fromEntries(Object.entries(stats).map(([id, s]) => [id, { salaryPercentile: s.salaryPercentile }]))
+    const swiss = k.site === 'ch' || (k.site === 'global' && state.prefs.countries.includes('CH'))
+    const fieldStats = Object.fromEntries(Object.entries(stats).map(([id, s]) => [id, { salaryPercentile: swiss ? (s.chSalaryPercentile ?? s.salaryPercentile) : s.salaryPercentile }]))
     return score({ summaries, answers: state.answers, fieldStats })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, state, stats])
@@ -312,12 +313,7 @@ function TopMatch({ m, stat }: { m: FieldMatch; stat?: FieldStat }) {
             <div className="font-bold">{t.results.leadsTo}</div>
             <div className="text-muted">{fieldCareers(m.id, locale).slice(0, 4).join(' · ')}</div>
           </div>
-          {stat?.usMedianEarnings && !isLocal(k.site) && (
-            <div className="text-sm">
-              <div className="font-bold">{t.results.usEarnings}</div>
-              <div className="text-muted">{fmtMoney(stat.usMedianEarnings, 'USD', intl)}</div>
-            </div>
-          )}
+          <Earnings stat={stat} />
           <Link href={r.field(m.id)} className="btn btn-ghost btn-sm max-w-full self-start">
             {t.results.more}
           </Link>
@@ -418,11 +414,7 @@ function FieldCard({ m, rank, stat, color }: { m: FieldMatch; rank: number; stat
                 {t.results.topics}: {m.terms.slice(0, 6).join(', ')}
               </p>
             )}
-            {stat?.usMedianEarnings && !isLocal(k.site) && (
-              <p className="text-xs text-muted">
-                {t.results.usEarnings}: {fmtMoney(stat.usMedianEarnings, 'USD', intl)}
-              </p>
-            )}
+            <Earnings stat={stat} compact />
           </div>
         )}
       </div>
