@@ -56,9 +56,9 @@ function htmlBody(body: string): string {
     const content = escapeHtml(paragraph)
       .replace(/https:\/\/whatshouldistudy\.ch(?:\/organisationen)?/g, (url) => `<a href="${url}">${url}</a>`)
       .replace(/\n/g, '<br>\r\n')
-    return `<p>${content}</p>`
+    return `<p style="margin:0 0 12px 0;line-height:1.4">${content}</p>`
   })
-  return `<html><body>${paragraphs.join('\r\n')}</body></html>`
+  return `<html><body style="margin:0;line-height:1.4">${paragraphs.join('\r\n')}</body></html>`
 }
 
 function rawMessage(draft: DraftInput, from: string, senderName: string): string {
