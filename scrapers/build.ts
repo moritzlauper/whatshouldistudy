@@ -40,7 +40,7 @@ import type { DirectoryEntry, RawUniversity } from './global-directory.ts'
 import { chSalaryFor, chSalaryValue } from '../lib/ch-salary.ts'
 import type { ChSalaryTable } from '../lib/ch-salary.ts'
 
-const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-studyprogrammes', 'ch-bfs', 'de-studiensuche', 'at-studienwahl', 'kr-academyinfo']
+const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-studyprogrammes', 'ch-bfs', 'de-studiensuche', 'at-studienwahl', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku']
 
 const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>> = [
   {
@@ -105,6 +105,20 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['KR'],
     url: 'https://www.academyinfo.go.kr/',
     licence: 'Public disclosure data (공공데이터)',
+  },
+  {
+    id: 'au-cricos',
+    name: 'CRICOS (Australian Government Department of Education)',
+    countries: ['AU'],
+    url: 'https://data.gov.au/data/dataset/cricos',
+    licence: 'CC BY 2.5 AU',
+  },
+  {
+    id: 'fi-opintopolku',
+    name: 'Opintopolku / Studyinfo.fi (Finnish National Agency for Education)',
+    countries: ['FI'],
+    url: 'https://opintopolku.fi/',
+    licence: 'CC BY 4.0',
   },
   {
     id: 'global-openalex',

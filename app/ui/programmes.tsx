@@ -309,6 +309,8 @@ const SOURCE_NAMES: Record<string, string> = {
   'uk-discover-uni': 'Discover Uni',
   'fr-parcoursup': 'Parcoursup',
   'ch-studyprogrammes': 'studyprogrammes.ch (swissuniversities)',
+  'au-cricos': 'CRICOS (Australian Government)',
+  'fi-opintopolku': 'Opintopolku / Studyinfo.fi',
 }
 
 function ProgrammeDetails({ p }: { p: RankedProgramme }) {
