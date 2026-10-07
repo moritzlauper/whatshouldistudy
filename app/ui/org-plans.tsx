@@ -47,6 +47,8 @@ export function OrgPlans() {
         <span className="chip on-color bg-lime">{o.save}</span>
       </div>
 
+      <p className="mt-4 max-w-3xl rounded-xl border-2 border-line bg-lime px-4 py-3 text-sm font-bold text-ink">{o.trial}</p>
+
       <div className="mt-8 grid gap-6 md:grid-cols-3">
         {ORG_TIERS.map((tier) => {
           const hot = tier === 'school'
@@ -61,7 +63,6 @@ export function OrgPlans() {
                 <span className="font-semibold">{o.perMonth}</span>
               </div>
               <p className={`mt-1 text-sm ${hot ? 'opacity-85' : 'text-muted'}`}>{period === 'year' ? o.billedYearly(formatPrice(orgBilled(tier, 'year', currency), intl)) : o.billedMonthly}</p>
-              <p className="on-color mt-4 rounded-xl border-2 border-line bg-lime px-3 py-1.5 text-sm font-bold">{o.trial}</p>
               <p className="mt-6 font-bold">{o.reports(limit === null ? null : fmtNumber(limit, intl))}</p>
               <ul className="mt-3 grid gap-2 text-sm">
                 {o.features.map((f) => (
