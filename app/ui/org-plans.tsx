@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { withBase } from '@/lib/site.ts'
-import { ORG_REPORTS, ORG_TIERS, TRIAL_TIER, formatPrice, orgBilled, orgPrice } from '@/lib/pricing.ts'
+import { ORG_REPORTS, ORG_TIERS, formatPrice, orgBilled, orgPrice } from '@/lib/pricing.ts'
 import type { Interval, OrgTier } from '@/lib/pricing.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
 import { fmtNumber } from '@/lib/site/labels.ts'
@@ -61,7 +61,7 @@ export function OrgPlans() {
                 <span className="font-semibold">{o.perMonth}</span>
               </div>
               <p className={`mt-1 text-sm ${hot ? 'opacity-85' : 'text-muted'}`}>{period === 'year' ? o.billedYearly(formatPrice(orgBilled(tier, 'year', currency), intl)) : o.billedMonthly}</p>
-              {tier === TRIAL_TIER && <p className="on-color mt-4 rounded-xl border-2 border-line bg-lime px-3 py-1.5 text-sm font-bold">{o.trial}</p>}
+              <p className="on-color mt-4 rounded-xl border-2 border-line bg-lime px-3 py-1.5 text-sm font-bold">{o.trial}</p>
               <p className="mt-6 font-bold">{o.reports(limit === null ? null : fmtNumber(limit, intl))}</p>
               <ul className="mt-3 grid gap-2 text-sm">
                 {o.features.map((f) => (
@@ -72,7 +72,7 @@ export function OrgPlans() {
               </ul>
               <div className="flex-1" />
               <button type="button" disabled={busy !== null || !config || config.payments === 'off'} onClick={() => start(tier)} className={`btn btn-lg mt-7 w-full ${hot ? 'btn-lime' : 'btn-primary'}`}>
-                {busy === tier ? o.opening : tier === TRIAL_TIER ? o.ctaTrial : o.cta}
+                {busy === tier ? o.opening : o.ctaTrial}
               </button>
             </div>
           )

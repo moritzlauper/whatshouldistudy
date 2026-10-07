@@ -332,10 +332,11 @@ Subscriptions read, Billing Meters read, Meter Events write, Customer portal
 write. Enable the customer portal in the Stripe dashboard (Settings → Billing →
 Customer portal) so organisations can change plans, see invoices and cancel.
 
-The **Counsellor** plan starts with a 30-day pilot (`TRIAL_DAYS`, Stripe trial
-on Checkout, card required). During the trial the plan allows 30 reports in
-total (`TRIAL_REPORTS`), counted from the trial start rather than the calendar
-month, so a pilot cancelled before the first invoice gives away one class.
+Every organisation plan starts with a 14-day free trial (`TRIAL_DAYS`, Stripe
+trial on Checkout, card required). During the trial, the plan's normal monthly
+report limit applies, including unlimited reports for the Institution plan.
+Usage is counted from the start of the calendar month. The first invoice comes
+after the trial; cancelling before then means no payment.
 
 **For teachers** (`/teachers`, `/lehrpersonen`): a free 45-minute lesson with a
 printable worksheet (the print styles reduce the page to the sheet) and a

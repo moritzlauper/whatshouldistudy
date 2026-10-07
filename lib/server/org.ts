@@ -1,5 +1,5 @@
 import 'server-only'
-import { ORG_REPORTS, ORG_TIERS, TRIAL_REPORTS } from '@/lib/pricing.ts'
+import { ORG_REPORTS, ORG_TIERS } from '@/lib/pricing.ts'
 import type { Interval, OrgTier } from '@/lib/pricing.ts'
 import { StripeError, stripe } from './stripe.ts'
 
@@ -20,12 +20,12 @@ export interface Org {
   customer: string
   tier: OrgTier
   interval: Interval
-  /** Reports per month (in the trial: in total), null for unlimited. */
+  /** Reports per calendar month, null for unlimited. */
   limit: number | null
   active: boolean
-  /** In the free trial; reports count from its start instead of the calendar month. */
+  /** In the free trial. */
   trial: boolean
-  /** Start of the period the limit applies to, in seconds. */
+  /** Start of the current calendar month, in seconds. */
   countFrom: number
 }
 
@@ -33,7 +33,6 @@ interface Subscription {
   id: string
   status: string
   customer: string
-  trial_start: number | null
   items: { data: { price: { lookup_key: string | null } }[] }
 }
 
@@ -50,8 +49,7 @@ export async function getOrg(subscription: string): Promise<Org | null> {
   const tier = m?.[1] as OrgTier | undefined
   if (!tier || !ORG_TIERS.includes(tier)) return null
   const trial = s.status === 'trialing'
-  const limit = trial ? Math.min(TRIAL_REPORTS, ORG_REPORTS[tier] ?? TRIAL_REPORTS) : ORG_REPORTS[tier]
-  return { subscription: s.id, customer: s.customer, tier, interval: m![2] as Interval, limit, active: USABLE.has(s.status), trial, countFrom: trial && s.trial_start ? s.trial_start : monthStart() }
+  return { subscription: s.id, customer: s.customer, tier, interval: m![2] as Interval, limit: ORG_REPORTS[tier], active: USABLE.has(s.status), trial, countFrom: monthStart() }
 }
 
 let meterId: string | null = null

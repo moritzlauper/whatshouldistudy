@@ -54,8 +54,8 @@ const en = {
   copy: 'Copy',
   copied: 'Copied',
   pilotTitle: 'The full report for the whole class',
-  pilotText: 'With the Counsellor plan your students also unlock the list of matching programmes, paid for by the school. The first 30 days are a free pilot for up to 30 reports.',
-  pilotCta: 'Start the pilot',
+  pilotText: 'With a school plan, your students also unlock the list of matching programmes, paid for by the school. Every plan starts with a 14-day free trial; its usual monthly report limit applies.',
+  pilotCta: 'Start the 14-day free trial',
 }
 
 export type TeachersText = typeof en
@@ -107,8 +107,8 @@ const deCH: TeachersText = {
   copy: 'Kopieren',
   copied: 'Kopiert',
   pilotTitle: 'Der volle Report für die ganze Klasse',
-  pilotText: 'Mit dem Abo Beratung schalten Ihre Schülerinnen und Schüler auch die Liste der passenden Studiengänge frei, bezahlt von der Schule. Die ersten 30 Tage sind ein kostenloser Pilot für bis zu 30 Reports.',
-  pilotCta: 'Pilot starten',
+  pilotText: 'Mit einem Schul-Abo schalten Ihre Schülerinnen und Schüler auch die Liste der passenden Studiengänge frei, bezahlt von der Schule. Jedes Abo beginnt mit einem 14-tägigen kostenlosen Pilot; es gilt das normale Monatskontingent.',
+  pilotCta: '14 Tage gratis testen',
 }
 
 const frCH: TeachersText = {
@@ -158,8 +158,8 @@ const frCH: TeachersText = {
   copy: 'Copier',
   copied: 'Copié',
   pilotTitle: 'Le rapport complet pour toute la classe',
-  pilotText: 'Avec l’abonnement Conseil, vos élèves débloquent aussi la liste des formations correspondantes, payée par l’école. Les 30 premiers jours sont un pilote gratuit pour 30 rapports au maximum.',
-  pilotCta: 'Démarrer le pilote',
+  pilotText: 'Avec un abonnement scolaire, vos élèves débloquent aussi la liste des formations correspondantes, payée par l’école. Chaque abonnement commence par un essai gratuit de 14 jours ; la limite mensuelle habituelle s’applique.',
+  pilotCta: 'Essayer gratuitement pendant 14 jours',
 }
 
 const itCH: TeachersText = {
@@ -209,8 +209,8 @@ const itCH: TeachersText = {
   copy: 'Copia',
   copied: 'Copiato',
   pilotTitle: 'Il report completo per tutta la classe',
-  pilotText: 'Con l’abbonamento Consulenza i vostri studenti sbloccano anche la lista dei corsi adatti, pagata dalla scuola. I primi 30 giorni sono un pilota gratuito per al massimo 30 report.',
-  pilotCta: 'Avvia il pilota',
+  pilotText: 'Con un abbonamento scolastico i vostri studenti sbloccano anche la lista dei corsi adatti, pagata dalla scuola. Ogni abbonamento inizia con una prova gratuita di 14 giorni; vale il limite mensile abituale.',
+  pilotCta: 'Prova gratis per 14 giorni',
 }
 
 const TEXTS: Record<Locale, TeachersText> = { en, 'de-CH': deCH, 'de-DE': regionalizeDeep(deCH, 'de-DE'), 'de-AT': regionalizeDeep(deCH, 'de-AT'), 'fr-CH': frCH, 'it-CH': itCH }

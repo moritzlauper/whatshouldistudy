@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { ORG_PRICES, ORG_TIERS, PRICES, formatPrice, orgBilled, priceFor, stripeAmount } from '../lib/pricing.ts'
+import { ORG_PRICES, ORG_TIERS, PRICES, TRIAL_DAYS, formatPrice, orgBilled, priceFor, stripeAmount } from '../lib/pricing.ts'
 
 test('price follows the visitor country, with round local prices', () => {
   assert.deepEqual(priceFor('CH'), { amount: 17, currency: 'CHF' })
@@ -32,4 +32,9 @@ test('organisation plans cover every currency, and monthly billing costs about 1
   }
   assert.deepEqual(orgBilled('school', 'year', 'CHF'), { currency: 'CHF', amount: 4188 })
   assert.deepEqual(orgBilled('school', 'month', 'XYZ'), { currency: 'USD', amount: 419 })
+})
+
+test('organisation plans offer a 14-day free trial', () => {
+  assert.equal(TRIAL_DAYS, 14)
+  assert.deepEqual(ORG_TIERS, ['counsellor', 'school', 'institution'])
 })
