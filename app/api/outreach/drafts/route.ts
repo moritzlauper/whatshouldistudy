@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { ImapFlow } from 'imapflow'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
-import { createTransport } from 'nodemailer'
 import { NextResponse } from 'next/server'
 
 export const maxDuration = 60
@@ -10,7 +9,6 @@ const ISSUER = 'https://token.actions.githubusercontent.com'
 const AUDIENCE = 'wsis-outreach-drafts'
 const REPOSITORY = 'moritzlauper/whatshouldistudy-outreach'
 const WORKFLOW = `${REPOSITORY}/.github/workflows/check.yml@refs/heads/main`
-const SELF_TEST_RECIPIENT = 'moritz.lauper@hispeed.ch'
 const JWKS = createRemoteJWKSet(new URL(`${ISSUER}/.well-known/jwks`))
 
 interface DraftInput {
@@ -30,16 +28,14 @@ interface HumanizedDraft {
   body: string
 }
 
-async function authorize(req: Request): Promise<string | null> {
+async function authorize(req: Request): Promise<boolean> {
   const token = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
-  if (!token) return null
+  if (!token) return false
   try {
     const { payload } = await jwtVerify(token, JWKS, { issuer: ISSUER, audience: AUDIENCE })
-    if (payload.repository !== REPOSITORY || payload.workflow_ref !== WORKFLOW) return null
-    if (payload.event_name !== 'schedule' && payload.event_name !== 'workflow_dispatch') return null
-    return payload.event_name
+    return payload.repository === REPOSITORY && payload.workflow_ref === WORKFLOW && (payload.event_name === 'schedule' || payload.event_name === 'workflow_dispatch')
   } catch {
-    return null
+    return false
   }
 }
 
@@ -100,7 +96,7 @@ async function humanize(draft: DraftInput, apiKey: string | undefined, humanizer
   if (!apiKey) return { body: draft.body }
   const system = `${humanizerSkill.trim()}
 
-Rewrite the complete supplied email as a concise one-to-one message from Moritz Lauper. Apply the Humanizer skill to the whole text, not just the opening. Personalize it using only the organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Preserve Moritz's supplied biography, all product facts, the CHF 17 individual price, the 14-day organisation trial, the privacy statements, both exact website URLs, the greeting, and the sign-off. Preserve the supplied concrete call to action exactly as the final question; do not replace it with a generic usefulness question. Do not assume the recipient always works with pupils. Keep the two URLs exactly as plain-text URLs on their own lines. Do not add, remove, or alter factual claims. Use the supplied language and return only the requested JSON. No HTML or Markdown.`
+Rewrite the complete supplied email as a concise one-to-one message from Moritz Lauper. Apply the Humanizer skill to the whole text, not just the opening. Personalize it using only the organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Preserve Moritz's supplied biography, all product facts, the CHF 17 individual price, the 14-day organisation trial, the privacy statements, both exact website URLs, the greeting, and the sign-off. The entire outreach must be strictly self-service. Never offer, promise, or imply any future personal action or availability from Moritz or his team: no presentations, demos, calls, meetings, scheduling, personal onboarding, advice, follow-ups, sending materials, or manual setup. This also prohibits polite offers such as “Ich stelle der Person die Plattform gerne kurz vor” or “Bei Fragen stehe ich gerne zur Verfügung”. Recipients must be able to explore, try, and use the platform independently through the supplied website links. Calls to action may only ask recipients to visit or try the website, add a link, or forward the link internally; never ask for an introduction or contact details so Moritz can follow up. Remove any conflicting offer from the supplied draft; this self-service rule takes precedence over preserving wording or claims. Preserve the supplied self-service call to action exactly as the final question; do not replace it with a generic usefulness question. Do not assume the recipient always works with pupils. Keep the two URLs exactly as plain-text URLs on their own lines. Do not add, remove, or alter factual claims. Use the supplied language and return only the requested JSON. No HTML or Markdown.`
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
@@ -140,8 +136,7 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
 }
 
 export async function POST(req: Request) {
-  const eventName = await authorize(req)
-  if (!eventName) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await authorize(req))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!req.headers.get('content-type')?.startsWith('application/json')) return NextResponse.json({ error: 'JSON required' }, { status: 415 })
   const length = Number(req.headers.get('content-length') ?? 0)
   if (length > 150_000) return NextResponse.json({ error: 'Payload too large' }, { status: 413 })
@@ -149,14 +144,11 @@ export async function POST(req: Request) {
   let drafts: DraftInput[]
   let humanizerSkill: string
   let signatureHtml: string
-  let sendTest = false
   try {
-    const input = await req.json() as { drafts?: unknown; humanizerSkill?: unknown; signatureHtml?: unknown; sendTest?: unknown }
+    const input = await req.json() as { drafts?: unknown; humanizerSkill?: unknown; signatureHtml?: unknown }
     if (!Array.isArray(input.drafts) || input.drafts.length > 10) throw new Error('Invalid batch')
     if (typeof input.humanizerSkill !== 'string' || input.humanizerSkill.length < 1_000 || input.humanizerSkill.length > 50_000) throw new Error('Invalid humanizer skill')
     if (typeof input.signatureHtml !== 'string' || input.signatureHtml.length < 1 || input.signatureHtml.length > 20_000 || /<(script|iframe|object)\b|javascript:|\son[a-z]+\s*=/i.test(input.signatureHtml)) throw new Error('Invalid signature')
-    if (input.sendTest !== undefined && typeof input.sendTest !== 'boolean') throw new Error('Invalid test mode')
-    sendTest = input.sendTest === true
     humanizerSkill = input.humanizerSkill
     signatureHtml = input.signatureHtml
     drafts = input.drafts as DraftInput[]
@@ -171,51 +163,6 @@ export async function POST(req: Request) {
   const password = process.env.SMTP_PASSWORD || process.env.SMTP_PASS
   if (!password) return NextResponse.json({ error: 'Mailbox password is not configured' }, { status: 503 })
   const anthropicKey = process.env.ANTHROPIC_API_KEY
-
-  if (sendTest) {
-    const testDraft = drafts[0]
-    if (eventName !== 'workflow_dispatch' || drafts.length !== 1 || testDraft.id !== 'internal-format-test' || testDraft.to !== SELF_TEST_RECIPIENT) {
-      return NextResponse.json({ error: 'Test sending is restricted to one self-test recipient' }, { status: 400 })
-    }
-
-    let message: HumanizedDraft = { body: testDraft.body }
-    let humanized = 0
-    if (anthropicKey) {
-      try {
-        message = await humanize(testDraft, anthropicKey, humanizerSkill)
-        humanized = 1
-      } catch (error) {
-        console.warn('Outreach self-test humanization failed; using reviewed template', { code: (error as Error).name })
-      }
-    }
-
-    const smtpPort = Number(process.env.SMTP_PORT || 465)
-    const transporter = createTransport({
-      host: process.env.SMTP_HOST || 'mail.infomaniak.com',
-      port: smtpPort,
-      secure: smtpPort === 465,
-      auth: { user, pass: password },
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
-      socketTimeout: 20_000,
-    })
-    try {
-      await transporter.sendMail({
-        from: { name: process.env.SMTP_SENDER_NAME || 'Moritz Lauper | wasstudieren', address: user },
-        to: SELF_TEST_RECIPIENT,
-        subject: cleanHeader(testDraft.subject),
-        text: message.body,
-        html: htmlBody(message.body, signatureHtml),
-      })
-      return NextResponse.json({ sent: 1, humanized })
-    } catch (error) {
-      const mailError = error as Error & { code?: string }
-      console.error('Outreach self-test email failed', { code: mailError.code ?? 'UNKNOWN' })
-      return NextResponse.json({ error: 'Test email could not be sent' }, { status: 502 })
-    } finally {
-      transporter.close()
-    }
-  }
 
   const client = new ImapFlow({ host, port, secure: true, auth: { user, pass: password }, logger: false, connectionTimeout: 10_000, greetingTimeout: 10_000, socketTimeout: 20_000 })
   try {
