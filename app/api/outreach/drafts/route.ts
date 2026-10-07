@@ -201,7 +201,7 @@ export async function POST(req: Request) {
     })
     try {
       await transporter.sendMail({
-        from: { name: 'Moritz Lauper', address: user },
+        from: { name: process.env.SMTP_SENDER_NAME || 'Moritz Lauper | wasstudieren', address: user },
         to: SELF_TEST_RECIPIENT,
         subject: cleanHeader(testDraft.subject),
         text: message.body,
@@ -256,7 +256,7 @@ export async function POST(req: Request) {
         }
       }
       const finalized = { ...draft, body: message.body }
-      const appended = await client.append(draftsMailbox.path, rawMessage(finalized, user, process.env.SMTP_SENDER_NAME || 'whatshouldistudy', signatureHtml), ['\\Draft'])
+      const appended = await client.append(draftsMailbox.path, rawMessage(finalized, user, process.env.SMTP_SENDER_NAME || 'Moritz Lauper | wasstudieren', signatureHtml), ['\\Draft'])
       if (!appended) throw new Error(`Could not create draft ${draft.id}`)
       created++
     }
