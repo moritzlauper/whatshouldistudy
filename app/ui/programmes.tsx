@@ -174,7 +174,7 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
             </div>
             {teaser.samples.length > 0 && (
               <>
-                <p className="mt-7 font-bold">{t.programmes.freeTop(teaser.samples.length)}</p>
+                <p className="mt-7 font-bold">{t.programmes.freeTop(teaser.samples.length, hideFirst)}</p>
                 <div className="mt-3 grid gap-4">
                   {teaser.samples.map((p) => (
                     <ProgrammeRow key={p.id} p={p} />
@@ -459,6 +459,7 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
   const lang = locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it'
   const hits = useTopicHits(p)
   const example = hits.flatMap((h) => h.examples)[0]
+  const fieldRank = (useContext(ResultsContext)?.fields.findIndex((f) => f.id === p.matchedField) ?? -1) + 1
   return (
     <article className="card-sm p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -515,7 +516,7 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
         </div>
       )}
       <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted">
-        <Item k={t.programmes.row.field} v={`${emoji(p.matchedField)} ${fieldName(p.matchedField, locale)}`} />
+        <Item k={t.programmes.row.field} v={`${emoji(p.matchedField)} ${fieldName(p.matchedField, locale)}${fieldRank ? ` (${t.programmes.row.fieldRank(fieldRank)})` : ''}`} />
         <Item k={t.programmes.row.level} v={levelLabel(p.level as Level, locale)} />
         {p.durationYears && <Item k={t.programmes.row.duration} v={`${p.durationYears} ${t.programmes.row.yrs}`} />}
         <Item
