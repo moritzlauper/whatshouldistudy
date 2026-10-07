@@ -409,10 +409,20 @@ function TopMatch({ m, stat }: { m: FieldMatch; stat?: FieldStat }) {
 
 /** Share or keep the result: everything lives in the link, nothing on a server. */
 function ShareCard({ results, prefs, token }: { results: Results; prefs: Preferences; token?: string }) {
-  const { t, conf } = useSite()
+  const { t, conf, locale } = useSite()
   const s = t.share
   const [copied, setCopied] = useState(false)
   const [canShare, setCanShare] = useState(false)
+  const [emailOpen, setEmailOpen] = useState(false)
+  const [email, setEmail] = useState('')
+  const [emailState, setEmailState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const lang = locale.startsWith('fr') ? 'fr' : locale.startsWith('it') ? 'it' : locale.startsWith('de') ? 'de' : 'en'
+  const emailText = {
+    en: { label: 'Your email address', send: 'Send to me', sending: 'Sending…', sent: 'The result link is on its way.', error: 'Could not send the email. Please try again.', privacy: 'Your address and result link go to Infomaniak only to deliver this email.', close: 'Cancel' },
+    de: { label: 'Deine E-Mail-Adresse', send: 'An mich senden', sending: 'Wird gesendet…', sent: 'Der Ergebnislink ist unterwegs.', error: 'Die E-Mail konnte nicht gesendet werden. Bitte nochmals versuchen.', privacy: 'Deine Adresse und der Ergebnislink gehen nur zum Versand an Infomaniak.', close: 'Abbrechen' },
+    fr: { label: 'Ton adresse e-mail', send: 'M’envoyer le lien', sending: 'Envoi…', sent: 'Le lien vers ton résultat est en route.', error: 'L’e-mail n’a pas pu être envoyé. Réessaie.', privacy: 'Ton adresse et le lien sont transmis à Infomaniak uniquement pour envoyer cet e-mail.', close: 'Annuler' },
+    it: { label: 'Il tuo indirizzo e-mail', send: 'Inviamelo', sending: 'Invio…', sent: 'Il link al risultato è in arrivo.', error: 'Non è stato possibile inviare l’e-mail. Riprova.', privacy: 'Il tuo indirizzo e il link vengono trasmessi a Infomaniak solo per inviare questa e-mail.', close: 'Annulla' },
+  }[lang]
   const url = useMemo(() => `${window.location.origin}${window.location.pathname}#s=${encodeSnapshot(results, prefs, token)}`, [results, prefs, token])
   useEffect(() => setCanShare(typeof navigator.share === 'function'), [])
 
@@ -424,6 +434,22 @@ function ShareCard({ results, prefs, token }: { results: Results; prefs: Prefere
     }
     setCopied(true)
     setTimeout(() => setCopied(false), 2500)
+  }
+
+  async function emailResult(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setEmailState('sending')
+    try {
+      const response = await fetch(withBase('/api/share/email'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, url, lang }),
+      })
+      if (!response.ok) throw new Error('Email delivery failed')
+      setEmailState('sent')
+    } catch {
+      setEmailState('error')
+    }
   }
 
   return (
@@ -442,11 +468,26 @@ function ShareCard({ results, prefs, token }: { results: Results; prefs: Prefere
               {s.share}
             </button>
           )}
-          <a href={`mailto:?subject=${encodeURIComponent(s.mailSubject(conf.name))}&body=${encodeURIComponent(s.mailBody(url))}`} className="btn btn-ghost">
+          <button type="button" onClick={() => { setEmailOpen((open) => !open); setEmailState('idle') }} className="btn btn-ghost">
             {s.mail}
-          </a>
+          </button>
         </div>
       </div>
+      {emailOpen && (
+        <form onSubmit={emailResult} className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
+          <label className="sr-only" htmlFor="share-email">{emailText.label}</label>
+          <input id="share-email" type="email" required maxLength={254} autoComplete="email" value={email} onChange={(event) => { setEmail(event.target.value); setEmailState('idle') }} placeholder={emailText.label} className="input min-w-0 bg-surface text-ink" />
+          <div className="flex gap-2">
+            <button type="submit" disabled={emailState === 'sending' || emailState === 'sent'} className="btn btn-primary">
+              {emailState === 'sending' ? emailText.sending : emailText.send}
+            </button>
+            <button type="button" onClick={() => { setEmailOpen(false); setEmailState('idle') }} className="btn btn-ghost">{emailText.close}</button>
+          </div>
+          <p className="text-xs opacity-75 sm:col-span-2">{emailText.privacy}</p>
+          {emailState === 'sent' && <p role="status" className="text-sm font-semibold sm:col-span-2">{emailText.sent}</p>}
+          {emailState === 'error' && <p role="alert" className="text-sm font-semibold sm:col-span-2">{emailText.error}</p>}
+        </form>
+      )}
     </section>
   )
 }
