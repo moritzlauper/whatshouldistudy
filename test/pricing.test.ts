@@ -45,8 +45,8 @@ test('organisation plans cover every currency, and monthly billing costs about 1
       assert.ok(saving > 0.14 && saving < 0.2, `${tier} ${cur}: ${saving}`)
     }
   }
-  assert.deepEqual(orgBilled('school', 'year', 'CHF'), { currency: 'CHF', amount: 4188 })
-  assert.deepEqual(orgBilled('school', 'month', 'XYZ'), { currency: 'USD', amount: 419 })
+  assert.deepEqual(orgBilled('school', 'year', 'CHF'), { currency: 'CHF', amount: 2088 })
+  assert.deepEqual(orgBilled('school', 'month', 'XYZ'), { currency: 'USD', amount: 209 })
 })
 
 test('organisation plans offer a 14-day free trial', () => {

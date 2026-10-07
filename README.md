@@ -317,8 +317,8 @@ besides the key. For TWINT on the Swiss site, enable it in the Stripe dashboard
 (payment methods); Checkout shows it automatically for CHF.
 
 **Plans for organisations** (`/organisations`, `/organisationen`): 100, 1,000
-or unlimited full reports a month, CHF/EUR/USD 99, 349 or 949 a month billed
-yearly, 119, 419 or 1,139 billed monthly (about 17% more), and the same price
+or unlimited full reports a month, CHF/EUR/USD 49, 174 or 474 a month billed
+yearly, 59, 209 or 569 billed monthly (about 17% more), and the same price
 levels in every other currency (`ORG_PRICES`). After Checkout the organisation
 gets a student link (`/start?org=…`) and an admin link to its dashboard
 (usage, Stripe customer portal). Both are the subscription id signed with
