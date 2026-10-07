@@ -93,11 +93,12 @@ export async function POST(req: Request) {
   const password = process.env.SMTP_PASSWORD
   if (!password || !user) return NextResponse.json({ error: 'Email is not configured.' }, { status: 503 })
 
-  const port = Number(process.env.SMTP_PORT || 465)
+  const port = Number(process.env.SMTP_PORT || 587)
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'mail.infomaniak.com',
     port,
     secure: port === 465,
+    requireTLS: port === 587,
     auth: { user, pass: password },
     connectionTimeout: 8_000,
     greetingTimeout: 8_000,
