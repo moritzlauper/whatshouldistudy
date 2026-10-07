@@ -66,7 +66,7 @@ async function humanize(draft: DraftInput, apiKey: string | undefined, humanizer
   if (!apiKey) return { body: draft.body }
   const system = `${humanizerSkill.trim()}
 
-Rewrite the complete supplied email as a concise one-to-one message from Moritz Lauper. Apply the Humanizer skill to the whole text, not just the opening. Personalize it using only the organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Preserve Moritz's supplied biography, all product facts, the CHF 17 individual price, the 14-day organisation trial, the privacy statements, both exact website URLs, the greeting, and the sign-off. Do not assume the recipient always works with pupils. Keep the two URLs exactly as plain-text URLs on their own lines. Do not add, remove, or alter factual claims. Use the supplied language and return only the requested JSON. No HTML or Markdown.`
+Rewrite the complete supplied email as a concise one-to-one message from Moritz Lauper. Apply the Humanizer skill to the whole text, not just the opening. Personalize it using only the organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Preserve Moritz's supplied biography, all product facts, the CHF 17 individual price, the 14-day organisation trial, the privacy statements, both exact website URLs, the greeting, and the sign-off. Preserve the supplied concrete call to action exactly as the final question; do not replace it with a generic usefulness question. Do not assume the recipient always works with pupils. Keep the two URLs exactly as plain-text URLs on their own lines. Do not add, remove, or alter factual claims. Use the supplied language and return only the requested JSON. No HTML or Markdown.`
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
@@ -74,7 +74,7 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
       model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5',
       max_tokens: 900,
       system,
-      messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name, pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, originalSubject: draft.subject, originalBody: draft.body }) }],
+      messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name, pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, requiredCallToAction: draft.body.trim().split(/\n{2,}/).at(-2), originalSubject: draft.subject, originalBody: draft.body }) }],
       output_config: {
         format: {
           type: 'json_schema',
@@ -95,8 +95,10 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
   if (!text) throw new Error('Anthropic returned no text')
   const parsed = JSON.parse(text) as HumanizedDraft
   const urls = [...draft.body.matchAll(/https:\/\/whatshouldistudy\.ch(?:\/organisationen)?/g)].map(([url]) => url)
+  const requiredCallToAction = draft.body.trim().split(/\n{2,}/).at(-2)
   if (typeof parsed.body !== 'string' || !parsed.body.trim() || parsed.body.length > 10_000 || /<\/?[a-z][^>]*>/i.test(parsed.body)) throw new Error('Anthropic returned an invalid body')
   if (urls.some((url) => !parsed.body.includes(url))) throw new Error('Anthropic removed a required website link')
+  if (requiredCallToAction && !parsed.body.includes(requiredCallToAction)) throw new Error('Anthropic removed or changed the concrete call to action')
   if (/CHF 17|17 CHF/.test(draft.body) && !/CHF 17|17 CHF/.test(parsed.body)) throw new Error('Anthropic removed the individual price')
   if (/14 Tage|14 jours|14 giorni/.test(draft.body) && !/14 Tage|14 jours|14 giorni/.test(parsed.body)) throw new Error('Anthropic removed the organisation trial')
   if (draft.lang === 'de' && /ß/.test(parsed.body)) throw new Error('Anthropic returned non-Swiss German spelling')
