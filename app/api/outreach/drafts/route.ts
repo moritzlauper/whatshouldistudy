@@ -1,4 +1,4 @@
-import { existingOutreach, formatOutreachGreeting, outreachCallToAction } from '@/lib/outreach.ts'
+import { existingOutreach, formatOutreachGreeting, outreachCallToAction, outreachHtmlBody, outreachWebsiteUrls, isSwissGermanOutreach } from '@/lib/outreach.ts'
 import { randomUUID } from 'node:crypto'
 import { ImapFlow } from 'imapflow'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
@@ -49,21 +49,6 @@ function base64Lines(value: string): string {
   return Buffer.from(value, 'utf8').toString('base64').match(/.{1,76}/g)?.join('\r\n') ?? ''
 }
 
-function escapeHtml(value: string): string {
-  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
-}
-
-function htmlBody(body: string, signatureHtml: string): string {
-  const contentBody = body.trim().replace(/\n{2,}Moritz Lauper\nwhatshouldistudy\nwhatshouldistudy\.ch\nteam@whatshouldistudy\.com$/, '')
-  const paragraphs = contentBody.split(/\n{2,}/).map((paragraph) => {
-    const content = escapeHtml(paragraph)
-      .replace(/https:\/\/whatshouldistudy\.ch(?:\/organisationen)?/g, (url) => `<a href="${url}">${url}</a>`)
-      .replace(/\n/g, '<br>\r\n')
-    return `<p style="margin:0 0 12px 0;line-height:1.4">${content}</p>`
-  })
-  return `<html><body style="margin:0;line-height:1.4">${paragraphs.join('\r\n')}<div style="margin-top:12px">${signatureHtml}</div></body></html>`
-}
-
 function rawMessage(draft: DraftInput, from: string, senderName: string, signatureHtml: string): string {
   const body = formatOutreachGreeting(draft.body.trim(), draft.lang)
   const boundary = `wsis-${randomUUID()}`
@@ -88,7 +73,7 @@ function rawMessage(draft: DraftInput, from: string, senderName: string, signatu
     'Content-Type: text/html; charset=UTF-8',
     'Content-Transfer-Encoding: base64',
     '',
-    base64Lines(htmlBody(body, signatureHtml)),
+    base64Lines(outreachHtmlBody(body, signatureHtml)),
     `--${boundary}--`,
     '',
   ].join('\r\n')
@@ -127,7 +112,7 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
   const text = result.content?.find((block) => block.type === 'text')?.text
   if (!text) throw new Error('Anthropic returned no text')
   const parsed = JSON.parse(text) as HumanizedDraft
-  const urls = draft.body.split(/\r?\n/).filter((line) => /^https:\/\/whatshouldistudy\.ch(?:\/[a-z-]+)*(?:\/organisationen)?$/.test(line))
+  const urls = outreachWebsiteUrls(draft.body)
   const prices = [...draft.body.matchAll(/CHF\s*17|17\s*CHF|€\s*17|17\s*€/g)].map(([price]) => price)
   const requiredCallToAction = outreachCallToAction(draft)
   if (typeof parsed.body !== 'string' || !parsed.body.trim() || parsed.body.length > 10_000 || /<\/?[a-z][^>]*>/i.test(parsed.body)) throw new Error('Anthropic returned an invalid body')
@@ -158,7 +143,7 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
         : /consultabile pubblicamente|accessibile al pubblico|visibile a tutti/i
     if (!/open source/i.test(parsed.body) || !publicSource.test(parsed.body)) throw new Error('Anthropic removed the public open-source statement')
   }
-  const swissGerman = draft.lang === 'de' && !/https:\/\/whatshouldistudy\.ch\/(?:deutschland|oesterreich)(?:\/|\s|$)/.test(draft.body)
+  const swissGerman = isSwissGermanOutreach(draft.body, draft.lang)
   if (swissGerman && /ß/.test(parsed.body)) throw new Error('Anthropic returned non-Swiss German spelling')
   return { body: parsed.body.trim() }
 }

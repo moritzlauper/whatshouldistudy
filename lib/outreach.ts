@@ -26,3 +26,32 @@ export async function existingOutreach(client: MailboxReader, mailboxes: string[
   }
   return false
 }
+
+/** Exact website lines that the rewrite must preserve. */
+export function outreachWebsiteUrls(body: string): string[] {
+  return body.split(/\r?\n/).filter((line) => /^https:\/\/whatshouldistudy\.(?:ch|de|at)(?:\/[a-z-]+)*$/.test(line))
+}
+
+export function isSwissGermanOutreach(body: string, lang: string): boolean {
+  return lang === 'de' && !outreachWebsiteUrls(body).some((url) => {
+    const parsed = new URL(url)
+    return parsed.hostname !== 'whatshouldistudy.ch' || /^\/(?:deutschland|oesterreich)(?:\/|$)/.test(parsed.pathname)
+  })
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
+export function outreachHtmlBody(body: string, signatureHtml: string): string {
+  const domain = new URL(outreachWebsiteUrls(body)[0] ?? 'https://whatshouldistudy.ch').hostname
+  signatureHtml = signatureHtml.replaceAll('whatshouldistudy.ch', domain)
+  const contentBody = body.trim().replace(/\n{2,}Moritz Lauper\nwhatshouldistudy\nwhatshouldistudy\.(?:ch|de|at)\nteam@whatshouldistudy\.com$/, '')
+  const paragraphs = contentBody.split(/\n{2,}/).map((paragraph) => {
+    const content = escapeHtml(paragraph)
+      .replace(/https:\/\/whatshouldistudy\.(?:ch|de|at)(?:\/[a-z-]+)*(?=\s|$)/g, (url) => `<a href="${url}">${url}</a>`)
+      .replace(/\n/g, '<br>\r\n')
+    return `<p style="margin:0 0 12px 0;line-height:1.4">${content}</p>`
+  })
+  return `<html><body style="margin:0;line-height:1.4">${paragraphs.join('\r\n')}<div style="margin-top:12px">${signatureHtml}</div></body></html>`
+}
