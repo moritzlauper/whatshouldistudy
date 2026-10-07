@@ -15,6 +15,14 @@ interface DraftInput {
   name: string
   to: string
   url: string
+  lang: 'de' | 'fr' | 'it'
+  pageTitle: string
+  listedTools: string[]
+  subject: string
+  body: string
+}
+
+interface HumanizedDraft {
   subject: string
   body: string
 }
@@ -51,6 +59,40 @@ function rawMessage(draft: DraftInput, from: string, senderName: string): string
   return `${headers.join('\r\n')}\r\n\r\n${Buffer.from(body, 'utf8').toString('base64')}`
 }
 
+async function humanize(draft: DraftInput, apiKey: string | undefined): Promise<HumanizedDraft> {
+  if (!apiKey) return { subject: draft.subject, body: draft.body }
+  const system = `You write individual cold outreach emails as Moritz Lauper, a solo founder. Use the supplied original draft as the factual source of product claims. Personalize only with the supplied organization name, page title, URL, and listed tools. Never claim you read content beyond the title or invent a contact, relationship, endorsement, or fact. Keep the email concise, direct, respectful, and clearly a one-to-one note. Ask one simple question. Do not add fake familiarity or pressure. Use the supplied language. For German, use Swiss Standard German, never ß, no em dash, and a natural restrained tone. Return only the requested JSON.`
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5',
+      max_tokens: 600,
+      system,
+      messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name, pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, originalSubject: draft.subject, originalBody: draft.body }) }],
+      output_config: {
+        format: {
+          type: 'json_schema',
+          schema: {
+            type: 'object',
+            properties: { subject: { type: 'string' }, body: { type: 'string' } },
+            required: ['subject', 'body'],
+            additionalProperties: false,
+          },
+        },
+      },
+    }),
+    signal: AbortSignal.timeout(15_000),
+  })
+  if (!response.ok) throw new Error(`Anthropic API returned HTTP ${response.status}`)
+  const result = await response.json() as { content?: Array<{ type: string; text?: string }> }
+  const text = result.content?.find((block) => block.type === 'text')?.text
+  if (!text) throw new Error('Anthropic returned no text')
+  const parsed = JSON.parse(text) as HumanizedDraft
+  if (typeof parsed.subject !== 'string' || typeof parsed.body !== 'string' || !parsed.subject.trim() || !parsed.body.trim() || parsed.subject.length > 180 || parsed.body.length > 8_000) throw new Error('Anthropic returned an invalid draft')
+  return { subject: parsed.subject.trim(), body: parsed.body.trim() }
+}
+
 export async function POST(req: Request) {
   if (!(await authorize(req))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!req.headers.get('content-type')?.startsWith('application/json')) return NextResponse.json({ error: 'JSON required' }, { status: 415 })
@@ -72,6 +114,7 @@ export async function POST(req: Request) {
   const user = process.env.SMTP_USER || process.env.SMTP_ADMIN_EMAIL || process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'team@whatshouldistudy.com'
   const password = process.env.SMTP_PASSWORD || process.env.SMTP_PASS
   if (!password) return NextResponse.json({ error: 'Mailbox password is not configured' }, { status: 503 })
+  const anthropicKey = process.env.ANTHROPIC_API_KEY
 
   const client = new ImapFlow({ host, port, secure: true, auth: { user, pass: password }, logger: false, connectionTimeout: 10_000, greetingTimeout: 10_000, socketTimeout: 20_000 })
   try {
@@ -84,20 +127,33 @@ export async function POST(req: Request) {
     let created = 0
     let skipped = 0
     for (const draft of drafts) {
-      let exists = false
-      for (const mailbox of [draftsMailbox, sentMailbox].filter(Boolean)) {
-        await client.mailboxOpen(mailbox!.path, { readOnly: true })
-        const matches = await client.search({ header: { 'X-Outreach-ID': draft.id } })
-        if (matches && matches.length > 0) {
-          exists = true
-          break
+      if (sentMailbox) {
+        await client.mailboxOpen(sentMailbox.path, { readOnly: true })
+        const sent = await client.search({ header: { 'X-Outreach-ID': draft.id } })
+        if (sent && sent.length > 0) {
+          skipped++
+          continue
         }
       }
-      if (exists) {
-        skipped++
-        continue
+
+      await client.mailboxOpen(draftsMailbox.path)
+      const oldDrafts = await client.search({ header: { 'X-Outreach-ID': draft.id } }, { uid: true })
+      const oldUids = Array.isArray(oldDrafts) ? oldDrafts : []
+      if (oldUids.length > 0) {
+        const deleted = await client.messageDelete(oldUids, { uid: true })
+        if (!deleted) throw new Error(`Could not replace draft ${draft.id}`)
       }
-      const appended = await client.append(draftsMailbox.path, rawMessage(draft, user, process.env.SMTP_SENDER_NAME || 'whatshouldistudy'), ['\\Draft'])
+
+      let message: HumanizedDraft = { subject: draft.subject, body: draft.body }
+      if (anthropicKey) {
+        try {
+          message = await humanize(draft, anthropicKey)
+        } catch (error) {
+          console.warn('Outreach humanization failed; using reviewed template', { code: (error as Error).name })
+        }
+      }
+      const finalized = { ...draft, ...message }
+      const appended = await client.append(draftsMailbox.path, rawMessage(finalized, user, process.env.SMTP_SENDER_NAME || 'whatshouldistudy'), ['\\Draft'])
       if (!appended) throw new Error(`Could not create draft ${draft.id}`)
       created++
     }
