@@ -1,5 +1,6 @@
 import { ImapFlow } from 'imapflow'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
+import { createTransport } from 'nodemailer'
 import { NextResponse } from 'next/server'
 
 export const maxDuration = 60
@@ -8,6 +9,7 @@ const ISSUER = 'https://token.actions.githubusercontent.com'
 const AUDIENCE = 'wsis-outreach-drafts'
 const REPOSITORY = 'moritzlauper/whatshouldistudy-outreach'
 const WORKFLOW = `${REPOSITORY}/.github/workflows/check.yml@refs/heads/main`
+const SELF_TEST_RECIPIENT = 'moritz.lauper@hispeed.ch'
 const JWKS = createRemoteJWKSet(new URL(`${ISSUER}/.well-known/jwks`))
 
 interface DraftInput {
@@ -27,14 +29,16 @@ interface HumanizedDraft {
   body: string
 }
 
-async function authorize(req: Request): Promise<boolean> {
+async function authorize(req: Request): Promise<string | null> {
   const token = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
-  if (!token) return false
+  if (!token) return null
   try {
     const { payload } = await jwtVerify(token, JWKS, { issuer: ISSUER, audience: AUDIENCE })
-    return payload.repository === REPOSITORY && payload.workflow_ref === WORKFLOW && (payload.event_name === 'schedule' || payload.event_name === 'workflow_dispatch')
+    if (payload.repository !== REPOSITORY || payload.workflow_ref !== WORKFLOW) return null
+    if (payload.event_name !== 'schedule' && payload.event_name !== 'workflow_dispatch') return null
+    return payload.event_name
   } catch {
-    return false
+    return null
   }
 }
 
@@ -106,17 +110,21 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
 }
 
 export async function POST(req: Request) {
-  if (!(await authorize(req))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const eventName = await authorize(req)
+  if (!eventName) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!req.headers.get('content-type')?.startsWith('application/json')) return NextResponse.json({ error: 'JSON required' }, { status: 415 })
   const length = Number(req.headers.get('content-length') ?? 0)
   if (length > 150_000) return NextResponse.json({ error: 'Payload too large' }, { status: 413 })
 
   let drafts: DraftInput[]
   let humanizerSkill: string
+  let sendTest = false
   try {
-    const input = await req.json() as { drafts?: unknown; humanizerSkill?: unknown }
+    const input = await req.json() as { drafts?: unknown; humanizerSkill?: unknown; sendTest?: unknown }
     if (!Array.isArray(input.drafts) || input.drafts.length > 10) throw new Error('Invalid batch')
     if (typeof input.humanizerSkill !== 'string' || input.humanizerSkill.length < 1_000 || input.humanizerSkill.length > 50_000) throw new Error('Invalid humanizer skill')
+    if (input.sendTest !== undefined && typeof input.sendTest !== 'boolean') throw new Error('Invalid test mode')
+    sendTest = input.sendTest === true
     humanizerSkill = input.humanizerSkill
     drafts = input.drafts as DraftInput[]
     if (drafts.some((draft) => !draft || !/^[a-z0-9-]{1,100}$/.test(draft.id) || typeof draft.name !== 'string' || typeof draft.to !== 'string' || typeof draft.url !== 'string' || !['de', 'fr', 'it'].includes(draft.lang) || typeof draft.pageTitle !== 'string' || draft.pageTitle.length > 500 || !Array.isArray(draft.listedTools) || draft.listedTools.length > 20 || draft.listedTools.some((tool) => typeof tool !== 'string' || tool.length > 100) || typeof draft.opening !== 'string' || draft.opening.length > 600 || typeof draft.subject !== 'string' || typeof draft.body !== 'string' || draft.to.length > 254 || draft.subject.length > 200 || draft.body.length > 10_000)) throw new Error('Invalid draft')
@@ -130,6 +138,50 @@ export async function POST(req: Request) {
   const password = process.env.SMTP_PASSWORD || process.env.SMTP_PASS
   if (!password) return NextResponse.json({ error: 'Mailbox password is not configured' }, { status: 503 })
   const anthropicKey = process.env.ANTHROPIC_API_KEY
+
+  if (sendTest) {
+    const testDraft = drafts[0]
+    if (eventName !== 'workflow_dispatch' || drafts.length !== 1 || testDraft.id !== 'internal-format-test' || testDraft.to !== SELF_TEST_RECIPIENT) {
+      return NextResponse.json({ error: 'Test sending is restricted to one self-test recipient' }, { status: 400 })
+    }
+
+    let message: HumanizedDraft = { body: testDraft.body }
+    let humanized = 0
+    if (anthropicKey) {
+      try {
+        message = await humanize(testDraft, anthropicKey, humanizerSkill)
+        humanized = 1
+      } catch (error) {
+        console.warn('Outreach self-test humanization failed; using reviewed template', { code: (error as Error).name })
+      }
+    }
+
+    const smtpPort = Number(process.env.SMTP_PORT || 465)
+    const transporter = createTransport({
+      host: process.env.SMTP_HOST || 'mail.infomaniak.com',
+      port: smtpPort,
+      secure: smtpPort === 465,
+      auth: { user, pass: password },
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 20_000,
+    })
+    try {
+      await transporter.sendMail({
+        from: { name: 'Moritz Lauper', address: user },
+        to: SELF_TEST_RECIPIENT,
+        subject: cleanHeader(testDraft.subject),
+        text: message.body,
+      })
+      return NextResponse.json({ sent: 1, humanized })
+    } catch (error) {
+      const mailError = error as Error & { code?: string }
+      console.error('Outreach self-test email failed', { code: mailError.code ?? 'UNKNOWN' })
+      return NextResponse.json({ error: 'Test email could not be sent' }, { status: 502 })
+    } finally {
+      transporter.close()
+    }
+  }
 
   const client = new ImapFlow({ host, port, secure: true, auth: { user, pass: password }, logger: false, connectionTimeout: 10_000, greetingTimeout: 10_000, socketTimeout: 20_000 })
   try {
