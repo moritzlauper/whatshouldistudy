@@ -8,6 +8,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "usage:report": "node --env-file-if-exists=.env.local scripts/usage-report.ts",
     "typecheck": "next typegen && tsc --noEmit -p tsconfig.json",
     "test": "node --test test/*.test.ts",
     "stripe:setup": "node scripts/stripe-setup.ts",

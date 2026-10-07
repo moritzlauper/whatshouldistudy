@@ -23,15 +23,16 @@ The field results are free. The full programme list (every matching programme
 with the fee for the student's citizenship, earnings, admission rates, filters,
 CSV) is a one-time payment.
 
-**Open source, nothing stored.** The code is public under the MIT licence
+**Open source, history stays on the device.** The code is public under the MIT licence
 (`LICENSE`), and the site says so on the landing page, the start page, in the
 footer and in the privacy policy, with a link here
-(`NEXT_PUBLIC_SOURCE_URL`, default this repository on GitHub). There is no
-database and no account; keep it that way.
+(`NEXT_PUBLIC_SOURCE_URL`, default this repository on GitHub). There are no user accounts. Optional usage statistics store only aggregate
+counters, as described below.
 
 **Privacy model:** the analysis runs entirely in the browser. OAuth tokens stay
 in the tab, exports are unpacked on the device, raw history is discarded after
-analysis. The server only ever receives field ids, scores and filters.
+analysis. Programme requests send field ids, scores, topics and filters to the server.
+Optional import statistics send only a recognised source category.
 
 ## Licence and paywall
 
@@ -225,11 +226,64 @@ under *Measurement* in `.env.example`; without them nothing loads.
   amount and currency from Stripe). Each of the last three can also fire a
   Google Ads conversion by label. Purchases carry a SHA-256 of the buyer's email
   for enhanced conversions, hashed in `/api/unlock`.
-- **Never measured:** anything derived from the sources or the questionnaire.
+- **Never sent to Google measurement:** anything derived from the sources or the questionnaire.
   YouTube API data is under Google's Limited Use rules and may not reach
   advertising, not even as a field id.
 - **Vercel Web Analytics** for cookieless page counts of every visitor
   (`NEXT_PUBLIC_VERCEL_ANALYTICS=1`).
+
+### Free aggregate usage statistics
+
+No Vercel Custom Events subscription is needed. Create a dedicated **Free**
+Upstash Redis database (prefer an EU region), leave paid upgrades disabled,
+and configure these variables in your deployment:
+
+```dotenv
+NEXT_PUBLIC_USAGE_STATS=1
+USAGE_REDIS_REST_URL=https://YOUR-DATABASE.upstash.io
+USAGE_REDIS_REST_TOKEN=YOUR-WRITE-TOKEN
+USAGE_ADMIN_TOKEN=YOUR-RANDOM-ADMIN-SECRET
+```
+
+Generate the admin secret with `openssl rand -hex 32`. Only the first setting
+is public; never prefix the other variables with `NEXT_PUBLIC_`. Redeploy after
+setting them. No new packages are required. The free tier has quotas; collection
+can stop when those are reached. Stay on Free to avoid paid overages. See
+[Upstash pricing](https://upstash.com/pricing/redis). This feature still uses
+normal hosting requests and function execution within your hosting allowance.
+
+Read a report locally (set `USAGE_REPORT_URL` to your deployed site and
+`USAGE_ADMIN_TOKEN` in your local environment or `.env.local`):
+
+```sh
+pnpm usage:report 2026-10
+```
+
+The protected `GET /api/usage?month=YYYY-MM` returns JSON with monthly counts,
+ordered by frequency. It requires the admin secret as a Bearer header; it must
+not be placed in URLs or browser code. The script prints source and programme
+tables. The same counters can be inspected in the Upstash console.
+
+- Imports: count recognised source types only after successful file parsing.
+  No filenames, contents, questionnaire answers or error text are sent.
+- Programmes: count catalogue IDs, names and institutions returned by the
+  existing teaser and paid programme endpoints. Counts distinguish `preview`
+  and `unlocked`. Only authorised responses count; bulk CSV requests over 100
+  items are excluded. Counts describe API output, not confirmed screen views
+  or unique people. Reloads, retries and filters can count again.
+- Storage: one aggregate hash per UTC month, deleted 90 days after that month
+  ends. No individual event records, exact timestamps, IPs, user agents,
+  cookies, visitor IDs or links between imports and results are stored.
+  Upstash receives server-side counter commands, not visitor requests.
+- No new consent prompt, browser storage access, or advertising integration.
+  Existing Google measurement remains separately controlled. Hosting providers
+  still process connection metadata: configure access-log retention separately.
+  Cookie-free counters alone do not guarantee a consent exemption in every
+  jurisdiction; assess the deployment's full processing and privacy notice.
+- Writes are atomic, bounded to 20,000 categories per month, and fail without
+  breaking imports or recommendations. There is no visitor fingerprinting for
+  deduplication or abuse controls: bots can distort these approximate totals.
+  Storage errors produce only a generic warning, without event payloads.
 
 The privacy page describes exactly what is switched on.
 

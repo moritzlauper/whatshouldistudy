@@ -18,6 +18,7 @@ import { useSite } from '../ui/site-context.tsx'
 import { GitHubMark } from '../ui/trust.tsx'
 import { Sparkle } from '../ui/shapes.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
+import { measureImport } from '@/lib/product-measure.ts'
 import { measureConnect } from '@/lib/measure.ts'
 
 type Running = { source: string; message: string; count?: number } | null
@@ -82,7 +83,10 @@ export function StartView() {
         const skipped = result.skipped.length ? ` ${t.start.unread(result.skipped.length, result.skipped.slice(0, 3).join(', '))}` : ''
         throw new Error((result.takeoutProducts ? t.start.emptyTakeout(result.takeoutProducts.filter((x) => x !== '?').join(', ')) : t.start.noHistory) + skipped)
       }
-      for (const s of result.summaries) setSummary(s)
+      for (const s of result.summaries) {
+        setSummary(s)
+        measureImport(s.source)
+      }
       setNotes((n) => ({ ...n, [card]: result.recognised.map(t.tr) }))
     } catch (e) {
       fail(card, e)

@@ -55,6 +55,9 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
             <Link href={r.orgs} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 md:inline-block">
               {o.nav}
             </Link>
+            <Link href={r.privacy} className="rounded-full px-3 py-2 hover:bg-surface-2">
+              {t.footer.privacy}
+            </Link>
             {languages && <LangSwitch from={{ site, base, locale: k.locale }} options={languages} label={t.misc.language} fieldIds={FIELDS.map((f) => f.id)} />}
             <Link href={r.start} className="btn btn-primary btn-sm ml-1">
               {t.nav.start}
