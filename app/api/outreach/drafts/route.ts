@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { ImapFlow } from 'imapflow'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import { createTransport } from 'nodemailer'
@@ -50,7 +51,23 @@ function base64Lines(value: string): string {
   return Buffer.from(value, 'utf8').toString('base64').match(/.{1,76}/g)?.join('\r\n') ?? ''
 }
 
-function rawMessage(draft: DraftInput, from: string, senderName: string): string {
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
+function htmlBody(body: string, signatureHtml: string): string {
+  const contentBody = body.trim().replace(/\n{2,}Moritz Lauper\nwhatshouldistudy\nwhatshouldistudy\.ch\nteam@whatshouldistudy\.com$/, '')
+  const paragraphs = contentBody.split(/\n{2,}/).map((paragraph) => {
+    const content = escapeHtml(paragraph)
+      .replace(/https:\/\/whatshouldistudy\.ch(?:\/organisationen)?/g, (url) => `<a href="${url}">${url}</a>`)
+      .replace(/\n/g, '<br>\r\n')
+    return `<p style="margin:0 0 12px 0;line-height:1.4">${content}</p>`
+  })
+  return `<html><body style="margin:0;line-height:1.4">${paragraphs.join('\r\n')}<div style="margin-top:12px">${signatureHtml}</div></body></html>`
+}
+
+function rawMessage(draft: DraftInput, from: string, senderName: string, signatureHtml: string): string {
+  const boundary = `wsis-${randomUUID()}`
   const subject = `=?UTF-8?B?${Buffer.from(cleanHeader(draft.subject)).toString('base64')}?=`
   const fromHeader = senderName ? `From: =?UTF-8?B?${Buffer.from(senderName).toString('base64')}?= <${from}>` : `From: ${from}`
   const headers = [
@@ -59,11 +76,24 @@ function rawMessage(draft: DraftInput, from: string, senderName: string): string
     `Subject: ${subject}`,
     `Date: ${new Date().toUTCString()}`,
     'MIME-Version: 1.0',
-    'Content-Type: text/plain; charset=UTF-8',
-    'Content-Transfer-Encoding: base64',
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
     `X-Outreach-ID: ${draft.id}`,
   ]
-  return `${headers.join('\r\n')}\r\n\r\n${base64Lines(draft.body.trim())}`
+  const parts = [
+    `--${boundary}`,
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    base64Lines(draft.body.trim()),
+    `--${boundary}`,
+    'Content-Type: text/html; charset=UTF-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    base64Lines(htmlBody(draft.body, signatureHtml)),
+    `--${boundary}--`,
+    '',
+  ].join('\r\n')
+  return `${headers.join('\r\n')}\r\n\r\n${parts}`
 }
 
 async function humanize(draft: DraftInput, apiKey: string | undefined, humanizerSkill: string): Promise<HumanizedDraft> {
@@ -118,14 +148,17 @@ export async function POST(req: Request) {
 
   let drafts: DraftInput[]
   let humanizerSkill: string
+  let signatureHtml: string
   let sendTest = false
   try {
-    const input = await req.json() as { drafts?: unknown; humanizerSkill?: unknown; sendTest?: unknown }
+    const input = await req.json() as { drafts?: unknown; humanizerSkill?: unknown; signatureHtml?: unknown; sendTest?: unknown }
     if (!Array.isArray(input.drafts) || input.drafts.length > 10) throw new Error('Invalid batch')
     if (typeof input.humanizerSkill !== 'string' || input.humanizerSkill.length < 1_000 || input.humanizerSkill.length > 50_000) throw new Error('Invalid humanizer skill')
+    if (typeof input.signatureHtml !== 'string' || input.signatureHtml.length < 1 || input.signatureHtml.length > 20_000 || /<(script|iframe|object)\b|javascript:|\son[a-z]+\s*=/i.test(input.signatureHtml)) throw new Error('Invalid signature')
     if (input.sendTest !== undefined && typeof input.sendTest !== 'boolean') throw new Error('Invalid test mode')
     sendTest = input.sendTest === true
     humanizerSkill = input.humanizerSkill
+    signatureHtml = input.signatureHtml
     drafts = input.drafts as DraftInput[]
     if (drafts.some((draft) => !draft || !/^[a-z0-9-]{1,100}$/.test(draft.id) || typeof draft.name !== 'string' || typeof draft.to !== 'string' || typeof draft.url !== 'string' || !['de', 'fr', 'it'].includes(draft.lang) || typeof draft.pageTitle !== 'string' || draft.pageTitle.length > 500 || !Array.isArray(draft.listedTools) || draft.listedTools.length > 20 || draft.listedTools.some((tool) => typeof tool !== 'string' || tool.length > 100) || typeof draft.opening !== 'string' || draft.opening.length > 600 || typeof draft.subject !== 'string' || typeof draft.body !== 'string' || draft.to.length > 254 || draft.subject.length > 200 || draft.body.length > 10_000)) throw new Error('Invalid draft')
   } catch {
@@ -172,6 +205,7 @@ export async function POST(req: Request) {
         to: SELF_TEST_RECIPIENT,
         subject: cleanHeader(testDraft.subject),
         text: message.body,
+        html: htmlBody(message.body, signatureHtml),
       })
       return NextResponse.json({ sent: 1, humanized })
     } catch (error) {
@@ -222,7 +256,7 @@ export async function POST(req: Request) {
         }
       }
       const finalized = { ...draft, body: message.body }
-      const appended = await client.append(draftsMailbox.path, rawMessage(finalized, user, process.env.SMTP_SENDER_NAME || 'whatshouldistudy'), ['\\Draft'])
+      const appended = await client.append(draftsMailbox.path, rawMessage(finalized, user, process.env.SMTP_SENDER_NAME || 'whatshouldistudy', signatureHtml), ['\\Draft'])
       if (!appended) throw new Error(`Could not create draft ${draft.id}`)
       created++
     }
