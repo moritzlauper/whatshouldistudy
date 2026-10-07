@@ -1,3 +1,4 @@
+import { existingOutreach, formatOutreachGreeting, outreachCallToAction } from '@/lib/outreach.ts'
 import { randomUUID } from 'node:crypto'
 import { ImapFlow } from 'imapflow'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
@@ -20,6 +21,7 @@ interface DraftInput {
   pageTitle: string
   listedTools: string[]
   opening: string
+  callToAction?: string
   subject: string
   body: string
 }
@@ -63,6 +65,7 @@ function htmlBody(body: string, signatureHtml: string): string {
 }
 
 function rawMessage(draft: DraftInput, from: string, senderName: string, signatureHtml: string): string {
+  const body = formatOutreachGreeting(draft.body.trim(), draft.lang)
   const boundary = `wsis-${randomUUID()}`
   const subject = `=?UTF-8?B?${Buffer.from(cleanHeader(draft.subject)).toString('base64')}?=`
   const fromHeader = senderName ? `From: =?UTF-8?B?${Buffer.from(senderName).toString('base64')}?= <${from}>` : `From: ${from}`
@@ -80,12 +83,12 @@ function rawMessage(draft: DraftInput, from: string, senderName: string, signatu
     'Content-Type: text/plain; charset=UTF-8',
     'Content-Transfer-Encoding: base64',
     '',
-    base64Lines(draft.body.trim()),
+    base64Lines(body),
     `--${boundary}`,
     'Content-Type: text/html; charset=UTF-8',
     'Content-Transfer-Encoding: base64',
     '',
-    base64Lines(htmlBody(draft.body, signatureHtml)),
+    base64Lines(htmlBody(body, signatureHtml)),
     `--${boundary}--`,
     '',
   ].join('\r\n')
@@ -96,7 +99,7 @@ async function humanize(draft: DraftInput, apiKey: string | undefined, humanizer
   if (!apiKey) return { body: draft.body }
   const system = `${humanizerSkill.trim()}
 
-Rewrite the complete supplied email as a concise one-to-one message from Moritz Lauper. Apply the Humanizer skill to the whole text, not just the opening. Personalize it using only the organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Preserve Moritz's supplied biography, all product facts, the CHF 17 individual price, the 14-day organisation trial, the privacy statements, both exact website URLs, the greeting, and the sign-off. The entire outreach must be strictly self-service. Never offer, promise, or imply any future personal action or availability from Moritz or his team: no presentations, demos, calls, meetings, scheduling, personal onboarding, advice, follow-ups, sending materials, or manual setup. This also prohibits polite offers such as “Ich stelle der Person die Plattform gerne kurz vor” or “Bei Fragen stehe ich gerne zur Verfügung”. Recipients must be able to explore, try, and use the platform independently through the supplied website links. Calls to action may only ask recipients to visit or try the website, add a link, or forward the link internally; never ask for an introduction or contact details so Moritz can follow up. Remove any conflicting offer from the supplied draft; this self-service rule takes precedence over preserving wording or claims. Preserve the supplied self-service call to action exactly as the final question; do not replace it with a generic usefulness question. Do not assume the recipient always works with pupils. Keep the two URLs exactly as plain-text URLs on their own lines. Do not add, remove, or alter factual claims. Use the supplied language and return only the requested JSON. No HTML or Markdown.`
+Rewrite the complete supplied email as a concise one-to-one message from Moritz Lauper. Apply the Humanizer skill to the whole text, not just the opening. Personalize it using only the organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Preserve Moritz's supplied biography, all product facts, the CHF 17 individual price, the 14-day organisation trial, the privacy statements, both exact website URLs, the greeting, and the sign-off. The entire outreach must be strictly self-service. Never offer, promise, or imply any future personal action or availability from Moritz or his team: no presentations, demos, calls, meetings, scheduling, personal onboarding, advice, follow-ups, sending materials, or manual setup. This also prohibits polite offers such as “Ich stelle der Person die Plattform gerne kurz vor” or “Bei Fragen stehe ich gerne zur Verfügung”. Recipients must be able to explore, try, and use the platform independently through the supplied website links. Calls to action may only ask recipients to visit or try the website, add a link, or forward the link internally; never ask for an introduction or contact details so Moritz can follow up. Remove any conflicting offer from the supplied draft; this self-service rule takes precedence over preserving wording or claims. Preserve the supplied self-service call to action exactly as the final question; do not replace it with a generic usefulness question. Do not assume the recipient always works with pupils. Keep the two URLs exactly as plain-text URLs on their own lines. Do not add, remove, or alter factual claims. For Swiss German emails, keep “Guten Tag” without a comma on its own line, followed by a blank line, and start the next paragraph with a capital letter: “Guten Tag\n\nAuf Ihrer Seite …”, never “Guten Tag\n\nauf Ihrer Seite …”. Preserve the supplied salutation punctuation; do not import the lowercase continuation used after a comma in German correspondence. Use the supplied language and return only the requested JSON. No HTML or Markdown.`
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
@@ -104,7 +107,7 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
       model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5',
       max_tokens: 900,
       system,
-      messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name, pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, requiredCallToAction: draft.body.trim().split(/\n{2,}/).at(-2), originalSubject: draft.subject, originalBody: draft.body }) }],
+      messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name, pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, requiredCallToAction: outreachCallToAction(draft), originalSubject: draft.subject, originalBody: draft.body }) }],
       output_config: {
         format: {
           type: 'json_schema',
@@ -125,7 +128,7 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
   if (!text) throw new Error('Anthropic returned no text')
   const parsed = JSON.parse(text) as HumanizedDraft
   const urls = [...draft.body.matchAll(/https:\/\/whatshouldistudy\.ch(?:\/organisationen)?/g)].map(([url]) => url)
-  const requiredCallToAction = draft.body.trim().split(/\n{2,}/).at(-2)
+  const requiredCallToAction = outreachCallToAction(draft)
   if (typeof parsed.body !== 'string' || !parsed.body.trim() || parsed.body.length > 10_000 || /<\/?[a-z][^>]*>/i.test(parsed.body)) throw new Error('Anthropic returned an invalid body')
   if (urls.some((url) => !parsed.body.includes(url))) throw new Error('Anthropic removed a required website link')
   if (requiredCallToAction && !parsed.body.includes(requiredCallToAction)) throw new Error('Anthropic removed or changed the concrete call to action')
@@ -146,13 +149,18 @@ export async function POST(req: Request) {
   let signatureHtml: string
   try {
     const input = await req.json() as { drafts?: unknown; humanizerSkill?: unknown; signatureHtml?: unknown }
-    if (!Array.isArray(input.drafts) || input.drafts.length > 10) throw new Error('Invalid batch')
+    if (!Array.isArray(input.drafts) || input.drafts.length !== 1) throw new Error('Invalid batch')
     if (typeof input.humanizerSkill !== 'string' || input.humanizerSkill.length < 1_000 || input.humanizerSkill.length > 50_000) throw new Error('Invalid humanizer skill')
     if (typeof input.signatureHtml !== 'string' || input.signatureHtml.length < 1 || input.signatureHtml.length > 20_000 || /<(script|iframe|object)\b|javascript:|\son[a-z]+\s*=/i.test(input.signatureHtml)) throw new Error('Invalid signature')
     humanizerSkill = input.humanizerSkill
     signatureHtml = input.signatureHtml
     drafts = input.drafts as DraftInput[]
     if (drafts.some((draft) => !draft || !/^[a-z0-9-]{1,100}$/.test(draft.id) || typeof draft.name !== 'string' || typeof draft.to !== 'string' || typeof draft.url !== 'string' || !['de', 'fr', 'it'].includes(draft.lang) || typeof draft.pageTitle !== 'string' || draft.pageTitle.length > 500 || !Array.isArray(draft.listedTools) || draft.listedTools.length > 20 || draft.listedTools.some((tool) => typeof tool !== 'string' || tool.length > 100) || typeof draft.opening !== 'string' || draft.opening.length > 600 || typeof draft.subject !== 'string' || typeof draft.body !== 'string' || draft.to.length > 254 || draft.subject.length > 200 || draft.body.length > 10_000)) throw new Error('Invalid draft')
+    for (const draft of drafts) {
+      if (!/^[^\s<>@,;]+@[^\s<>@,;]+\.[^\s<>@,;]+$/.test(draft.to)) throw new Error('Invalid recipient')
+      if (draft.callToAction !== undefined && typeof draft.callToAction !== 'string') throw new Error('Invalid question')
+      outreachCallToAction(draft)
+    }
   } catch {
     return NextResponse.json({ error: 'Invalid draft batch' }, { status: 400 })
   }
@@ -165,32 +173,21 @@ export async function POST(req: Request) {
   const anthropicKey = process.env.ANTHROPIC_API_KEY
 
   const client = new ImapFlow({ host, port, secure: true, auth: { user, pass: password }, logger: false, connectionTimeout: 10_000, greetingTimeout: 10_000, socketTimeout: 20_000 })
+  const deadline = setTimeout(() => client.close(), 50_000)
   try {
     await client.connect()
     const mailboxes = await client.list()
     const draftsMailbox = mailboxes.find((mailbox) => mailbox.specialUse === '\\Drafts') ?? mailboxes.find((mailbox) => /(^|[./])(drafts|entwürfe)$/i.test(mailbox.path))
     const sentMailbox = mailboxes.find((mailbox) => mailbox.specialUse === '\\Sent') ?? mailboxes.find((mailbox) => /(^|[./])(sent|sent items|gesendet)$/i.test(mailbox.path))
-    if (!draftsMailbox) throw new Error('Infomaniak Drafts folder not found')
+    if (!draftsMailbox || !sentMailbox) throw new Error('Required Infomaniak folders not found')
 
     let created = 0
     let skipped = 0
     let humanized = 0
     for (const draft of drafts) {
-      if (sentMailbox) {
-        await client.mailboxOpen(sentMailbox.path, { readOnly: true })
-        const sent = await client.search({ header: { 'X-Outreach-ID': draft.id } })
-        if (sent && sent.length > 0) {
-          skipped++
-          continue
-        }
-      }
-
-      await client.mailboxOpen(draftsMailbox.path)
-      const oldDrafts = await client.search({ header: { 'X-Outreach-ID': draft.id } }, { uid: true })
-      const oldUids = Array.isArray(oldDrafts) ? oldDrafts : []
-      if (oldUids.length > 0) {
-        const deleted = await client.messageDelete(oldUids, { uid: true })
-        if (!deleted) throw new Error(`Could not replace draft ${draft.id}`)
+      if (await existingOutreach(client, [sentMailbox.path, draftsMailbox.path], draft)) {
+        skipped++
+        continue
       }
 
       let message: HumanizedDraft = { body: draft.body }
@@ -213,6 +210,7 @@ export async function POST(req: Request) {
     console.error('Outreach IMAP draft creation failed', { code: mailError.code ?? 'UNKNOWN', responseCode: mailError.responseCode })
     return NextResponse.json({ error: 'Could not create the mailbox drafts' }, { status: 502 })
   } finally {
+    clearTimeout(deadline)
     if (client.usable) await client.logout().catch(() => {})
     else client.close()
   }
