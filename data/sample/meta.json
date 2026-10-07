@@ -98,6 +98,18 @@
       "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
+      "id": "kr-academyinfo",
+      "name": "Korea Higher Education Information, 대학알리미 (Ministry of Education, KCUE)",
+      "countries": [
+        "KR"
+      ],
+      "url": "https://www.academyinfo.go.kr/",
+      "licence": "Public disclosure data (공공데이터)",
+      "ok": true,
+      "count": 72,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
       "id": "global-openalex",
       "name": "OpenAlex institution research profiles",
       "countries": [
@@ -135,7 +147,8 @@
     "HUF": 0.0025,
     "CAD": 0.67,
     "AUD": 0.6,
-    "JPY": 0.0061
+    "JPY": 0.0061,
+    "KRW": 0.00064
   },
   "counts": {
     "mathematics": {
@@ -143,10 +156,12 @@
       "DE": 2,
       "FR": 3,
       "GB": 1,
+      "KR": 2,
       "US": 16
     },
     "statistics-data-science": {
       "GB": 1,
+      "KR": 3,
       "US": 18
     },
     "computer-science": {
@@ -155,10 +170,12 @@
       "DE": 3,
       "FR": 4,
       "GB": 3,
+      "KR": 3,
       "US": 18
     },
     "artificial-intelligence": {
-      "AT": 1
+      "AT": 1,
+      "KR": 8
     },
     "cybersecurity": {},
     "information-systems": {
@@ -186,6 +203,7 @@
       "AT": 3,
       "FR": 2,
       "GB": 1,
+      "KR": 1,
       "US": 24
     },
     "biology": {
@@ -194,6 +212,7 @@
       "DE": 1,
       "FR": 3,
       "GB": 1,
+      "KR": 4,
       "US": 14
     },
     "molecular-biology": {
@@ -214,11 +233,15 @@
     },
     "earth-sciences": {
       "FR": 2,
-      "GB": 1
+      "GB": 1,
+      "KR": 1
     },
-    "marine-biology": {},
+    "marine-biology": {
+      "KR": 1
+    },
     "zoology": {
-      "GB": 1
+      "GB": 1,
+      "KR": 1
     },
     "geography": {
       "AT": 1,
@@ -230,6 +253,7 @@
       "DE": 3,
       "FR": 4,
       "GB": 1,
+      "KR": 1,
       "US": 14
     },
     "electrical-engineering": {
@@ -238,12 +262,14 @@
       "DE": 1,
       "FR": 2,
       "GB": 1,
+      "KR": 1,
       "US": 14
     },
     "civil-engineering": {
       "AT": 1,
       "FR": 1,
       "GB": 1,
+      "KR": 2,
       "US": 14
     },
     "aerospace-engineering": {
@@ -256,10 +282,12 @@
     },
     "chemical-engineering": {
       "GB": 1,
+      "KR": 2,
       "US": 12
     },
     "biomedical-engineering": {
       "GB": 1,
+      "KR": 1,
       "US": 12
     },
     "materials-science": {
@@ -267,7 +295,8 @@
     },
     "robotics-mechatronics": {},
     "energy-engineering": {
-      "DE": 1
+      "DE": 1,
+      "KR": 1
     },
     "industrial-engineering": {
       "DE": 1,
@@ -277,10 +306,12 @@
       "CH": 8,
       "DE": 2,
       "GB": 1,
+      "KR": 1,
       "US": 12
     },
     "urban-planning": {
       "AT": 2,
+      "KR": 2,
       "US": 10
     },
     "industrial-design": {
@@ -300,10 +331,12 @@
       "DE": 1,
       "FR": 1,
       "GB": 1,
+      "KR": 3,
       "US": 10
     },
     "pharmacy": {
-      "AT": 1
+      "AT": 1,
+      "KR": 1
     },
     "dentistry": {},
     "veterinary-medicine": {
@@ -314,6 +347,7 @@
       "AT": 2,
       "FR": 1,
       "GB": 1,
+      "KR": 1,
       "US": 6
     },
     "nutrition": {
@@ -329,6 +363,7 @@
       "CH": 4,
       "FR": 1,
       "GB": 1,
+      "KR": 1,
       "US": 21
     },
     "economics": {
@@ -337,6 +372,7 @@
       "DE": 3,
       "FR": 1,
       "GB": 1,
+      "KR": 1,
       "US": 24
     },
     "business-management": {
@@ -344,10 +380,12 @@
       "CH": 7,
       "DE": 7,
       "FR": 3,
+      "KR": 4,
       "US": 16
     },
     "finance-accounting": {
       "GB": 1,
+      "KR": 1,
       "US": 16
     },
     "marketing": {
@@ -364,6 +402,7 @@
       "DE": 1,
       "FR": 1,
       "GB": 1,
+      "KR": 4,
       "US": 10
     },
     "law": {
@@ -371,6 +410,7 @@
       "DE": 1,
       "FR": 2,
       "GB": 1,
+      "KR": 1,
       "US": 5
     },
     "criminology": {
@@ -390,11 +430,13 @@
       "AT": 1,
       "CH": 8,
       "DE": 1,
-      "GB": 1
+      "GB": 1,
+      "KR": 1
     },
     "education": {
       "CH": 11,
-      "DE": 11
+      "DE": 11,
+      "KR": 20
     },
     "journalism": {
       "GB": 1,
@@ -402,7 +444,8 @@
     },
     "media-communication": {
       "AT": 3,
-      "DE": 1
+      "DE": 1,
+      "KR": 1
     },
     "history": {
       "AT": 2,
@@ -433,24 +476,28 @@
     "languages": {
       "AT": 7,
       "DE": 5,
-      "FR": 1
+      "FR": 1,
+      "KR": 5
     },
     "literature": {
       "AT": 8,
       "DE": 2,
       "FR": 1,
+      "KR": 4,
       "US": 10
     },
     "liberal-arts": {
       "AT": 1,
-      "FR": 1
+      "FR": 1,
+      "KR": 3
     },
     "fine-arts": {
       "US": 10
     },
     "graphic-design": {
       "CH": 4,
-      "GB": 1
+      "GB": 1,
+      "KR": 1
     },
     "fashion-design": {},
     "film-production": {
@@ -465,6 +512,7 @@
       "DE": 3,
       "FR": 1,
       "GB": 1,
+      "KR": 4,
       "US": 12
     },
     "music-production": {},
@@ -474,14 +522,15 @@
     "culinary-arts": {},
     "agriculture": {
       "CH": 1,
-      "DE": 4
+      "DE": 4,
+      "KR": 1
     },
     "aviation": {}
   },
   "totals": {
-    "programmes": 780,
-    "countries": 6,
-    "institutions": 50,
+    "programmes": 852,
+    "countries": 7,
+    "institutions": 58,
     "newLast90Days": 0
   },
   "unclassified": 0,
@@ -526,6 +575,15 @@
         "uni": 57,
         "ph": 2,
         "fh": 1
+      }
+    },
+    "KR": {
+      "programmes": 72,
+      "institutions": 8,
+      "byType": {
+        "priv": 25,
+        "uni": 32,
+        "ph": 14
       }
     }
   }

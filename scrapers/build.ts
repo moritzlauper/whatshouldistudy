@@ -31,11 +31,12 @@ import { parseAngebot } from './de-studiensuche.ts'
 import type { RawAngebot } from './de-studiensuche.ts'
 import { parseItem as parseAtItem } from './at-hochschulen.ts'
 import type { ListItem as AtListItem } from './at-hochschulen.ts'
+import { parseDepartments as parseKrDepartments, parseSchools as parseKrSchools } from './kr-academyinfo.ts'
 import type { DirectoryEntry, RawUniversity } from './global-directory.ts'
 import { chSalaryFor, chSalaryValue } from '../lib/ch-salary.ts'
 import type { ChSalaryTable } from '../lib/ch-salary.ts'
 
-const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-studyprogrammes', 'ch-bfs', 'de-studiensuche', 'at-studienwahl']
+const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-studyprogrammes', 'ch-bfs', 'de-studiensuche', 'at-studienwahl', 'kr-academyinfo']
 
 const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>> = [
   {
@@ -95,6 +96,13 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     licence: 'Öffentliches Studienportal',
   },
   {
+    id: 'kr-academyinfo',
+    name: 'Korea Higher Education Information, 대학알리미 (Ministry of Education, KCUE)',
+    countries: ['KR'],
+    url: 'https://www.academyinfo.go.kr/',
+    licence: 'Public disclosure data (공공데이터)',
+  },
+  {
     id: 'global-openalex',
     name: 'OpenAlex institution research profiles',
     countries: ['*'],
@@ -111,7 +119,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
 ]
 
 /** EUR per unit; fallback when the ECB feed can't be reached. */
-const FX_FALLBACK: Record<string, number> = { EUR: 1, USD: 0.92, GBP: 1.17, CHF: 1.06, SEK: 0.087, DKK: 0.134, NOK: 0.086, PLN: 0.23, CZK: 0.04, HUF: 0.0025, CAD: 0.67, AUD: 0.6, JPY: 0.0061 }
+const FX_FALLBACK: Record<string, number> = { EUR: 1, USD: 0.92, GBP: 1.17, CHF: 1.06, SEK: 0.087, DKK: 0.134, NOK: 0.086, PLN: 0.23, CZK: 0.04, HUF: 0.0025, CAD: 0.67, AUD: 0.6, JPY: 0.0061, KRW: 0.00064 }
 
 async function fetchFx(): Promise<Record<string, number>> {
   try {
@@ -180,6 +188,8 @@ function readFixtures(): Inputs {
   const atItems = readJson<AtListItem[]>(join(FIXTURES, 'at-studienwahl.json'))!
     .map((it) => parseAtItem(it, at))
     .filter((p): p is Programme => !!p)
+  const kr = readJson<{ list: string[][]; schools: string[][] }>(join(FIXTURES, 'kr-academyinfo.json'))!
+  const krItems = parseKrDepartments(kr.list, parseKrSchools(kr.schools), at).programmes
   const outputs = [
     { source: 'us-college-scorecard', fetchedAt: at, programmes: us },
     { source: 'uk-discover-uni', fetchedAt: at, programmes: uk },
@@ -194,6 +204,7 @@ function readFixtures(): Inputs {
     { source: 'ch-bfs', fetchedAt: at, programmes: ch },
     { source: 'de-studiensuche', fetchedAt: at, programmes: de },
     { source: 'at-studienwahl', fetchedAt: at, programmes: atItems },
+    { source: 'kr-academyinfo', fetchedAt: at, programmes: krItems },
   ]
   for (const o of outputs) status.set(o.source, { ok: true, count: o.programmes.length, fetchedAt: at })
   const research = rankInstitutions(readJson<RawInstitution[]>(join(FIXTURES, 'openalex-institutions.json'))!)

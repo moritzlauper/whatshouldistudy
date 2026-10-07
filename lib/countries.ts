@@ -56,7 +56,7 @@ export const COUNTRIES: Record<string, CountryInfo> = {
   AU: { name: 'Australia', region: 'other', currency: 'AUD', typicalTuition: 'AUD 20k–50k international' },
   NZ: { name: 'New Zealand', region: 'other', currency: 'NZD', typicalTuition: 'NZD 25k–45k international' },
   JP: { name: 'Japan', region: 'other', currency: 'JPY', typicalTuition: '¥535,800 at national universities' },
-  KR: { name: 'South Korea', region: 'other', currency: 'KRW', typicalTuition: 'KRW 4–10 million' },
+  KR: { name: 'South Korea', region: 'other', currency: 'KRW', typicalTuition: 'KRW 4–10 million', programmeData: true },
   CN: { name: 'China', region: 'other', currency: 'CNY', typicalTuition: 'CNY 20k–40k international' },
   HK: { name: 'Hong Kong', region: 'other', currency: 'HKD', typicalTuition: 'HKD 140k–200k non-local' },
   SG: { name: 'Singapore', region: 'other', currency: 'SGD', typicalTuition: 'SGD 17k–40k (with/without grant)' },

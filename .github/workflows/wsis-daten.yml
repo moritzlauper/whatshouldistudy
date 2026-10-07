@@ -3,7 +3,7 @@ name: whatshouldistudy data
 # Refreshes the study programme database of whatshouldistudy every Monday:
 # US (College Scorecard), UK (Discover Uni), France (Parcoursup), Switzerland
 # (BFS enrolment by institution and subject, graduate salaries, the
-# studyprogrammes.ch catalogue), research
+# studyprogrammes.ch catalogue), South Korea (대학알리미), research
 # profiles of universities worldwide (OpenAlex) and a world university
 # directory. The result goes to the branch «whatshouldistudy-data», always a
 # single commit, which the site reads via raw.githubusercontent.com.
@@ -23,7 +23,7 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: 'Run only these sources (comma list: us,uk,fr,ch,de,at,research,directory); empty = all'
+        description: 'Run only these sources (comma list: us,uk,fr,ch,de,at,kr,research,directory); empty = all'
         required: false
         default: ''
   push:
@@ -49,7 +49,7 @@ env:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
@@ -118,6 +118,16 @@ jobs:
         if: ${{ !inputs.only || contains(inputs.only, 'at') }}
         continue-on-error: true
         run: node scrapers/at-hochschulen.ts
+
+      - name: South Korea (대학알리미, academyinfo.go.kr)
+        if: ${{ !inputs.only || contains(inputs.only, 'kr') }}
+        continue-on-error: true
+        # The Korean server is slow; the two files can take a quarter of an hour.
+        timeout-minutes: 45
+        env:
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+          OPENALEX_EMAIL: ${{ secrets.OPENALEX_EMAIL }}
+        run: node scrapers/kr-academyinfo.ts
 
       - name: Research profiles worldwide (OpenAlex)
         if: ${{ !inputs.only || contains(inputs.only, 'research') }}
