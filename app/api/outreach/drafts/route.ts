@@ -18,13 +18,13 @@ interface DraftInput {
   lang: 'de' | 'fr' | 'it'
   pageTitle: string
   listedTools: string[]
+  opening: string
   subject: string
   body: string
 }
 
 interface HumanizedDraft {
-  subject: string
-  body: string
+  opening: string
 }
 
 async function authorize(req: Request): Promise<boolean> {
@@ -60,23 +60,23 @@ function rawMessage(draft: DraftInput, from: string, senderName: string): string
 }
 
 async function humanize(draft: DraftInput, apiKey: string | undefined): Promise<HumanizedDraft> {
-  if (!apiKey) return { subject: draft.subject, body: draft.body }
-  const system = `You write individual cold outreach emails as Moritz Lauper, a solo founder. Use the supplied original draft as the factual source of product claims. Personalize only with the supplied organization name, page title, URL, and listed tools. Never claim you read content beyond the title or invent a contact, relationship, endorsement, or fact. Keep the email concise, direct, respectful, and clearly a one-to-one note. Ask one simple question. Do not add fake familiarity or pressure. Use the supplied language. For German, use Swiss Standard German, never ß, no em dash, and a natural restrained tone. Return only the requested JSON.`
+  if (!apiKey) return { opening: draft.opening }
+  const system = `You write only the opening paragraph of a one-to-one cold outreach email as Moritz Lauper. Personalize it using only the supplied organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Do not describe, rename, or reduce the product; the reviewed product description stays unchanged. Avoid claiming the page lists tests unless listedTools contains them. Keep the opening to one or two sentences. Use the supplied language. For German, use Swiss Standard German, never ß or an em dash. Plain text only, with no HTML or Markdown. Return only the requested JSON.`
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
     body: JSON.stringify({
       model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5',
-      max_tokens: 600,
+      max_tokens: 180,
       system,
-      messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name, pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, originalSubject: draft.subject, originalBody: draft.body }) }],
+      messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name, pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, currentOpening: draft.opening }) }],
       output_config: {
         format: {
           type: 'json_schema',
           schema: {
             type: 'object',
-            properties: { subject: { type: 'string' }, body: { type: 'string' } },
-            required: ['subject', 'body'],
+            properties: { opening: { type: 'string' } },
+            required: ['opening'],
             additionalProperties: false,
           },
         },
@@ -89,8 +89,8 @@ async function humanize(draft: DraftInput, apiKey: string | undefined): Promise<
   const text = result.content?.find((block) => block.type === 'text')?.text
   if (!text) throw new Error('Anthropic returned no text')
   const parsed = JSON.parse(text) as HumanizedDraft
-  if (typeof parsed.subject !== 'string' || typeof parsed.body !== 'string' || !parsed.subject.trim() || !parsed.body.trim() || parsed.subject.length > 180 || parsed.body.length > 8_000) throw new Error('Anthropic returned an invalid draft')
-  return { subject: parsed.subject.trim(), body: parsed.body.trim() }
+  if (typeof parsed.opening !== 'string' || !parsed.opening.trim() || parsed.opening.length > 600 || /[\r\n]/.test(parsed.opening) || /<\/?[a-z][^>]*>/i.test(parsed.opening)) throw new Error('Anthropic returned an invalid opening')
+  return { opening: parsed.opening.trim() }
 }
 
 export async function POST(req: Request) {
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
     const input = await req.json() as { drafts?: unknown }
     if (!Array.isArray(input.drafts) || input.drafts.length > 10) throw new Error('Invalid batch')
     drafts = input.drafts as DraftInput[]
-    if (drafts.some((draft) => !draft || !/^[a-z0-9-]{1,100}$/.test(draft.id) || typeof draft.name !== 'string' || typeof draft.to !== 'string' || typeof draft.url !== 'string' || typeof draft.subject !== 'string' || typeof draft.body !== 'string' || draft.to.length > 254 || draft.subject.length > 200 || draft.body.length > 10_000)) throw new Error('Invalid draft')
+    if (drafts.some((draft) => !draft || !/^[a-z0-9-]{1,100}$/.test(draft.id) || typeof draft.name !== 'string' || typeof draft.to !== 'string' || typeof draft.url !== 'string' || !['de', 'fr', 'it'].includes(draft.lang) || typeof draft.pageTitle !== 'string' || draft.pageTitle.length > 500 || !Array.isArray(draft.listedTools) || draft.listedTools.length > 20 || draft.listedTools.some((tool) => typeof tool !== 'string' || tool.length > 100) || typeof draft.opening !== 'string' || draft.opening.length > 600 || typeof draft.subject !== 'string' || typeof draft.body !== 'string' || draft.to.length > 254 || draft.subject.length > 200 || draft.body.length > 10_000)) throw new Error('Invalid draft')
   } catch {
     return NextResponse.json({ error: 'Invalid draft batch' }, { status: 400 })
   }
@@ -144,7 +144,7 @@ export async function POST(req: Request) {
         if (!deleted) throw new Error(`Could not replace draft ${draft.id}`)
       }
 
-      let message: HumanizedDraft = { subject: draft.subject, body: draft.body }
+      let message: HumanizedDraft = { opening: draft.opening }
       if (anthropicKey) {
         try {
           message = await humanize(draft, anthropicKey)
@@ -152,7 +152,7 @@ export async function POST(req: Request) {
           console.warn('Outreach humanization failed; using reviewed template', { code: (error as Error).name })
         }
       }
-      const finalized = { ...draft, ...message }
+      const finalized = { ...draft, body: draft.body.replace(draft.opening, message.opening) }
       const appended = await client.append(draftsMailbox.path, rawMessage(finalized, user, process.env.SMTP_SENDER_NAME || 'whatshouldistudy'), ['\\Draft'])
       if (!appended) throw new Error(`Could not create draft ${draft.id}`)
       created++
