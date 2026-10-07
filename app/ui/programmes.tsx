@@ -216,7 +216,7 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
           </button>
         )}
         {error && <p className="mt-3 rounded-xl bg-surface p-2 text-sm font-semibold text-bad">{error}</p>}
-        <p className="mt-3 text-center text-xs opacity-80">{t.programmes.boxNote}</p>
+        {!org && config?.payments === 'stripe' && <p className="mt-3 text-center text-sm font-semibold">{t.programmes.boxNote}</p>}
         {config?.payments !== 'off' && (
           <p className="mt-2 text-center text-xs opacity-80">
             {t.programmes.minors}{' '}
