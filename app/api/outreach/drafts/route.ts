@@ -91,33 +91,9 @@ function rawMessage(draft: DraftInput, from: string, senderName: string): string
   return `${headers.join('\r\n')}\r\n\r\n${parts}`
 }
 
-async function humanize(draft: DraftInput, apiKey: string | undefined): Promise<HumanizedDraft> {
+async function humanize(draft: DraftInput, apiKey: string | undefined, humanizerSkill: string): Promise<HumanizedDraft> {
   if (!apiKey) return { opening: draft.opening }
-  const humanizerSkill = `# Claude Humanizer skill
-
-Schreibt deutsche Texte so, dass sie nach einem Menschen klingen. Zwei Dimensionen: KI-Muster vermeiden und Schweizer statt bundesdeutsches Hochdeutsch treffen.
-
-## Arbeitsweise
-Beim Neuschreiben: nach den Prinzipien unten schreiben, dann den Prüfdurchgang machen.
-
-## Prinzip: Konkretheit schlägt alles
-Das stärkste Einzelmerkmal von KI-Text ist die Abwesenheit von Substanz. Formulierungen werden zu Aussagen geglättet, die auf beliebige Themen passen würden. Der wirksamste Eingriff ist deshalb nicht, Wörter zu tauschen, sondern Behauptungen mit Namen, Zahlen, Daten und Fällen zu füllen. Wo das Material dafür fehlt: nachfragen statt Platzhalter formulieren. Ein kurzer, konkreter Text schlägt einen langen, glatten.
-
-## Was zu vermeiden ist
-Negative Parallelismen, gehäufte Dreiergruppen, Scheinspektren, angehängte Deutungen und Bedeutungsaufblähung vermeiden. Floskeln ersatzlos streichen. Verbrannte Wörter wie «essenziell», «vielfältig», «nahtlos», «massgeschneidert», «ganzheitlich», «wegweisend», «Mehrwert», «Synergie», «revolutionär», «innovativ» und «entscheidend» nicht verwenden. Konkrete Eigenschaften nennen statt Synonyme für Werbesprache zu suchen.
-
-## Schweiz-Check
-Kein ß. Schweizer Hochdeutsch, kein Dialekt. CHF statt EUR. Dezimalpunkt und Hochkomma für Tausender. Nach Doppelpunkt gross weiterschreiben. Keine Gedankenstriche als Satzverbinder oder Einschub.
-
-## Hausregeln
-Sachlich statt performativ menschlich. Ganze, deklarative Sätze. Keine gestapelten Kurzsätze, keine Satzfragmente, keine kurzen Kommalisten als Effekt und keine rhetorischen Aufhänger. Im Zweifel länger und trockener.
-
-## Autor
-Die Texte stammen von Moritz Lauper, Solo-Gründer in Zürich. Ich-Form und Signatur entsprechend. Nie «Ihr Team von», wenn faktisch eine Person schreibt.
-
-## Prüfdurchgang
-Kein Floskelauftakt. Keine gehäuften Adjektivgruppen. Mindestens eine überprüfbare Zahl, ein Name oder ein konkretes Detail. Kein ß. Schweizer Zahlen- und Währungsschreibweise. Keine Gedankenstriche. Wenn ein Text blass wirkt, fehlt Substanz, nicht Rhetorik.`
-  const system = `${humanizerSkill}
+  const system = `${humanizerSkill.trim()}
 
 Apply the skill to this one-to-one outreach opening. Only write the opening paragraph as Moritz Lauper. Personalize it using only the supplied organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Do not describe, rename, or reduce the product; the reviewed product description stays unchanged. Avoid claiming the page lists tests unless listedTools contains them. Keep the opening to one or two natural, complete sentences. Use the supplied language. Apply Swiss German rules only when the language is German; for French and Italian, use natural, restrained language without inventing details. Plain text only, with no HTML, Markdown, or URLs. Return only the requested JSON.`
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -158,9 +134,12 @@ export async function POST(req: Request) {
   if (length > 150_000) return NextResponse.json({ error: 'Payload too large' }, { status: 413 })
 
   let drafts: DraftInput[]
+  let humanizerSkill: string
   try {
-    const input = await req.json() as { drafts?: unknown }
+    const input = await req.json() as { drafts?: unknown; humanizerSkill?: unknown }
     if (!Array.isArray(input.drafts) || input.drafts.length > 10) throw new Error('Invalid batch')
+    if (typeof input.humanizerSkill !== 'string' || input.humanizerSkill.length < 1_000 || input.humanizerSkill.length > 50_000) throw new Error('Invalid humanizer skill')
+    humanizerSkill = input.humanizerSkill
     drafts = input.drafts as DraftInput[]
     if (drafts.some((draft) => !draft || !/^[a-z0-9-]{1,100}$/.test(draft.id) || typeof draft.name !== 'string' || typeof draft.to !== 'string' || typeof draft.url !== 'string' || !['de', 'fr', 'it'].includes(draft.lang) || typeof draft.pageTitle !== 'string' || draft.pageTitle.length > 500 || !Array.isArray(draft.listedTools) || draft.listedTools.length > 20 || draft.listedTools.some((tool) => typeof tool !== 'string' || tool.length > 100) || typeof draft.opening !== 'string' || draft.opening.length > 600 || typeof draft.subject !== 'string' || typeof draft.body !== 'string' || draft.to.length > 254 || draft.subject.length > 200 || draft.body.length > 10_000)) throw new Error('Invalid draft')
   } catch {
@@ -184,6 +163,7 @@ export async function POST(req: Request) {
 
     let created = 0
     let skipped = 0
+    let humanized = 0
     for (const draft of drafts) {
       if (sentMailbox) {
         await client.mailboxOpen(sentMailbox.path, { readOnly: true })
@@ -205,7 +185,8 @@ export async function POST(req: Request) {
       let message: HumanizedDraft = { opening: draft.opening }
       if (anthropicKey) {
         try {
-          message = await humanize(draft, anthropicKey)
+          message = await humanize(draft, anthropicKey, humanizerSkill)
+          humanized++
         } catch (error) {
           console.warn('Outreach humanization failed; using reviewed template', { code: (error as Error).name })
         }
@@ -215,7 +196,7 @@ export async function POST(req: Request) {
       if (!appended) throw new Error(`Could not create draft ${draft.id}`)
       created++
     }
-    return NextResponse.json({ created, skipped })
+    return NextResponse.json({ created, skipped, humanized })
   } catch (error) {
     const mailError = error as Error & { code?: string; responseCode?: number }
     console.error('Outreach IMAP draft creation failed', { code: mailError.code ?? 'UNKNOWN', responseCode: mailError.responseCode })
