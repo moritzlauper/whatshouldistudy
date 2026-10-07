@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { ImapFlow } from 'imapflow'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import { NextResponse } from 'next/server'
@@ -42,7 +43,26 @@ function cleanHeader(value: string): string {
   return value.replace(/[\r\n]/g, ' ').trim()
 }
 
+function base64Lines(value: string): string {
+  return Buffer.from(value, 'utf8').toString('base64').match(/.{1,76}/g)?.join('\r\n') ?? ''
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
+function htmlBody(body: string): string {
+  const paragraphs = body.trim().split(/\n{2,}/).map((paragraph) => {
+    const content = escapeHtml(paragraph)
+      .replace(/https:\/\/whatshouldistudy\.ch(?:\/organisationen)?/g, (url) => `<a href="${url}">${url}</a>`)
+      .replace(/\n/g, '<br>\r\n')
+    return `<p>${content}</p>`
+  })
+  return `<html><body>${paragraphs.join('\r\n')}</body></html>`
+}
+
 function rawMessage(draft: DraftInput, from: string, senderName: string): string {
+  const boundary = `wsis-${randomUUID()}`
   const subject = `=?UTF-8?B?${Buffer.from(cleanHeader(draft.subject)).toString('base64')}?=`
   const fromHeader = senderName ? `From: =?UTF-8?B?${Buffer.from(senderName).toString('base64')}?= <${from}>` : `From: ${from}`
   const headers = [
@@ -51,17 +71,55 @@ function rawMessage(draft: DraftInput, from: string, senderName: string): string
     `Subject: ${subject}`,
     `Date: ${new Date().toUTCString()}`,
     'MIME-Version: 1.0',
-    'Content-Type: text/plain; charset=UTF-8',
-    'Content-Transfer-Encoding: base64',
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
     `X-Outreach-ID: ${draft.id}`,
   ]
-  const body = Buffer.from(draft.body.trim(), 'utf8').toString('base64').replace(/.{1,76}/g, '$&\r\n')
-  return `${headers.join('\r\n')}\r\n\r\n${body}`
+  const parts = [
+    `--${boundary}`,
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    base64Lines(draft.body.trim()),
+    `--${boundary}`,
+    'Content-Type: text/html; charset=UTF-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    base64Lines(htmlBody(draft.body)),
+    `--${boundary}--`,
+    '',
+  ].join('\r\n')
+  return `${headers.join('\r\n')}\r\n\r\n${parts}`
 }
 
 async function humanize(draft: DraftInput, apiKey: string | undefined): Promise<HumanizedDraft> {
   if (!apiKey) return { opening: draft.opening }
-  const system = `You write only the opening paragraph of a one-to-one cold outreach email as Moritz Lauper. Personalize it using only the supplied organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Do not describe, rename, or reduce the product; the reviewed product description stays unchanged. Avoid claiming the page lists tests unless listedTools contains them. Keep the opening to one or two sentences. Use the supplied language. For German, use Swiss Standard German, never ß or an em dash. Plain text only, with no HTML or Markdown. Return only the requested JSON.`
+  const humanizerSkill = `# Claude Humanizer skill
+
+Schreibt deutsche Texte so, dass sie nach einem Menschen klingen. Zwei Dimensionen: KI-Muster vermeiden und Schweizer statt bundesdeutsches Hochdeutsch treffen.
+
+## Arbeitsweise
+Beim Neuschreiben: nach den Prinzipien unten schreiben, dann den Prüfdurchgang machen.
+
+## Prinzip: Konkretheit schlägt alles
+Das stärkste Einzelmerkmal von KI-Text ist die Abwesenheit von Substanz. Formulierungen werden zu Aussagen geglättet, die auf beliebige Themen passen würden. Der wirksamste Eingriff ist deshalb nicht, Wörter zu tauschen, sondern Behauptungen mit Namen, Zahlen, Daten und Fällen zu füllen. Wo das Material dafür fehlt: nachfragen statt Platzhalter formulieren. Ein kurzer, konkreter Text schlägt einen langen, glatten.
+
+## Was zu vermeiden ist
+Negative Parallelismen, gehäufte Dreiergruppen, Scheinspektren, angehängte Deutungen und Bedeutungsaufblähung vermeiden. Floskeln ersatzlos streichen. Verbrannte Wörter wie «essenziell», «vielfältig», «nahtlos», «massgeschneidert», «ganzheitlich», «wegweisend», «Mehrwert», «Synergie», «revolutionär», «innovativ» und «entscheidend» nicht verwenden. Konkrete Eigenschaften nennen statt Synonyme für Werbesprache zu suchen.
+
+## Schweiz-Check
+Kein ß. Schweizer Hochdeutsch, kein Dialekt. CHF statt EUR. Dezimalpunkt und Hochkomma für Tausender. Nach Doppelpunkt gross weiterschreiben. Keine Gedankenstriche als Satzverbinder oder Einschub.
+
+## Hausregeln
+Sachlich statt performativ menschlich. Ganze, deklarative Sätze. Keine gestapelten Kurzsätze, keine Satzfragmente, keine kurzen Kommalisten als Effekt und keine rhetorischen Aufhänger. Im Zweifel länger und trockener.
+
+## Autor
+Die Texte stammen von Moritz Lauper, Solo-Gründer in Zürich. Ich-Form und Signatur entsprechend. Nie «Ihr Team von», wenn faktisch eine Person schreibt.
+
+## Prüfdurchgang
+Kein Floskelauftakt. Keine gehäuften Adjektivgruppen. Mindestens eine überprüfbare Zahl, ein Name oder ein konkretes Detail. Kein ß. Schweizer Zahlen- und Währungsschreibweise. Keine Gedankenstriche. Wenn ein Text blass wirkt, fehlt Substanz, nicht Rhetorik.`
+  const system = `${humanizerSkill}
+
+Apply the skill to this one-to-one outreach opening. Only write the opening paragraph as Moritz Lauper. Personalize it using only the supplied organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Do not describe, rename, or reduce the product; the reviewed product description stays unchanged. Avoid claiming the page lists tests unless listedTools contains them. Keep the opening to one or two natural, complete sentences. Use the supplied language. Apply Swiss German rules only when the language is German; for French and Italian, use natural, restrained language without inventing details. Plain text only, with no HTML, Markdown, or URLs. Return only the requested JSON.`
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
@@ -89,7 +147,7 @@ async function humanize(draft: DraftInput, apiKey: string | undefined): Promise<
   const text = result.content?.find((block) => block.type === 'text')?.text
   if (!text) throw new Error('Anthropic returned no text')
   const parsed = JSON.parse(text) as HumanizedDraft
-  if (typeof parsed.opening !== 'string' || !parsed.opening.trim() || parsed.opening.length > 600 || /[\r\n]/.test(parsed.opening) || /<\/?[a-z][^>]*>/i.test(parsed.opening)) throw new Error('Anthropic returned an invalid opening')
+  if (typeof parsed.opening !== 'string' || !parsed.opening.trim() || parsed.opening.length > 600 || /[\r\n]/.test(parsed.opening) || /<\/?[a-z][^>]*>/i.test(parsed.opening) || /https?:\/\//i.test(parsed.opening)) throw new Error('Anthropic returned an invalid opening')
   return { opening: parsed.opening.trim() }
 }
 
