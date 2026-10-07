@@ -234,16 +234,26 @@ under *Measurement* in `.env.example`; without them nothing loads.
 
 ### Free aggregate usage statistics
 
-No Vercel Custom Events subscription is needed. Create a dedicated **Free**
-Upstash Redis database (prefer an EU region), leave paid upgrades disabled,
-and configure these variables in your deployment:
+No Vercel Custom Events subscription is needed. The counters live in a
+dedicated **Free** Upstash Redis database from the Vercel Marketplace, connected
+to Production only so preview deployments don't count:
+
+```sh
+vercel integration add upstash/upstash-kv --plan free -m primaryRegion=fra1 \
+  -e production --prefix USAGE_ --no-env-pull
+```
+
+The integration sets `USAGE_KV_REST_API_URL` and `USAGE_KV_REST_API_TOKEN`
+(plus a few unused ones). `--no-env-pull` keeps it from overwriting
+`.env.local`. Then add the switch and the admin secret:
 
 ```dotenv
 NEXT_PUBLIC_USAGE_STATS=1
-USAGE_REDIS_REST_URL=https://YOUR-DATABASE.upstash.io
-USAGE_REDIS_REST_TOKEN=YOUR-WRITE-TOKEN
 USAGE_ADMIN_TOKEN=YOUR-RANDOM-ADMIN-SECRET
 ```
+
+A database created by hand on upstash.com works too, with
+`USAGE_REDIS_REST_URL` and `USAGE_REDIS_REST_TOKEN` instead.
 
 Generate the admin secret with `openssl rand -hex 32`. Only the first setting
 is public; never prefix the other variables with `NEXT_PUBLIC_`. Redeploy after

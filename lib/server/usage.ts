@@ -1,14 +1,20 @@
 import 'server-only'
 import { USAGE_STATS, validMonth } from '../usage-stats.ts'
 
-/** Dedicated free Redis instance. Only monthly counters, never individual events. */
-export const usageConfigured = () => USAGE_STATS && !!process.env.USAGE_REDIS_REST_URL && !!process.env.USAGE_REDIS_REST_TOKEN
+/**
+ * Dedicated free Redis instance. Only monthly counters, never individual events.
+ * The Vercel Marketplace integration (prefix USAGE_) sets the KV_REST_API names;
+ * a database set up by hand can use the REDIS_REST ones.
+ */
+const restUrl = () => process.env.USAGE_KV_REST_API_URL || process.env.USAGE_REDIS_REST_URL
+const restToken = () => process.env.USAGE_KV_REST_API_TOKEN || process.env.USAGE_REDIS_REST_TOKEN
+export const usageConfigured = () => USAGE_STATS && !!restUrl() && !!restToken()
 const key = (month: string) => `wsis:usage:v1:${month}`
 
 export async function redis(command: Array<string | number>): Promise<unknown> {
-  const res = await fetch(process.env.USAGE_REDIS_REST_URL!, {
+  const res = await fetch(restUrl()!, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.USAGE_REDIS_REST_TOKEN}`, 'Content-Type': 'application/json' },
+    headers: { Authorization: `Bearer ${restToken()}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(command),
     cache: 'no-store',
     signal: AbortSignal.timeout(2500),
