@@ -55,8 +55,8 @@ function rawMessage(draft: DraftInput, from: string, senderName: string): string
     'Content-Transfer-Encoding: base64',
     `X-Outreach-ID: ${draft.id}`,
   ]
-  const body = [draft.body.trim(), '', `Quelle: ${draft.url}`].join('\n')
-  return `${headers.join('\r\n')}\r\n\r\n${Buffer.from(body, 'utf8').toString('base64')}`
+  const body = Buffer.from(draft.body.trim(), 'utf8').toString('base64').replace(/.{1,76}/g, '$&\r\n')
+  return `${headers.join('\r\n')}\r\n\r\n${body}`
 }
 
 async function humanize(draft: DraftInput, apiKey: string | undefined): Promise<HumanizedDraft> {
