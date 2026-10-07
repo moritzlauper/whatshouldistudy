@@ -23,7 +23,7 @@ export function OrgPlans() {
     setBusy(tier)
     setError('')
     try {
-      const q = `tier=${tier}&interval=${period}&site=${site}&back=${encodeURIComponent(base)}&o=${encodeURIComponent(window.location.origin)}`
+      const q = `tier=${tier}&interval=${period}&site=${site}&back=${encodeURIComponent(base)}&locale=${encodeURIComponent(locale)}&o=${encodeURIComponent(window.location.origin)}`
       const res = await fetch(withBase(`/api/org/checkout?${q}`), { method: 'POST' })
       const j = (await res.json()) as { url?: string; error?: string }
       if (!j.url) throw new Error(j.error ?? o.failed)

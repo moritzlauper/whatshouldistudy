@@ -28,7 +28,7 @@ interface OrgInfo {
 
 /** Where Stripe sends an organisation after subscribing, and its dashboard afterwards (?admin=…). */
 export function OrgWelcomeView() {
-  const { r, locale, intl, conf } = useSite()
+  const { r, site, base, locale, intl, conf } = useSite()
   const o = orgsText(locale)
   const w = o.welcome
   const router = useRouter()
@@ -63,7 +63,8 @@ export function OrgWelcomeView() {
     if (!info) return
     setPortalBusy(true)
     try {
-      const res = await fetch(withBase(`/api/org/portal?o=${encodeURIComponent(window.location.origin)}`), { method: 'POST', body: JSON.stringify({ admin: info.admin }) })
+      const q = new URLSearchParams({ site, back: base, locale, o: window.location.origin })
+      const res = await fetch(withBase(`/api/org/portal?${q}`), { method: 'POST', body: JSON.stringify({ admin: info.admin }) })
       const j = (await res.json()) as { url?: string; error?: string }
       if (!j.url) throw new Error(j.error ?? w.failed)
       window.location.assign(j.url)

@@ -1,6 +1,6 @@
 import 'server-only'
 import { LOCAL_SITES, SITES, isLocal, routes } from '@/lib/site/config.ts'
-import type { Routes, SiteId } from '@/lib/site/config.ts'
+import type { Locale, Routes, SiteId } from '@/lib/site/config.ts'
 import { BASE_PATH, SITE_URL } from '@/lib/site.ts'
 
 const origin = (u: string) => {
@@ -30,8 +30,10 @@ export function returnTo(req: Request): { site: SiteId; r: Routes; abs: (path: s
   const asked = url.searchParams.get('site') as SiteId | null
   const site: SiteId = asked && asked in SITES ? asked : 'global'
   const conf = SITES[site]
+  const requestedLocale = url.searchParams.get('locale')
+  const locale: Locale = site === 'ch' && (requestedLocale === 'fr-CH' || requestedLocale === 'it-CH') ? requestedLocale : conf.locale
   // The site's pages live at its mount on the global domain, or at the root of its own domain.
   const back = isLocal(site) && url.searchParams.get('back') === `/${conf.mount}` ? `/${conf.mount}` : ''
   const base = `${returnOrigin(req, url.searchParams.get('o'))}${BASE_PATH}`
-  return { site, r: routes(site, back), abs: (path) => `${base}${path}` }
+  return { site, r: routes(site, back, locale), abs: (path) => `${base}${path}` }
 }
