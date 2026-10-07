@@ -12,7 +12,7 @@
 import { join } from 'node:path'
 import { programmeId } from '../lib/programmes.ts'
 import type { Level, Programme } from '../lib/programmes.ts'
-import { OUT, cleanTitle, csvObjects, fetchRetry, fieldsForTitle, getJson, isMain, log, writeJson } from './lib/common.ts'
+import { OUT, cleanTitle, fetchRetry, fieldsForTitle, getJson, isMain, log, parseCsv, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
 
 const PACKAGE = 'https://data.gov.au/data/api/3/action/package_show?id=cricos'
@@ -102,9 +102,15 @@ export function parseCricos(t: AuTables, fetchedAt: string): { programmes: Progr
   return { programmes, unclassified }
 }
 
+/** Rows keyed by the column names as CRICOS writes them («Course Level»). */
+export function cricosRows(text: string): Array<Record<string, string>> {
+  const rows = parseCsv(text.replace(/^\uFEFF/, ''))
+  const header = (rows[0] ?? []).map((h) => h.trim())
+  return rows.slice(1).map((r) => Object.fromEntries(header.map((h, i) => [h, (r[i] ?? '').trim()])))
+}
+
 async function csv(url: string): Promise<Array<Record<string, string>>> {
-  const text = await (await fetchRetry(url)).text()
-  return csvObjects(text.replace(/^﻿/, ''))
+  return cricosRows(await (await fetchRetry(url)).text())
 }
 
 async function main() {

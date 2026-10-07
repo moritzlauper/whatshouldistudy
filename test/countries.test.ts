@@ -80,3 +80,10 @@ test('Australia: CRICOS degrees with field, city and yearly tuition', async () =
   assert.equal(auLevel('Masters Degree (Extended)'), 'professional')
   assert.equal(auLevel('Graduate Diploma'), null)
 })
+
+test('Australia: CRICOS CSV keeps its column names', async () => {
+  const { cricosRows } = await import('../scrapers/au-cricos.ts')
+  const rows = cricosRows('﻿"CRICOS Provider Code","Course Name","Course Level"\r\n"00099F","Bachelor of Psychology","Bachelor Degree"\r\n')
+  assert.equal(rows[0]['Course Level'], 'Bachelor Degree')
+  assert.equal(rows[0]['CRICOS Provider Code'], '00099F')
+})
