@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { existingOutreach, outreachCallToAction, outreachHtmlBody, outreachWebsiteUrls, isSwissGermanOutreach } from '../lib/outreach.ts'
+import { existingOutreach, formatOutreachGreeting, outreachCallToAction, outreachHtmlBody, outreachWebsiteUrls, isSwissGermanOutreach } from '../lib/outreach.ts'
 
 test('CTA is the actual question, including legacy templates, never the farewell', () => {
   const body = 'Guten Tag\n\nText\n\nKönnten Sie den Link weiterleiten?\n\nFreundliche Grüsse\n\nMoritz\nWebsite'
@@ -27,6 +27,19 @@ test('sent messages and edited drafts are skipped without writing or deleting', 
 test('failed mailbox lookup cannot be mistaken for a new recipient', async () => {
   const client = { async mailboxOpen() {}, async search() { return false as const } }
   await assert.rejects(() => existingOutreach(client, ['Sent'], { id: 'test', to: 'office@example.ch' }))
+})
+
+test('German greetings are normalized for Switzerland, Germany and Austria', () => {
+  assert.equal(
+    formatOutreachGreeting('Guten Tag,\n\nich schreibe Ihnen.\n\nhttps://whatshouldistudy.ch', 'de'),
+    'Guten Tag\n\nIch schreibe Ihnen.\n\nhttps://whatshouldistudy.ch',
+  )
+  for (const domain of ['whatshouldistudy.de', 'whatshouldistudy.at']) {
+    assert.equal(
+      formatOutreachGreeting(`Guten Tag\n\nIch schreibe Ihnen.\n\nhttps://${domain}`, 'de'),
+      `Guten Tag,\n\nich schreibe Ihnen.\n\nhttps://${domain}`,
+    )
+  }
 })
 
 

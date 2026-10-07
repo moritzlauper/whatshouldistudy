@@ -1,7 +1,11 @@
-/** Swiss-style German greetings have no comma; the next paragraph starts a sentence. */
+/** Canonical country greeting: Swiss sentence start, German/Austrian comma continuation. */
 export function formatOutreachGreeting(body: string, lang: string): string {
   if (lang !== 'de') return body
-  return body.replace(/^(\s*Guten Tag[^\r\n,]*\r?\n\s*)(\p{Ll})/u, (_match, greeting: string, firstLetter: string) => greeting + firstLetter.toLocaleUpperCase('de-CH'))
+  const swiss = isSwissGermanOutreach(body, lang)
+  return body.replace(/^\s*Guten Tag,?\s+(\p{L})/u, (_match, firstLetter: string) => {
+    const continuation = swiss ? firstLetter.toLocaleUpperCase('de-CH') : firstLetter.toLocaleLowerCase('de-DE')
+    return `Guten Tag${swiss ? '' : ','}\n\n${continuation}`
+  })
 }
 
 /** Explicit in new clients; legacy drafts put the question before farewell/signature. */
