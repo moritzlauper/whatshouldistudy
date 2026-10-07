@@ -112,7 +112,13 @@ export async function POST(req: Request) {
       text: `${COPY[lang].body}\n\n${url.toString()}`,
     })
     return NextResponse.json({ ok: true })
-  } catch {
+  } catch (error) {
+    const mailError = error as Error & { code?: string; command?: string; responseCode?: number }
+    console.error('Share email SMTP delivery failed', {
+      code: mailError.code ?? 'UNKNOWN',
+      command: mailError.command,
+      responseCode: mailError.responseCode,
+    })
     return NextResponse.json({ error: 'The email could not be sent. Try again later.' }, { status: 502 })
   } finally {
     transporter.close()
