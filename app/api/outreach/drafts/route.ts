@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import { ImapFlow } from 'imapflow'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import { NextResponse } from 'next/server'
@@ -25,7 +24,7 @@ interface DraftInput {
 }
 
 interface HumanizedDraft {
-  opening: string
+  body: string
 }
 
 async function authorize(req: Request): Promise<boolean> {
@@ -47,22 +46,7 @@ function base64Lines(value: string): string {
   return Buffer.from(value, 'utf8').toString('base64').match(/.{1,76}/g)?.join('\r\n') ?? ''
 }
 
-function escapeHtml(value: string): string {
-  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
-}
-
-function htmlBody(body: string): string {
-  const paragraphs = body.trim().split(/\n{2,}/).map((paragraph) => {
-    const content = escapeHtml(paragraph)
-      .replace(/https:\/\/whatshouldistudy\.ch(?:\/organisationen)?/g, (url) => `<a href="${url}">${url}</a>`)
-      .replace(/\n/g, '<br>\r\n')
-    return `<p style="margin:0 0 12px 0;line-height:1.4">${content}</p>`
-  })
-  return `<html><body style="margin:0;line-height:1.4">${paragraphs.join('\r\n')}</body></html>`
-}
-
 function rawMessage(draft: DraftInput, from: string, senderName: string): string {
-  const boundary = `wsis-${randomUUID()}`
   const subject = `=?UTF-8?B?${Buffer.from(cleanHeader(draft.subject)).toString('base64')}?=`
   const fromHeader = senderName ? `From: =?UTF-8?B?${Buffer.from(senderName).toString('base64')}?= <${from}>` : `From: ${from}`
   const headers = [
@@ -71,46 +55,33 @@ function rawMessage(draft: DraftInput, from: string, senderName: string): string
     `Subject: ${subject}`,
     `Date: ${new Date().toUTCString()}`,
     'MIME-Version: 1.0',
-    `Content-Type: multipart/alternative; boundary="${boundary}"`,
-    `X-Outreach-ID: ${draft.id}`,
-  ]
-  const parts = [
-    `--${boundary}`,
     'Content-Type: text/plain; charset=UTF-8',
     'Content-Transfer-Encoding: base64',
-    '',
-    base64Lines(draft.body.trim()),
-    `--${boundary}`,
-    'Content-Type: text/html; charset=UTF-8',
-    'Content-Transfer-Encoding: base64',
-    '',
-    base64Lines(htmlBody(draft.body)),
-    `--${boundary}--`,
-    '',
-  ].join('\r\n')
-  return `${headers.join('\r\n')}\r\n\r\n${parts}`
+    `X-Outreach-ID: ${draft.id}`,
+  ]
+  return `${headers.join('\r\n')}\r\n\r\n${base64Lines(draft.body.trim())}`
 }
 
 async function humanize(draft: DraftInput, apiKey: string | undefined, humanizerSkill: string): Promise<HumanizedDraft> {
-  if (!apiKey) return { opening: draft.opening }
+  if (!apiKey) return { body: draft.body }
   const system = `${humanizerSkill.trim()}
 
-Apply the skill to this one-to-one outreach opening. Only write the opening paragraph as Moritz Lauper. Personalize it using only the supplied organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Do not describe, rename, or reduce the product; the reviewed product description stays unchanged. Avoid claiming the page lists tests unless listedTools contains them. Keep the opening to one or two natural, complete sentences. Use the supplied language. Apply Swiss German rules only when the language is German; for French and Italian, use natural, restrained language without inventing details. Plain text only, with no HTML, Markdown, or URLs. Return only the requested JSON.`
+Rewrite the complete supplied email as a concise one-to-one message from Moritz Lauper. Apply the Humanizer skill to the whole text, not just the opening. Personalize it using only the organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Preserve Moritz's supplied biography, all product facts, the CHF 17 individual price, the 14-day organisation trial, the privacy statements, both exact website URLs, the greeting, and the sign-off. Do not assume the recipient always works with pupils. Keep the two URLs exactly as plain-text URLs on their own lines. Do not add, remove, or alter factual claims. Use the supplied language and return only the requested JSON. No HTML or Markdown.`
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
     body: JSON.stringify({
       model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5',
-      max_tokens: 180,
+      max_tokens: 900,
       system,
-      messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name, pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, currentOpening: draft.opening }) }],
+      messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name, pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, originalSubject: draft.subject, originalBody: draft.body }) }],
       output_config: {
         format: {
           type: 'json_schema',
           schema: {
             type: 'object',
-            properties: { opening: { type: 'string' } },
-            required: ['opening'],
+            properties: { body: { type: 'string' } },
+            required: ['body'],
             additionalProperties: false,
           },
         },
@@ -123,8 +94,13 @@ Apply the skill to this one-to-one outreach opening. Only write the opening para
   const text = result.content?.find((block) => block.type === 'text')?.text
   if (!text) throw new Error('Anthropic returned no text')
   const parsed = JSON.parse(text) as HumanizedDraft
-  if (typeof parsed.opening !== 'string' || !parsed.opening.trim() || parsed.opening.length > 600 || /[\r\n]/.test(parsed.opening) || /<\/?[a-z][^>]*>/i.test(parsed.opening) || /https?:\/\//i.test(parsed.opening)) throw new Error('Anthropic returned an invalid opening')
-  return { opening: parsed.opening.trim() }
+  const urls = [...draft.body.matchAll(/https:\/\/whatshouldistudy\.ch(?:\/organisationen)?/g)].map(([url]) => url)
+  if (typeof parsed.body !== 'string' || !parsed.body.trim() || parsed.body.length > 10_000 || /<\/?[a-z][^>]*>/i.test(parsed.body)) throw new Error('Anthropic returned an invalid body')
+  if (urls.some((url) => !parsed.body.includes(url))) throw new Error('Anthropic removed a required website link')
+  if (/CHF 17|17 CHF/.test(draft.body) && !/CHF 17|17 CHF/.test(parsed.body)) throw new Error('Anthropic removed the individual price')
+  if (/14 Tage|14 jours|14 giorni/.test(draft.body) && !/14 Tage|14 jours|14 giorni/.test(parsed.body)) throw new Error('Anthropic removed the organisation trial')
+  if (draft.lang === 'de' && /ß/.test(parsed.body)) throw new Error('Anthropic returned non-Swiss German spelling')
+  return { body: parsed.body.trim() }
 }
 
 export async function POST(req: Request) {
@@ -182,7 +158,7 @@ export async function POST(req: Request) {
         if (!deleted) throw new Error(`Could not replace draft ${draft.id}`)
       }
 
-      let message: HumanizedDraft = { opening: draft.opening }
+      let message: HumanizedDraft = { body: draft.body }
       if (anthropicKey) {
         try {
           message = await humanize(draft, anthropicKey, humanizerSkill)
@@ -191,7 +167,7 @@ export async function POST(req: Request) {
           console.warn('Outreach humanization failed; using reviewed template', { code: (error as Error).name })
         }
       }
-      const finalized = { ...draft, body: draft.body.replace(draft.opening, message.opening) }
+      const finalized = { ...draft, body: message.body }
       const appended = await client.append(draftsMailbox.path, rawMessage(finalized, user, process.env.SMTP_SENDER_NAME || 'whatshouldistudy'), ['\\Draft'])
       if (!appended) throw new Error(`Could not create draft ${draft.id}`)
       created++
