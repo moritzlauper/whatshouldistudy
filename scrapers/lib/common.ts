@@ -154,6 +154,19 @@ export function fieldsForCah(code: string): string[] {
 }
 
 /**
+ * Fields for an ISCED-F 2013 code («0313», «031», «03»): the exact detailed
+ * field first, else every field in the same narrow field. Most national
+ * classifications (Finland, Norway's NUS, ASCED via concordance) map onto it.
+ */
+export function fieldsForIsced(code: string): string[] {
+  const c = code.replace(/\D/g, '')
+  if (c.length < 3) return []
+  const exact = FIELDS.filter((f) => f.isced.includes(c.slice(0, 4))).map((f) => f.id)
+  if (exact.length) return exact
+  return FIELDS.filter((f) => f.isced.some((x) => x.startsWith(c.slice(0, 3)))).map((f) => f.id)
+}
+
+/**
  * Fields for a programme title. Candidates from an official code (if any)
  * get a boost; the title decides between them and can add a second field
  * ("Computer Science with Artificial Intelligence").
