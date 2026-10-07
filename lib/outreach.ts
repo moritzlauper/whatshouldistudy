@@ -1,7 +1,13 @@
+import { regionalize } from './site/regional.ts'
+
 /** Canonical country greeting: Swiss sentence start, German/Austrian comma continuation. */
 export function formatOutreachGreeting(body: string, lang: string): string {
   if (lang !== 'de') return body
   const swiss = isSwissGermanOutreach(body, lang)
+  if (!swiss) {
+    const austrian = outreachWebsiteUrls(body).some((url) => new URL(url).hostname === 'whatshouldistudy.at')
+    body = regionalize(body, austrian ? 'de-AT' : 'de-DE')
+  }
   return body.replace(/^\s*Guten Tag,?\s+(\p{L})/u, (_match, firstLetter: string) => {
     const continuation = swiss ? firstLetter.toLocaleUpperCase('de-CH') : firstLetter.toLocaleLowerCase('de-DE')
     return `Guten Tag${swiss ? '' : ','}\n\n${continuation}`

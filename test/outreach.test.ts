@@ -36,8 +36,8 @@ test('German greetings are normalized for Switzerland, Germany and Austria', () 
   )
   for (const domain of ['whatshouldistudy.de', 'whatshouldistudy.at']) {
     assert.equal(
-      formatOutreachGreeting(`Guten Tag\n\nIch schreibe Ihnen.\n\nhttps://${domain}`, 'de'),
-      `Guten Tag,\n\nich schreibe Ihnen.\n\nhttps://${domain}`,
+      formatOutreachGreeting(`Guten Tag\n\nIch bin auf Ihre Website gestossen und heisse Moritz.\n\nhttps://${domain}`, 'de'),
+      `Guten Tag,\n\nich bin auf Ihre Website gestoßen und heiße Moritz.\n\nhttps://${domain}`,
     )
   }
 })

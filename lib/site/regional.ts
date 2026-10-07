@@ -10,9 +10,9 @@ import type { Locale } from './config.ts'
 /** Swiss ss spellings that are ß elsewhere. Only whole words, so «muss» and «Wasser» stay. */
 const ESZETT = [
   'gross', 'grosse', 'grossen', 'grosser', 'grosses', 'grösser', 'grösste', 'grössten', 'Grossbritannien', 'Grossen', 'Grosse',
-  'weiss', 'Weisst', 'weisst', 'heisst', 'heissen', 'draussen', 'Draussen', 'ausser', 'ausserdem', 'Fussabdruck', 'Fussball',
+  'weiss', 'Weisst', 'weisst', 'heisse', 'heisst', 'heissen', 'draussen', 'Draussen', 'ausser', 'ausserdem', 'Fussabdruck', 'Fussball',
   'regelmässig', 'regelmässige', 'mässig', 'Massstab', 'massgebend', 'Massgebend', 'Spass', 'liess', 'liessen', 'anreissen',
-  'schliesst', 'schliessen', 'fliessen', 'fliesst', 'Strasse', 'Strassen', 'gemäss', 'Gruss', 'beissen', 'reissen', 'blosse', 'bloss',
+  'schliesst', 'schliessen', 'fliessen', 'fliesst', 'gestossen', 'Strasse', 'Strassen', 'gemäss', 'Grüsse', 'grüsse', 'Gruss', 'beissen', 'reissen', 'blosse', 'bloss',
 ]
 const ESZETT_RE = new RegExp(`(?<![\\p{L}])(${ESZETT.join('|')})(?![\\p{L}])`, 'gu')
 
