@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { ORG_TIERS, TRIAL_DAYS, orgLookupKey, orgPrice, priceFor } from '@/lib/pricing.ts'
+import { ORG_TIERS, TRIAL_DAYS, orgLookupKey, orgPrice, priceForSite } from '@/lib/pricing.ts'
 import type { Interval, OrgTier } from '@/lib/pricing.ts'
 import { returnTo } from '@/lib/server/origin.ts'
 import { priceId } from '@/lib/server/stripe.ts'
 import { paymentMode, visitorCountry } from '@/lib/server/token.ts'
-import { SITES, isLocal } from '@/lib/site/config.ts'
+import { isLocal } from '@/lib/site/config.ts'
 
-/** Starts a subscription for an organisation: tier and interval from the query, currency from the visitor's country. */
+/** Starts a subscription for an organisation: tier and interval from the query, currency from the site's pricing. */
 export async function POST(req: Request) {
   const url = new URL(req.url)
   const tier = url.searchParams.get('tier') as OrgTier
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
   const price = await priceId(orgLookupKey(tier, interval)).catch(() => null)
   if (!price) return NextResponse.json({ error: 'This plan is not set up in Stripe yet.' }, { status: 503 })
-  const currency = orgPrice(tier, interval, priceFor(visitorCountry(req), SITES[site].currency).currency).currency
+  const currency = orgPrice(tier, interval, priceForSite(site, visitorCountry(req)).currency).currency
 
   const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',

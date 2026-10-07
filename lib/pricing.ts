@@ -1,9 +1,12 @@
 /**
  * One-time price of the full report: 17 in the local currency, rounded to a
  * price that looks deliberate there (£15, 189 kr, ¥2,600) instead of a raw
- * conversion. The currency follows the visitor's country (Vercel geo header);
- * everything else pays USD.
+ * conversion. Country sites use their own currency; the global site follows
+ * the visitor's country (Vercel geo header), with USD as its fallback.
  */
+
+import { SITES } from './site/config.ts'
+import type { SiteId } from './site/config.ts'
 
 /** Price in major units per currency. */
 export const PRICES: Record<string, number> = {
@@ -79,6 +82,12 @@ export function priceFor(country: string | null | undefined, fallbackCurrency = 
   const cur = (country && COUNTRY_CURRENCY[country.toUpperCase()]) || fallbackCurrency
   const currency = PRICES[cur] ? cur : 'USD'
   return { amount: PRICES[currency], currency }
+}
+
+/** Keep displayed prices and both checkout flows on the same site currency. */
+export function priceForSite(site: SiteId, visitorCountry?: string | null): Price {
+  const conf = SITES[site]
+  return priceFor(conf.country ?? visitorCountry, conf.currency)
 }
 
 /** Amount in Stripe's smallest unit. ISK and HUF use two decimals in Stripe's API. */

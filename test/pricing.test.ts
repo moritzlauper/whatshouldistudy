@@ -1,6 +1,21 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { ORG_PRICES, ORG_TIERS, PRICES, TRIAL_DAYS, formatPrice, orgBilled, priceFor, stripeAmount } from '../lib/pricing.ts'
+import { ORG_PRICES, ORG_TIERS, PRICES, TRIAL_DAYS, formatPrice, orgBilled, priceFor, priceForSite, stripeAmount } from '../lib/pricing.ts'
+
+test('country sites keep their advertised currency even for visitors abroad', () => {
+  for (const country of ['CH', 'DE', 'US', 'GB', null, undefined]) {
+    assert.deepEqual(priceForSite('de', country), { amount: 17, currency: 'EUR' })
+    assert.deepEqual(priceForSite('at', country), { amount: 17, currency: 'EUR' })
+    assert.deepEqual(priceForSite('ch', country), { amount: 17, currency: 'CHF' })
+  }
+})
+
+test('the global site uses the visitor currency, with USD when location is unknown', () => {
+  assert.deepEqual(priceForSite('global', 'DE'), { amount: 17, currency: 'EUR' })
+  assert.deepEqual(priceForSite('global', 'CH'), { amount: 17, currency: 'CHF' })
+  assert.deepEqual(priceForSite('global', 'GB'), { amount: 15, currency: 'GBP' })
+  assert.deepEqual(priceForSite('global', null), { amount: 17, currency: 'USD' })
+})
 
 test('price follows the visitor country, with round local prices', () => {
   assert.deepEqual(priceFor('CH'), { amount: 17, currency: 'CHF' })

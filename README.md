@@ -305,7 +305,10 @@ The privacy page describes exactly what is switched on.
 and `/api/research` require it. No database. Free tier: `/api/teaser` (counts
 plus the top 3 programmes).
 
-Price: 17 in the visitor's currency (`lib/pricing.ts`, country from Vercel's
+Price: country sites always use their own currency (Germany/Austria EUR 17,
+Switzerland CHF 17), for both the displayed price and checkout, including
+organisation plans. The global site uses the visitor's currency
+(`lib/pricing.ts`, country from Vercel's
 `x-vercel-ip-country`): CHF 17, EUR 17, USD 17, GBP 15, CAD 23, AUD 25, SEK 189,
 NOK 189, DKK 125, PLN 75, JPY 2,600, INR 1,099 and more. Checkout uses the
 Stripe price with lookup key `wsis_report` (or `STRIPE_PRICE_ID`); without one

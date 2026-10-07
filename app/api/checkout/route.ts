@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { REPORT_LOOKUP_KEY, priceFor, stripeAmount } from '@/lib/pricing.ts'
+import { REPORT_LOOKUP_KEY, priceForSite, stripeAmount } from '@/lib/pricing.ts'
 import { returnTo } from '@/lib/server/origin.ts'
 import { priceId } from '@/lib/server/stripe.ts'
 import { paymentMode, visitorCountry } from '@/lib/server/token.ts'
 import { SITES, isLocal } from '@/lib/site/config.ts'
 
 /**
- * Starts a Stripe Checkout session in the visitor's currency (or, without
+ * Starts a Stripe Checkout session in the site's currency (or, without
  * Stripe, unlocks directly). Uses the Stripe price STRIPE_PRICE_ID, else the
  * one with lookup key «wsis_report» (scripts/stripe-setup.ts); both need a
  * currency option for every currency in lib/pricing.ts. Without either the
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   // Never take money we couldn't turn into an unlock.
   if (!process.env.WSIS_TOKEN_SECRET) return NextResponse.json({ error: 'WSIS_TOKEN_SECRET is not set.' }, { status: 503 })
 
-  const price = priceFor(visitorCountry(req), conf.currency)
+  const price = priceForSite(site, visitorCountry(req))
   const local = isLocal(site)
   const form = new URLSearchParams({
     mode: 'payment',

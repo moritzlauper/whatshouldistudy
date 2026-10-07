@@ -14,25 +14,37 @@ export interface Config {
   consent: ConsentRule
 }
 
-let cached: Promise<Config> | null = null
+const cached = new Map<SiteId, Promise<Config>>()
 
-/** Payment mode, the price in the visitor's currency and the consent rule of their country, fetched once per page. */
+/** Payment mode, site price and visitor consent rule, cached separately per site. */
 export function fetchConfig(site: SiteId): Promise<Config> {
-  cached ??= fetch(withBase(`/api/config?site=${site}`)).then((r) => r.json() as Promise<Config>)
-  return cached
+  let request = cached.get(site)
+  if (!request) {
+    request = fetch(withBase(`/api/config?site=${site}`)).then((r) => {
+      if (!r.ok) throw new Error('Could not load site configuration.')
+      return r.json() as Promise<Config>
+    }).catch((error) => {
+      cached.delete(site)
+      throw error
+    })
+    cached.set(site, request)
+  }
+  return request
 }
 
 export function useConfig(site: SiteId): Config | null {
-  const [config, setConfig] = useState<Config | null>(null)
+  const [loaded, setLoaded] = useState<{ site: SiteId; config: Config } | null>(null)
   useEffect(() => {
+    let active = true
     fetchConfig(site)
-      .then(setConfig)
+      .then((config) => { if (active) setLoaded({ site, config }) })
       .catch(() => {})
+    return () => { active = false }
   }, [site])
-  return config
+  return loaded?.site === site ? loaded.config : null
 }
 
-/** «CHF 17» or «€17», in the visitor's currency once known. */
+/** «CHF 17» or «€17», using the same currency as checkout. */
 export function Price({ site }: { site: SiteId }) {
   const config = useConfig(site)
   const conf = SITES[site]
