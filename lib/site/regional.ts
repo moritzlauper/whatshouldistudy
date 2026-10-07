@@ -19,6 +19,9 @@ const ESZETT_RE = new RegExp(`(?<![\\p{L}])(${ESZETT.join('|')})(?![\\p{L}])`, '
 /** Words, longest first. Germany and Austria share most of them. */
 const WORDS: Record<'de-DE' | 'de-AT', Array<[RegExp, string]>> = {
   'de-DE': [
+    [/Lehrpersonen/g, 'Lehrkräfte'],
+    [/Lehrperson/g, 'Lehrkraft'],
+    [/Lektion/g, 'Unterrichtsstunde'],
     [/Resultate\b/g, 'Ergebnisse'],
     [/Resultat/g, 'Ergebnis'],
     [/Medianlohn/g, 'Mediangehalt'],
@@ -36,6 +39,9 @@ const WORDS: Record<'de-DE' | 'de-AT', Array<[RegExp, string]>> = {
     [/\bDoktorat\b/g, 'Promotion'],
   ],
   'de-AT': [
+    [/Lehrpersonen/g, 'Lehrkräfte'],
+    [/Lehrperson/g, 'Lehrkraft'],
+    [/Lektion/g, 'Unterrichtsstunde'],
     [/Resultate\b/g, 'Ergebnisse'],
     [/Resultat/g, 'Ergebnis'],
     [/Medianlohn/g, 'Mediangehalt'],

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getOrg, recordUse, usedThisMonth } from '@/lib/server/org.ts'
+import { getOrg, recordUse, usedThisPeriod } from '@/lib/server/org.ts'
 import { paymentMode, signToken, verifyOrg } from '@/lib/server/token.ts'
 
 /**
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   if (mode === 'stripe') {
     const org = await getOrg(subscription)
     if (!org || !org.active) return NextResponse.json({ error: 'inactive' }, { status: 402 })
-    if (org.limit !== null && (await usedThisMonth(org.customer)) >= org.limit) return NextResponse.json({ error: 'limit' }, { status: 429 })
+    if (org.limit !== null && (await usedThisPeriod(org)) >= org.limit) return NextResponse.json({ error: 'limit' }, { status: 429 })
     await recordUse(org, student)
   }
   const signed = signToken(`org:${subscription}`)

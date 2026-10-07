@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { ORG_REPORTS, fromStripeAmount } from '@/lib/pricing.ts'
 import type { Price } from '@/lib/pricing.ts'
-import { getOrg, usedThisMonth } from '@/lib/server/org.ts'
+import { getOrg, usedThisPeriod } from '@/lib/server/org.ts'
 import { stripe } from '@/lib/server/stripe.ts'
 import { paymentMode, signOrg, verifyOrg } from '@/lib/server/token.ts'
 
@@ -20,7 +20,7 @@ export async function GET(req: Request) {
 
   // Development without Stripe: a pretend subscription.
   if (mode === 'free') {
-    return NextResponse.json({ student: signOrg('sub_free', 'student'), admin: signOrg('sub_free', 'admin'), tier: 'school', interval: 'year', limit: ORG_REPORTS.school, used: 0, active: true }, { headers: noStore })
+    return NextResponse.json({ student: signOrg('sub_free', 'student'), admin: signOrg('sub_free', 'admin'), tier: 'school', interval: 'year', limit: ORG_REPORTS.school, used: 0, active: true, trial: false }, { headers: noStore })
   }
 
   let subscription: string | null
@@ -38,6 +38,6 @@ export async function GET(req: Request) {
 
   const org = await getOrg(subscription)
   if (!org) return NextResponse.json({ error: 'Unknown subscription.' }, { status: 404 })
-  const used = await usedThisMonth(org.customer).catch(() => null)
-  return NextResponse.json({ student: signOrg(org.subscription, 'student'), admin: signOrg(org.subscription, 'admin'), tier: org.tier, interval: org.interval, limit: org.limit, used, active: org.active, ...sale }, { headers: noStore })
+  const used = await usedThisPeriod(org).catch(() => null)
+  return NextResponse.json({ student: signOrg(org.subscription, 'student'), admin: signOrg(org.subscription, 'admin'), tier: org.tier, interval: org.interval, limit: org.limit, used, active: org.active, trial: org.trial, ...sale }, { headers: noStore })
 }

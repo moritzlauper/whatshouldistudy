@@ -7,9 +7,11 @@ import { measurePurchase } from '@/lib/measure.ts'
 import type { Price } from '@/lib/pricing.ts'
 import type { Interval, OrgTier } from '@/lib/pricing.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
+import { schoolLink, teachersText } from '@/lib/site/teachers-text.ts'
 import { fmtNumber } from '@/lib/site/labels.ts'
 import { useSite } from '../ui/site-context.tsx'
 import { Burst } from '../ui/shapes.tsx'
+import { CopyField, CopyRow } from '../ui/copy-field.tsx'
 
 interface OrgInfo {
   student: string
@@ -19,35 +21,14 @@ interface OrgInfo {
   limit: number | null
   used: number | null
   active: boolean
+  trial?: boolean
   price?: Price
   error?: string
 }
 
-function CopyField({ label, hint, value, copy, copied }: { label: string; hint: string; value: string; copy: string; copied: string }) {
-  const [done, setDone] = useState(false)
-  return (
-    <div className="card-sm p-6">
-      <h2 className="font-display text-2xl">{label}</h2>
-      <p className="mt-1 text-sm text-muted">{hint}</p>
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <input readOnly value={value} onFocus={(e) => e.target.select()} className="min-w-0 flex-1 rounded-xl border-2 border-line bg-surface px-3 py-2 font-mono text-sm" />
-        <button
-          type="button"
-          className="btn btn-primary btn-sm"
-          onClick={() => {
-            navigator.clipboard?.writeText(value).then(() => setDone(true), () => {})
-          }}
-        >
-          {done ? copied : copy}
-        </button>
-      </div>
-    </div>
-  )
-}
-
 /** Where Stripe sends an organisation after subscribing, and its dashboard afterwards (?admin=…). */
 export function OrgWelcomeView() {
-  const { r, locale, intl } = useSite()
+  const { r, locale, intl, conf } = useSite()
   const o = orgsText(locale)
   const w = o.welcome
   const router = useRouter()
@@ -69,7 +50,8 @@ export function OrgWelcomeView() {
         if (!res.ok || !j.admin) throw new Error(j.error ?? w.failed)
         setInfo(j)
         if (sid) {
-          if (j.price) measurePurchase({ id: sid, amount: j.price.amount, currency: j.price.currency })
+          // A pilot starts at 0: nothing was bought yet.
+          if (j.price?.amount) measurePurchase({ id: sid, amount: j.price.amount, currency: j.price.currency })
           // From now on the address itself is the way back.
           router.replace(`${r.orgWelcome}?admin=${encodeURIComponent(j.admin)}`)
         }
@@ -110,6 +92,8 @@ export function OrgWelcomeView() {
   const origin = typeof window === 'undefined' ? '' : window.location.origin
   const studentUrl = `${origin}${withBase(r.start)}?org=${encodeURIComponent(info.student)}`
   const adminUrl = `${origin}${withBase(r.orgWelcome)}?admin=${encodeURIComponent(info.admin)}`
+  const tt = teachersText(locale)
+  const website = schoolLink(tt, conf.name, `${origin}${withBase(r.home)}`)
   return (
     <div className="mx-auto max-w-3xl px-4 pt-12 sm:px-6">
       <h1 className="font-display text-5xl sm:text-6xl">{info.active ? w.title : w.inactive}</h1>
@@ -121,9 +105,18 @@ export function OrgWelcomeView() {
           {w.used(fmtNumber(info.used, intl), info.limit === null ? null : fmtNumber(info.limit, intl))} <span className="text-sm font-normal text-muted">{w.lag}</span>
         </p>
       )}
+      {info.trial && <p className="card-sm on-color mt-4 bg-lime p-4 text-sm font-semibold">{w.trial}</p>}
       <div className="mt-10 grid gap-6">
-        <CopyField label={w.studentLink} hint={w.studentHint} value={studentUrl} copy={w.copy} copied={w.copied} />
-        <CopyField label={w.adminLink} hint={w.adminHint} value={adminUrl} copy={w.copy} copied={w.copied} />
+        <CopyField label={w.studentLink} hint={w.studentHint}>
+          <CopyRow value={studentUrl} copy={w.copy} copied={w.copied} />
+        </CopyField>
+        <CopyField label={w.websiteLink} hint={w.websiteHint}>
+          <CopyRow label={tt.textLabel} value={website.text} copy={w.copy} copied={w.copied} />
+          <CopyRow label={tt.htmlLabel} value={website.html} copy={w.copy} copied={w.copied} />
+        </CopyField>
+        <CopyField label={w.adminLink} hint={w.adminHint}>
+          <CopyRow value={adminUrl} copy={w.copy} copied={w.copied} />
+        </CopyField>
       </div>
       <button type="button" onClick={portal} disabled={portalBusy} className="btn btn-ghost btn-lg mt-8">
         {w.portal} <span aria-hidden="true">→</span>

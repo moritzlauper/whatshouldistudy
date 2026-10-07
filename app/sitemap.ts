@@ -13,6 +13,7 @@ const PAGES: Page[] = [
   (r) => r.how,
   (r) => r.fields,
   ...FIELDS.map((f): Page => (r) => r.field(f.id)),
+  (r) => r.teachers,
   (r) => r.orgs,
   (r) => r.privacy,
   (r) => r.terms,

@@ -1,5 +1,5 @@
 import 'server-only'
-import { ORG_REPORTS, ORG_TIERS } from '@/lib/pricing.ts'
+import { ORG_REPORTS, ORG_TIERS, TRIAL_REPORTS } from '@/lib/pricing.ts'
 import type { Interval, OrgTier } from '@/lib/pricing.ts'
 import { StripeError, stripe } from './stripe.ts'
 
@@ -20,15 +20,20 @@ export interface Org {
   customer: string
   tier: OrgTier
   interval: Interval
-  /** Reports per month, null for unlimited. */
+  /** Reports per month (in the trial: in total), null for unlimited. */
   limit: number | null
   active: boolean
+  /** In the free trial; reports count from its start instead of the calendar month. */
+  trial: boolean
+  /** Start of the period the limit applies to, in seconds. */
+  countFrom: number
 }
 
 interface Subscription {
   id: string
   status: string
   customer: string
+  trial_start: number | null
   items: { data: { price: { lookup_key: string | null } }[] }
 }
 
@@ -44,7 +49,9 @@ export async function getOrg(subscription: string): Promise<Org | null> {
   const m = /^wsis_org_([a-z]+)_(year|month)$/.exec(s.items.data[0]?.price.lookup_key ?? '')
   const tier = m?.[1] as OrgTier | undefined
   if (!tier || !ORG_TIERS.includes(tier)) return null
-  return { subscription: s.id, customer: s.customer, tier, interval: m![2] as Interval, limit: ORG_REPORTS[tier], active: USABLE.has(s.status) }
+  const trial = s.status === 'trialing'
+  const limit = trial ? Math.min(TRIAL_REPORTS, ORG_REPORTS[tier] ?? TRIAL_REPORTS) : ORG_REPORTS[tier]
+  return { subscription: s.id, customer: s.customer, tier, interval: m![2] as Interval, limit, active: USABLE.has(s.status), trial, countFrom: trial && s.trial_start ? s.trial_start : monthStart() }
 }
 
 let meterId: string | null = null
@@ -62,10 +69,12 @@ export function monthStart(now = new Date()): number {
   return Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1) / 1000
 }
 
-/** Reports unlocked this calendar month. Stripe aggregates with a short delay, so the count can trail by a few. */
-export async function usedThisMonth(customer: string): Promise<number> {
+/** Reports unlocked this calendar month, or since the trial started. Stripe aggregates with a short delay, so the count can trail by a few. */
+export async function usedThisPeriod(org: Org): Promise<number> {
   const end = Math.ceil(Date.now() / 60_000) * 60
-  const res = await stripe<{ data: { aggregated_value: number }[] }>('GET', `billing/meters/${await meter()}/event_summaries`, { customer, start_time: monthStart(), end_time: end })
+  // Meter summaries need whole minutes.
+  const start = Math.floor(org.countFrom / 60) * 60
+  const res = await stripe<{ data: { aggregated_value: number }[] }>('GET', `billing/meters/${await meter()}/event_summaries`, { customer: org.customer, start_time: start, end_time: end })
   return res.data.reduce((n, s) => n + s.aggregated_value, 0)
 }
 

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { CONTACT } from '@/lib/site.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
@@ -7,7 +8,7 @@ import { Sparkle } from '../ui/shapes.tsx'
 
 /** Plans for schools and counselling services. */
 export function OrgsView({ site, base, locale: lang }: SiteProps) {
-  const { locale } = kit(site, base, lang)
+  const { locale, r } = kit(site, base, lang)
   const o = orgsText(locale)
   return (
     <>
@@ -16,6 +17,12 @@ export function OrgsView({ site, base, locale: lang }: SiteProps) {
           <Sparkle className="float-slow absolute -right-10 -top-4 hidden sm:block" size={56} color="var(--pink)" />
           <h1 className="font-display text-5xl sm:text-6xl">{o.title}</h1>
           <p className="mt-5 text-xl text-muted">{o.lead}</p>
+          <p className="mt-4 font-semibold">
+            {o.teachers.teaser}{' '}
+            <Link href={r.teachers} className="text-accent underline-offset-2 hover:underline">
+              {`${o.teachers.link}\u00a0→`}
+            </Link>
+          </p>
         </div>
         <div className="mt-10">
           <OrgPlans />

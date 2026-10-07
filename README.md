@@ -268,6 +268,17 @@ Subscriptions read, Billing Meters read, Meter Events write, Customer portal
 write. Enable the customer portal in the Stripe dashboard (Settings → Billing →
 Customer portal) so organisations can change plans, see invoices and cancel.
 
+The **Counsellor** plan starts with a 30-day pilot (`TRIAL_DAYS`, Stripe trial
+on Checkout, card required). During the trial the plan allows 30 reports in
+total (`TRIAL_REPORTS`), counted from the trial start rather than the calendar
+month, so a pilot cancelled before the first invoice gives away one class.
+
+**For teachers** (`/teachers`, `/lehrpersonen`): a free 45-minute lesson with a
+printable worksheet (the print styles reduce the page to the sheet) and a
+ready-made text and HTML link for school websites. That link points to the
+home page; the student link of a plan unlocks reports and belongs on intranets
+and in emails, never on a public page.
+
 ## Deploy on Vercel
 
 whatshouldistudy is its own Vercel project and serves at the root of its domain:

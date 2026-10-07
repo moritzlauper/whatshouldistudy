@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { ORG_TIERS, orgLookupKey, orgPrice, priceFor } from '@/lib/pricing.ts'
+import { ORG_TIERS, TRIAL_DAYS, TRIAL_TIER, orgLookupKey, orgPrice, priceFor } from '@/lib/pricing.ts'
 import type { Interval, OrgTier } from '@/lib/pricing.ts'
 import { returnTo } from '@/lib/server/origin.ts'
 import { priceId } from '@/lib/server/stripe.ts'
@@ -41,6 +41,8 @@ export async function POST(req: Request) {
       'metadata[site]': site,
       'subscription_data[metadata][site]': site,
       'subscription_data[metadata][tier]': tier,
+      // The pilot; Checkout still takes a card, the first invoice follows the trial.
+      ...(tier === TRIAL_TIER ? { 'subscription_data[trial_period_days]': String(TRIAL_DAYS) } : {}),
     }),
   })
   const session = (await res.json()) as { url?: string; error?: { message?: string } }

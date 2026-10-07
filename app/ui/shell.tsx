@@ -9,6 +9,7 @@ import { GitHubMark } from './trust.tsx'
 import { ConsentLink, Measurement } from './measurement.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
+import { teachersText } from '@/lib/site/teachers-text.ts'
 import { OrgCapture } from './org-capture.tsx'
 import { LangSwitch } from './lang-switch.tsx'
 import type { LangOption } from './lang-switch.tsx'
@@ -86,6 +87,7 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
             <Link href={r.fields} className="opacity-80 hover:opacity-100">{t.footer.allFields}</Link>
             <Link href={`${r.how}#${r.anchors.data}`} className="opacity-80 hover:opacity-100">{t.footer.sources}</Link>
             <Link href={r.orgs} className="opacity-80 hover:opacity-100">{o.title}</Link>
+            <Link href={r.teachers} className="opacity-80 hover:opacity-100">{teachersText(k.locale).nav}</Link>
           </div>
           <div className="flex flex-col gap-2.5">
             <Link href={r.privacy} className="opacity-80 hover:opacity-100">{t.footer.privacy}</Link>

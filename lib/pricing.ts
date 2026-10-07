@@ -115,6 +115,15 @@ export const ORG_TIERS: OrgTier[] = ['counsellor', 'school', 'institution']
 /** Full reports per calendar month; null is unlimited. */
 export const ORG_REPORTS: Record<OrgTier, number | null> = { counsellor: 100, school: 1000, institution: null }
 
+/**
+ * The pilot: the counsellor plan starts with a free trial, capped at one class
+ * in total so a trial cancelled before the first invoice gives away little.
+ * The texts in orgs-text.ts and teachers-text.ts name these numbers.
+ */
+export const TRIAL_TIER: OrgTier = 'counsellor'
+export const TRIAL_DAYS = 30
+export const TRIAL_REPORTS = 30
+
 export const ORG_PRICES: Record<OrgTier, Record<Interval, Record<string, number>>> = {
   counsellor: {
     year: { CHF: 99, EUR: 99, USD: 99, GBP: 89, CAD: 129, AUD: 149, NZD: 169, SEK: 1119, NOK: 1119, DKK: 719, PLN: 429, CZK: 2499, HUF: 39500, RON: 499, ISK: 14500, JPY: 15200, KRW: 139000, SGD: 129, HKD: 789, INR: 6589, BRL: 519, MXN: 1839, ZAR: 1779, AED: 359, ILS: 359, TRY: 3289 },
