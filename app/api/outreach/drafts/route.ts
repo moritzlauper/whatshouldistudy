@@ -91,7 +91,8 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
     body: JSON.stringify({
       model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5',
       max_tokens: 900,
-      system,
+      // Identical for every draft of a run (skill + rules), so consecutive drafts read it from cache.
+      system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name, pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, requiredCallToAction: outreachCallToAction(draft), originalSubject: draft.subject, originalBody: draft.body }) }],
       output_config: {
         format: {
@@ -105,10 +106,11 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
         },
       },
     }),
-    signal: AbortSignal.timeout(15_000),
+    signal: AbortSignal.timeout(25_000),
   })
   if (!response.ok) throw new Error(`Anthropic API returned HTTP ${response.status}`)
-  const result = await response.json() as { content?: Array<{ type: string; text?: string }> }
+  const result = await response.json() as { stop_reason?: string; content?: Array<{ type: string; text?: string }> }
+  if (result.stop_reason !== 'end_turn') throw new Error(`Anthropic stopped with ${result.stop_reason ?? 'no stop reason'}`)
   const text = result.content?.find((block) => block.type === 'text')?.text
   if (!text) throw new Error('Anthropic returned no text')
   const parsed = JSON.parse(text) as HumanizedDraft
@@ -198,6 +200,7 @@ export async function POST(req: Request) {
     let created = 0
     let skipped = 0
     let humanized = 0
+    const fallbacks: string[] = []
     for (const draft of drafts) {
       if (await existingOutreach(client, [sentMailbox.path, draftsMailbox.path], draft)) {
         skipped++
@@ -210,7 +213,10 @@ export async function POST(req: Request) {
           message = await humanize(draft, anthropicKey, humanizerSkill)
           humanized++
         } catch (error) {
-          console.warn('Outreach humanization failed; using reviewed template', { code: (error as Error).name })
+          // Messages are fixed validation texts or HTTP statuses, never draft content.
+          const reason = error instanceof SyntaxError ? 'Anthropic returned invalid JSON' : error instanceof Error && error.name === 'TimeoutError' ? 'Anthropic timed out' : (error as Error).message
+          fallbacks.push(reason)
+          console.warn('Outreach humanization failed; using reviewed template', { reason })
         }
       }
       const finalized = { ...draft, body: message.body }
@@ -218,7 +224,7 @@ export async function POST(req: Request) {
       if (!appended) throw new Error(`Could not create draft ${draft.id}`)
       created++
     }
-    return NextResponse.json({ created, skipped, humanized })
+    return NextResponse.json({ created, skipped, humanized, fallbacks })
   } catch (error) {
     const mailError = error as Error & { code?: string; responseCode?: number }
     console.error('Outreach IMAP draft creation failed', { code: mailError.code ?? 'UNKNOWN', responseCode: mailError.responseCode })
