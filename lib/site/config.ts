@@ -125,6 +125,9 @@ export interface Routes {
   how: string
   /** The free lesson for teachers and the link for school websites. */
   teachers: string
+  /** The weekly articles (German and English only). */
+  blog: string
+  post: (slug: string) => string
   privacy: string
   terms: string
   imprint: string
@@ -150,6 +153,8 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
       field: (id) => `${root}/faecher/${fieldSlugDe(id)}`,
       how: `${root}/so-funktionierts`,
       teachers: `${root}/lehrpersonen`,
+      blog: `${root}/blog`,
+      post: (slug) => `${root}/blog/${slug}`,
       privacy: `${root}/datenschutz`,
       terms: `${root}/agb`,
       imprint: `${root}/impressum`,
@@ -168,6 +173,8 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
     field: (id) => `/fields/${id}`,
     how: '/how-it-works',
     teachers: '/teachers',
+    blog: '/blog',
+    post: (slug) => `/blog/${slug}`,
     privacy: '/privacy',
     terms: '/terms',
     imprint: '/imprint',

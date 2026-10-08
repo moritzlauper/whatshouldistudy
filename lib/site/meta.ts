@@ -3,6 +3,8 @@ import { BASE_PATH, SITE_URL, siteUrl } from '../site.ts'
 import { mountInfo } from './kit.ts'
 import { dict } from './dict.ts'
 import { SITES, routes } from './config.ts'
+import { blogLang } from '../blog.ts'
+import type { BlogLang } from '../blog.ts'
 import type { Dict } from './dict.ts'
 import type { Locale, Routes, SiteId } from './config.ts'
 
@@ -67,6 +69,23 @@ export function pageMeta(site: SiteId, page: Page, m: Text, locale = SITES[site]
     openGraph: { type: 'website', siteName: c.name, title, description, url, locale: locale.replace('-', '_'), images: [image] },
     twitter: { card: 'summary_large_image', title, description, images: [image.url] },
   }
+}
+
+/**
+ * pageMeta for a blog page. The blog speaks English and German only, and a post
+ * has its own address per language, so `page` gets the language.
+ */
+export function blogMeta(site: SiteId, page: (lang: BlogLang) => Page, m: Text, locale = SITES[site].locale): Metadata {
+  const lang = blogLang(locale)
+  if (!lang) return { robots: { index: false } }
+  const meta = pageMeta(site, page(lang), m, locale)
+  const en = pageUrl('global', page('en'))
+  const languages: Record<string, string> = { 'x-default': en }
+  for (const v of variants()) {
+    const l = blogLang(v.locale)
+    if (l) languages[v.locale] = pageUrl(v.site, page(l), v.locale)
+  }
+  return { ...meta, alternates: { ...meta.alternates, languages } }
 }
 
 /** pageMeta for a country-site page, whose site and language come from its mount. */

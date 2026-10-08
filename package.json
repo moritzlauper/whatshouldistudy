@@ -12,6 +12,8 @@
     "typecheck": "next typegen && tsc --noEmit -p tsconfig.json",
     "test": "node --test test/*.test.ts",
     "stripe:setup": "node scripts/stripe-setup.ts",
+    "blog:post": "node --env-file-if-exists=.env.local scripts/blog-post.ts",
+    "blog:index": "node scripts/blog-post.ts --index",
     "data:us": "node scrapers/us-scorecard.ts",
     "data:fr": "node scrapers/fr-parcoursup.ts",
     "data:uk": "node scrapers/uk-discoveruni.ts",
@@ -34,6 +36,7 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.132.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^22",
     "@types/nodemailer": "^8.0.2",

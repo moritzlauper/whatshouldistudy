@@ -14,6 +14,8 @@ import { OrgCapture } from './org-capture.tsx'
 import { LangSwitch } from './lang-switch.tsx'
 import type { LangOption } from './lang-switch.tsx'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
+import { allPosts } from '@/lib/blog.ts'
+import { blogText } from '@/lib/site/blog-text.ts'
 
 const ALL: SiteId[] = ['global', 'ch', 'de', 'at']
 
@@ -35,6 +37,7 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
   const { t, r, conf } = k
   const o = orgsText(k.locale)
   const languages = languageOptions(site, base)
+  const blog = allPosts().length ? blogText(k.locale) : null
   return (
     <SiteProvider site={site} base={base} locale={locale}>
       <header className="sticky top-0 z-30 border-b-2 border-line bg-bg/90 backdrop-blur">
@@ -91,6 +94,7 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
             <Link href={`${r.how}#${r.anchors.data}`} className="opacity-80 hover:opacity-100">{t.footer.sources}</Link>
             <Link href={r.orgs} className="opacity-80 hover:opacity-100">{o.title}</Link>
             <Link href={r.teachers} className="opacity-80 hover:opacity-100">{teachersText(k.locale).nav}</Link>
+            {blog && <Link href={r.blog} className="opacity-80 hover:opacity-100">{blog.nav}</Link>}
           </div>
           <div className="flex flex-col gap-2.5">
             <Link href={r.privacy} className="opacity-80 hover:opacity-100">{t.footer.privacy}</Link>
