@@ -80,11 +80,14 @@ function rawMessage(draft: DraftInput, from: string, senderName: string, signatu
   return `${headers.join('\r\n')}\r\n\r\n${parts}`
 }
 
-async function humanize(draft: DraftInput, apiKey: string | undefined, humanizerSkill: string): Promise<HumanizedDraft> {
+/** The rewrite arrived but dropped or changed a required element; worth one corrected attempt. */
+class RejectedRewrite extends Error {}
+
+async function humanize(draft: DraftInput, apiKey: string | undefined, humanizerSkill: string, timeoutMs: number, correction?: string): Promise<HumanizedDraft> {
   if (!apiKey) return { body: draft.body }
   const system = `${humanizerSkill.trim()}
 
-Rewrite the complete supplied email as a concise one-to-one message from Moritz Lauper. Apply the Humanizer skill to the whole text, not just the opening. Personalize it using only the organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Preserve Moritz's supplied biography, all product facts, his stated belief that combining psychometric scales with real behavioral data can provide valid and reliable guidance, the statement that the source code is open source and publicly viewable, the statement that even a website link would greatly help the project, whether the complete programme list is paid, the 14-day organisation trial, the privacy statements, both exact website URLs, the greeting, and the sign-off. If the supplied email contains a specific price and currency, preserve them exactly; otherwise do not add a price. The entire outreach must be strictly self-service. Never offer, promise, or imply any future personal action or availability from Moritz or his team: no presentations, demos, calls, meetings, scheduling, personal onboarding, advice, follow-ups, sending materials, or manual setup. This also prohibits polite offers such as “Ich stelle der Person die Plattform gerne kurz vor” or “Bei Fragen stehe ich gerne zur Verfügung”. Recipients must be able to explore, try, and use the platform independently through the supplied website links. Calls to action may only ask recipients to visit or try the website, add a link, or forward the link internally; never ask for an introduction or contact details so Moritz can follow up. Remove any conflicting offer from the supplied draft; this self-service rule takes precedence over preserving wording or claims. Preserve the supplied self-service call to action exactly as the final question; do not replace it with a generic usefulness question. Do not assume the recipient always works with pupils. Never use en or em dashes (– or —) anywhere, neither as sentence connectors nor for asides; use a comma, full stop or colon instead. Hyphens inside compound words are fine. Keep the two URLs exactly as plain-text URLs on their own lines. Do not add, remove, or alter factual claims. For Swiss German emails, keep “Guten Tag” without a comma on its own line, followed by a blank line, and start the next paragraph with a capital letter: “Guten Tag\n\nAuf Ihrer Seite …”, never “Guten Tag\n\nauf Ihrer Seite …”. For German and Austrian German emails, use “Guten Tag,” with a comma on its own line, followed by a blank line, and continue the next paragraph with a lowercase letter: “Guten Tag,\n\nich bin …”. Preserve the supplied salutation punctuation and capitalization for its country. Use the supplied language and return only the requested JSON. No HTML or Markdown.`
+Rewrite the complete supplied email as a concise one-to-one message from Moritz Lauper. Apply the Humanizer skill to the whole text, not just the opening. Personalize it using only the organization name, page title, URL, and listed tools. Do not claim to have read page content beyond its title or listed tools. Preserve Moritz's supplied biography, all product facts, his stated belief that combining psychometric scales with real behavioral data can provide valid and reliable guidance, the statement that the source code is open source and publicly viewable, the statement that even a website link would greatly help the project, whether the complete programme list is paid, the 14-day organisation trial, the privacy statements, both exact website URLs, the greeting, and the sign-off. If the supplied email contains a specific price and currency, preserve them exactly; otherwise do not add a price. The entire outreach must be strictly self-service. Never offer, promise, or imply any future personal action or availability from Moritz or his team: no presentations, demos, calls, meetings, scheduling, personal onboarding, advice, follow-ups, sending materials, or manual setup. This also prohibits polite offers such as “Ich stelle der Person die Plattform gerne kurz vor” or “Bei Fragen stehe ich gerne zur Verfügung”. Recipients must be able to explore, try, and use the platform independently through the supplied website links. Calls to action may only ask recipients to visit or try the website, add a link, or forward the link internally; never ask for an introduction or contact details so Moritz can follow up. Remove any conflicting offer from the supplied draft; this self-service rule takes precedence over preserving wording or claims. Preserve the supplied self-service call to action exactly as the final question; do not replace it with a generic usefulness question. Do not assume the recipient always works with pupils. Never use en or em dashes (– or —) anywhere, neither as sentence connectors nor for asides; use a comma, full stop or colon instead. Hyphens inside compound words are fine. Keep the two URLs exactly as plain-text URLs on their own lines. Do not add, remove, or alter factual claims. For Swiss German emails, keep “Guten Tag” without a comma on its own line, followed by a blank line, and start the next paragraph with a capital letter: “Guten Tag\n\nAuf Ihrer Seite …”, never “Guten Tag\n\nauf Ihrer Seite …”. For German and Austrian German emails, use “Guten Tag,” with a comma on its own line, followed by a blank line, and continue the next paragraph with a lowercase letter: “Guten Tag,\n\nich bin …”. Preserve the supplied salutation punctuation and capitalization for its country. If rejectedPreviousRewriteBecause is present, your previous rewrite of this email failed that automated check: keep the named element exactly as in the original this time. Use the supplied language and return only the requested JSON. No HTML or Markdown.`
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
@@ -93,7 +96,7 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
       max_tokens: 900,
       // Identical for every draft of a run (skill + rules), so consecutive drafts read it from cache.
       system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
-      messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name.split(/\s+[–—|]\s+/)[0], pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, requiredCallToAction: outreachCallToAction(draft), originalSubject: draft.subject, originalBody: draft.body }) }],
+      messages: [{ role: 'user', content: JSON.stringify({ language: draft.lang, organization: draft.name.split(/\s+[–—|]\s+/)[0], pageTitle: draft.pageTitle, pageUrl: draft.url, listedTools: draft.listedTools, requiredCallToAction: outreachCallToAction(draft), originalSubject: draft.subject, originalBody: draft.body, ...(correction && { rejectedPreviousRewriteBecause: correction }) }) }],
       output_config: {
         format: {
           type: 'json_schema',
@@ -106,7 +109,7 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
         },
       },
     }),
-    signal: AbortSignal.timeout(25_000),
+    signal: AbortSignal.timeout(timeoutMs),
   })
   if (!response.ok) {
     // API error texts describe the request shape or account state, not the draft.
@@ -121,40 +124,40 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
   const urls = outreachWebsiteUrls(draft.body)
   const prices = [...draft.body.matchAll(/CHF\s*17|17\s*CHF|€\s*17|17\s*€/g)].map(([price]) => price)
   const requiredCallToAction = outreachCallToAction(draft)
-  if (typeof parsed.body !== 'string' || !parsed.body.trim() || parsed.body.length > 10_000 || /<\/?[a-z][^>]*>/i.test(parsed.body)) throw new Error('Anthropic returned an invalid body')
-  if (/[–—]/.test(parsed.body)) throw new Error('Anthropic used a dash')
-  if (urls.some((url) => !parsed.body.includes(url))) throw new Error('Anthropic removed a required website link')
-  if (requiredCallToAction && !parsed.body.includes(requiredCallToAction)) throw new Error('Anthropic removed or changed the concrete call to action')
-  if (prices.some((price) => !parsed.body.includes(price))) throw new Error('Anthropic removed or changed the individual price')
-  if (prices.length === 0 && /(?:CHF|€)\s*\d|\d\s*(?:CHF|€)/.test(parsed.body)) throw new Error('Anthropic invented an individual price')
-  if (/14 Tage|14 jours|14 giorni/.test(draft.body) && !/14 Tage|14 jours|14 giorni/.test(parsed.body)) throw new Error('Anthropic removed the organisation trial')
+  if (typeof parsed.body !== 'string' || !parsed.body.trim() || parsed.body.length > 10_000 || /<\/?[a-z][^>]*>/i.test(parsed.body)) throw new RejectedRewrite('Anthropic returned an invalid body')
+  if (/[–—]/.test(parsed.body)) throw new RejectedRewrite('Anthropic used a dash')
+  if (urls.some((url) => !parsed.body.includes(url))) throw new RejectedRewrite('Anthropic removed a required website link')
+  if (requiredCallToAction && !parsed.body.includes(requiredCallToAction)) throw new RejectedRewrite('Anthropic removed or changed the concrete call to action')
+  if (prices.some((price) => !parsed.body.includes(price))) throw new RejectedRewrite('Anthropic removed or changed the individual price')
+  if (prices.length === 0 && /(?:CHF|€)\s*\d|\d\s*(?:CHF|€)/.test(parsed.body)) throw new RejectedRewrite('Anthropic invented an individual price')
+  if (/14 Tage|14 jours|14 giorni/.test(draft.body) && !/14 Tage|14 jours|14 giorni/.test(parsed.body)) throw new RejectedRewrite('Anthropic removed the organisation trial')
   const paidList = /kostenpflichtig|payante|a pagamento/i
-  if (paidList.test(draft.body) && !paidList.test(parsed.body)) throw new Error('Anthropic removed the paid-list disclosure')
+  if (paidList.test(draft.body) && !paidList.test(parsed.body)) throw new RejectedRewrite('Anthropic removed the paid-list disclosure')
   const psychometrics = draft.lang === 'de'
     ? /valid\w*\s+und\s+reliab/i
     : draft.lang === 'fr'
       ? /valid\w*\s+et\s+fid[eè]l/i
       : /valid\w*\s+e\s+attendibil/i
-  if (psychometrics.test(draft.body) && !psychometrics.test(parsed.body)) throw new Error('Anthropic removed the validity and reliability statement')
+  if (psychometrics.test(draft.body) && !psychometrics.test(parsed.body)) throw new RejectedRewrite('Anthropic removed the validity and reliability statement')
   const backlinkHelp = draft.lang === 'de'
     ? /Verlinkung[\s\S]{0,120}enorm/i
     : draft.lang === 'fr'
       ? /lien[\s\S]{0,120}énormément/i
       : /link[\s\S]{0,120}enormemente/i
-  if (backlinkHelp.test(draft.body) && !backlinkHelp.test(parsed.body)) throw new Error('Anthropic removed the backlink support statement')
+  if (backlinkHelp.test(draft.body) && !backlinkHelp.test(parsed.body)) throw new RejectedRewrite('Anthropic removed the backlink support statement')
   if (/open source/i.test(draft.body)) {
     const publicSource = draft.lang === 'de'
       ? /öffentlich (?:einsehbar|zugänglich)|für alle (?:öffentlich )?einsehbar/i
       : draft.lang === 'fr'
         ? /accessible au public|consultable par (?:tous|toutes)|publiquement accessible/i
         : /consultabile pubblicamente|accessibile al pubblico|visibile a tutti/i
-    if (!/open source/i.test(parsed.body) || !publicSource.test(parsed.body)) throw new Error('Anthropic removed the public open-source statement')
+    if (!/open source/i.test(parsed.body) || !publicSource.test(parsed.body)) throw new RejectedRewrite('Anthropic removed the public open-source statement')
   }
   const swissGerman = isSwissGermanOutreach(draft.body, draft.lang)
-  if (swissGerman && /ß/.test(parsed.body)) throw new Error('Anthropic returned non-Swiss German spelling')
+  if (swissGerman && /ß/.test(parsed.body)) throw new RejectedRewrite('Anthropic returned non-Swiss German spelling')
   if (draft.lang === 'de') {
     const greeting = swissGerman ? /^Guten Tag\r?\n\r?\n\p{Lu}/u : /^Guten Tag,\r?\n\r?\n\p{Ll}/u
-    if (!greeting.test(parsed.body)) throw new Error('Anthropic changed the country-specific greeting')
+    if (!greeting.test(parsed.body)) throw new RejectedRewrite('Anthropic changed the country-specific greeting')
   }
   return { body: parsed.body.trim() }
 }
@@ -215,7 +218,15 @@ export async function POST(req: Request) {
       let message: HumanizedDraft = { body: draft.body }
       if (anthropicKey) {
         try {
-          message = await humanize(draft, anthropicKey, humanizerSkill)
+          // Two attempts within 30s keep IMAP and the 60s function limit safe.
+          const started = Date.now()
+          try {
+            message = await humanize(draft, anthropicKey, humanizerSkill, 20_000)
+          } catch (error) {
+            const remaining = 30_000 - (Date.now() - started)
+            if (!(error instanceof RejectedRewrite) || remaining < 8_000) throw error
+            message = await humanize(draft, anthropicKey, humanizerSkill, remaining, error.message)
+          }
           humanized++
         } catch (error) {
           // Messages are fixed validation texts or HTTP statuses, never draft content.
