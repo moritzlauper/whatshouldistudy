@@ -14,7 +14,8 @@ const lines = [
   "import type { Post } from '../../lib/blog-check.ts'",
   ...files.map((f, i) => `import p${i} from './${f}' with { type: 'json' }`),
   '',
-  `export const POSTS: Post[] = [${files.map((_, i) => `p${i}`).join(', ')}]`,
+  // JSON imports type `site` as string; test/blog.test.ts checks every post against the real shape.
+  `export const POSTS = [${files.map((_, i) => `p${i}`).join(', ')}] as Post[]`,
   '',
 ]
 writeFileSync(join(DIR, 'index.ts'), lines.join('\n'))

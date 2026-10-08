@@ -14,7 +14,7 @@ import { OrgCapture } from './org-capture.tsx'
 import { LangSwitch } from './lang-switch.tsx'
 import type { LangOption } from './lang-switch.tsx'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
-import { allPosts } from '@/lib/blog.ts'
+import { blogLang, postsFor } from '@/lib/blog.ts'
 import { blogText } from '@/lib/site/blog-text.ts'
 
 const ALL: SiteId[] = ['global', 'ch', 'de', 'at']
@@ -37,7 +37,8 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
   const { t, r, conf } = k
   const o = orgsText(k.locale)
   const languages = languageOptions(site, base)
-  const blog = allPosts().length ? blogText(k.locale) : null
+  const lang = blogLang(k.locale)
+  const blog = lang && postsFor(site, lang).length ? blogText(k.locale) : null
   return (
     <SiteProvider site={site} base={base} locale={locale}>
       <header className="sticky top-0 z-30 border-b-2 border-line bg-bg/90 backdrop-blur">

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { allPosts, blogLang, findPost } from '@/lib/blog.ts'
+import { blogLang, findPost, postsFor } from '@/lib/blog.ts'
 import type { Post } from '@/lib/blog.ts'
 import { kit } from '@/lib/site/kit.ts'
 import { blogText } from '@/lib/site/blog-text.ts'
@@ -16,12 +16,15 @@ import { Sparkle } from '../ui/shapes.tsx'
 
 const fmtDate = (date: string, intl: string) => new Intl.DateTimeFormat(intl, { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`))
 
-/** The post in the site's language; the German one is Swiss and adapted for Germany and Austria. */
+/**
+ * The post in the site's language. A post for every site is in Swiss German and
+ * adapted for Germany and Austria; a country post is in its country's German.
+ */
 function localText(post: Post, locale: Locale) {
   const lang = blogLang(locale)
-  if (!lang) return null
-  const t = post[lang]
-  const rz = (s: string) => regionalize(s, locale)
+  const t = lang && post[lang]
+  if (!t) return null
+  const rz = (s: string) => (post.site ? s : regionalize(s, locale))
   return { ...t, title: rz(t.title), description: rz(t.description), rz }
 }
 
@@ -29,7 +32,8 @@ export function BlogView({ site, base, locale: selectedLocale }: SiteProps) {
   const { r, locale, intl } = kit(site, base, selectedLocale)
   const b = blogText(locale)
   if (!b) notFound()
-  const posts = allPosts()
+  const lang = blogLang(locale)
+  const posts = lang ? postsFor(site, lang) : []
   return (
     <div className="mx-auto max-w-3xl px-4 pt-12 sm:px-6">
       <div className="relative">
@@ -58,7 +62,7 @@ export function BlogView({ site, base, locale: selectedLocale }: SiteProps) {
 /** Structured data for search engines: the article and where it sits. */
 function postLd(site: SiteId, locale: Locale, post: Post, title: string, description: string) {
   const lang = blogLang(locale)!
-  const url = pageUrl(site, (r) => r.post(post[lang].slug), locale)
+  const url = pageUrl(site, (r) => r.post(post[lang]!.slug), locale)
   return {
     '@type': 'BlogPosting',
     headline: title,
@@ -76,9 +80,9 @@ export function PostView({ site, base, locale: selectedLocale, slug }: SiteProps
   const { r, locale, intl } = kit(site, base, selectedLocale)
   const b = blogText(locale)
   const lang = blogLang(locale)
-  const post = lang ? findPost(lang, slug) : undefined
-  if (!b || !post) notFound()
-  const p = localText(post, locale)!
+  const post = lang ? findPost(site, lang, slug) : undefined
+  const p = post && localText(post, locale)
+  if (!b || !post || !p) notFound()
   return (
     <article className="mx-auto max-w-3xl px-4 pt-12 sm:px-6">
       <JsonLd data={postLd(site, locale, post, p.title, p.description)} />

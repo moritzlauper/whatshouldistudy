@@ -3,11 +3,11 @@ import { headers } from 'next/headers'
 import { siteForHost } from '@/lib/site.ts'
 import { LOCAL_SITES, SITES, routes } from '@/lib/site/config.ts'
 import type { SiteId } from '@/lib/site/config.ts'
-import { languages, pageUrl, variants } from '@/lib/site/meta.ts'
+import { blogLanguages, languages, pageUrl, variants } from '@/lib/site/meta.ts'
 import type { Page } from '@/lib/site/meta.ts'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
-import { allPosts, blogLang } from '@/lib/blog.ts'
-import type { BlogLang } from '@/lib/blog.ts'
+import { allPosts, blogLang, showsOn } from '@/lib/blog.ts'
+import type { BlogPage } from '@/lib/site/meta.ts'
 
 const PAGES: Page[] = [
   (r) => r.home,
@@ -32,20 +32,11 @@ function priority(page: Page): number {
   return 0.7
 }
 
-/** The blog in English and German, with a page per language (post addresses differ by language). */
-const BLOG: Array<{ page: (lang: BlogLang) => Page; priority: number; date?: string }> = [
+/** The blog in English and German; a post has an address per language and may exist on one site only. */
+const BLOG: Array<{ page: BlogPage; priority: number; date?: string }> = [
   { page: () => (r) => r.blog, priority: 0.6 },
-  ...allPosts().map((p) => ({ page: (lang: BlogLang): Page => (r) => r.post(p[lang].slug), priority: 0.5, date: p.date })),
+  ...allPosts().map((p) => ({ page: ((lang, site) => (showsOn(p, site, lang) ? (r) => r.post(p[lang]!.slug) : null)) as BlogPage, priority: 0.5, date: p.date })),
 ]
-
-function blogLanguages(page: (lang: BlogLang) => Page): Record<string, string> {
-  const out: Record<string, string> = { 'x-default': pageUrl('global', page('en')) }
-  for (const v of variants()) {
-    const lang = blogLang(v.locale)
-    if (lang) out[v.locale] = pageUrl(v.site, page(lang), v.locale)
-  }
-  return out
-}
 
 // No lastModified on the fixed pages: they carry no real edit date, and "now" on every request teaches crawlers to ignore it.
 const entries = (site: SiteId) =>
@@ -55,7 +46,12 @@ const entries = (site: SiteId) =>
       const lang = blogLang(v.locale)
       return [
         ...PAGES.map((page) => ({ url: pageUrl(site, page, v.locale), priority: priority(page), alternates: { languages: languages(page) } })),
-        ...(lang ? BLOG.map((b) => ({ url: pageUrl(site, b.page(lang), v.locale), priority: b.priority, ...(b.date ? { lastModified: b.date } : {}), alternates: { languages: blogLanguages(b.page) } })) : []),
+        ...(lang
+          ? BLOG.flatMap((b) => {
+              const page = b.page(lang, site)
+              return page ? [{ url: pageUrl(site, page, v.locale), priority: b.priority, ...(b.date ? { lastModified: b.date } : {}), alternates: { languages: blogLanguages(b.page) } }] : []
+            })
+          : []),
       ]
     })
 
