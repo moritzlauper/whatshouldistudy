@@ -108,7 +108,11 @@ Rewrite the complete supplied email as a concise one-to-one message from Moritz 
     }),
     signal: AbortSignal.timeout(25_000),
   })
-  if (!response.ok) throw new Error(`Anthropic API returned HTTP ${response.status}`)
+  if (!response.ok) {
+    // API error texts describe the request shape or account state, not the draft.
+    const detail = await response.json().then((body: { error?: { type?: string; message?: string } }) => `${body.error?.type ?? ''}: ${body.error?.message ?? ''}`.slice(0, 300), () => '')
+    throw new Error(`Anthropic API returned HTTP ${response.status} ${detail}`.trim())
+  }
   const result = await response.json() as { stop_reason?: string; content?: Array<{ type: string; text?: string }> }
   if (result.stop_reason !== 'end_turn') throw new Error(`Anthropic stopped with ${result.stop_reason ?? 'no stop reason'}`)
   const text = result.content?.find((block) => block.type === 'text')?.text
