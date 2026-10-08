@@ -1,5 +1,5 @@
 import 'server-only'
-import { LOCAL_SITES, SITES, isLocal, routes } from '@/lib/site/config.ts'
+import { CH_FR_IT_URL, LOCAL_SITES, SITES, isLocal, routes } from '@/lib/site/config.ts'
 import type { Locale, Routes, SiteId } from '@/lib/site/config.ts'
 import { BASE_PATH, SITE_URL } from '@/lib/site.ts'
 
@@ -14,7 +14,7 @@ const origin = (u: string) => {
 /** Where buyers may be sent back to: our own domains. Anything else would be an open redirect. */
 function returnOrigin(req: Request, claimed: string | null): string {
   const own = new URL(req.url).origin
-  const allowed = new Set([own, origin(SITE_URL), ...LOCAL_SITES.map((s) => origin(SITES[s].domainUrl)), ...(process.env.WSIS_ALLOWED_ORIGINS ?? '').split(',').map((o) => origin(o.trim()))])
+  const allowed = new Set([own, origin(SITE_URL), origin(CH_FR_IT_URL), ...LOCAL_SITES.map((s) => origin(SITES[s].domainUrl)), ...(process.env.WSIS_ALLOWED_ORIGINS ?? '').split(',').map((o) => origin(o.trim()))])
   allowed.delete('')
   // Behind angebunden's rewrite the request arrives at this deployment's own address; the page tells us where the buyer is.
   return claimed && allowed.has(claimed) ? claimed : own

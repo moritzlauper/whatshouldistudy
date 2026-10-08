@@ -1,12 +1,11 @@
-import { LOCAL_SITES, SITES, isLocal, routes } from './config.ts'
+import { LOCAL_SITES, SITES, isLocal, routes, siteConf } from './config.ts'
 import type { Locale, LocalSiteId, SiteId } from './config.ts'
 import { dict } from './dict.ts'
 import { siteUrl } from '../site.ts'
 
 /** Everything a view needs to render for one site. */
 export function kit(site: SiteId, base: string, locale = SITES[site].locale) {
-  const original = SITES[site]
-  const conf = locale === original.locale ? original : { ...original, locale, intl: locale, ogLocale: locale.replace('-', '_') }
+  const conf = siteConf(site, locale)
   return { site, base, conf, locale, intl: locale, t: dict(locale), r: routes(site, base, locale) }
 }
 

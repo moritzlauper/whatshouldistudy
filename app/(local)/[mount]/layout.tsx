@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { SITE_URL } from '@/lib/site.ts'
-import { SITES } from '@/lib/site/config.ts'
+import { CH_FR_IT_URL, isChFrIt, siteConf } from '@/lib/site/config.ts'
 import { dict } from '@/lib/site/dict.ts'
 import { ALL_MOUNTS, mountInfo } from '@/lib/site/kit.ts'
 import { ICONS, ogImage, pageUrl } from '@/lib/site/meta.ts'
@@ -21,10 +21,10 @@ export const dynamicParams = false
 
 export async function generateMetadata({ params }: { params: Promise<{ mount: string }> }): Promise<Metadata> {
   const { site, locale } = mountInfo((await params).mount)
-  const c = SITES[site]
+  const c = siteConf(site, locale)
   const t = dict(locale)
   return {
-    metadataBase: new URL(c.domainUrl || SITE_URL),
+    metadataBase: new URL((isChFrIt(locale) && CH_FR_IT_URL) || c.domainUrl || SITE_URL),
     title: { default: t.meta.title, template: `%s · ${c.name}` },
     description: t.meta.description,
     applicationName: c.name,

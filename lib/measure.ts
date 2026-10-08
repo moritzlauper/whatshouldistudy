@@ -1,6 +1,6 @@
 import type { Price } from './pricing.ts'
 import { SITE_URL } from './site.ts'
-import { LOCAL_SITES, SITES } from './site/config.ts'
+import { CH_FR_IT_URL, LOCAL_SITES, SITES } from './site/config.ts'
 
 /**
  * Ad measurement: Google Analytics 4 and Google Ads conversions through the
@@ -111,7 +111,7 @@ export function clearGoogleCookies() {
 
 /** Our own domains, for the linker that keeps one visitor across them. */
 function linkDomains(): string[] {
-  const hosts = [SITE_URL, ...LOCAL_SITES.map((s) => SITES[s].domainUrl)].map((u) => {
+  const hosts = [SITE_URL, CH_FR_IT_URL, ...LOCAL_SITES.map((s) => SITES[s].domainUrl)].map((u) => {
     try {
       return u ? new URL(u).hostname.replace(/^www\./, '') : ''
     } catch {

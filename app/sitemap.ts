@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
-import { siteForHost } from '@/lib/site.ts'
-import { LOCAL_SITES, SITES, routes } from '@/lib/site/config.ts'
+import { frItHosts, siteForHost } from '@/lib/site.ts'
+import { CH_FR_IT_URL, LOCAL_SITES, SITES, isChFrIt, routes } from '@/lib/site/config.ts'
 import type { SiteId } from '@/lib/site/config.ts'
 import { blogLanguages, languages, pageUrl, variants } from '@/lib/site/meta.ts'
 import type { Page } from '@/lib/site/meta.ts'
@@ -39,9 +39,9 @@ const BLOG: Array<{ page: BlogPage; priority: number; date?: string }> = [
 ]
 
 // No lastModified on the fixed pages: they carry no real edit date, and "now" on every request teaches crawlers to ignore it.
-const entries = (site: SiteId) =>
+const entries = (site: SiteId, frIt?: boolean) =>
   variants()
-    .filter((v) => v.site === site)
+    .filter((v) => v.site === site && (frIt === undefined || isChFrIt(v.locale) === frIt))
     .flatMap((v) => {
       const lang = blogLang(v.locale)
       return [
@@ -57,8 +57,11 @@ const entries = (site: SiteId) =>
 
 /** One sitemap per host: a country domain lists its own pages in each of its languages, the global one everything still under it. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const own = siteForHost((await headers()).get('host') ?? '')
+  const host = ((await headers()).get('host') ?? '').split(':')[0].toLowerCase()
+  const own = siteForHost(host)
+  // With a domain of their own, the Swiss French and Italian pages are listed there and only there.
+  if (own === 'ch' && CH_FR_IT_URL) return entries('ch', frItHosts().includes(host))
   if (own) return entries(own)
   // Country sites without a domain of their own are part of the global one.
-  return [...entries('global'), ...LOCAL_SITES.filter((s) => !SITES[s].domainUrl).flatMap(entries)]
+  return [...entries('global'), ...LOCAL_SITES.filter((s) => !SITES[s].domainUrl).flatMap((s) => entries(s))]
 }

@@ -8,11 +8,13 @@ real programmes in Switzerland, Germany, Austria, the US, the UK, France and,
 through research profiles and a university directory, 60+ more countries.
 
 Four sites from one codebase: the global English site and three German-language
-country sites for Switzerland (`wasstudieren`), Germany (`wassollichstudieren`)
-and Austria (`wasstudierich`), all working names. Each country site lists the
-degree programmes of its own universities and universities of applied sciences
-and leads with them. Until they get their own domains they live at `/schweiz`,
-`/deutschland` and `/oesterreich`.
+country sites: `wasstudieren` for Switzerland (wasstudieren.ch), `findemeinstudium`
+for Germany (findemeinstudium.de) and `wasstudieren` for Austria (wasstudieren.at).
+The Swiss site's French and Italian versions are called `whatshouldistudy` and
+live at whatshouldistudy.ch/fr and /it. Each country site lists the degree
+programmes of its own universities and universities of applied sciences and
+leads with them. Without a domain set they
+live at `/schweiz`, `/deutschland` and `/oesterreich`.
 
 The app serves at the domain root. `WSIS_BASE_PATH` mounts it under a path
 instead (see *Deploy on Vercel*). The Swiss site also speaks French (`/fr`) and
@@ -89,14 +91,20 @@ law) is in `DE_OVERRIDES` and `AT_OVERRIDES` in `dict.ts` and in
 mount, so a country domain serves the pages at its root with plain links. To
 give a country site its own domain:
 
-1. Add the domain (e.g. `whatshouldistudy.ch`, and `www.`) to the whatshouldistudy
+1. Add the domain (e.g. `wasstudieren.ch`, and `www.`) to the whatshouldistudy
    Vercel project.
-2. Set `NEXT_PUBLIC_CH_URL=https://whatshouldistudy.ch` (`_DE_URL`, `_AT_URL` for the
-   others). Its host with and without `www.` is then that country's; more hosts
-   via `WSIS_CH_HOSTS` / `WSIS_DE_HOSTS` / `WSIS_AT_HOSTS`. Old `/schweiz/…`
-   links redirect to the new domain.
+2. Set `NEXT_PUBLIC_CH_URL=https://wasstudieren.ch` (`_DE_URL`, `_AT_URL` for the
+   others). Its host with and without `www.` is then that country's. Other hosts,
+   such as a former domain, go in `WSIS_CH_HOSTS` / `WSIS_DE_HOSTS` /
+   `WSIS_AT_HOSTS` and redirect to it with the same path. Old `/schweiz/…` links
+   redirect to the new domain as well.
 3. Optionally rename it: `NEXT_PUBLIC_CH_NAME` / `_DE_NAME` / `_AT_NAME`.
-4. Register `https://whatshouldistudy.ch/callback/google` (and spotify) with the
+   The Swiss French and Italian versions can have their own domain and name:
+   `NEXT_PUBLIC_CH_FR_IT_URL=https://whatshouldistudy.ch` (and `_FR_IT_NAME`,
+   default `whatshouldistudy`). That host serves `/fr`, `/it` and the sign-in
+   callbacks, sends its root to `/fr` or `/it` by browser language (German to
+   the Swiss domain) and everything else to the Swiss domain.
+4. Register `https://wasstudieren.ch/callback/google` (and spotify) with the
    OAuth providers. Reddit takes a single redirect URI per app, so Reddit
    sign-in works on one domain only (or with a second Reddit app).
 
@@ -381,7 +389,7 @@ whatshouldistudy is its own Vercel project and serves at the root of its domain:
    builds when nothing changed and never deploys the data and bot branches.
 2. Add the domain under Settings → Domains.
 3. Set the variables from `.env.example`, at least `NEXT_PUBLIC_SITE_URL`
-   (the public origin, e.g. `https://whatshouldistudy.de`).
+   (the public origin, e.g. `https://whatshouldistudy.com`).
 
 With the system environment variables exposed (Vercel default), the data branch
 is found automatically, also after moving the repository.

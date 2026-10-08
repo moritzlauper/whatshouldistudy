@@ -1,4 +1,4 @@
-import { LOCAL_SITES, SITES } from './site/config.ts'
+import { CH_FR_IT_URL, LOCAL_SITES, SITES } from './site/config.ts'
 import type { LocalSiteId, SiteId } from './site/config.ts'
 
 export const SITE_NAME = 'whatshouldistudy'
@@ -19,6 +19,7 @@ export function withBase(path: string): string {
 export function siteUrl(site: SiteId, path = ''): string {
   if (site === 'global') return `${SITE_URL}${BASE_PATH}${path || (BASE_PATH ? '' : '/')}`
   const c = SITES[site]
+  if (site === 'ch' && CH_FR_IT_URL && /^\/(?:fr|it)(?:\/|$)/.test(path)) return `${CH_FR_IT_URL}${path}`
   return c.domainUrl ? `${c.domainUrl}${path || '/'}` : `${SITE_URL}${BASE_PATH}/${c.mount}${path}`
 }
 
@@ -28,18 +29,26 @@ const HOSTS_ENV: Record<LocalSiteId, string | undefined> = {
   at: process.env.WSIS_AT_HOSTS,
 }
 
-/** Hosts that serve a country site at their root: WSIS_XX_HOSTS plus the host of its NEXT_PUBLIC_XX_URL (with and without www.). */
-export function hostsFor(site: LocalSiteId): string[] {
-  const hosts = (HOSTS_ENV[site] ?? '').split(',')
-  const url = SITES[site].domainUrl
-  if (url) {
-    try {
-      const h = new URL(url).hostname
-      hosts.push(h, h.startsWith('www.') ? h.slice(4) : `www.${h}`)
-    } catch {
-      // Ignore a malformed URL.
-    }
+/** The host of a URL, with and without www. */
+function urlHosts(url: string): string[] {
+  if (!url) return []
+  try {
+    const h = new URL(url).hostname.toLowerCase()
+    return [h, h.startsWith('www.') ? h.slice(4) : `www.${h}`]
+  } catch {
+    // Ignore a malformed URL.
+    return []
   }
+}
+
+/** The host of a country site's own domain (NEXT_PUBLIC_XX_URL), with and without www. */
+export const domainHosts = (site: LocalSiteId) => urlHosts(SITES[site].domainUrl)
+/** The host of the Swiss French and Italian versions' domain (NEXT_PUBLIC_CH_FR_IT_URL). */
+export const frItHosts = () => urlHosts(CH_FR_IT_URL)
+
+/** Hosts of a country site: its domain (for Switzerland also the French and Italian one) plus WSIS_XX_HOSTS. With a domain set, proxy.ts redirects the extra hosts to it. */
+export function hostsFor(site: LocalSiteId): string[] {
+  const hosts = [...(HOSTS_ENV[site] ?? '').split(','), ...domainHosts(site), ...(site === 'ch' ? frItHosts() : [])]
   return [...new Set(hosts.map((h) => h.trim().toLowerCase()).filter(Boolean))]
 }
 

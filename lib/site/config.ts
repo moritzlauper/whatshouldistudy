@@ -29,7 +29,7 @@ export interface SiteConf {
   country?: string
   mount?: string
   domainMount?: string
-  /** The site's own domain, once it has one (e.g. https://whatshouldistudy.ch). */
+  /** The site's own domain, once it has one (e.g. https://wasstudieren.ch). */
   domainUrl: string
 }
 
@@ -38,8 +38,8 @@ const wordmark = (name: string, fallback: string, split: [string, string]): [str
 
 // Literal process.env reads: Next inlines NEXT_PUBLIC_ values only when written out.
 export const CH_NAME = process.env.NEXT_PUBLIC_CH_NAME || 'wasstudieren'
-export const DE_NAME = process.env.NEXT_PUBLIC_DE_NAME || 'wassollichstudieren'
-export const AT_NAME = process.env.NEXT_PUBLIC_AT_NAME || 'wasstudierich'
+export const DE_NAME = process.env.NEXT_PUBLIC_DE_NAME || 'findemeinstudium'
+export const AT_NAME = process.env.NEXT_PUBLIC_AT_NAME || 'wasstudieren'
 
 const prefs = (countries: string[], origin: Preferences['origin']): Preferences => ({ level: 'bachelor', countries, maxTuitionEur: 0, origin, englishOnly: false })
 
@@ -77,7 +77,7 @@ export const SITES: Record<SiteId, SiteConf> = {
     intl: 'de-DE',
     ogLocale: 'de_DE',
     name: DE_NAME,
-    wordmark: wordmark(DE_NAME, 'wassollichstudieren', ['wassollich', 'studieren']),
+    wordmark: wordmark(DE_NAME, 'findemeinstudium', ['findemein', 'studium']),
     storeKey: 'wsis:v1:de',
     defaultPrefs: prefs(['DE'], 'eu'),
     currency: 'EUR',
@@ -92,7 +92,7 @@ export const SITES: Record<SiteId, SiteConf> = {
     intl: 'de-AT',
     ogLocale: 'de_AT',
     name: AT_NAME,
-    wordmark: wordmark(AT_NAME, 'wasstudierich', ['was', 'studierich']),
+    wordmark: wordmark(AT_NAME, 'wasstudieren', ['was', 'studieren']),
     storeKey: 'wsis:v1:at',
     defaultPrefs: prefs(['AT'], 'eu'),
     currency: 'EUR',
@@ -109,6 +109,18 @@ export const isGerman = (locale: Locale) => locale.startsWith('de-')
 
 /** Path prefixes of the Swiss site's French and Italian versions, on its own domain. */
 export const CH_LANGUAGES = ['fr', 'it'] as const
+export const isChFrIt = (locale: Locale) => locale === 'fr-CH' || locale === 'it-CH'
+/** A domain of their own for the French and Italian versions (e.g. https://whatshouldistudy.ch), since the Swiss name is German. Without it they live on the Swiss domain. */
+export const CH_FR_IT_URL = clean(process.env.NEXT_PUBLIC_CH_FR_IT_URL)
+export const CH_FR_IT_NAME = process.env.NEXT_PUBLIC_CH_FR_IT_NAME || 'whatshouldistudy'
+
+/** A site's settings in one of its languages: the Swiss French and Italian versions have their own name. */
+export function siteConf(site: SiteId, locale = SITES[site].locale): SiteConf {
+  const c = SITES[site]
+  if (locale === c.locale) return c
+  const name = isChFrIt(locale) ? { name: CH_FR_IT_NAME, wordmark: wordmark(CH_FR_IT_NAME, 'whatshouldistudy', ['whatshouldi', 'study']) } : {}
+  return { ...c, locale, intl: locale, ogLocale: locale.replace('-', '_'), ...name }
+}
 
 const ANCHORS: Record<'de' | 'fr' | 'it', Routes['anchors']> = {
   de: { sources: 'quellen', questionnaire: 'fragebogen', prefs: 'wohin', programmes: 'studiengaenge', data: 'daten' },

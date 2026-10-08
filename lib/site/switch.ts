@@ -1,5 +1,5 @@
 import { siteUrl } from '../site.ts'
-import { SITES, isLocal, routes } from './config.ts'
+import { CH_FR_IT_URL, SITES, isChFrIt, isLocal, routes } from './config.ts'
 import type { Locale, Routes, SiteId } from './config.ts'
 
 /**
@@ -32,7 +32,12 @@ function pages(fieldIds: readonly string[]): Page[] {
 /** Link to the page at `path` in another version: relative on the same domain, absolute across domains. */
 export function switchHref(from: Version & { base: string }, to: Version, path: string, fieldIds: readonly string[]): string {
   const page = pages(fieldIds).find((p) => p(routes(from.site, from.base, from.locale)) === path) ?? ((r: Routes) => r.home)
-  if (to.site === from.site) return page(routes(to.site, from.base, to.locale))
+  if (to.site === from.site) {
+    const p = page(routes(to.site, from.base, to.locale))
+    // German and French/Italian Swiss pages on different domains.
+    const crossDomain = from.site === 'ch' && from.base === '' && CH_FR_IT_URL && isChFrIt(from.locale) !== isChFrIt(to.locale)
+    return crossDomain ? siteUrl('ch', p === '/' ? '' : p) : p
+  }
   const ownDomain = isLocal(from.site) && from.base === ''
   if (ownDomain || SITES[to.site].domainUrl) {
     const p = page(routes(to.site, '', to.locale))

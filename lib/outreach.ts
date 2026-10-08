@@ -1,11 +1,28 @@
 import { regionalize } from './site/regional.ts'
 
+/** Domain and name of each country site, as the outreach mails link and sign them. */
+const OUTREACH_SITES = [
+  { domain: 'wasstudieren.ch', name: 'wasstudieren' },
+  { domain: 'findemeinstudium.de', name: 'findemeinstudium' },
+  { domain: 'wasstudieren.at', name: 'wasstudieren' },
+  // The Swiss French and Italian versions.
+  { domain: 'whatshouldistudy.ch', name: 'whatshouldistudy' },
+]
+const DOMAIN = '(?:wasstudieren\\.(?:ch|at)|findemeinstudium\\.de|whatshouldistudy\\.ch)'
+const NAME = '(?:wasstudieren|findemeinstudium|whatshouldistudy)'
+
+/** The country site a draft links to, by its first website line (Switzerland without one). */
+export function outreachSite(body: string): { domain: string; name: string } {
+  const host = new URL(outreachWebsiteUrls(body)[0] ?? 'https://wasstudieren.ch').hostname
+  return OUTREACH_SITES.find((s) => s.domain === host) ?? OUTREACH_SITES[0]
+}
+
 /** Canonical country greeting: Swiss sentence start, German/Austrian comma continuation. */
 export function formatOutreachGreeting(body: string, lang: string): string {
   if (lang !== 'de') return body
   const swiss = isSwissGermanOutreach(body, lang)
   if (!swiss) {
-    const austrian = outreachWebsiteUrls(body).some((url) => new URL(url).hostname === 'whatshouldistudy.at')
+    const austrian = outreachWebsiteUrls(body).some((url) => new URL(url).hostname === 'wasstudieren.at')
     body = regionalize(body, austrian ? 'de-AT' : 'de-DE')
   }
   return body.replace(/^\s*Guten Tag,?\s+(\p{L})/u, (_match, firstLetter: string) => {
@@ -39,13 +56,13 @@ export async function existingOutreach(client: MailboxReader, mailboxes: string[
 
 /** Exact website lines that the rewrite must preserve. */
 export function outreachWebsiteUrls(body: string): string[] {
-  return body.split(/\r?\n/).filter((line) => /^https:\/\/whatshouldistudy\.(?:ch|de|at)(?:\/[a-z-]+)*$/.test(line))
+  return body.split(/\r?\n/).filter((line) => new RegExp(`^https://${DOMAIN}(?:/[a-z-]+)*$`).test(line))
 }
 
 export function isSwissGermanOutreach(body: string, lang: string): boolean {
   return lang === 'de' && !outreachWebsiteUrls(body).some((url) => {
     const parsed = new URL(url)
-    return parsed.hostname !== 'whatshouldistudy.ch' || /^\/(?:deutschland|oesterreich)(?:\/|$)/.test(parsed.pathname)
+    return parsed.hostname !== 'wasstudieren.ch' || /^\/(?:deutschland|oesterreich)(?:\/|$)/.test(parsed.pathname)
   })
 }
 
@@ -54,12 +71,13 @@ function escapeHtml(value: string): string {
 }
 
 export function outreachHtmlBody(body: string, signatureHtml: string): string {
-  const domain = new URL(outreachWebsiteUrls(body)[0] ?? 'https://whatshouldistudy.ch').hostname
-  signatureHtml = signatureHtml.replaceAll('whatshouldistudy.ch', domain)
-  const contentBody = body.trim().replace(/\n{2,}Moritz Lauper\nwhatshouldistudy\nwhatshouldistudy\.(?:ch|de|at)\nteam@whatshouldistudy\.com$/, '')
+  const site = outreachSite(body)
+  // signature.html is the Swiss one: wasstudieren.ch, with the name on a line of its own.
+  signatureHtml = signatureHtml.replaceAll('wasstudieren.ch', site.domain).replaceAll('>wasstudieren<', `>${site.name}<`)
+  const contentBody = body.trim().replace(new RegExp(`\n{2,}Moritz Lauper\n${NAME}\n${DOMAIN}\nteam@whatshouldistudy\\.com$`), '')
   const paragraphs = contentBody.split(/\n{2,}/).map((paragraph) => {
     const content = escapeHtml(paragraph)
-      .replace(/https:\/\/whatshouldistudy\.(?:ch|de|at)(?:\/[a-z-]+)*(?=\s|$)/g, (url) => `<a href="${url}">${url}</a>`)
+      .replace(new RegExp(`https://${DOMAIN}(?:/[a-z-]+)*(?=\\s|$)`, 'g'), (url) => `<a href="${url}">${url}</a>`)
       .replace(/\n/g, '<br>\r\n')
     return `<p style="margin:0 0 12px 0;line-height:1.4">${content}</p>`
   })

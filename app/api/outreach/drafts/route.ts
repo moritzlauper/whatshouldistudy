@@ -1,4 +1,4 @@
-import { existingOutreach, formatOutreachGreeting, outreachCallToAction, outreachHtmlBody, outreachWebsiteUrls, isSwissGermanOutreach } from '@/lib/outreach.ts'
+import { existingOutreach, formatOutreachGreeting, outreachCallToAction, outreachHtmlBody, outreachSite, outreachWebsiteUrls, isSwissGermanOutreach } from '@/lib/outreach.ts'
 import { randomUUID } from 'node:crypto'
 import { ImapFlow } from 'imapflow'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
@@ -236,7 +236,7 @@ export async function POST(req: Request) {
         }
       }
       const finalized = { ...draft, body: message.body }
-      const appended = await client.append(draftsMailbox.path, rawMessage(finalized, user, process.env.SMTP_SENDER_NAME || 'Moritz Lauper | wasstudieren', signatureHtml), ['\\Draft'])
+      const appended = await client.append(draftsMailbox.path, rawMessage(finalized, user, process.env.SMTP_SENDER_NAME || `Moritz Lauper | ${outreachSite(finalized.body).name}`, signatureHtml), ['\\Draft'])
       if (!appended) throw new Error(`Could not create draft ${draft.id}`)
       created++
     }

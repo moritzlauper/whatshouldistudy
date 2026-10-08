@@ -1,4 +1,4 @@
-import { AT_NAME, CH_NAME, DE_NAME } from './config.ts'
+import { AT_NAME, CH_FR_IT_NAME, CH_NAME, DE_NAME } from './config.ts'
 import { mergeDeep, regionalizeDeep } from './regional.ts'
 import type { DeepPartial } from './regional.ts'
 import type { Locale } from './config.ts'
@@ -1436,12 +1436,12 @@ const frCH = mergeDeep(en, {
   trust: { openSource: 'Open source', nothingStored: 'Ton historique reste sur ton appareil', viewCode: 'Voir le code sur GitHub', footer: 'Open source (MIT) sur GitHub', point: 'Open source : chaque ligne de code est publique', startNote: 'Tes fichiers sont analysés dans ton navigateur et ne nous sont pas transmis. Pour rechercher des formations, seuls les identifiants de tes domaines sont envoyés. Le code source est public.' },
   tr: (s: string): string => FR_MESSAGES.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), s),
   meta: {
-    title: `${CH_NAME} : Qu’étudier ?`, description: 'Trouve les domaines d’études qui te correspondent à partir de tes activités numériques et d’un bref questionnaire. Tes données restent dans ton navigateur.',
+    title: `${CH_FR_IT_NAME} : Qu’étudier ?`, description: 'Trouve les domaines d’études qui te correspondent à partir de tes activités numériques et d’un bref questionnaire. Tes données restent dans ton navigateur.',
     keywords: ['Qu’étudier', 'Orientation universitaire', 'Études en Suisse', 'Choix des études', 'EPF ou HES'],
     start: 'Trouver mon domaine', startDesc: 'Connecte tes données et réponds à un bref questionnaire. Tout se passe dans ton navigateur.',
     results: 'Ton résultat', fields: 'Domaines d’études', fieldsDesc: (n: number) => `${n} domaines d’études : matières, profils et hautes écoles en Suisse.`,
     fieldDesc: (name: string, blurb: string) => `${blurb} Découvre à qui ${name} convient, les matières concernées et où étudier en Suisse.`,
-    how: 'Comment ça marche', howDesc: `Le modèle de ${CH_NAME} : les sources analysées, la mesure des intérêts et les limites des résultats.`,
+    how: 'Comment ça marche', howDesc: `Le modèle de ${CH_FR_IT_NAME} : les sources analysées, la mesure des intérêts et les limites des résultats.`,
     privacy: 'Confidentialité', terms: 'Conditions', connecting: 'Connexion…', unlocked: 'Rapport débloqué', imprint: 'Mentions légales',
   },
   misc: { language: 'Langue', start: 'Commencer', home: (n: string) => `Accueil ${n}`, couldNotUnlock: 'Impossible de débloquer le rapport.', profileLabel: 'Profil d’intérêts', menu: 'Menu', madeIn: 'Créé à Zurich', dataCredit: 'Données : College Scorecard, Discover Uni, Parcoursup, OFS, OpenAlex' },
@@ -1626,12 +1626,12 @@ const itCH = mergeDeep(en, {
   trust: { openSource: 'Open source', nothingStored: 'La cronologia resta sul tuo dispositivo', viewCode: 'Vedi il codice su GitHub', footer: 'Open source (MIT) su GitHub', point: 'Open source: ogni riga di codice è pubblica', startNote: 'I file vengono analizzati nel browser e non ci vengono inviati. Per cercare i corsi inviamo soltanto gli identificativi delle tue aree. Il codice sorgente è pubblico.' },
   tr: (s: string): string => IT_MESSAGES.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), s),
   meta: {
-    title: `${CH_NAME}: cosa dovrei studiare?`, description: 'Scopri le aree di studio adatte a te grazie alle tue attività digitali e a un breve questionario. I tuoi dati restano nel browser.',
+    title: `${CH_FR_IT_NAME}: cosa dovrei studiare?`, description: 'Scopri le aree di studio adatte a te grazie alle tue attività digitali e a un breve questionario. I tuoi dati restano nel browser.',
     keywords: ['Cosa studiare', 'Orientamento universitario', 'Studiare in Svizzera', 'Scelta degli studi', 'Politecnico o SUP'],
     start: 'Trova la mia area', startDesc: 'Collega i tuoi dati e rispondi a un breve questionario. Tutto avviene nel browser.',
     results: 'Il tuo risultato', fields: 'Aree di studio', fieldsDesc: (n: number) => `${n} aree di studio: contenuti, profili e scuole universitarie in Svizzera.`,
     fieldDesc: (name: string, blurb: string) => `${blurb} Scopri a chi si addice ${name}, quali materie coinvolge e dove studiare in Svizzera.`,
-    how: 'Come funziona', howDesc: `Il modello di ${CH_NAME}: le fonti analizzate, la valutazione degli interessi e i limiti dei risultati.`,
+    how: 'Come funziona', howDesc: `Il modello di ${CH_FR_IT_NAME}: le fonti analizzate, la valutazione degli interessi e i limiti dei risultati.`,
     privacy: 'Informativa sulla privacy', terms: 'Condizioni', connecting: 'Connessione…', unlocked: 'Report sbloccato', imprint: 'Note legali',
   },
   misc: { language: 'Lingua', start: 'Inizia', home: (n: string) => `Home ${n}`, couldNotUnlock: 'Impossibile sbloccare il report.', profileLabel: 'Profilo degli interessi', menu: 'Menu', madeIn: 'Realizzato a Zurigo', dataCredit: 'Dati: College Scorecard, Discover Uni, Parcoursup, UST, OpenAlex' },

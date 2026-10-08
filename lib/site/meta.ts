@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { BASE_PATH, SITE_URL, siteUrl } from '../site.ts'
 import { mountInfo } from './kit.ts'
 import { dict } from './dict.ts'
-import { SITES, routes } from './config.ts'
+import { CH_FR_IT_URL, SITES, routes, siteConf } from './config.ts'
 import { blogLang } from '../blog.ts'
 import type { BlogLang } from '../blog.ts'
 import type { Dict } from './dict.ts'
@@ -16,13 +16,13 @@ export type Variant = { site: SiteId; locale: Locale }
 
 /**
  * Every language version, for hreflang. French and Italian live at /fr and /it
- * of the Swiss domain, so only once it has one.
+ * of the Swiss domain or of their own, so only once there is one.
  */
 export function variants(): Variant[] {
   return [
     { site: 'global', locale: 'en' },
     { site: 'ch', locale: 'de-CH' },
-    ...(SITES.ch.domainUrl ? ([{ site: 'ch', locale: 'fr-CH' }, { site: 'ch', locale: 'it-CH' }] as const) : []),
+    ...(SITES.ch.domainUrl || CH_FR_IT_URL ? ([{ site: 'ch', locale: 'fr-CH' }, { site: 'ch', locale: 'it-CH' }] as const) : []),
     { site: 'de', locale: 'de-DE' },
     { site: 'at', locale: 'de-AT' },
   ]
@@ -67,7 +67,7 @@ type Text = { title?: string; description?: string; index?: boolean }
  * Without a title the layout's default applies (the home pages).
  */
 export function pageMeta(site: SiteId, page: Page, m: Text, locale = SITES[site].locale): Metadata {
-  const c = SITES[site]
+  const c = siteConf(site, locale)
   const t = dict(locale)
   const own = { ...(m.title ? { title: m.title } : {}), ...(m.description ? { description: m.description } : {}) }
   if (m.index === false) return { ...own, robots: { index: false } }
