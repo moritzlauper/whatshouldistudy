@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
-import { SITE_NAME, SITE_URL, siteUrl, withBase } from '@/lib/site.ts'
+import { SITE_NAME, SITE_URL, siteUrl } from '@/lib/site.ts'
 import { dict } from '@/lib/site/dict.ts'
-import { ogImage } from '@/lib/site/meta.ts'
+import { ICONS, ogImage } from '@/lib/site/meta.ts'
 import { bricolage } from '../ui/fonts.ts'
 import { Shell } from '../ui/shell.tsx'
 import '../globals.css'
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: t.meta.description,
   applicationName: SITE_NAME,
   keywords: t.meta.keywords,
-  icons: { icon: withBase('/icon.svg') },
+  icons: ICONS,
   openGraph: { type: 'website', siteName: SITE_NAME, title: t.meta.title, description: t.meta.description, url: siteUrl('global'), locale: 'en', images: [ogImage('global')] },
   twitter: { card: 'summary_large_image', title: t.meta.title, description: t.meta.description, images: [ogImage('global').url] },
 }

@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from 'next'
-import { SITE_URL, withBase } from '@/lib/site.ts'
+import { SITE_URL } from '@/lib/site.ts'
 import { SITES } from '@/lib/site/config.ts'
 import { dict } from '@/lib/site/dict.ts'
 import { ALL_MOUNTS, mountInfo } from '@/lib/site/kit.ts'
-import { ogImage, pageUrl } from '@/lib/site/meta.ts'
+import { ICONS, ogImage, pageUrl } from '@/lib/site/meta.ts'
 import { bricolage } from '../../ui/fonts.ts'
 import { Shell } from '../../ui/shell.tsx'
 import '../../globals.css'
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ mount: st
     description: t.meta.description,
     applicationName: c.name,
     keywords: t.meta.keywords,
-    icons: { icon: withBase('/icon.svg') },
+    icons: ICONS,
     openGraph: { type: 'website', siteName: c.name, title: t.meta.title, description: t.meta.description, url: pageUrl(site, (r) => r.home, locale), locale: locale.replace('-', '_'), images: [ogImage(site)] },
     twitter: { card: 'summary_large_image', title: t.meta.title, description: t.meta.description, images: [ogImage(site).url] },
   }

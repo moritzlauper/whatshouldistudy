@@ -42,6 +42,18 @@ export function languages(page: Page): Record<string, string> {
   return out
 }
 
+/**
+ * Icons for browsers and search results. Google shows a favicon only if it is
+ * SVG or a raster image whose size is a multiple of 48 px, hence the PNG.
+ */
+export const ICONS: Metadata['icons'] = {
+  icon: [
+    { url: `${BASE_PATH}/icon.svg`, type: 'image/svg+xml' },
+    { url: `${BASE_PATH}/icon-192.png`, sizes: '192x192', type: 'image/png' },
+  ],
+  apple: `${BASE_PATH}/apple-touch-icon.png`,
+}
+
 /** The share image of a site (app/og/[file]/route.tsx). */
 export function ogImage(site: SiteId) {
   const origin = SITES[site].domainUrl || SITE_URL
