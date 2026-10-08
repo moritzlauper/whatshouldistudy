@@ -349,27 +349,25 @@ and in emails, never on a public page.
 
 ## Blog
 
-`/blog` on every site publishes one article a week on choosing a degree. The
-GitHub Action `wsis-blog.yml` runs `scripts/blog-post.ts` on Tuesdays: Claude
-(`claude-opus-5-5`) picks a topic that isn't on the blog yet, researches it with
-web search and web fetch, and writes an English article for the global site and
-a German one in Swiss Standard German for the country sites. Germany and
-Austria get the German text through `regionalize()`; French and Italian have no
-blog. Each post is a JSON file in `content/blog` (`content/blog/index.ts`
-imports them all), written in a small Markdown subset (`app/ui/markdown.tsx`)
-with links to field pages (`field:<id>`) and the questionnaire (`start`).
+`/blog` on every site publishes one article a week on choosing a degree, an
+English one for the global site and a German one in Swiss Standard German for
+the country sites. Germany and Austria get the German text through
+`regionalize()`; French and Italian have no blog. Each post is a JSON file in
+`content/blog` (`content/blog/index.ts` imports them all, `pnpm blog:index`
+rewrites it), written in a small Markdown subset (`app/ui/markdown.tsx`) with
+links to field pages (`field:<id>`) and the questionnaire (`start`). Every
+article says that it was written with AI and lists its sources.
 
-`checkPost()` in `lib/blog.ts` rejects posts with taken slugs, unknown fields,
-fewer than three sources, dashes as sentence connectors or German that isn't
-Swiss (ß, „“, 14,7, 1.250, 83 %), and the script rejects sources Claude did not
-actually open during the research. Claude gets the problems back up to three
-times; a post that still fails is not published. A post that passes goes
-through typecheck, tests and a production build, then the Action commits it to
-`main`. Every article says that it was written with AI and lists its sources.
+The posts are researched and written by Claude in a weekly GitHub Action of the
+private outreach repository, which checks out this one, adds the post, runs
+typecheck, tests and a production build and pushes to `main`. That's why
+`@anthropic-ai/sdk` is a dev dependency here. `checkPost()` in
+`lib/blog-check.ts` is the bar a post has to clear: free slugs, known fields, at
+least three sources, no dashes as sentence connectors and Swiss German spelling
+(no ß, „“, 14,7, 1.250 or 83 %); `test/blog.test.ts` applies it to every
+published post.
 
-Secret: `ANTHROPIC_API_KEY`. «Run workflow» takes an optional topic. Locally:
-`ANTHROPIC_API_KEY=… pnpm blog:post` (`BLOG_TOPIC`, `BLOG_DATE` optional). To
-take a post down, delete its JSON file and run `pnpm blog:index`.
+To take a post down, delete its JSON file and run `pnpm blog:index`.
 
 ## Deploy on Vercel
 

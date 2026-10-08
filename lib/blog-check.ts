@@ -1,7 +1,7 @@
 /**
  * The shape of a blog post and the checks it must pass before it is published
- * (scripts/blog-post.ts, test/blog.test.ts). Kept apart from lib/blog.ts so the
- * script can run while content/blog/index.ts points at a deleted post.
+ * (by the generator in the outreach repo and test/blog.test.ts). Kept apart from
+ * lib/blog.ts so it loads while content/blog/index.ts points at a deleted post.
  */
 
 export interface PostText {

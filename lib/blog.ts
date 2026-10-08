@@ -3,8 +3,8 @@ import type { Locale } from './site/config.ts'
 import type { Post } from './blog-check.ts'
 
 /**
- * The blog: one article a week, researched and written by
- * scripts/blog-post.ts (GitHub Action «whatshouldistudy blog»). Each post is
+ * The blog: one article a week, researched and written by Claude in a GitHub
+ * Action of the private outreach repo, which commits it here. Each post is
  * a JSON file in content/blog with an English version for the global site and
  * a German one in Swiss Standard German for the country sites; Germany and
  * Austria get it through regionalize(). French and Italian have no blog.
