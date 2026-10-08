@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-08",
+  "site": "ch",
+  "fields": [
+    "education",
+    "social-work",
+    "nursing",
+    "medicine"
+  ],
+  "sources": [
+    {
+      "title": "Statistisches – Appenzell Ausserrhoden (quotes the BFS grant statistics 2024)",
+      "url": "https://ar.ch/verwaltung/departement-bildung-und-kultur/amt-fuer-mittel-und-hochschulen-und-berufsbildung/abteilung-ausbildungs-und-studienbeitraege/rechtliches-statistisches/statistisches/"
+    },
+    {
+      "title": "BFS Katalog, Ausbildungsbeiträge (new tables 06.10.2026)",
+      "url": "https://www.bfs.admin.ch/bfs/de/home/statistiken/katalog.html?dyn_prodima=900035"
+    },
+    {
+      "title": "BFS, Kantonale Stipendien und Darlehen 2022",
+      "url": "https://dam-api.bfs.admin.ch/hub/api/dam/assets/27645907/master"
+    },
+    {
+      "title": "Kanton Uri, Revision der Stipendienverordnung, Erläuternder Bericht",
+      "url": "https://www.ur.ch/_docn/440411/Revision_der_Stipendienverordnung;_Erl%C3%A4uternder_Be.pdf"
+    },
+    {
+      "title": "Um Defizite aufzufangen: Studiengebühren an den Schweizer Hochschulen steigen | cash",
+      "url": "https://www.cash.ch/news/top-news/um-defizite-aufzufangen-studiengebuhren-an-den-schweizer-hochschulen-steigen-894369"
+    },
+    {
+      "title": "Stipendien- und Fördergesuche | Schweizerform",
+      "url": "https://schweizerform.ch/de/anwendungsfaelle/stipendien-foerdergesuche-formulare"
+    }
+  ],
+  "de": {
+    "slug": "stipendium-im-studium-wer-bekommt-es-wie-viel",
+    "title": "Stipendium im Studium: Wer bekommt es und warum sich ein Gesuch lohnen kann",
+    "description": "Was die kantonalen Stipendienzahlen für 2024 zeigen, wie du ein Gesuch stellst und warum Regeln und Beträge je nach Wohnkanton deiner Eltern verschieden sind.",
+    "body": "Am 6. Oktober 2026 hat das Bundesamt für Statistik (BFS) neue Tabellen zu den kantonalen Ausbildungsbeiträgen veröffentlicht, die den Zeitraum 2004–2025 abdecken. Die Zahlen für 2025 konnten wir für diesen Beitrag nicht einsehen. Wir stützen uns deshalb auf die Statistik für 2024 und auf ältere BFS-Auswertungen. Die neuesten Werte findest du im [BFS-Katalog zu den Ausbildungsbeiträgen](https://www.bfs.admin.ch/bfs/de/home/statistiken/katalog.html?dyn_prodima=900035).\n\n## Wer bekommt ein Stipendium?\n\nViele nehmen an, Stipendien seien nur für Familien in grosser Not gedacht. Die Zahlen sprechen für einen breiteren Kreis: 2024 erhielten 7.2% der 622’840 Personen in nachobligatorischer Ausbildung ein Stipendium, weitere 0.4% ein Darlehen. Das sind keine Randfälle.\n\nDie Kantone zahlten 2024 insgesamt CHF 369 Millionen an Ausbildungsbeiträgen aus, 2023 waren es CHF 379.6 Millionen. Rund 95% davon, etwa CHF 349 Millionen, flossen als Stipendien, die du nicht zurückzahlen musst. Die restlichen 5%, etwa CHF 20 Millionen, wurden als Darlehen vergeben.\n\nBei der Verteilung auf die Ausbildungsstufen gingen 57% der Stipendiensumme an die Sekundarstufe II und 42% an die Tertiärstufe. Von den Empfängerinnen und Empfängern waren 64% auf der Sekundarstufe II und 35% an einer Hochschule. Wer an einer Universität, ETH, Fachhochschule oder Pädagogischen Hochschule studiert, gehört also zu einer Minderheit unter den Bezügern, aber zu einer Gruppe mit höheren Beträgen. 2022 lag der Durchschnitt pro Person bei CHF 7’036 auf der Sekundarstufe II und bei CHF 9’035 auf der Tertiärstufe.\n\nZum Vergleich: Die kantonalen Stipendien machen weniger als 1% der öffentlichen Bildungsausgaben aus.\n\n## So stellst du ein Gesuch\n\nStipendien vergeben die Kantone, nicht der Bund. Zuständig ist die Stipendienstelle des Kantons, in dem deine Eltern wohnen. Dort bekommst du das Formular und die Liste der Unterlagen.\n\nIn den meisten Kantonen wird für die Berechnung nicht nur deine eigene Steuerveranlagung verlangt, sondern auch jene deiner Eltern. Ohne diese Belege wird in der Regel nichts ausbezahlt. Du solltest deine Eltern deshalb früh ins Boot holen, am besten schon im Frühling vor dem Studienstart.\n\nExakte Fristen und Beträge unterscheiden sich nach Kanton, und wir haben sie nicht geprüft. Schau auf der Website deiner kantonalen Stipendienstelle nach und frage dort telefonisch nach, wenn etwas unklar bleibt.\n\n## Stipendium oder Darlehen\n\nEin Stipendium ist ein Beitrag, den du behalten darfst. Ein Darlehen musst du später zurückzahlen. Darlehen sind selten: 2022 erhielten von 46’285 Personen mit Ausbildungsbeiträgen rund 95% nur ein Stipendium, 2% nur ein Darlehen und 3% beides. Von den Darlehenssummen gingen 87% an Studierende der Tertiärstufe.\n\nWenn dir ein Kanton ein Darlehen anbietet, lohnt sich ein Blick auf die Bedingungen der Rückzahlung, bevor du unterschreibst.\n\n## Warum die Kantone verschieden sind\n\nDer Bund unterstützt die Kantone seit der NFA 2008 mit CHF 25 Millionen pro Jahr für Stipendien auf der Tertiärstufe. Die Regeln selbst bleiben bei den Kantonen. Die Interkantonale Stipendien-Konferenz (IKSK) hat am 5./6. Juni 2025 empfohlen, die Höchstansätze anzuheben, damit Stipendien ihre Wirkung behalten. Ob und wann dein Kanton das umsetzt, weisst du erst nach einem Blick in dessen Verordnung.\n\nWie unterschiedlich die Lage sein kann, zeigt der Kanton Uri. Dort sank die gesamte Stipendiensumme von 2018 bis 2024 um fast 53%, während die Zahl der möglichen Bezüger nur um 6.0% zurückging. Der Anteil abgelehnter Gesuche stieg von 38% auf 57%. Das ist ein Beispiel aus einem einzelnen Kanton und kein Trend für die ganze Schweiz. Es zeigt aber, dass derselbe Familienhintergrund je nach Wohnkanton zu einem anderen Ergebnis führen kann.\n\n## Studiengebühren im Hintergrund\n\nSeit 2025 zahlen ausländische Studierende an der ETH Zürich und der EPFL CHF 2’190 statt CHF 730 pro Semester. Mehrere Hochschulen heben 2026 ihre Gebühren an, etwa die Berner Fachhochschule von CHF 750 auf CHF 850 und die Universität St. Gallen um rund 7%. Hintergrund sind die geplanten Kürzungen der Bundesbeiträge ab 2027. Für Schweizer Studierende sind die Beträge weiterhin im Bereich von einigen hundert bis gut tausend Franken pro Semester, die Lebenshaltungskosten fallen meist stärker ins Gewicht.\n\n## Checkliste\n\n1. Kanton bestimmen: Es zählt der Wohnort deiner Eltern.\n2. Auf der Website der Stipendienstelle Fristen, Formulare und Rechner prüfen.\n3. Steuerunterlagen der Eltern früh organisieren.\n4. Gesuch stellen, auch wenn du unsicher bist, ob es reicht.\n5. Bei einer Ablehnung den Entscheid lesen und Einsprache prüfen. In Genf zum Beispiel bleiben dafür 30 Tage.\n\nWer noch nicht weiss, was er studieren möchte, kann mit dem [kostenlosen Fragebogen](start) herausfinden, welche Richtungen zu den eigenen Interessen passen. Bei Pflegeberufen wie [Pflege](field:nursing) oder bei [Sozialer Arbeit](field:social-work) lohnt es sich, die Finanzierung früh mitzudenken, weil Studium und Praktika oft zeitlich viel beanspruchen.\n\nDie Stipendienstellen selbst bearbeiten Gesuche mit sensiblen Familiendaten, und wer ein Gesuch einreicht, ist in der Pflicht, vollständige und korrekte Angaben zu liefern. Zu Unrecht bezogene Beiträge können zurückgefordert werden."
+  }
+}
