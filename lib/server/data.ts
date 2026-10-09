@@ -46,39 +46,47 @@ function getUntracked(url: string): Promise<{ status: number; body: string }> {
   })
 }
 
+/** One file from the data branch; a server error counts as a failure, a 404 as an answer. */
+async function fetchRemote<T>(url: string, big: boolean): Promise<{ status: number; value?: T }> {
+  if (big) {
+    const res = await getUntracked(url)
+    if (res.status >= 500) throw new Error(`HTTP ${res.status}`)
+    return { status: res.status, value: res.status === 200 ? (JSON.parse(res.body) as T) : undefined }
+  }
+  const res = await fetch(url, { next: { revalidate: TTL / 1000 } })
+  if (res.status >= 500) throw new Error(`HTTP ${res.status}`)
+  return { status: res.status, value: res.ok ? ((await res.json()) as T) : undefined }
+}
+
 async function load<T>(path: string): Promise<{ value: T | null; sample: boolean }> {
   const hit = cache.get(path)
   if (hit && Date.now() - hit.at < TTL) return { value: hit.value as T, sample: hit.sample }
   const base = remoteBase()
   if (base) {
-    try {
-      const big = path.startsWith('programmes/') || path.startsWith('catalogue/')
-      let status: number
-      let value: T | undefined
-      if (big) {
-        const res = await getUntracked(`${base}/${path}`)
-        status = res.status
-        if (status === 200) value = JSON.parse(res.body) as T
-      } else {
-        const res = await fetch(`${base}/${path}`, { next: { revalidate: TTL / 1000 } })
-        status = res.status
-        if (res.ok) value = (await res.json()) as T
+    const big = path.startsWith('programmes/') || path.startsWith('catalogue/')
+    let res: { status: number; value?: T } | undefined
+    let error: unknown
+    for (let attempt = 0; attempt < 3 && !res; attempt++) {
+      try {
+        res = await fetchRemote<T>(`${base}/${path}`, big)
+      } catch (e) {
+        error = e
+        await new Promise((ok) => setTimeout(ok, 500 * 2 ** attempt))
       }
-      if (value !== undefined) {
-        cache.set(path, { at: Date.now(), value, sample: false })
-        return { value, sample: false }
+    }
+    // Unreachable data must not quietly become the demo data: the error keeps the previous page or deployment.
+    if (!res) throw new Error(`Data: ${path} unreachable (${(error as Error).message})`)
+    if (res.value !== undefined) {
+      cache.set(path, { at: Date.now(), value: res.value, sample: false })
+      return { value: res.value, sample: false }
+    }
+    if (res.status === 404) {
+      // The data branch exists but doesn't have this file (e.g. no research for a field).
+      const meta = cache.get('meta.json')
+      if (meta && !meta.sample) {
+        cache.set(path, { at: Date.now(), value: null, sample: false })
+        return { value: null, sample: false }
       }
-      if (status === 404) {
-        // The data branch exists but doesn't have this file (e.g. no research for a field).
-        const meta = cache.get('meta.json')
-        if (meta && !meta.sample) {
-          cache.set(path, { at: Date.now(), value: null, sample: false })
-          return { value: null, sample: false }
-        }
-      }
-    } catch (e) {
-      // Falls through to the demo data; say so, since the pages then show it.
-      console.error(`Data: ${path} unavailable (${(e as Error).message}), using the demo data`)
     }
   }
   try {
