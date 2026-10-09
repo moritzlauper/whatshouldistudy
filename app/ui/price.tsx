@@ -2,7 +2,7 @@
 
 import { withBase } from '@/lib/site.ts'
 import { useEffect, useState } from 'react'
-import { formatPrice, priceForSite } from '@/lib/pricing.ts'
+import { formatPrice, priceForSite, priceParts } from '@/lib/pricing.ts'
 import type { Price as PriceT } from '@/lib/pricing.ts'
 import type { ConsentRule } from '@/lib/measure.ts'
 import type { SiteId } from '@/lib/site/config.ts'
@@ -49,10 +49,14 @@ export function Price({ site }: { site: SiteId }) {
   const config = useConfig(site)
   const conf = SITES[site]
   const price = config?.price ?? priceForSite(site)
+  if (price.regular === undefined) return <span>{formatPrice(price, conf.intl)}</span>
+  // Three short lines fit the badge: «CHF 17» struck through, «13.60», «CHF».
+  const parts = priceParts(price, conf.intl)
   return (
     <>
-      {price.regular !== undefined && <s className="text-[0.6em] opacity-75">{formatPrice({ currency: price.currency, amount: price.regular }, conf.intl)}</s>}
-      <span>{formatPrice(price, conf.intl)}</span>
+      <s className="text-[0.65em] opacity-80">{formatPrice({ currency: price.currency, amount: price.regular }, conf.intl)}</s>
+      <span className="mt-0.5">{parts.amount}</span>
+      <span className="text-[0.6em]">{parts.currency}</span>
     </>
   )
 }

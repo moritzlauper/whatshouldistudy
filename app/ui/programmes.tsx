@@ -189,7 +189,7 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
       </div>
       <div className="card relative h-fit bg-accent p-7 text-accent-ink lg:sticky lg:top-24">
         <div className="absolute -top-7 right-0 rotate-12 sm:-right-4">
-          <Burst size={96} color="var(--yellow)" />
+          <Burst size={108} color="var(--yellow)" />
           <span className="absolute inset-0 flex flex-col items-center justify-center text-center font-display text-base leading-none text-on-color">
             <Price site={site} />
           </span>

@@ -174,8 +174,8 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
             </ul>
           </div>
           <div className="card relative bg-accent p-8 text-accent-ink" style={{ transform: 'rotate(0.6deg)' }}>
-            <div className="absolute -top-8 right-0 rotate-12 sm:-right-5">
-              <Burst size={118} color="var(--yellow)" />
+            <div className="absolute -top-10 right-0 rotate-12 sm:-right-6">
+              <Burst size={132} color="var(--yellow)" />
               <span className="absolute inset-0 flex flex-col items-center justify-center text-center font-display text-xl leading-none text-on-color">
                 <Price site={site} />
               </span>

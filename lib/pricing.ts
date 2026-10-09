@@ -129,6 +129,20 @@ export function formatPrice(p: Price, locale = 'en'): string {
   }
 }
 
+/** The amount and the currency sign apart («13.60» and «CHF»), for a badge too narrow for both on one line. */
+export function priceParts(p: Price, locale = 'en'): { amount: string; currency: string } {
+  try {
+    const digits = Number.isInteger(p.amount) ? 0 : 2
+    const parts = new Intl.NumberFormat(locale, { style: 'currency', currency: p.currency, minimumFractionDigits: digits, maximumFractionDigits: digits }).formatToParts(p.amount)
+    return {
+      amount: parts.filter((x) => x.type !== 'currency' && x.type !== 'literal').map((x) => x.value).join(''),
+      currency: parts.find((x) => x.type === 'currency')?.value ?? p.currency,
+    }
+  } catch {
+    return { amount: String(p.amount), currency: p.currency }
+  }
+}
+
 /**
  * Plans for organisations (schools, counselling services, universities): a
  * number of full reports a month for their students. Billed yearly by default;
