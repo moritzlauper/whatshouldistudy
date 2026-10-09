@@ -1,6 +1,89 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { existingOutreach, formatOutreachGreeting, outreachCallToAction, outreachHtmlBody, outreachSite, outreachWebsiteUrls, isSwissGermanOutreach } from '../lib/outreach.ts'
+import { OUTREACH_SEND_LOCK, OutreachSendBusy, outreachDailySendLimit, outreachDay, sendOutreach } from '../lib/outreach-send.ts'
+import type { ImapFlow } from 'imapflow'
+
+test('outreach send limit defaults to ten, can be lowered or disabled, and fails closed', () => {
+  assert.equal(outreachDailySendLimit('10'), 10)
+  assert.equal(outreachDailySendLimit('3'), 3)
+  assert.equal(outreachDailySendLimit('0'), 0)
+  for (const value of ['11', '-1', '1.5', '', 'abc']) assert.throws(() => outreachDailySendLimit(value))
+})
+
+test('outreach days follow Zurich midnight including daylight saving', () => {
+  assert.equal(outreachDay(new Date('2026-01-01T23:00:00Z')), '2026-01-02')
+  assert.equal(outreachDay(new Date('2026-07-01T22:00:00Z')), '2026-07-02')
+  assert.equal(outreachDay(new Date('2026-03-29T22:00:00Z')), '2026-03-30')
+  assert.equal(outreachDay(new Date('2026-10-25T23:00:00Z')), '2026-10-26')
+})
+
+function sendFixture(dates: Date[] = []) {
+  const events: string[] = []
+  const fixture = {
+    async mailboxCreate(path: string) { assert.equal(path, OUTREACH_SEND_LOCK); events.push('lock'); return {} },
+    async mailboxDelete(path: string) { assert.equal(path, OUTREACH_SEND_LOCK); events.push('unlock'); return {} },
+    async mailboxOpen() {},
+    async search(query: { or?: unknown; since?: Date; header?: unknown }, options?: { uid?: boolean }) {
+      if (query.or) return []
+      assert.deepEqual(query.header, { 'X-Outreach-ID': '' })
+      assert.equal(query.since?.toISOString(), '2026-07-01T00:00:00.000Z')
+      assert.equal(options?.uid, true)
+      return dates.map((_date, index) => index + 1)
+    },
+    async *fetch() { for (const internalDate of dates) yield { internalDate } },
+    async append(path: string, raw: string, flags: string[], date: Date) {
+      assert.equal(path, 'Sent'); assert.equal(raw, 'raw message')
+      assert.deepEqual(flags, ['\\Seen', '\\Draft'])
+      assert.equal(date.toISOString(), '2026-07-01T22:01:00.000Z')
+      events.push('reserve'); return { uid: 42 }
+    },
+    async messageFlagsRemove(uid: number, flags: string[], options: unknown) {
+      assert.equal(uid, 42); assert.deepEqual(flags, ['\\Draft']); assert.deepEqual(options, { uid: true })
+      events.push('finalize'); return true
+    },
+  }
+  const invoke = (deliver = async () => { events.push('smtp') }, limit = 10) => sendOutreach(
+    fixture as unknown as ImapFlow, { sent: 'Sent', drafts: 'Drafts' }, { id: 'test', to: 'office@example.ch' }, 'raw message', deliver, limit, () => new Date('2026-07-01T22:01:00Z'),
+  )
+  return { fixture, events, invoke }
+}
+
+test('send reserves a durable sent copy before SMTP and then finalizes it under the lock', async () => {
+  const { events, invoke } = sendFixture([new Date('2026-07-01T21:59:00Z')])
+  assert.deepEqual(await invoke(), { sent: 1, skipped: 0, limitReached: false })
+  assert.deepEqual(events, ['lock', 'reserve', 'smtp', 'finalize', 'unlock'])
+})
+
+test('tenth daily message is allowed, eleventh and disabled sending never call SMTP', async () => {
+  for (const [count, limit, expected] of [[9, 10, 1], [10, 10, 0], [0, 0, 0]]) {
+    const { events, invoke } = sendFixture(Array.from({ length: count }, () => new Date('2026-07-01T22:00:00Z')))
+    const result = await invoke(undefined, limit)
+    assert.equal(result.sent, expected)
+    assert.equal(result.limitReached, !expected)
+    assert.equal(events.includes('smtp'), Boolean(expected))
+  }
+})
+
+test('uncertain SMTP delivery retains the reservation and releases the lock without finalizing', async () => {
+  const { events, invoke } = sendFixture()
+  await assert.rejects(invoke(async () => { events.push('smtp'); throw new Error('SMTP timeout') }), /SMTP timeout/)
+  assert.deepEqual(events, ['lock', 'reserve', 'smtp', 'unlock'])
+})
+
+test('concurrent send cannot acquire or remove another request lock', async () => {
+  const { fixture, events, invoke } = sendFixture()
+  fixture.mailboxCreate = async () => { throw new Error('Already exists') }
+  await assert.rejects(invoke(), OutreachSendBusy)
+  assert.deepEqual(events, [])
+})
+
+test('duplicate under the send lock skips SMTP', async () => {
+  const { fixture, events, invoke } = sendFixture()
+  fixture.search = async () => [12]
+  assert.deepEqual(await invoke(), { sent: 0, skipped: 1, limitReached: false })
+  assert.deepEqual(events, ['lock', 'unlock'])
+})
 
 test('CTA is the actual question, including legacy templates, never the farewell', () => {
   const body = 'Guten Tag\n\nText\n\nKönnten Sie den Link weiterleiten?\n\nFreundliche Grüsse\n\nMoritz\nWebsite'

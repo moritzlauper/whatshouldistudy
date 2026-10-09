@@ -1,6 +1,8 @@
 import { existingOutreach, formatOutreachGreeting, outreachCallToAction, outreachHtmlBody, outreachSite, outreachWebsiteUrls, isSwissGermanOutreach } from '@/lib/outreach.ts'
+import { OutreachSendBusy, outreachDailySendLimit, sendOutreach } from '@/lib/outreach-send.ts'
 import { randomUUID } from 'node:crypto'
 import { ImapFlow } from 'imapflow'
+import nodemailer from 'nodemailer'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import { NextResponse } from 'next/server'
 
@@ -59,6 +61,7 @@ function rawMessage(draft: DraftInput, from: string, senderName: string, signatu
     ...(draft.to ? [`To: ${cleanHeader(draft.to)}`] : []),
     `Subject: ${subject}`,
     `Date: ${new Date().toUTCString()}`,
+    `Message-ID: <${randomUUID()}@whatshouldistudy.com>`,
     'MIME-Version: 1.0',
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
     `X-Outreach-ID: ${draft.id}`,
@@ -171,8 +174,11 @@ export async function POST(req: Request) {
   let drafts: DraftInput[]
   let humanizerSkill: string
   let signatureHtml: string
+  let send: boolean
   try {
-    const input = await req.json() as { drafts?: unknown; humanizerSkill?: unknown; signatureHtml?: unknown }
+    const input = await req.json() as { drafts?: unknown; humanizerSkill?: unknown; signatureHtml?: unknown; send?: unknown }
+    if (input.send !== undefined && typeof input.send !== 'boolean') throw new Error('Invalid send flag')
+    send = input.send === true
     if (!Array.isArray(input.drafts) || input.drafts.length !== 1) throw new Error('Invalid batch')
     if (typeof input.humanizerSkill !== 'string' || input.humanizerSkill.length < 1_000 || input.humanizerSkill.length > 50_000) throw new Error('Invalid humanizer skill')
     if (typeof input.signatureHtml !== 'string' || input.signatureHtml.length < 1 || input.signatureHtml.length > 20_000 || /<(script|iframe|object)\b|javascript:|\son[a-z]+\s*=/i.test(input.signatureHtml)) throw new Error('Invalid signature')
@@ -195,9 +201,16 @@ export async function POST(req: Request) {
   const password = process.env.SMTP_PASSWORD || process.env.SMTP_PASS
   if (!password) return NextResponse.json({ error: 'Mailbox password is not configured' }, { status: 503 })
   const anthropicKey = process.env.ANTHROPIC_API_KEY
+  let dailyLimit = 0
+  try {
+    if (send) dailyLimit = outreachDailySendLimit()
+  } catch {
+    return NextResponse.json({ error: 'Invalid daily send limit' }, { status: 503 })
+  }
 
   const client = new ImapFlow({ host, port, secure: true, auth: { user, pass: password }, logger: false, connectionTimeout: 10_000, greetingTimeout: 10_000, socketTimeout: 20_000 })
-  const deadline = setTimeout(() => client.close(), 50_000)
+  let transporter: ReturnType<typeof nodemailer.createTransport> | undefined
+  const deadline = setTimeout(() => { transporter?.close(); client.close() }, 55_000)
   try {
     await client.connect()
     const mailboxes = await client.list()
@@ -206,6 +219,7 @@ export async function POST(req: Request) {
     if (!draftsMailbox || !sentMailbox) throw new Error('Required Infomaniak folders not found')
 
     let created = 0
+    let sent = 0
     let skipped = 0
     let humanized = 0
     const fallbacks: string[] = []
@@ -236,17 +250,30 @@ export async function POST(req: Request) {
         }
       }
       const finalized = { ...draft, body: message.body }
-      const appended = await client.append(draftsMailbox.path, rawMessage(finalized, user, process.env.SMTP_SENDER_NAME || `Moritz Lauper | ${outreachSite(finalized.body).name}`, signatureHtml), ['\\Draft'])
-      if (!appended) throw new Error(`Could not create draft ${draft.id}`)
-      created++
+      const raw = rawMessage(finalized, user, process.env.SMTP_SENDER_NAME || `Moritz Lauper | ${outreachSite(finalized.body).name}`, signatureHtml)
+      if (send) {
+        const smtpPort = Number(process.env.SMTP_PORT || 587)
+        const smtp = nodemailer.createTransport({ host: process.env.SMTP_HOST || 'mail.infomaniak.com', port: smtpPort, secure: smtpPort === 465, requireTLS: smtpPort !== 465, auth: { user, pass: password }, connectionTimeout: 8_000, greetingTimeout: 8_000, socketTimeout: 10_000 })
+        transporter = smtp
+        const result = await sendOutreach(client, { sent: sentMailbox.path, drafts: draftsMailbox.path }, draft, raw, () => smtp.sendMail({ envelope: { from: user, to: draft.to }, raw }), dailyLimit)
+        if (result.limitReached) return NextResponse.json({ created, sent, skipped, humanized, fallbacks, limitReached: true, dailyLimit })
+        sent += result.sent
+        skipped += result.skipped
+      } else {
+        const appended = await client.append(draftsMailbox.path, raw, ['\\Draft'])
+        if (!appended) throw new Error(`Could not create draft ${draft.id}`)
+        created++
+      }
     }
-    return NextResponse.json({ created, skipped, humanized, fallbacks })
+    return NextResponse.json({ created, sent, skipped, humanized, fallbacks, limitReached: false, ...(send && { dailyLimit }) })
   } catch (error) {
+    if (error instanceof OutreachSendBusy) return NextResponse.json({ error: 'Another outreach send is running' }, { status: 409 })
     const mailError = error as Error & { code?: string; responseCode?: number }
-    console.error('Outreach IMAP draft creation failed', { code: mailError.code ?? 'UNKNOWN', responseCode: mailError.responseCode })
-    return NextResponse.json({ error: 'Could not create the mailbox drafts' }, { status: 502 })
+    console.error('Outreach mailbox operation failed', { code: mailError.code ?? 'UNKNOWN', responseCode: mailError.responseCode })
+    return NextResponse.json({ error: send ? 'Could not confirm outreach delivery; inspect Sent before retrying' : 'Could not create the mailbox drafts' }, { status: 502 })
   } finally {
     clearTimeout(deadline)
+    transporter?.close()
     if (client.usable) await client.logout().catch(() => {})
     else client.close()
   }
