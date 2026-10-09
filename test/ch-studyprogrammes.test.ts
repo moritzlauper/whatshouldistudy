@@ -52,3 +52,18 @@ test('majors listed in the description become their own rows', async () => {
   assert.ok(!textTopics(`${cast.name} \n ${(cast.focus ?? []).join(', ')} \n ${cast.description}`).some((k) => /game/.test(k)))
   assert.equal(new Set(rows.map((r) => r.id)).size, 7)
 })
+
+test('a link in the location field falls back to the institution city', () => {
+  const p = parseSpDetails(
+    {
+      id: 99002,
+      institute: { name: 'EPFL', abbreviation: 'EPFL' },
+      name: 'Master in Quantum Science and Engineering',
+      ects_credits: '120',
+      location: 'https://www.epfl.ch/education/master/fr/programmes/science-et-ingenierie-quantiques/',
+    },
+    'master',
+    '2026-10-09',
+  )
+  assert.equal(p?.city, 'Lausanne')
+})

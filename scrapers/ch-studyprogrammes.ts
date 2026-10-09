@@ -115,12 +115,14 @@ export function parseSpDetails(d: SpDetails, level: Level, fetchedAt: string): P
   const fee = (inst.feeCh ?? 0) * 2
   const langs = (d.languages ?? []).map((l) => (l.abbreviation ?? '').toLowerCase()).filter(Boolean)
   const url = /^https?:\/\//.test(d.url ?? '') ? d.url : undefined
+  // Some entries carry the programme page in `location` instead of a place.
+  const place = clean(d.location)
   return {
     id: programmeId(['ch-sp', d.id]),
     name: clean(d.name),
     institution: inst.name,
     country: 'CH',
-    city: clean(d.location) || inst.city,
+    city: place && !/^https?:\/\/|^www\./i.test(place) ? place : inst.city,
     region: inst.canton,
     level,
     fields,
