@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { CATALOGUE_COUNTRIES, LEVEL_ORDER } from '@/lib/catalogue.ts'
+import { CATALOGUE_COUNTRIES, LEVEL_ORDER, LINK_ONLY } from '@/lib/catalogue.ts'
 import { searchCatalogue } from '@/lib/server/catalogue.ts'
 import { FIELD_BY_ID } from '@/lib/taxonomy/fields.ts'
 import type { Level } from '@/lib/programmes.ts'
@@ -15,7 +15,7 @@ const LOCALES: Locale[] = ['en', 'de-CH', 'de-DE', 'de-AT', 'fr-CH', 'it-CH']
 export async function GET(req: Request) {
   const s = new URL(req.url).searchParams
   const country = s.get('country') ?? ''
-  if (!CATALOGUE_COUNTRIES.includes(country)) return NextResponse.json({ error: 'Unknown country.' }, { status: 400 })
+  if (!CATALOGUE_COUNTRIES.includes(country) || LINK_ONLY[country]) return NextResponse.json({ error: 'Unknown country.' }, { status: 400 })
   const field = s.get('field') ?? undefined
   const level = s.get('level') ?? undefined
   const locale = s.get('locale') ?? 'en'

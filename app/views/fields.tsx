@@ -5,6 +5,7 @@ import { getMeta, getStats } from '@/lib/server/data.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
 import { emoji, fieldBlurb, fieldName, fmtNumber, groupLabel } from '@/lib/site/labels.ts'
+import { catalogueText } from '@/lib/site/catalogue-text.ts'
 
 const GROUP_COLORS = ['var(--pink)', 'var(--sky)', 'var(--lime)', 'var(--yellow)', 'var(--orange)', 'var(--violet)', 'var(--pink)', 'var(--sky)', 'var(--lime)']
 
@@ -23,6 +24,12 @@ export async function FieldsView({ site, base, locale: selectedLocale }: SitePro
           {t.fields.findOut} →
         </Link>
       </p>
+      {meta?.updated && (
+        <Link href={r.programmes} className="mt-5 inline-flex items-center gap-2 rounded-full border-2 border-line bg-surface px-4 py-1.5 text-sm font-semibold hover:-translate-y-0.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-good" aria-hidden="true" />
+          {catalogueText(locale).updated(new Date(meta.updated).toLocaleDateString(intl, { day: 'numeric', month: 'long', year: 'numeric' }))}
+        </Link>
+      )}
       <nav className="mt-8 flex flex-wrap gap-2">
         {groups.map((g, i) => (
           <a key={g} href={`#${g}`} className="chip on-color" style={{ background: GROUP_COLORS[i] }}>

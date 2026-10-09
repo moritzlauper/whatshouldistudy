@@ -14,7 +14,9 @@ import { Hexagon } from '../ui/hexagon.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { JsonLd, fieldLd } from '../ui/json-ld.tsx'
-import { CATALOGUE_COUNTRIES } from '@/lib/catalogue.ts'
+import { CATALOGUE_COUNTRIES, LEVEL_ORDER, LINK_ONLY } from '@/lib/catalogue.ts'
+import { toCatalogueEntry } from '@/lib/programmes.ts'
+import { CatalogueRow } from '../ui/catalogue-row.tsx'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
 
 
@@ -47,6 +49,19 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
     const e = chInstitutions.get(p.institution) ?? { name: p.institution, type: p.institutionType as InstType | undefined, url: p.institutionUrl, levels: new Set<string>() }
     e.levels.add(p.level)
     chInstitutions.set(p.institution, e)
+  }
+  // Where the source allows it, every programme with its exact title: the field's own first, then by level.
+  const ownProgrammes =
+    country && !LINK_ONLY[country]
+      ? (shard?.programmes ?? [])
+          .filter((p) => p.country === country)
+          .map(toCatalogueEntry)
+          .sort((a, b) => Number(b.fields[0] === id) - Number(a.fields[0] === id) || LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level) || a.name.localeCompare(b.name, intl))
+      : []
+  const byInstitution = new Map<string, typeof ownProgrammes>()
+  for (const p of ownProgrammes) {
+    if (!byInstitution.has(p.institution)) byInstitution.set(p.institution, [])
+    byInstitution.get(p.institution)!.push(p)
   }
 
   return (
@@ -108,7 +123,33 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
       {chInstitutions.size > 0 && (
         <section className="card mt-10 p-6">
           <h2 className="font-display text-2xl">{t.fields.whereLocal(name)}</h2>
-          <p className="mt-1 text-sm text-muted">{t.fields.whereLocalSub}</p>
+          <p className="mt-1 text-sm text-muted">{ownProgrammes.length ? catalogueText(locale).listSub(fmtNumber(ownProgrammes.length, intl)) : t.fields.whereLocalSub}</p>
+          {byInstitution.size > 0 ? (
+            <div className="mt-5 grid gap-4">
+              {[...byInstitution.entries()]
+                .sort((a, b) => a[0].localeCompare(b[0], intl))
+                .map(([inst, ps]) => {
+                  const i = chInstitutions.get(inst)
+                  return (
+                    <div key={inst} className="rounded-2xl border-2 border-line p-4">
+                      <h3 className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span className="font-display text-lg leading-tight">{inst}</span>
+                        {i?.type && TYPE_STYLE[i.type] && (
+                          <span className="chip on-color text-xs" style={{ background: TYPE_STYLE[i.type].color }}>
+                            {typeLabel(i.type, country, locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it')}
+                          </span>
+                        )}
+                      </h3>
+                      <ul className="mt-1">
+                        {ps.map((p) => (
+                          <CatalogueRow key={p.id} p={p} country={country!} locale={locale} fieldHref={(x) => r.countryField(country!, x)} />
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                })}
+            </div>
+          ) : (
           <div className="mt-4 flex flex-wrap gap-2">
             {[...chInstitutions.values()]
               .sort((a, b) => a.name.localeCompare(b.name, intl))
@@ -119,6 +160,7 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
                 </a>
               ))}
           </div>
+          )}
           <Link href={r.countryField(country!, id)} className="mt-5 inline-block font-bold text-accent hover:underline">
             {catalogueText(locale).searchIn(name)} →
           </Link>

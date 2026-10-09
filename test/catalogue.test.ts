@@ -1,25 +1,30 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
-import { CATALOGUE_COUNTRIES, countryBySlug, countrySlug, normalizeSearch } from '../lib/catalogue.ts'
+import { CATALOGUE_COUNTRIES, LINK_ONLY, countryBySlug, countrySlug, normalizeSearch } from '../lib/catalogue.ts'
 import { CATALOGUE_KEYS, toCatalogueEntry } from '../lib/programmes.ts'
 import type { CatalogueShard, Programme } from '../lib/programmes.ts'
 
 /** What the paid list adds on top of the free catalogue. */
-const PAID = ['tuition', 'earnings', 'debt', 'admissionRate', 'selective', 'capacity', 'admission', 'description', 'focus']
+const PAID = ['tuition', 'earnings', 'debt', 'admissionRate', 'selective', 'capacity', 'description']
 
 test('the free catalogue carries none of the paid fields', () => {
   for (const k of PAID) assert.ok(!(CATALOGUE_KEYS as readonly string[]).includes(k), k)
   const full: Programme = {
     id: 'x', name: 'Informatik', institution: 'ETH Zürich', country: 'CH', level: 'bachelor', fields: ['computer-science'], fieldConfidence: 1,
     tuition: { currency: 'CHF', domestic: 730 }, earnings: { median: 90000, currency: 'CHF', yearsAfter: 1 }, admissionRate: 0.5, capacity: 400,
-    description: 'Text of the institution', focus: ['AI'], source: 'ch-studyprogrammes', updated: '2026-01-01',
+    description: 'Text of the institution', source: 'ch-studyprogrammes', updated: '2026-01-01',
   }
   assert.deepEqual(Object.keys(toCatalogueEntry(full)).sort(), ['fields', 'id', 'institution', 'level', 'name'])
   for (const f of readdirSync('data/sample/catalogue')) {
     const shard = JSON.parse(readFileSync(`data/sample/catalogue/${f}`, 'utf8')) as CatalogueShard
     for (const p of shard.programmes) for (const k of Object.keys(p)) assert.ok((CATALOGUE_KEYS as readonly string[]).includes(k), `${f}: ${k}`)
   }
+})
+
+test('countries without an open licence get no catalogue file', () => {
+  const files = readdirSync('data/sample/catalogue')
+  for (const cc of Object.keys(LINK_ONLY)) assert.ok(!files.includes(`${cc}.json`), cc)
 })
 
 test('every catalogue country has its own address', () => {

@@ -38,7 +38,7 @@ function index(shard: CatalogueShard, locale: Locale): Index {
 /** Every word must match; programmes whose name holds the words come first. */
 export async function searchCatalogue(query: CatalogueQuery): Promise<CatalogueResult> {
   const shard = await getCatalogue(query.country)
-  if (!shard) return { ready: false, total: 0, levels: {}, items: [], fieldNames: {} }
+  if (!shard) return { ready: false, total: 0, levels: {}, items: [] }
   const { text, names } = index(shard, query.locale)
   const words = normalizeSearch(query.q).split(' ').filter(Boolean)
   const scored: Array<{ p: CatalogueEntry; score: number }> = []
@@ -54,7 +54,5 @@ export async function searchCatalogue(query: CatalogueQuery): Promise<CatalogueR
   // The catalogue is sorted by institution and name; a stable sort keeps that order within a score.
   if (words.length) scored.sort((a, b) => b.score - a.score)
   const items = scored.slice(query.page * PAGE_SIZE, (query.page + 1) * PAGE_SIZE).map((s) => s.p)
-  const fieldNames: Record<string, string> = {}
-  for (const p of items) for (const f of p.fields) fieldNames[f] ??= fieldName(f, query.locale)
-  return { ready: true, total: scored.length, levels, items, fieldNames }
+  return { ready: true, total: scored.length, levels, items }
 }

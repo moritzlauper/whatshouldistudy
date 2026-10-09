@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { CATALOGUE_COUNTRIES, LEVEL_ORDER } from '@/lib/catalogue.ts'
+import { CATALOGUE_COUNTRIES, LEVEL_ORDER, LINK_ONLY } from '@/lib/catalogue.ts'
 import { COUNTRIES, flag } from '@/lib/countries.ts'
 import { ADMISSION, TYPE_STYLE, admissionText, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
@@ -21,8 +21,10 @@ import { CatalogueSearch, MoreAt } from '../ui/catalogue-search.tsx'
 import { JsonLd, breadcrumbLd } from '../ui/json-ld.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 
-/** At most this many programmes are listed on a field page; above it, each institution shows its first few. */
-const ROW_BUDGET = 800
+/** At most this many programmes are listed on a field page; above it, each institution shows its first few, or only its count. */
+const ROW_BUDGET = 300
+/** Institutions per level listed by name where a field page shows counts only. */
+const COMPACT_MAX = 150
 const TOP_INSTITUTIONS = 60
 
 const lang = (locale: Locale) => (locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it')
@@ -167,7 +169,11 @@ export async function CountryView({ site, base, locale: selectedLocale, country:
       </div>
 
       <div id="search" className="mt-10 scroll-mt-24">
-        <CatalogueSearch country={cc} levels={levels} title={ct.search.label} />
+        {LINK_ONLY[cc] ? (
+          <SourceLink title={ct.linkCountryTitle} text={ct.linkCountryText(LINK_ONLY[cc].name)} href={LINK_ONLY[cc].home} label={ct.linkOpen(LINK_ONLY[cc].name)} />
+        ) : (
+          <CatalogueSearch country={cc} levels={levels} title={ct.search.label} />
+        )}
       </div>
 
       {types.length > 1 && (
@@ -284,12 +290,25 @@ export async function CountryView({ site, base, locale: selectedLocale, country:
   )
 }
 
-/** Fewest programmes per institution and level that keeps the page under ROW_BUDGET rows; everything if it fits. */
+/** Programmes per institution and level that keep the page under ROW_BUDGET rows: all if they fit, 0 if not even one each does. */
 function rowsPerGroup(sizes: number[]): number {
   if (sizes.reduce((s, n) => s + n, 0) <= ROW_BUDGET) return Infinity
   let limit = Math.max(...sizes)
-  while (limit > 3 && sizes.reduce((s, n) => s + Math.min(n, limit), 0) > ROW_BUDGET) limit--
+  while (limit > 0 && sizes.reduce((s, n) => s + Math.min(n, limit), 0) > ROW_BUDGET) limit--
   return limit
+}
+
+/** Where a country's source has no open licence: the way to its own search. */
+function SourceLink({ title, text, href, label }: { title: string; text: string; href: string; label: string }) {
+  return (
+    <div className="card p-5 sm:p-6">
+      <h2 className="font-display text-2xl">{title}</h2>
+      <p className="mt-2 max-w-3xl text-muted">{text}</p>
+      <a href={href} target="_blank" rel="noopener" className="btn btn-primary mt-4">
+        {label} ↗
+      </a>
+    </div>
+  )
 }
 
 /** Every programme of one field in one country, by level and institution. */
@@ -318,7 +337,9 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
     }
     return { level, institutions: [...insts.entries()].sort((a, b) => a[0].localeCompare(b[0], intl)), n }
   }).filter((l) => l.n > 0)
-  const limit = rowsPerGroup(byLevel.flatMap((l) => l.institutions.map(([, ps]) => ps.length)))
+  const linkOnly = LINK_ONLY[cc]
+  // Without a licence, institutions and counts only; above the budget, the first programmes of each.
+  const limit = linkOnly ? 0 : rowsPerGroup(byLevel.flatMap((l) => l.institutions.map(([, ps]) => ps.length)))
   const institutionCount = new Set(programmes.map((p) => p.institution)).size
   const levelsText = list(byLevel.map((l) => ct.levelCount(fmtNumber(l.n, intl), levelLabel(l.level, locale))), intl)
   const types = [...new Set(programmes.map((p) => p.institutionType).filter((x): x is InstType => !!x && x in TYPE_STYLE))]
@@ -360,7 +381,16 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
       </div>
 
       <div className="mt-10">
-        <CatalogueSearch country={cc} field={id} levels={byLevel.map((l) => l.level)} title={ct.searchIn(name)} />
+        {linkOnly ? (
+          <SourceLink
+            title={ct.linkFieldTitle(name, fmtNumber(programmes.length, intl))}
+            text={ct.linkFieldText(linkOnly.name)}
+            href={linkOnly.search(fieldName(id, cc === 'AT' ? 'de-AT' : 'de-DE'))}
+            label={ct.linkOpen(linkOnly.name)}
+          />
+        ) : (
+          <CatalogueSearch country={cc} field={id} levels={byLevel.map((l) => l.level)} title={ct.searchIn(name)} />
+        )}
       </div>
 
       {byLevel.map((l) => (
@@ -368,35 +398,56 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
           <h2 className="font-display text-3xl">
             {levelLabel(l.level, locale)} <span className="text-muted">({fmtNumber(l.n, intl)})</span>
           </h2>
-          <div className="mt-5 grid gap-4">
-            {l.institutions.map(([inst, ps]) => {
-              const first = ps[0]
-              const type = first.institutionType as InstType | undefined
-              return (
-                <div key={inst} className="card-sm p-5">
-                  <h3 className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span className="font-display text-xl leading-tight">{inst}</span>
-                    {type && type in TYPE_STYLE && (
-                      <span className="chip on-color text-xs" style={{ background: TYPE_STYLE[type].color }}>
-                        {typeLabel(type, cc, lang(locale))}
-                      </span>
-                    )}
-                    {first.institutionUrl && (
-                      <a href={first.institutionUrl} target="_blank" rel="noopener" className="text-xs font-bold text-accent hover:underline">
-                        {ct.search.website} ↗
-                      </a>
-                    )}
-                  </h3>
-                  <ul className="mt-2">
-                    {ps.slice(0, limit).map((p) => (
-                      <CatalogueRow key={p.id} p={p} locale={locale} showLevel={false} />
-                    ))}
-                  </ul>
-                  {ps.length > limit && <MoreAt label={ct.moreAt(fmtNumber(ps.length - limit, intl))} q={inst} level={l.level} />}
-                </div>
-              )
-            })}
-          </div>
+          {limit === 0 ? (
+            <>
+              <ul className="card-sm mt-5 grid gap-x-6 p-5 sm:grid-cols-2">
+                {[...l.institutions]
+                  .sort((a, b) => b[1].length - a[1].length)
+                  .slice(0, COMPACT_MAX)
+                  .map(([inst, ps]) => (
+                    <li key={inst} className="flex items-baseline justify-between gap-3 border-b border-line/15 py-2">
+                      <span className="min-w-0 font-semibold">{inst}</span>
+                      {linkOnly ? (
+                        <span className="shrink-0 text-xs text-muted">{fmtNumber(ps.length, intl)}</span>
+                      ) : (
+                        <MoreAt label={ct.programmesShort(fmtNumber(ps.length, intl))} q={inst} level={l.level} />
+                      )}
+                    </li>
+                  ))}
+              </ul>
+              {l.institutions.length > COMPACT_MAX && !linkOnly && <p className="mt-2 text-sm text-muted">{ct.moreInstitutions(fmtNumber(l.institutions.length - COMPACT_MAX, intl))}</p>}
+            </>
+          ) : (
+            <div className="mt-5 grid gap-4">
+              {l.institutions.map(([inst, ps]) => {
+                const first = ps[0]
+                const type = first.institutionType as InstType | undefined
+                return (
+                  <div key={inst} className="card-sm p-5">
+                    <h3 className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="font-display text-xl leading-tight">{inst}</span>
+                      {type && type in TYPE_STYLE && (
+                        <span className="chip on-color text-xs" style={{ background: TYPE_STYLE[type].color }}>
+                          {typeLabel(type, cc, lang(locale))}
+                        </span>
+                      )}
+                      {first.institutionUrl && (
+                        <a href={first.institutionUrl} target="_blank" rel="noopener" className="text-xs font-bold text-accent hover:underline">
+                          {ct.search.website} ↗
+                        </a>
+                      )}
+                    </h3>
+                    <ul className="mt-2">
+                      {ps.slice(0, limit).map((p) => (
+                        <CatalogueRow key={p.id} p={p} country={cc} locale={locale} showLevel={false} fieldHref={(x) => r.countryField(cc, x)} />
+                      ))}
+                    </ul>
+                    {ps.length > limit && <MoreAt label={ct.moreAt(fmtNumber(ps.length - limit, intl))} q={inst} level={l.level} />}
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </section>
       ))}
 
@@ -470,9 +521,10 @@ export async function countryFieldText(cc: string, id: string, locale: Locale): 
       .map(([l, c]) => ct.levelCount(fmtNumber(c, intl), levelLabel(l, locale))),
     intl,
   )
+  const institutions = fmtNumber(new Set(programmes.map((p) => p.institution)).size, intl)
   return {
     title: ct.fieldMetaTitle(name, inC, n),
-    description: ct.fieldMetaDesc(name, inC, n, fmtNumber(new Set(programmes.map((p) => p.institution)).size, intl), levels),
+    description: (LINK_ONLY[cc] ? ct.fieldMetaDescLink : ct.fieldMetaDesc)(name, inC, n, institutions, levels),
     // A field with one or two programmes is too thin a page to index.
     index: programmes.length >= 3,
   }
@@ -485,5 +537,5 @@ export async function countryText(cc: string, locale: Locale): Promise<{ title: 
   const c = countryTotals(meta, cc)
   if (!c) return null
   const inC = inCountry(cc, locale)
-  return { title: ct.metaTitle(inC, fmtNumber(c.programmes, locale)), description: ct.metaDesc(inC, fmtNumber(c.programmes, locale), fmtNumber(c.institutions, locale)) }
+  return { title: ct.metaTitle(inC, fmtNumber(c.programmes, locale)), description: (LINK_ONLY[cc] ? ct.metaDescLink : ct.metaDesc)(inC, fmtNumber(c.programmes, locale), fmtNumber(c.institutions, locale)) }
 }

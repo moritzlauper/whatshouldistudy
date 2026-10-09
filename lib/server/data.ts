@@ -1,5 +1,7 @@
 import 'server-only'
 import { readFile } from 'node:fs/promises'
+import { get as httpGet } from 'node:http'
+import { get as httpsGet } from 'node:https'
 import { join } from 'node:path'
 import type { CatalogueShard, DataMeta, FieldStat, ProgrammeShard, ResearchShard } from '../programmes.ts'
 import type { DirectoryEntry } from '../../scrapers/global-directory.ts'
@@ -25,22 +27,48 @@ function remoteBase(): string | null {
 
 const cache = new Map<string, { at: number; value: unknown; sample: boolean }>()
 
+/**
+ * Programme shards and catalogues exceed the 2 MB limit of Next's fetch cache,
+ * and an uncached fetch() would turn the cached pages that read them dynamic
+ * (a 500 at runtime). They are fetched outside Next's fetch and kept in the
+ * in-memory cache above instead.
+ */
+function getUntracked(url: string): Promise<{ status: number; body: string }> {
+  return new Promise((resolve, reject) => {
+    const req = (url.startsWith('https:') ? httpsGet : httpGet)(url, (res) => {
+      const chunks: Buffer[] = []
+      res.on('data', (c: Buffer) => chunks.push(c))
+      res.on('end', () => resolve({ status: res.statusCode ?? 0, body: Buffer.concat(chunks).toString('utf8') }))
+      res.on('error', reject)
+    })
+    req.on('error', reject)
+    req.setTimeout(30_000, () => req.destroy(new Error(`timeout ${url}`)))
+  })
+}
+
 async function load<T>(path: string): Promise<{ value: T | null; sample: boolean }> {
   const hit = cache.get(path)
   if (hit && Date.now() - hit.at < TTL) return { value: hit.value as T, sample: hit.sample }
   const base = remoteBase()
   if (base) {
     try {
-      // Programme shards and catalogues can exceed the 2 MB limit of Next's
-      // fetch cache; they live in the in-memory cache above instead.
       const big = path.startsWith('programmes/') || path.startsWith('catalogue/')
-      const res = await fetch(`${base}/${path}`, big ? { cache: 'no-store' } : { next: { revalidate: TTL / 1000 } })
-      if (res.ok) {
-        const value = (await res.json()) as T
+      let status: number
+      let value: T | undefined
+      if (big) {
+        const res = await getUntracked(`${base}/${path}`)
+        status = res.status
+        if (status === 200) value = JSON.parse(res.body) as T
+      } else {
+        const res = await fetch(`${base}/${path}`, { next: { revalidate: TTL / 1000 } })
+        status = res.status
+        if (res.ok) value = (await res.json()) as T
+      }
+      if (value !== undefined) {
         cache.set(path, { at: Date.now(), value, sample: false })
         return { value, sample: false }
       }
-      if (res.status === 404) {
+      if (status === 404) {
         // The data branch exists but doesn't have this file (e.g. no research for a field).
         const meta = cache.get('meta.json')
         if (meta && !meta.sample) {
@@ -48,8 +76,9 @@ async function load<T>(path: string): Promise<{ value: T | null; sample: boolean
           return { value: null, sample: false }
         }
       }
-    } catch {
-      // fall through to the sample
+    } catch (e) {
+      // Falls through to the demo data; say so, since the pages then show it.
+      console.error(`Data: ${path} unavailable (${(e as Error).message}), using the demo data`)
     }
   }
   try {

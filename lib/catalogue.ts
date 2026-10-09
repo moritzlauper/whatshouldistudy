@@ -11,6 +11,16 @@ import type { CatalogueEntry, Level } from './programmes.ts'
 /** Countries with programme-level data from an official source; a country without programmes in the data has no pages. */
 export const CATALOGUE_COUNTRIES = Object.keys(COUNTRIES).filter((cc) => COUNTRIES[cc].programmeData)
 
+/**
+ * Countries whose source has no open licence: until its publisher agrees, their
+ * pages show counts and institutions and link to the source's own search
+ * instead of listing programmes. No catalogue file is built for them.
+ */
+export const LINK_ONLY: Record<string, { name: string; home: string; search: (q: string) => string }> = {
+  DE: { name: 'Studiensuche der Bundesagentur für Arbeit', home: 'https://web.arbeitsagentur.de/studiensuche/', search: (q) => `https://web.arbeitsagentur.de/studiensuche/suche?sw=${encodeURIComponent(q)}` },
+  AT: { name: 'studienwahl.at', home: 'https://www.studienwahl.at/', search: (q) => `https://www.studienwahl.at/studien/?q=${encodeURIComponent(q)}` },
+}
+
 /** Address of a country on the global site, from its English name: south-korea. */
 export function countrySlug(cc: string): string {
   return (COUNTRIES[cc]?.name ?? cc)
@@ -47,6 +57,4 @@ export interface CatalogueResult {
   /** Matches per level, before the level filter. */
   levels: Partial<Record<Level, number>>
   items: CatalogueEntry[]
-  /** Names of the fields in `items`, in the requested language. */
-  fieldNames: Record<string, string>
 }

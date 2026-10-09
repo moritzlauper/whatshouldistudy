@@ -56,12 +56,12 @@ export interface Programme {
 }
 
 /**
- * The free public catalogue: what a programme is and where, without what the
- * paid list adds (fees by citizenship, earnings, debt, admission rates,
- * capacity, descriptions). One file per country, for search and the
- * programme pages.
+ * The free public catalogue: what a programme is, where, who gets in and its
+ * focus, without what the paid list adds (fees by citizenship, earnings, debt,
+ * admission rates, capacity) and without the institutions' own descriptions.
+ * One file per country, for search and the programme pages.
  */
-export const CATALOGUE_KEYS = ['id', 'name', 'institution', 'city', 'region', 'level', 'fields', 'languages', 'durationYears', 'mode', 'url', 'institutionUrl', 'institutionType', 'public', 'parent'] as const
+export const CATALOGUE_KEYS = ['id', 'name', 'institution', 'city', 'region', 'level', 'fields', 'languages', 'durationYears', 'mode', 'url', 'institutionUrl', 'institutionType', 'public', 'parent', 'admission', 'focus'] as const
 export type CatalogueEntry = Pick<Programme, (typeof CATALOGUE_KEYS)[number]>
 
 export interface CatalogueShard {

@@ -2,7 +2,9 @@ import Link from 'next/link'
 import type { CatalogueEntry } from '@/lib/programmes.ts'
 import type { Locale } from '@/lib/site/config.ts'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
-import { levelLabel } from '@/lib/site/labels.ts'
+import { TYPE_STYLE, admissionText, typeLabel } from '@/lib/institutions.ts'
+import type { InstType } from '@/lib/institutions.ts'
+import { fieldName, levelLabel } from '@/lib/site/labels.ts'
 
 function languageName(code: string, intl: string): string {
   try {
@@ -12,49 +14,99 @@ function languageName(code: string, intl: string): string {
   }
 }
 
+const lang = (locale: Locale) => (locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it')
+
 /**
- * One programme of the free catalogue. Rendered on the server for the field
- * pages and in the browser for search results, so it uses no hooks.
+ * One programme of the free catalogue: its exact title and the key facts, and
+ * everything else we know about it on a click. Rendered on the server for the
+ * field pages and in the browser for search results, so it uses no hooks.
  */
-export function CatalogueRow({ p, locale, showInstitution = false, showLevel = true, field }: { p: CatalogueEntry; locale: Locale; showInstitution?: boolean; showLevel?: boolean; field?: { name: string; href: string } }) {
+export function CatalogueRow({
+  p,
+  country,
+  locale,
+  fieldHref,
+  showInstitution = false,
+  showLevel = true,
+}: {
+  p: CatalogueEntry
+  country: string
+  locale: Locale
+  /** Link to a field's page in this country. */
+  fieldHref?: (id: string) => string
+  showInstitution?: boolean
+  showLevel?: boolean
+}) {
   const ct = catalogueText(locale)
+  const d = ct.detail
   const years = p.durationYears ? ct.years(new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(p.durationYears)) : null
-  const details = [
-    showLevel ? levelLabel(p.level, locale) : null,
-    showInstitution ? p.institution : null,
-    p.city,
-    p.languages?.length ? p.languages.map((l) => languageName(l, locale)).join(', ') : null,
-    years,
-    p.mode ? ct.modes[p.mode] : null,
-  ].filter(Boolean)
-  return (
-    <li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line/15 py-2.5 last:border-0">
-      <div className="min-w-0 flex-1">
-        <span className="font-bold">{p.name}</span>
-        <div className="text-xs text-muted">
-          {details.join(' · ')}
-          {field && (
-            <>
-              {' · '}
-              <Link href={field.href} className="font-semibold text-accent hover:underline">
-                {field.name}
-              </Link>
-            </>
+  const languages = p.languages?.length ? p.languages.map((l) => languageName(l, locale)).join(', ') : null
+  const type = p.institutionType && p.institutionType in TYPE_STYLE ? (p.institutionType as InstType) : undefined
+  // The programme's own rule where the source has one (in German, Switzerland), otherwise the rule for its kind of institution.
+  const admission = (locale.startsWith('de-') ? p.admission : undefined) ?? admissionText(country, type, lang(locale))
+  const summary = [showLevel ? levelLabel(p.level, locale) : null, showInstitution ? p.institution : null, p.city, languages, years].filter(Boolean)
+  const facts: Array<[string, React.ReactNode]> = [
+    [d.degree, levelLabel(p.level, locale)],
+    [d.institution, type ? `${p.institution} (${typeLabel(type, country, lang(locale))})` : p.institution],
+    [d.place, [p.city, p.region].filter(Boolean).join(', ')],
+    [d.language, languages],
+    [d.duration, years],
+    [d.mode, p.mode ? ct.modes[p.mode] : null],
+    [d.focus, p.focus?.length ? p.focus.join(' · ') : null],
+    [d.admission, admission],
+    [
+      d.fields,
+      p.fields.map((f, i) => (
+        <span key={f}>
+          {i > 0 && ', '}
+          {fieldHref ? (
+            <Link href={fieldHref(f)} className="font-semibold text-accent hover:underline">
+              {fieldName(f, locale)}
+            </Link>
+          ) : (
+            fieldName(f, locale)
           )}
+        </span>
+      )),
+    ],
+  ]
+  return (
+    <li className="border-b border-line/15 last:border-0">
+      <details className="group">
+        <summary className="flex cursor-pointer list-none items-baseline justify-between gap-x-4 py-2.5 [&::-webkit-details-marker]:hidden">
+          <span className="min-w-0 flex-1">
+            <span className="font-bold group-open:text-accent">{p.name}</span>
+            <span className="block text-xs text-muted">{summary.join(' · ')}</span>
+          </span>
+          <span className="shrink-0 text-xs font-bold text-accent transition-transform group-open:rotate-180" aria-hidden="true">
+            ▾
+          </span>
+        </summary>
+        <div className="mb-4 rounded-2xl border-2 border-line bg-surface-2 p-4 text-sm">
+          <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
+            {facts
+              .filter(([, v]) => v !== null && v !== undefined && v !== '')
+              .map(([k, v]) => (
+                <div key={k} className="contents">
+                  <dt className="font-bold">{k}</dt>
+                  <dd className="text-muted">{v}</dd>
+                </div>
+              ))}
+          </dl>
+          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
+            {p.url && (
+              <a href={p.url} target="_blank" rel="noopener" className="font-bold text-accent hover:underline">
+                {d.official} ↗
+              </a>
+            )}
+            {p.institutionUrl && (
+              <a href={p.institutionUrl} target="_blank" rel="noopener" className="font-bold text-accent hover:underline">
+                {d.website} ↗
+              </a>
+            )}
+          </div>
         </div>
-      </div>
-      {p.url ? (
-        <a href={p.url} target="_blank" rel="noopener" className="shrink-0 text-xs font-bold text-accent hover:underline">
-          {ct.search.programme} ↗
-        </a>
-      ) : (
-        p.institutionUrl &&
-        showInstitution && (
-          <a href={p.institutionUrl} target="_blank" rel="noopener" className="shrink-0 text-xs font-bold text-accent hover:underline">
-            {ct.search.website} ↗
-          </a>
-        )
-      )}
+      </details>
     </li>
   )
 }

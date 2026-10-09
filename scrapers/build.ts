@@ -15,6 +15,7 @@
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { toCatalogueEntry } from '../lib/programmes.ts'
+import { LINK_ONLY } from '../lib/catalogue.ts'
 import type { CatalogueShard, DataMeta, FieldStat, Level, Programme, ProgrammeShard, ResearchInstitution, ResearchShard, SourceStatus } from '../lib/programmes.ts'
 import { FIELDS } from '../lib/taxonomy/fields.ts'
 import { FIXTURES, OUT, ROOT, fetchRetry, log, readJson, writeJson } from './lib/common.ts'
@@ -405,7 +406,7 @@ async function main() {
 
   const catalogues = new Map<string, Programme[]>()
   for (const p of all) {
-    if (!p.fields.length) continue
+    if (!p.fields.length || LINK_ONLY[p.country]) continue
     if (!catalogues.has(p.country)) catalogues.set(p.country, [])
     catalogues.get(p.country)!.push(p)
   }
