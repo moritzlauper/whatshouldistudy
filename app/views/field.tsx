@@ -23,10 +23,11 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
   const country = conf.country
   const f = FIELD_BY_ID[id]
   if (!f) notFound()
-  const [stats, { meta }, shard] = await Promise.all([getStats(), getMeta(), country ? getShard(id) : Promise.resolve(null)])
+  const [stats, { meta }, shard] = await Promise.all([getStats(), country ? Promise.resolve({ meta: null }) : getMeta(), country ? getShard(id) : Promise.resolve(null)])
   const s = stats[id]
   const name = fieldName(id, locale)
-  const byCountry = Object.entries(meta?.counts[id] ?? {}).sort((a, b) => (country ? Number(b[0] === country) - Number(a[0] === country) : 0) || b[1] - a[1])
+  // Global site only: links each country's catalogue. A country site has only its own, linked above.
+  const byCountry = Object.entries(meta?.counts[id] ?? {}).sort((a, b) => b[1] - a[1])
   const subjects = Object.entries(f.subjects)
     .filter(([, d]) => (d ?? 0) >= 0.5)
     .sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0))
@@ -126,11 +127,10 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
 
       {byCountry.length > 0 && (
         <section className="card mt-10 p-6">
-          <h2 className="font-display text-2xl">{t.fields.tracked(fmtNumber(country ? (meta?.counts[id]?.[country] ?? 0) : (s?.programmes ?? 0), intl))}</h2>
+          <h2 className="font-display text-2xl">{t.fields.tracked(fmtNumber(s?.programmes ?? 0, intl))}</h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {byCountry.map(([cc, n]) =>
-              // Each country's programmes have a page on the global site; a country site has only its own.
-              CATALOGUE_COUNTRIES.includes(cc) && (!country || cc === country) ? (
+              CATALOGUE_COUNTRIES.includes(cc) ? (
                 <Link key={cc} href={r.countryField(cc, id)} className="chip hover:-translate-y-0.5">
                   {flag(cc)} {countryLabel(cc, intl)} <span className="text-muted">{fmtNumber(n, intl)}</span>
                 </Link>
