@@ -279,11 +279,15 @@ pnpm usage:report 2026-10
 
 The protected `GET /api/usage?month=YYYY-MM` returns JSON with monthly counts,
 ordered by frequency. It requires the admin secret as a Bearer header; it must
-not be placed in URLs or browser code. The script prints source and programme
+not be placed in URLs or browser code. The script prints event, source and programme
 tables. The same counters can be inspected in the Upstash console.
 
-- Imports: count recognised source types only after successful file parsing.
-  No filenames, contents, questionnaire answers or error text are sent.
+- Imports: count recognised source types only after a successful upload,
+  sign-in or GitHub import. No filenames, contents, questionnaire answers or
+  error text are sent.
+- Events: `result` counts each view of an own result (not shared links),
+  `unlock` each paid Stripe session exchanged for a token in `/api/unlock`.
+  Both count page views, not people: a reload counts again.
 - Programmes: count catalogue IDs, names and institutions returned by the
   existing teaser and paid programme endpoints. Counts distinguish `preview`
   and `unlocked`. Only authorised responses count; bulk CSV requests over 100

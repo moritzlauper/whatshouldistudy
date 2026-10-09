@@ -22,6 +22,8 @@ try {
   if (!response.ok) throw new Error(`Report failed (HTTP ${response.status})`)
   const { rows } = await response.json() as { rows: Array<Record<string, unknown>> }
   console.log(`Usage totals: ${month} (UTC)`)
+  console.log('Results shown and paid unlocks')
+  console.table(rows.filter((r) => r.kind === 'event').map(({ event, count }) => ({ event, count })))
   console.log('Imported sources')
   console.table(rows.filter((r) => r.kind === 'import').map(({ source, count }) => ({ source, count })))
   console.log('Programmes returned')

@@ -1,11 +1,11 @@
 import { timingSafeEqual } from 'node:crypto'
 import { after, NextResponse } from 'next/server'
-import { parseImport, sourceCounter, validMonth } from '@/lib/usage-stats.ts'
+import { eventCounter, parseUsage, sourceCounter, validMonth } from '@/lib/usage-stats.ts'
 import { countUsage, readUsage, usageConfigured } from '@/lib/server/usage.ts'
 
 const headers = { 'Cache-Control': 'private, no-store' }
 
-/** Only source categories. No body, IP, referrer or user-agent is retained. */
+/** Only source categories and shown results. No body, IP, referrer or user-agent is retained. */
 export async function POST(req: Request) {
   if (!usageConfigured()) return new Response(null, { status: 204, headers })
   if (req.headers.get('sec-fetch-site') === 'cross-site') return new Response(null, { status: 403, headers })
@@ -26,9 +26,9 @@ export async function POST(req: Request) {
     chunks.push(value)
   }
   let body
-  try { body = parseImport(JSON.parse(Buffer.concat(chunks).toString('utf8'))) } catch { body = null }
+  try { body = parseUsage(JSON.parse(Buffer.concat(chunks).toString('utf8'))) } catch { body = null }
   if (!body) return new Response(null, { status: 400, headers })
-  const counter = sourceCounter(body.source)
+  const counter = 'event' in body ? eventCounter(body.event) : sourceCounter(body.source)
   after(() => countUsage([counter]))
   return new Response(null, { status: 204, headers })
 }

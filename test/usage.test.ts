@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { IMPORT_SOURCES, parseImport, programmeCounters, sourceCounter, validMonth } from '../lib/usage-stats.ts'
+import { IMPORT_SOURCES, eventCounter, parseImport, parseUsage, programmeCounters, sourceCounter, validMonth } from '../lib/usage-stats.ts'
 
 test('imports accept only fixed categories and reject extra data', () => {
   for (const source of IMPORT_SOURCES) assert.deepEqual(parseImport({ source }), { source })
@@ -8,6 +8,15 @@ test('imports accept only fixed categories and reject extra data', () => {
     assert.equal(parseImport(input), null)
   }
   assert.deepEqual(JSON.parse(sourceCounter('takeout')), { kind: 'import', source: 'takeout' })
+})
+
+test('browsers may report imports and shown results, but never unlocks or extra data', () => {
+  assert.deepEqual(parseUsage({ event: 'result' }), { event: 'result' })
+  assert.deepEqual(parseUsage({ source: 'takeout' }), { source: 'takeout' })
+  for (const input of [{ event: 'unlock' }, { event: 'purchase' }, { event: 'result', score: 3 }, { event: 'result', source: 'takeout' }, ['result'], null]) {
+    assert.equal(parseUsage(input), null)
+  }
+  assert.deepEqual(JSON.parse(eventCounter('unlock')), { kind: 'event', event: 'unlock' })
 })
 
 test('programme counters strip derived interests, scores and tokens', () => {

@@ -99,7 +99,9 @@ export function StartView() {
     setErrors((x) => ({ ...x, github: '' }))
     measureConnect('github')
     try {
-      setSummary(await collectGitHub(username, progress('github')))
+      const summary = await collectGitHub(username, progress('github'))
+      setSummary(summary)
+      measureImport(summary.source)
     } catch (e) {
       fail('github', e)
     } finally {

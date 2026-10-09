@@ -9,6 +9,7 @@ import { collectYouTube } from '@/lib/sources/youtube.ts'
 import { collectSpotify } from '@/lib/sources/spotify.ts'
 import { collectReddit } from '@/lib/sources/reddit.ts'
 import { setSummary } from '@/lib/store.ts'
+import { measureImport } from '@/lib/product-measure.ts'
 import { fmtNumber } from '@/lib/site/labels.ts'
 import { SiteProvider, useSite } from '../ui/site-context.tsx'
 import { Sparkle } from '../ui/shapes.tsx'
@@ -60,6 +61,7 @@ function Finish({ provider }: { provider: string }) {
         const { accessToken } = await finishAuth(p)
         const summary = p === 'google' ? await collectYouTube(accessToken, progress) : p === 'spotify' ? await collectSpotify(accessToken, progress) : await collectReddit(accessToken, progress)
         setSummary(summary)
+        measureImport(summary.source)
         router.replace(`${r.start}?added=${summary.source}#${r.anchors.sources}`)
       } catch (e) {
         setError(t.tr((e as Error).message || t.callback.generic))

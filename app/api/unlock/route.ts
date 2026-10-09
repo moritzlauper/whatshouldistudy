@@ -1,8 +1,10 @@
 import { createHash } from 'node:crypto'
-import { NextResponse } from 'next/server'
+import { after, NextResponse } from 'next/server'
 import { fromStripeAmount } from '@/lib/pricing.ts'
 import type { Price } from '@/lib/pricing.ts'
 import { paymentMode, signToken, verifyToken } from '@/lib/server/token.ts'
+import { countUsage } from '@/lib/server/usage.ts'
+import { eventCounter } from '@/lib/usage-stats.ts'
 
 /**
  * SHA-256 of the buyer's address, normalised as Google asks for enhanced
@@ -41,6 +43,8 @@ export async function GET(req: Request) {
   }
   const signed = signToken(mode === 'stripe' ? sid : 'free')
   if (!signed) return NextResponse.json({ error: 'WSIS_TOKEN_SECRET is not set.' }, { status: 500 })
+  // Only paid sessions; a reload of the thank-you page counts again.
+  if (mode === 'stripe') after(() => countUsage([eventCounter('unlock')]))
   return NextResponse.json({ ...signed, ...sale }, { headers: { 'Cache-Control': 'no-store' } })
 }
 
