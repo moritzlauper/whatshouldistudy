@@ -72,8 +72,14 @@ function escapeHtml(value: string): string {
 
 export function outreachHtmlBody(body: string, signatureHtml: string): string {
   const site = outreachSite(body)
-  // signature.html is the Swiss one: wasstudieren.ch, with the name on a line of its own.
-  signatureHtml = signatureHtml.replaceAll('wasstudieren.ch', site.domain).replaceAll('>wasstudieren<', `>${site.name}<`)
+  // The mail's first link is the site's home in its language (whatshouldistudy.ch/fr, not the root, which redirects by browser language).
+  const home = outreachWebsiteUrls(body)[0] ?? `https://${site.domain}`
+  // signature.html is the Swiss one: wasstudieren.ch, with the name on a line of its own and the logo from the global site.
+  signatureHtml = signatureHtml
+    .replaceAll('href="https://wasstudieren.ch"', `href="${home}"`)
+    .replace(/https:\/\/(?:whatshouldistudy\.com|wasstudieren\.ch)\/icon-192\.png/g, `https://${site.domain}/icon-192.png`)
+    .replaceAll('wasstudieren.ch', site.domain)
+    .replaceAll('>wasstudieren<', `>${site.name}<`)
   const contentBody = body.trim().replace(new RegExp(`\n{2,}Moritz Lauper\n${NAME}\n${DOMAIN}\nteam@whatshouldistudy\\.com$`), '')
   const paragraphs = contentBody.split(/\n{2,}/).map((paragraph) => {
     const content = escapeHtml(paragraph)

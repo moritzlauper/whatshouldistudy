@@ -43,6 +43,8 @@ test('German greetings are normalized for Switzerland, Germany and Austria', () 
 })
 
 
+const SIGNATURE = '<img src="https://whatshouldistudy.com/icon-192.png"><div>wasstudieren</div><a href="https://wasstudieren.ch">wasstudieren.ch</a><a href="mailto:team@whatshouldistudy.com">team@whatshouldistudy.com</a>'
+
 test('country website URLs survive rewriting and render as full clickable links with one local signature', () => {
   for (const [tld, domain, name] of [['ch', 'wasstudieren.ch', 'wasstudieren'], ['de', 'findemeinstudium.de', 'findemeinstudium'], ['at', 'wasstudieren.at', 'wasstudieren']]) {
     const urls = [`https://${domain}`, `https://${domain}/organisationen`]
@@ -50,17 +52,17 @@ test('country website URLs survive rewriting and render as full clickable links 
     assert.deepEqual(outreachWebsiteUrls(body), urls)
     assert.equal(isSwissGermanOutreach(body, 'de'), tld === 'ch')
     assert.deepEqual(outreachSite(body), { domain, name })
-    const html = outreachHtmlBody(body, '<div>wasstudieren</div><a href="https://wasstudieren.ch">wasstudieren.ch</a>')
+    const html = outreachHtmlBody(body, SIGNATURE)
     for (const url of urls) assert.ok(html.includes(`<a href="${url}">${url}</a>`))
-    assert.ok(html.includes(`<div>${name}</div><a href="https://${domain}">${domain}</a>`))
+    assert.ok(html.includes(`<img src="https://${domain}/icon-192.png"><div>${name}</div><a href="https://${domain}">${domain}</a>`))
     assert.ok(!html.includes('Moritz Lauper'), 'plain signature is replaced by the HTML signature')
     if (tld !== 'ch') assert.ok(!html.includes('wasstudieren.ch'))
   }
   const fr = 'Bonjour,\n\nhttps://whatshouldistudy.ch/fr\nhttps://whatshouldistudy.ch/fr/organisationen\n\nMoritz Lauper\nwhatshouldistudy\nwhatshouldistudy.ch\nteam@whatshouldistudy.com'
   assert.deepEqual(outreachSite(fr), { domain: 'whatshouldistudy.ch', name: 'whatshouldistudy' })
-  const frHtml = outreachHtmlBody(fr, '<div>wasstudieren</div><a href="https://wasstudieren.ch">wasstudieren.ch</a>')
+  const frHtml = outreachHtmlBody(fr, SIGNATURE)
   assert.ok(frHtml.includes('<a href="https://whatshouldistudy.ch/fr/organisationen">'))
-  assert.ok(frHtml.includes('<div>whatshouldistudy</div><a href="https://whatshouldistudy.ch">whatshouldistudy.ch</a>'))
+  assert.ok(frHtml.includes('<img src="https://whatshouldistudy.ch/icon-192.png"><div>whatshouldistudy</div><a href="https://whatshouldistudy.ch/fr">whatshouldistudy.ch</a>'))
   assert.ok(!frHtml.includes('Moritz Lauper') && !frHtml.includes('wasstudieren'))
   assert.equal(isSwissGermanOutreach('https://wasstudieren.ch/deutschland', 'de'), false)
   assert.deepEqual(outreachWebsiteUrls('https://findemeinstudium.de.evil.example'), [])
