@@ -1,82 +1,95 @@
 /**
- * United Kingdom: the Discover Uni dataset (Office for Students / HESA, CC BY
- * 4.0). Every undergraduate course at UK providers, with course title, award
- * (BSc, BA (Hons), MEng ...), study mode, course URL and its subject (CAH).
+ * United Kingdom: Discover Uni (Office for Students, data CC BY 4.0). Every
+ * undergraduate course at all UK providers (around 460, England, Scotland,
+ * Wales and Northern Ireland), with award, length, mode, campus and subjects.
  *
- * The download link changes with each release, so it is read from the HESA
- * page; UK_DISCOVERUNI_URL overrides it.
+ * HESA's dataset download sits behind a Cloudflare challenge, so this reads the
+ * public search API behind discoveruni.gov.uk's course finder instead: one
+ * empty search lists every course id, details come in batches of 1,000.
+ * The API host is read from the course finder page, so a new deployment is
+ * picked up on its own.
  */
 import { join } from 'node:path'
-import { unzipSync, strFromU8 } from 'fflate'
 import { programmeId } from '../lib/programmes.ts'
 import type { Level, Programme } from '../lib/programmes.ts'
-import { OUT, cleanTitle, csvObjects, fetchRetry, fieldsForCah, fieldsForTitle, isMain, log, writeJson } from './lib/common.ts'
+import { CAH_BY_NAME } from './lib/cah.ts'
+import { OUT, cleanTitle, fetchRetry, fieldsForCah, fieldsForTitle, isMain, log, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
 
-const PAGES = [
-  'https://www.officeforstudents.org.uk/for-providers/student-protection-and-choice/discover-uni-and-the-discover-uni-dataset/discover-uni-dataset/',
-  'https://www.hesa.ac.uk/support/tools-and-downloads/unistats',
-]
+const FINDER = 'https://discoveruni.gov.uk/course-finder/results/'
+const API_FALLBACK = 'https://search-api-v2-prod-hxhpghhdg3dqdhft.uksouth-01.azurewebsites.net'
+const BATCH = 1000
 
-/** Award → level, from the aim label ("BSc (Hons)", "MEng", "Foundation Degree"). */
+/** Award → level, from the award ("BSc", "MEng", "FdA", "HND"). */
 export function ukLevel(aim: string, title: string): { level: Level; years?: number } {
   const a = `${aim} ${title}`.toLowerCase()
   if (/mbchb|mbbs|\bbm\b|bm bs|\bbds\b|\bbvsc\b|\bbvetmed\b|\bbvms\b|\bbvm/.test(a)) return { level: 'professional', years: 5 }
   if (/\bmeng\b|\bmsci\b|\bmphys\b|\bmchem\b|\bmmath\b|\bmbiol\b|\bmarch\b|\bmpharm\b|\bmgeol\b|\bmcomp\b|\bmes\b|integrated master/.test(a)) return { level: 'integrated', years: 4 }
-  if (/foundation degree|\bfd[a-z]*\b|\bhnd\b|\bhnc\b|dip ?he|cert ?he|foundation year/.test(a)) return { level: 'short', years: 2 }
+  // Only the award decides this: "BSc Biology with Foundation Year" is a bachelor.
+  if (/foundation degree|\bfd[a-z]*\b|\bhnd\b|\bhnc\b|dip ?he|cert ?he/.test(aim.toLowerCase())) return { level: 'short', years: 2 }
   // Discover Uni only covers undergraduate entry. A Scottish "MA (Hons)" is a
   // four-year first degree, not a master's.
   if (/\bma\b/.test(aim.toLowerCase())) return { level: 'bachelor', years: 4 }
   return { level: 'bachelor', years: 3 }
 }
 
-export interface UkTables {
-  courses: Array<Record<string, string>>
-  institutions: Array<Record<string, string>>
-  subjects: Array<Record<string, string>>
-  aims: Array<Record<string, string>>
-  locations: Array<Record<string, string>>
-  courseLocations: Array<Record<string, string>>
+/** "Glasgow Campus" → "Glasgow"; "Main Campus", "Campus A" or the provider's own name say nothing. */
+export function campusName(location: string, institution: string): string | undefined {
+  const s = location.replace(/\s+campus$/i, '').trim()
+  if (!s || s === institution || /main (campus|site)/i.test(location) || /^(main|city|campus( \w)?|\w)$/i.test(s)) return undefined
+  return s
 }
 
-export function parseTables(t: UkTables, fetchedAt: string): { programmes: Programme[]; unclassified: number } {
-  const instName = new Map<string, string>()
-  const instUrl = new Map<string, string>()
-  for (const i of t.institutions) {
-    const key = i.PUBUKPRN || i.UKPRN
-    const name = i.FIRST_TRADING_NAME || i.LEGAL_NAME || i.PROVNAME || i.INSTNAME || ''
-    if (key && name) instName.set(key, name)
-    const url = i.PROVURL || i.INSTURL || ''
-    if (key && url) instUrl.set(key, url)
-  }
-  const aimLabel = new Map<string, string>()
-  for (const a of t.aims) aimLabel.set(a.KISAIMCODE, a.KISAIMLABEL || a.LABEL || '')
-  const subjects = new Map<string, string[]>()
-  for (const s of t.subjects) {
-    const key = `${s.PUBUKPRN || s.UKPRN}|${s.KISCOURSEID}|${s.KISMODE}`
-    const list = subjects.get(key) ?? []
-    if (s.SBJ) list.push(s.SBJ)
-    subjects.set(key, list)
-  }
-  const locName = new Map<string, string>()
-  for (const l of t.locations) locName.set(`${l.UKPRN}|${l.LOCID}`, l.LOCNAME || l.LOCTOWN || '')
-  const courseLoc = new Map<string, string>()
-  for (const cl of t.courseLocations) {
-    const key = `${cl.PUBUKPRN || cl.UKPRN}|${cl.KISCOURSEID}|${cl.KISMODE}`
-    if (!courseLoc.has(key)) courseLoc.set(key, locName.get(`${cl.UKPRN}|${cl.LOCID}`) ?? '')
-  }
+const SMALL = new Set(['of', 'and', 'the', 'for', 'in', 'at', 'on'])
 
+/**
+ * About 80 providers come in capitals ("THE UNIVERSITY OF MANCHESTER",
+ * "SHEFFIELD COLLEGE, THE"). Their legal names are often a different entity,
+ * so the shown name is title-cased instead. Short acronyms (UCL, UA92) stay.
+ */
+export function providerName(name: string): string {
+  const s = name.trim()
+  if (/[a-z]/.test(s) || !/\s/.test(s)) return s
+  return s
+    .replace(/,\s*THE$|\s*\(THE\)$/, '')
+    .toLowerCase()
+    .split(' ')
+    .map((w, i) => (i > 0 && SMALL.has(w) ? w : w.replace(/(^|[-(])([a-z])/g, (_, p: string, c: string) => p + c.toUpperCase())))
+    .join(' ')
+}
+
+/** A course as /api/v2/search/courses/ returns it. */
+export interface UkCourse {
+  courseId: string
+  name: string
+  institutionId: number
+  institution: string
+  subjects?: Array<{ en: string }>
+  length?: string
+  mode?: { en: string }
+  distanceLearning?: { en: string }
+  location?: string[]
+}
+
+export function parseCourses(courses: UkCourse[], fetchedAt: string, sites = new Map<string, string>()): { programmes: Programme[]; unclassified: number; unknownSubjects: string[] } {
   const programmes: Programme[] = []
+  const unknown = new Set<string>()
   let unclassified = 0
   const seen = new Set<string>()
-  for (const c of t.courses) {
-    const prn = c.PUBUKPRN || c.UKPRN
-    const title = cleanTitle(c.TITLE || c.TITLEW || '')
-    if (!prn || !title) continue
-    const key = `${prn}|${c.KISCOURSEID}|${c.KISMODE}`
-    const aim = aimLabel.get(c.KISAIMCODE) ?? c.KISAIMLABEL ?? ''
+  for (const c of courses) {
+    const name = cleanTitle(c.name ?? '')
+    const [prn, kisId, modeLabel] = c.courseId.split('/')
+    if (!prn || !kisId || !name) continue
+    // The name starts with the award: "BSc Geology", "MA(SocSci) Politics".
+    const space = name.indexOf(' ')
+    const aim = space > 0 ? name.slice(0, space) : ''
+    const title = space > 0 ? name.slice(space + 1) : name
     const level = ukLevel(aim, title)
-    const cah = subjects.get(key) ?? []
+    const cah = (c.subjects ?? []).flatMap((s) => {
+      const code = CAH_BY_NAME[s.en.replace(/’/g, "'")]
+      if (!code) unknown.add(s.en)
+      return code ? [code] : []
+    })
     const candidates = [...new Set(cah.flatMap((code) => fieldsForCah(code)))]
     const { fields, confidence } = fieldsForTitle(title, candidates)
     const chosen = fields.length ? fields : candidates.slice(0, 1)
@@ -84,79 +97,107 @@ export function parseTables(t: UkTables, fetchedAt: string): { programmes: Progr
       unclassified++
       continue
     }
-    const id = programmeId(['gb', prn, c.KISCOURSEID, c.KISMODE])
+    // Same id as the HESA dataset gave (KISMODE 1 full-time, 2 part-time).
+    const kisMode = modeLabel === 'Part-time' ? '2' : '1'
+    const id = programmeId(['gb', prn, kisId, kisMode])
     if (seen.has(id)) continue
     seen.add(id)
-    const mode = c.KISMODE === '1' ? 'full-time' : c.KISMODE === '2' ? 'part-time' : c.KISMODE === '3' ? 'both' : undefined
+    const years = Number(/(\d+)-year/.exec(c.length ?? '')?.[1])
+    const campus = c.location?.map((l) => campusName(l, c.institution)).find(Boolean)
     programmes.push({
       id,
-      name: aim ? `${aim} ${title}` : title,
-      institution: instName.get(prn) ?? `UK provider ${prn}`,
+      name,
+      institution: providerName(c.institution),
       country: 'GB',
-      city: courseLoc.get(key) || undefined,
+      city: campus,
       level: level.level,
       fields: chosen,
       fieldConfidence: fields.length ? confidence : 0.7,
-      languages: c.WELSH === '1' ? ['en', 'cy'] : ['en'],
+      languages: ['en'],
       tuition: {
         currency: 'GBP',
         domestic: 9535,
         estimated: true,
         note: 'Home fee cap (England, 2025/26). International fees are set by each university.',
       },
-      durationYears: Number(c.NUMSTAGE) || level.years,
-      mode: c.DISTANCE === '1' ? 'distance' : mode,
-      url: c.CRSEURL || undefined,
-      institutionUrl: instUrl.get(prn),
+      durationYears: years || level.years,
+      mode: /only available through distance/i.test(c.distanceLearning?.en ?? '') ? 'distance' : modeLabel === 'Part-time' ? 'part-time' : 'full-time',
+      url: `https://discoveruni.gov.uk/course-details/${c.courseId.split('/').map(encodeURIComponent).join('/')}/`,
+      institutionUrl: sites.get(prn),
       source: 'uk-discover-uni',
       updated: fetchedAt,
     })
   }
-  return { programmes, unclassified }
+  return { programmes, unclassified, unknownSubjects: [...unknown] }
 }
 
-function findTable(files: Record<string, Uint8Array>, name: string): Array<Record<string, string>> {
-  const entry = Object.entries(files).find(([k]) => k.toUpperCase().endsWith(`${name}.CSV`))
-  return entry ? csvObjects(strFromU8(entry[1])) : []
+/**
+ * The API has no websites; each provider's page on discoveruni.gov.uk links it
+ * ("View uni website"). One page after the other, about 460 in all.
+ */
+async function websites(prns: string[]): Promise<Map<string, string>> {
+  const out = new Map<string, string>()
+  for (const prn of prns) {
+    try {
+      const html = await (await fetchRetry(`https://discoveruni.gov.uk/institution-details/${prn}/`, {}, 2)).text()
+      const m = /href="(https?:\/\/[^"]+)"[^>]*>\s*View uni website/i.exec(html)
+      if (m) out.set(prn, m[1])
+    } catch (e) {
+      log(`UK: provider page ${prn} not readable (${(e as Error).message.slice(0, 60)})`)
+    }
+  }
+  return out
 }
+
+async function apiHost(): Promise<string> {
+  try {
+    const html = await (await fetchRetry(FINDER, {}, 2)).text()
+    const m = /API_V2_SEARCH\s*=\s*["']([^"']+)["']/.exec(html)
+    if (m) return m[1].replace(/\/$/, '')
+    log('UK: API_V2_SEARCH not on the course finder page, using the known host')
+  } catch (e) {
+    log(`UK: course finder not readable (${(e as Error).message.slice(0, 80)}), using the known host`)
+  }
+  return API_FALLBACK
+}
+
+const post = async <T,>(url: string, body: unknown): Promise<T> =>
+  (await fetchRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })).json() as Promise<T>
 
 async function main() {
   const fetchedAt = new Date().toISOString()
-  let zipUrl = process.env.UK_DISCOVERUNI_URL
-  for (const page of PAGES) {
-    if (zipUrl) break
-    try {
-      const html = await (await fetchRetry(page, {}, 2)).text()
-      const links = [...html.matchAll(/href="([^"]+\.zip[^"]*)"/gi)].map((m) => new URL(m[1].replace(/&amp;/g, '&'), page).toString())
-      zipUrl = links.find((l) => /discover|unistats|kis/i.test(l)) ?? links[0]
-      if (!zipUrl) log(`UK: no .zip link on ${page}`)
-    } catch (e) {
-      log(`UK: ${page} not readable (${(e as Error).message.slice(0, 80)})`)
-    }
+  const host = await apiHost()
+  const providers = (await (await fetchRetry(`${host}/api/v2/institutions`)).json()) as unknown[]
+  log(`UK: ${providers.length} providers listed`)
+  // The finder's own query with every filter off: all courses of all providers.
+  const hits = await post<Array<{ courseId: string; institution: string }>>(`${host}/api/v2/search/`, {
+    query: '',
+    selectedInstitutions: [],
+    modeFullTime: false,
+    modePartTime: false,
+    locOnCampus: false,
+    locDistanceLearning: false,
+    regionScotland: false,
+    regionWales: false,
+    regionNorthernIreland: false,
+    regionEngland: false,
+    postcodeQuery: null,
+    cityQuery: null,
+  })
+  const ids = [...new Set(hits.map((h) => h.courseId))]
+  log(`UK: ${ids.length} courses at ${new Set(hits.map((h) => h.institution)).size} providers`)
+  if (!ids.length) throw new Error('Discover Uni search returned no courses')
+  const courses: UkCourse[] = []
+  for (let i = 0; i < ids.length; i += BATCH) {
+    courses.push(...(await post<UkCourse[]>(`${host}/api/v2/search/courses/`, { courseIds: ids.slice(i, i + BATCH) })))
+    if ((i / BATCH) % 10 === 0) log(`UK: details ${courses.length}/${ids.length}`)
   }
-  if (!zipUrl) {
-    // Both sites sit behind a bot challenge at times. We don't work around it: the
-    // dataset changes once a year, so download it by hand and point to a copy
-    // (e.g. a GitHub release asset) with the repository variable UK_DISCOVERUNI_URL.
-    throw new Error('Discover Uni download page not reachable; set UK_DISCOVERUNI_URL to the dataset .zip')
-  }
-  log(`UK: downloading ${zipUrl}`)
-  const buf = new Uint8Array(await (await fetchRetry(zipUrl)).arrayBuffer())
-  const files = unzipSync(buf, { filter: (f) => /\.csv$/i.test(f.name) })
-  log(`UK: ${Object.keys(files).length} CSV files: ${Object.keys(files).join(', ')}`)
-  const tables: UkTables = {
-    courses: findTable(files, 'KISCOURSE'),
-    institutions: findTable(files, 'INSTITUTION'),
-    subjects: findTable(files, 'SBJ'),
-    aims: findTable(files, 'KISAIM'),
-    locations: findTable(files, 'LOCATION'),
-    courseLocations: findTable(files, 'COURSELOCATION'),
-  }
-  if (!tables.courses.length) throw new Error('KISCOURSE.csv missing or empty')
-  log(`UK: KISCOURSE columns: ${Object.keys(tables.courses[0]).join(', ')}`)
-  const { programmes, unclassified } = parseTables(tables, fetchedAt)
-  log(`UK: ${programmes.length} programmes, ${unclassified} unclassified`)
-  const out: ScrapeOutput = { source: 'uk-discover-uni', fetchedAt, programmes, notes: [`${unclassified} unclassified`, zipUrl] }
+  const sites = await websites([...new Set(ids.map((id) => id.split('/')[0]))])
+  log(`UK: websites for ${sites.size} providers`)
+  const { programmes, unclassified, unknownSubjects } = parseCourses(courses, fetchedAt, sites)
+  if (unknownSubjects.length) log(`UK: subjects without CAH code: ${unknownSubjects.join(', ')}`)
+  log(`UK: ${programmes.length} programmes at ${new Set(programmes.map((p) => p.institution)).size} providers, ${unclassified} unclassified`)
+  const out: ScrapeOutput = { source: 'uk-discover-uni', fetchedAt, programmes, notes: [`${unclassified} unclassified`, host] }
   writeJson(join(OUT, 'uk-discover-uni.json'), out)
 }
 

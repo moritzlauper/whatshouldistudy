@@ -167,7 +167,7 @@ Strava (sports).
 | Scraper | Coverage | Licence |
 | --- | --- | --- |
 | `us-scorecard.ts` | every US college: programmes by CIP and level, in-/out-of-state tuition, median earnings and debt per programme, admission rate | public domain |
-| `uk-discoveruni.ts` | every UK undergraduate course (Discover Uni), with award, mode, URL, subject | CC BY 4.0 |
+| `uk-discoveruni.ts` | every UK undergraduate course at all ~460 providers, from the search API behind discoveruni.gov.uk's course finder: award, length, mode, campus, subjects (CAH, names mapped with the OfS lookup in `scrapers/lib/cah.ts`), provider website from its Discover Uni page | CC BY 4.0 |
 | `fr-parcoursup.ts` | every French first-year programme on Parcoursup, statutory fees, capacity, admission rate | Licence Ouverte 2.0 |
 | `ch-bfs.ts` | every Swiss Bachelor and Master: students per institution, subject (Fachrichtung) and level, from the BFS PXWeb tables (universities, FH, PH); institution type, fees, languages and admission from `lib/ch-institutions.ts` | open use, «Quelle: BFS» |
 | `de-studiensuche.ts` | German degree programmes (Bachelor, Master, Staatsexamen, Diplom, Lehramt) at universities, HAW/FH, dual and art colleges, from the Studiensuche API of the Bundesagentur für Arbeit (`rest.arbeitsagentur.de/infosysbub/studisu`, documented at bund.dev); further-education programmes are skipped | no licence stated; public API, credited on the site |
@@ -185,7 +185,6 @@ Runs on other branches only upload the result as an artifact.
 
 Secrets for the workflow: `SCORECARD_API_KEY` (free at api.data.gov/signup,
 strongly recommended), optionally `OPENALEX_API_KEY` and `OPENALEX_EMAIL`.
-Repository variable `UK_DISCOVERUNI_URL`: the Discover Uni dataset .zip.
 
 State of the first live runs (October 2026):
 
@@ -198,7 +197,7 @@ State of the first live runs (October 2026):
 | United States | with `DEMO_KEY` only ~1,000 of ~2,700 institutions (≈45,000 programmes) before the rate limit; complete with a free API key |
 | OpenAlex | 14,657 universities in 65 countries |
 | Directory | 10,268 universities in 200 countries |
-| United Kingdom | HESA's download page answers bots with a Cloudflare challenge, which we don't work around. Download the dataset once a year by hand (it is published annually), attach the .zip to a GitHub release and put its URL in `UK_DISCOVERUNI_URL`. |
+| United Kingdom (Discover Uni) | 30,461 programmes at 461 providers (26,433 bachelor, 2,145 integrated master's, 1,796 foundation degrees and HNDs, 87 medicine/dentistry/vet). HESA's .zip download sits behind a Cloudflare challenge, so the scraper reads the public search API of the course finder instead. |
 
 The scrapers read column names defensively and log the columns they find, so
 when a publisher renames something the run log shows it. `pnpm data:all` runs

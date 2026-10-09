@@ -15,14 +15,14 @@
     },
     {
       "id": "uk-discover-uni",
-      "name": "Discover Uni dataset (Office for Students, HESA)",
+      "name": "Discover Uni (Office for Students)",
       "countries": [
         "GB"
       ],
-      "url": "https://www.hesa.ac.uk/support/tools-and-downloads/unistats",
+      "url": "https://discoveruni.gov.uk/",
       "licence": "CC BY 4.0",
       "ok": true,
-      "count": 43,
+      "count": 51,
       "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
@@ -169,12 +169,13 @@
       "CH": 15,
       "DE": 3,
       "FR": 4,
-      "GB": 3,
+      "GB": 4,
       "KR": 3,
       "US": 18
     },
     "artificial-intelligence": {
       "AT": 1,
+      "GB": 2,
       "KR": 8
     },
     "cybersecurity": {},
@@ -211,7 +212,6 @@
       "CH": 6,
       "DE": 1,
       "FR": 3,
-      "GB": 1,
       "KR": 4,
       "US": 14
     },
@@ -233,10 +233,10 @@
     },
     "earth-sciences": {
       "FR": 2,
-      "GB": 1,
       "KR": 1
     },
     "marine-biology": {
+      "GB": 1,
       "KR": 1
     },
     "zoology": {
@@ -246,13 +246,14 @@
     "geography": {
       "AT": 1,
       "DE": 2,
-      "FR": 1
+      "FR": 1,
+      "GB": 1
     },
     "mechanical-engineering": {
       "CH": 4,
       "DE": 3,
       "FR": 4,
-      "GB": 1,
+      "GB": 2,
       "KR": 1,
       "US": 14
     },
@@ -278,7 +279,8 @@
       "US": 12
     },
     "automotive-engineering": {
-      "DE": 1
+      "DE": 1,
+      "GB": 1
     },
     "chemical-engineering": {
       "GB": 1,
@@ -315,7 +317,8 @@
       "US": 10
     },
     "industrial-design": {
-      "CH": 4
+      "CH": 4,
+      "GB": 1
     },
     "game-design": {},
     "ux-design": {},
@@ -323,14 +326,14 @@
       "AT": 1,
       "CH": 6,
       "FR": 1,
-      "GB": 3,
+      "GB": 4,
       "US": 3
     },
     "nursing": {
       "CH": 6,
       "DE": 1,
       "FR": 1,
-      "GB": 1,
+      "GB": 2,
       "KR": 3,
       "US": 10
     },
@@ -342,11 +345,12 @@
     "veterinary-medicine": {
       "GB": 1
     },
-    "physiotherapy": {},
+    "physiotherapy": {
+      "GB": 1
+    },
     "sports-science": {
       "AT": 2,
       "FR": 1,
-      "GB": 1,
       "KR": 1,
       "US": 6
     },
@@ -380,11 +384,12 @@
       "CH": 7,
       "DE": 7,
       "FR": 3,
+      "GB": 2,
       "KR": 4,
       "US": 16
     },
     "finance-accounting": {
-      "GB": 1,
+      "GB": 3,
       "KR": 1,
       "US": 16
     },
@@ -392,7 +397,9 @@
       "GB": 1,
       "US": 8
     },
-    "entrepreneurship": {},
+    "entrepreneurship": {
+      "GB": 2
+    },
     "logistics": {},
     "hospitality-tourism": {
       "FR": 2
@@ -419,12 +426,13 @@
     "sociology": {
       "AT": 6,
       "CH": 2,
-      "FR": 1
+      "FR": 1,
+      "GB": 1
     },
     "anthropology": {
       "AT": 1,
       "CH": 1,
-      "GB": 1
+      "GB": 3
     },
     "social-work": {
       "AT": 1,
@@ -445,6 +453,7 @@
     "media-communication": {
       "AT": 3,
       "DE": 1,
+      "GB": 1,
       "KR": 1
     },
     "history": {
@@ -483,6 +492,7 @@
       "AT": 8,
       "DE": 2,
       "FR": 1,
+      "GB": 1,
       "KR": 4,
       "US": 10
     },
@@ -511,11 +521,13 @@
       "CH": 5,
       "DE": 3,
       "FR": 1,
-      "GB": 1,
+      "GB": 2,
       "KR": 4,
       "US": 12
     },
-    "music-production": {},
+    "music-production": {
+      "GB": 1
+    },
     "performing-arts": {
       "GB": 1
     },
@@ -523,14 +535,15 @@
     "agriculture": {
       "CH": 1,
       "DE": 4,
+      "GB": 1,
       "KR": 1
     },
     "aviation": {}
   },
   "totals": {
-    "programmes": 852,
+    "programmes": 860,
     "countries": 7,
-    "institutions": 58,
+    "institutions": 63,
     "newLast90Days": 0
   },
   "unclassified": 0,
@@ -541,8 +554,8 @@
       "byType": {}
     },
     "GB": {
-      "programmes": 43,
-      "institutions": 5,
+      "programmes": 51,
+      "institutions": 10,
       "byType": {}
     },
     "FR": {

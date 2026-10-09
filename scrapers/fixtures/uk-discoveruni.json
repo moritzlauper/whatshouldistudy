@@ -1,0 +1,1114 @@
+{
+ "websites": {
+  "10003270": "https://www.imperial.ac.uk",
+  "10003861": "https://www.leedsbeckett.ac.uk",
+  "10007783": "https://www.abdn.ac.uk",
+  "10007786": "https://www.bristol.ac.uk",
+  "10007790": "https://www.ed.ac.uk",
+  "10007798": "https://www.manchester.ac.uk"
+ },
+ "courses": [
+  {
+   "courseId": "10007798/2571195/Full-time",
+   "name": "BSc Computer Science",
+   "institutionId": 10007798,
+   "institution": "THE UNIVERSITY OF MANCHESTER",
+   "subjects": [
+    {
+     "en": "Computer science"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Main Campus"
+   ]
+  },
+  {
+   "courseId": "10007798/204/Full-time",
+   "name": "BEng Mechanical Engineering",
+   "institutionId": 10007798,
+   "institution": "THE UNIVERSITY OF MANCHESTER",
+   "subjects": [
+    {
+     "en": "Mechanical engineering"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Main Campus"
+   ]
+  },
+  {
+   "courseId": "10007798/209/Full-time",
+   "name": "BSc Psychology",
+   "institutionId": 10007798,
+   "institution": "THE UNIVERSITY OF MANCHESTER",
+   "subjects": [
+    {
+     "en": "Psychology (non-specific)"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Main Campus"
+   ]
+  },
+  {
+   "courseId": "10007798/206/Full-time",
+   "name": "BA Economics",
+   "institutionId": 10007798,
+   "institution": "THE UNIVERSITY OF MANCHESTER",
+   "subjects": [
+    {
+     "en": "Economics"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Main Campus"
+   ]
+  },
+  {
+   "courseId": "10007798/222/Full-time",
+   "name": "LLB Law",
+   "institutionId": 10007798,
+   "institution": "THE UNIVERSITY OF MANCHESTER",
+   "subjects": [
+    {
+     "en": "Law"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Main Campus"
+   ]
+  },
+  {
+   "courseId": "10007798/88/Full-time",
+   "name": "MBChB Medicine",
+   "institutionId": 10007798,
+   "institution": "THE UNIVERSITY OF MANCHESTER",
+   "subjects": [
+    {
+     "en": "Medicine (non-specific)"
+    },
+    {
+     "en": "Others in language and area studies"
+    }
+   ],
+   "length": "5-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Main Campus"
+   ]
+  },
+  {
+   "courseId": "10007798/192/Full-time",
+   "name": "BA History",
+   "institutionId": 10007798,
+   "institution": "THE UNIVERSITY OF MANCHESTER",
+   "subjects": [
+    {
+     "en": "History"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Main Campus"
+   ]
+  },
+  {
+   "courseId": "10007798/45/Full-time",
+   "name": "BSc Physics with Astrophysics",
+   "institutionId": 10007798,
+   "institution": "THE UNIVERSITY OF MANCHESTER",
+   "subjects": [
+    {
+     "en": "Physics"
+    },
+    {
+     "en": "Astronomy"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Main Campus"
+   ]
+  },
+  {
+   "courseId": "10007798/235/Full-time",
+   "name": "BMus Music",
+   "institutionId": 10007798,
+   "institution": "THE UNIVERSITY OF MANCHESTER",
+   "subjects": [
+    {
+     "en": "Music"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Main Campus"
+   ]
+  },
+  {
+   "courseId": "10007798/2013433/Full-time",
+   "name": "BSc Fashion Marketing",
+   "institutionId": 10007798,
+   "institution": "THE UNIVERSITY OF MANCHESTER",
+   "subjects": [
+    {
+     "en": "Marketing"
+    },
+    {
+     "en": "Design studies"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Main Campus"
+   ]
+  },
+  {
+   "courseId": "10003270/H401/Full-time",
+   "name": "MEng Aeronautical Engineering",
+   "institutionId": 10003270,
+   "institution": "Imperial College London",
+   "subjects": [
+    {
+     "en": "Aeronautical and aerospace engineering"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "South Kensington"
+   ]
+  },
+  {
+   "courseId": "10003270/G400/Full-time",
+   "name": "BEng Computing",
+   "institutionId": 10003270,
+   "institution": "Imperial College London",
+   "subjects": [
+    {
+     "en": "Computer science"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "South Kensington"
+   ]
+  },
+  {
+   "courseId": "10003270/G100/Full-time",
+   "name": "BSc Mathematics",
+   "institutionId": 10003270,
+   "institution": "Imperial College London",
+   "subjects": [
+    {
+     "en": "Mathematics"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "South Kensington"
+   ]
+  },
+  {
+   "courseId": "10003270/F100/Full-time",
+   "name": "BSc Chemistry",
+   "institutionId": 10003270,
+   "institution": "Imperial College London",
+   "subjects": [
+    {
+     "en": "Chemistry"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "South Kensington"
+   ]
+  },
+  {
+   "courseId": "10003270/BH9C/Full-time",
+   "name": "MEng Biomedical Engineering",
+   "institutionId": 10003270,
+   "institution": "Imperial College London",
+   "subjects": [
+    {
+     "en": "Bioengineering, medical and biomedical engineering"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "South Kensington"
+   ]
+  },
+  {
+   "courseId": "10003270/H801/Full-time",
+   "name": "MEng Chemical Engineering",
+   "institutionId": 10003270,
+   "institution": "Imperial College London",
+   "subjects": [
+    {
+     "en": "Chemical, process and energy engineering"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "South Kensington"
+   ]
+  },
+  {
+   "courseId": "10003270/H201/Full-time",
+   "name": "MEng Civil Engineering",
+   "institutionId": 10003270,
+   "institution": "Imperial College London",
+   "subjects": [
+    {
+     "en": "Civil engineering"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "South Kensington"
+   ]
+  },
+  {
+   "courseId": "10003270/H600/Full-time",
+   "name": "BEng Electrical and Electronic Engineering",
+   "institutionId": 10003270,
+   "institution": "Imperial College London",
+   "subjects": [
+    {
+     "en": "Electrical and electronic engineering"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "South Kensington"
+   ]
+  },
+  {
+   "courseId": "10003270/A100/Full-time",
+   "name": "MBBS Medicine",
+   "institutionId": 10003270,
+   "institution": "Imperial College London",
+   "subjects": [
+    {
+     "en": "Medicine (non-specific)"
+    }
+   ],
+   "length": "6-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Charing Cross Hospital"
+   ]
+  },
+  {
+   "courseId": "10007790/UTPHILYMAH/Full-time",
+   "name": "MA Philosophy",
+   "institutionId": 10007790,
+   "institution": "University of Edinburgh",
+   "subjects": [
+    {
+     "en": "Philosophy"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Central"
+   ]
+  },
+  {
+   "courseId": "10007790/UTLINGSMAH/Full-time",
+   "name": "MA Linguistics",
+   "institutionId": 10007790,
+   "institution": "University of Edinburgh",
+   "subjects": [
+    {
+     "en": "Artificial intelligence"
+    },
+    {
+     "en": "Linguistics"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Central"
+   ]
+  },
+  {
+   "courseId": "10007790/UTAICSCBSCH/Full-time",
+   "name": "BSc Artificial Intelligence and Computer Science",
+   "institutionId": 10007790,
+   "institution": "University of Edinburgh",
+   "subjects": [
+    {
+     "en": "Computer science"
+    },
+    {
+     "en": "Artificial intelligence"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Central"
+   ]
+  },
+  {
+   "courseId": "10007790/UTMAHSUSDE1F/Full-time",
+   "name": "MA Sustainable Development",
+   "institutionId": 10007790,
+   "institution": "University of Edinburgh",
+   "subjects": [
+    {
+     "en": "Sociology"
+    },
+    {
+     "en": "Anthropology"
+    },
+    {
+     "en": "Physical geographical sciences"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Central"
+   ]
+  },
+  {
+   "courseId": "10007790/UTSOWRKBSCH/Full-time",
+   "name": "BSc Social Work",
+   "institutionId": 10007790,
+   "institution": "University of Edinburgh",
+   "subjects": [
+    {
+     "en": "Social work"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Central"
+   ]
+  },
+  {
+   "courseId": "10007790/UTBSCECOLE1F/Full-time",
+   "name": "BSc Ecological and Environmental Sciences",
+   "institutionId": 10007790,
+   "institution": "University of Edinburgh",
+   "subjects": [
+    {
+     "en": "Ecology and environmental biology"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Central"
+   ]
+  },
+  {
+   "courseId": "10003861/BAJLN_A097/Full-time",
+   "name": "BA Journalism",
+   "institutionId": 10003861,
+   "institution": "Leeds Beckett University",
+   "subjects": [
+    {
+     "en": "Journalism"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Leeds City Campus"
+   ]
+  },
+  {
+   "courseId": "10003861/ACCOU_A002/Full-time",
+   "name": "BA Accounting and Finance",
+   "institutionId": 10003861,
+   "institution": "Leeds Beckett University",
+   "subjects": [
+    {
+     "en": "Accounting"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Leeds City Campus"
+   ]
+  },
+  {
+   "courseId": "10003861/CRIME_A473/Full-time",
+   "name": "BA Criminology",
+   "institutionId": 10003861,
+   "institution": "Leeds Beckett University",
+   "subjects": [
+    {
+     "en": "Sociology"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Leeds City Campus"
+   ]
+  },
+  {
+   "courseId": "10007786/4AERO016UU-202526/Full-time",
+   "name": "BEng Aerospace Engineering",
+   "institutionId": 10007786,
+   "institution": "University of Bristol",
+   "subjects": [
+    {
+     "en": "Aeronautical and aerospace engineering"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "University of Bristol"
+   ]
+  },
+  {
+   "courseId": "10007786/7PYSI004UU-202526/Full-time",
+   "name": "BSc Neuroscience",
+   "institutionId": 10007786,
+   "institution": "University of Bristol",
+   "subjects": [
+    {
+     "en": "Biomedical sciences (non-specific)"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "University of Bristol"
+   ]
+  },
+  {
+   "courseId": "10007786/9SPAI002UU-202526/Full-time",
+   "name": "BSc Politics and International Relations",
+   "institutionId": 10007786,
+   "institution": "University of Bristol",
+   "subjects": [
+    {
+     "en": "Politics"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "University of Bristol"
+   ]
+  },
+  {
+   "courseId": "10007786/1DRAM011UU-202526/Full-time",
+   "name": "BA Theatre and Performance Studies",
+   "institutionId": 10007786,
+   "institution": "University of Bristol",
+   "subjects": [
+    {
+     "en": "Drama"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "University of Bristol"
+   ]
+  },
+  {
+   "courseId": "10007786/2BISC003UU-202526/Full-time",
+   "name": "BSc Zoology",
+   "institutionId": 10007786,
+   "institution": "University of Bristol",
+   "subjects": [
+    {
+     "en": "Zoology"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "University of Bristol"
+   ]
+  },
+  {
+   "courseId": "10007786/2MATH025UU-202526/Full-time",
+   "name": "BSc Data Science",
+   "institutionId": 10007786,
+   "institution": "University of Bristol",
+   "subjects": [
+    {
+     "en": "Computer science"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "University of Bristol"
+   ]
+  },
+  {
+   "courseId": "10007786/1ARCH026UU-202526/Full-time",
+   "name": "BA Anthropology",
+   "institutionId": 10007786,
+   "institution": "University of Bristol",
+   "subjects": [
+    {
+     "en": "Anthropology"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "University of Bristol"
+   ]
+  },
+  {
+   "courseId": "10003270/H301/Full-time",
+   "name": "MEng Mechanical Engineering",
+   "institutionId": 10003270,
+   "institution": "Imperial College London",
+   "subjects": [
+    {
+     "en": "Mechanical engineering"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "South Kensington"
+   ]
+  },
+  {
+   "courseId": "10007783/NN24/Full-time",
+   "name": "MA Accountancy and Business Management",
+   "institutionId": 10007783,
+   "institution": "University of Aberdeen",
+   "subjects": [
+    {
+     "en": "Management studies"
+    },
+    {
+     "en": "Accounting"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Old Aberdeen"
+   ]
+  },
+  {
+   "courseId": "10007856/FDSC_D403/Full-time",
+   "name": "FdSc Agriculture (with integrated year in industry)",
+   "institutionId": 10007856,
+   "institution": "Aberystwyth University",
+   "subjects": [
+    {
+     "en": "Agriculture"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Aberystwyth"
+   ]
+  },
+  {
+   "courseId": "10032036/6N102/Part-time",
+   "name": "BA Business Management (Entrepreneurship and Innovation)",
+   "institutionId": 10032036,
+   "institution": "Amity Global Education Ltd",
+   "subjects": [
+    {
+     "en": "Business studies"
+    },
+    {
+     "en": "Personal development"
+    }
+   ],
+   "length": "Length of course is not available",
+   "mode": {
+    "en": "Part-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Birkbeck College"
+   ]
+  },
+  {
+   "courseId": "10007783/A100/Full-time",
+   "name": "MBChB Medicine",
+   "institutionId": 10007783,
+   "institution": "University of Aberdeen",
+   "subjects": [
+    {
+     "en": "Medicine (non-specific)"
+    }
+   ],
+   "length": "5-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Foresterhill"
+   ]
+  },
+  {
+   "courseId": "10007856/BSC_N40F/Full-time",
+   "name": "BSc Accounting and Finance with Foundation Year",
+   "institutionId": 10007856,
+   "institution": "Aberystwyth University",
+   "subjects": [
+    {
+     "en": "Finance"
+    },
+    {
+     "en": "Accounting"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Aberystwyth"
+   ]
+  },
+  {
+   "courseId": "10000291/K01010/Full-time",
+   "name": "MNurs Nursing (Adult and Children)",
+   "institutionId": 10000291,
+   "institution": "Anglia Ruskin University",
+   "subjects": [
+    {
+     "en": "Adult nursing"
+    },
+    {
+     "en": "Children's nursing"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "ARU Chelmsford Campus"
+   ]
+  },
+  {
+   "courseId": "10031419/MUSSNDDHAM1O/Full-time",
+   "name": "DipHE Music and Sound - AMSonline",
+   "institutionId": 10031419,
+   "institution": "Academy of Music & Sound Ltd",
+   "subjects": [
+    {
+     "en": "Music"
+    }
+   ],
+   "length": "2-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Course is only available through distance learning"
+   },
+   "location": []
+  },
+  {
+   "courseId": "10007790/UTCLVG2BVMS/Full-time",
+   "name": "BA Clinical Veterinary Medicine",
+   "institutionId": 10007790,
+   "institution": "University of Edinburgh",
+   "subjects": [
+    {
+     "en": "Veterinary medicine and dentistry"
+    }
+   ],
+   "length": "7-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Central"
+   ]
+  },
+  {
+   "courseId": "10007790/UTBSCESPGE1F/Full-time",
+   "name": "BSc Earth Science and Physical Geography",
+   "institutionId": 10007790,
+   "institution": "University of Edinburgh",
+   "subjects": [
+    {
+     "en": "Earth sciences"
+    }
+   ],
+   "length": "4-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Central"
+   ]
+  },
+  {
+   "courseId": "10003861/BGRAD_B606/Full-time",
+   "name": "BA Graphic Design",
+   "institutionId": 10003861,
+   "institution": "Leeds Beckett University",
+   "subjects": [
+    {
+     "en": "Design studies"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Leeds City Campus"
+   ]
+  },
+  {
+   "courseId": "10003861/ABASS_C184/Full-time",
+   "name": "BSc Applied Sport Studies - in Athletics",
+   "institutionId": 10003861,
+   "institution": "Leeds Beckett University",
+   "subjects": [
+    {
+     "en": "Tourism, transport and travel"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Headingley Campus"
+   ]
+  },
+  {
+   "courseId": "10003861/BSANR_A317/Full-time",
+   "name": "BSc Adult Nursing",
+   "institutionId": 10003861,
+   "institution": "Leeds Beckett University",
+   "subjects": [
+    {
+     "en": "Adult nursing"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Leeds City Campus"
+   ]
+  },
+  {
+   "courseId": "10003861/DIETT_A537/Full-time",
+   "name": "BSc Dietetics",
+   "institutionId": 10003861,
+   "institution": "Leeds Beckett University",
+   "subjects": [
+    {
+     "en": "Nutrition and dietetics"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Leeds City Campus"
+   ]
+  },
+  {
+   "courseId": "10003861/BAFLM_A078/Full-time",
+   "name": "BA Filmmaking",
+   "institutionId": 10003861,
+   "institution": "Leeds Beckett University",
+   "subjects": [
+    {
+     "en": "Cinematics and photography"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "Leeds City Campus"
+   ]
+  },
+  {
+   "courseId": "10000291/K00143/Full-time",
+   "name": "BA Architecture",
+   "institutionId": 10000291,
+   "institution": "Anglia Ruskin University",
+   "subjects": [
+    {
+     "en": "Architecture"
+    }
+   ],
+   "length": "3-year course",
+   "mode": {
+    "en": "Full-time"
+   },
+   "distanceLearning": {
+    "en": "Not available"
+   },
+   "location": [
+    "ARU Chelmsford Campus"
+   ]
+  }
+ ]
+}

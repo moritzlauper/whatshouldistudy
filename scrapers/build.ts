@@ -15,12 +15,13 @@ import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import type { DataMeta, FieldStat, Level, Programme, ProgrammeShard, ResearchInstitution, ResearchShard, SourceStatus } from '../lib/programmes.ts'
 import { FIELDS } from '../lib/taxonomy/fields.ts'
-import { FIXTURES, OUT, ROOT, csvObjects, fetchRetry, log, readJson, writeJson } from './lib/common.ts'
+import { FIXTURES, OUT, ROOT, fetchRetry, log, readJson, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
 import { parseSchools } from './us-scorecard.ts'
 import type { RawSchool } from './us-scorecard.ts'
 import { parseRecords } from './fr-parcoursup.ts'
-import { parseTables } from './uk-discoveruni.ts'
+import { parseCourses } from './uk-discoveruni.ts'
+import type { UkCourse } from './uk-discoveruni.ts'
 import { rankInstitutions } from './global-openalex.ts'
 import type { RawInstitution } from './global-openalex.ts'
 import { buildDirectory } from './global-directory.ts'
@@ -48,9 +49,9 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
   },
   {
     id: 'uk-discover-uni',
-    name: 'Discover Uni dataset (Office for Students, HESA)',
+    name: 'Discover Uni (Office for Students)',
     countries: ['GB'],
-    url: 'https://www.hesa.ac.uk/support/tools-and-downloads/unistats',
+    url: 'https://discoveruni.gov.uk/',
     licence: 'CC BY 4.0',
   },
   {
@@ -172,11 +173,8 @@ function readFixtures(): Inputs {
   const status = new Map<string, Partial<SourceStatus>>()
   const us = parseSchools(readJson<{ results: RawSchool[] }>(join(FIXTURES, 'us-scorecard.json'))!.results, at)
   const fr = parseRecords(readJson<Array<Record<string, unknown>>>(join(FIXTURES, 'fr-parcoursup.json'))!, at).programmes
-  const csv = (n: string) => csvObjects(readFileSync(join(FIXTURES, 'uk', `${n}.csv`), 'utf8'))
-  const uk = parseTables(
-    { courses: csv('KISCOURSE'), institutions: csv('INSTITUTION'), subjects: csv('SBJ'), aims: csv('KISAIM'), locations: csv('LOCATION'), courseLocations: csv('COURSELOCATION') },
-    at,
-  ).programmes
+  const ukFixture = readJson<{ websites: Record<string, string>; courses: UkCourse[] }>(join(FIXTURES, 'uk-discoveruni.json'))!
+  const uk = parseCourses(ukFixture.courses, at, new Map(Object.entries(ukFixture.websites))).programmes
   const chTables = readJson<{ tables: Record<string, Array<Record<string, string>>> }>(join(FIXTURES, 'ch-bfs.json'))!.tables
   const seen = new Set<string>()
   const ch = Object.values(chTables)

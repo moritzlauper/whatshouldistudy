@@ -14,8 +14,7 @@ name: whatshouldistudy data
 #
 # Secrets: SCORECARD_API_KEY (free at api.data.gov/signup; without it the
 # DEMO_KEY stops after ~1,000 of ~2,700 US institutions), optionally
-# OPENALEX_API_KEY and OPENALEX_EMAIL. Variable: UK_DISCOVERUNI_URL, the
-# Discover Uni .zip (HESA's download page sits behind a bot challenge).
+# OPENALEX_API_KEY and OPENALEX_EMAIL.
 
 on:
   schedule:
@@ -85,8 +84,6 @@ jobs:
       - name: United Kingdom (Discover Uni)
         if: ${{ !inputs.only || contains(inputs.only, 'uk') }}
         continue-on-error: true
-        env:
-          UK_DISCOVERUNI_URL: ${{ vars.UK_DISCOVERUNI_URL }}
         run: node scrapers/uk-discoveruni.ts
 
       - name: France (Parcoursup)

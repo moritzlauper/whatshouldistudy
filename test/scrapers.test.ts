@@ -5,7 +5,8 @@ import { join } from 'node:path'
 import { parseSchools } from '../scrapers/us-scorecard.ts'
 import type { RawSchool } from '../scrapers/us-scorecard.ts'
 import { frenchLevel, parseRecords } from '../scrapers/fr-parcoursup.ts'
-import { ukLevel } from '../scrapers/uk-discoveruni.ts'
+import { campusName, parseCourses, providerName, ukLevel } from '../scrapers/uk-discoveruni.ts'
+import type { UkCourse } from '../scrapers/uk-discoveruni.ts'
 import { rankInstitutions } from '../scrapers/global-openalex.ts'
 import { fieldsForCip, FIXTURES } from '../scrapers/lib/common.ts'
 import { programmeId } from '../lib/programmes.ts'
@@ -61,6 +62,33 @@ test('UK award labels map to levels', () => {
   assert.equal(ukLevel('MBChB', 'Medicine').level, 'professional')
   assert.equal(ukLevel('BSc (Hons)', 'Physics').level, 'bachelor')
   assert.equal(ukLevel('Foundation Degree', 'Business').level, 'short')
+  assert.equal(ukLevel('FdSc', 'Agriculture').level, 'short')
+  assert.equal(ukLevel('BSc', 'Biology with Foundation Year').level, 'bachelor')
+})
+
+test('Discover Uni courses become programmes', () => {
+  const { websites, courses } = fixture<{ websites: Record<string, string>; courses: UkCourse[] }>('uk-discoveruni.json')
+  const { programmes, unknownSubjects } = parseCourses(courses, '2026-01-01', new Map(Object.entries(websites)))
+  assert.deepEqual(unknownSubjects, [])
+  const cs = programmes.find((p) => p.name === 'BSc Computer Science')!
+  assert.equal(cs.institution, 'The University of Manchester')
+  assert.equal(cs.institutionUrl, 'https://www.manchester.ac.uk')
+  assert.deepEqual(cs.fields, ['computer-science'])
+  assert.equal(cs.city, undefined)
+  assert.match(cs.url!, /^https:\/\/discoveruni\.gov\.uk\/course-details\/10007798\/[^/]+\/Full-time\/$/)
+  const ma = programmes.find((p) => p.name === 'MA Accountancy and Business Management')!
+  assert.equal(ma.level, 'bachelor')
+  assert.equal(ma.durationYears, 4)
+  assert.equal(ma.city, 'Old Aberdeen')
+  assert.equal(programmes.find((p) => p.name.startsWith('MBChB'))!.level, 'professional')
+  assert.equal(programmes.find((p) => p.name.startsWith('MEng Mechanical'))!.level, 'integrated')
+  assert.equal(programmes.find((p) => p.name.includes('with Foundation Year'))!.level, 'bachelor')
+  assert.equal(programmes.find((p) => p.name.startsWith('DipHE'))!.mode, 'distance')
+  assert.equal(programmes.find((p) => p.name.startsWith('BA Business Management'))!.mode, 'part-time')
+  assert.equal(providerName('SHEFFIELD COLLEGE, THE'), 'Sheffield College')
+  assert.equal(providerName('UCL'), 'UCL')
+  assert.equal(campusName('Glasgow Campus', 'x'), 'Glasgow')
+  assert.equal(campusName('Campus A', 'x'), undefined)
 })
 
 test('OpenAlex research ranking per field and country', () => {
