@@ -44,16 +44,25 @@ export function CatalogueRow({
   const type = p.institutionType && p.institutionType in TYPE_STYLE ? (p.institutionType as InstType) : undefined
   // The programme's own rule where the source has one (in German, Switzerland), otherwise the rule for its kind of institution.
   const admission = (locale.startsWith('de-') ? p.admission : undefined) ?? admissionText(country, type, lang(locale))
+  const otherLanguages = p.otherLanguages?.length ? p.otherLanguages.map((l) => (/^[a-z]{2}$/.test(l) ? languageName(l, locale) : l)).join(', ') : null
+  const ects = p.ects ? `${new Intl.NumberFormat(locale).format(p.ects)} ECTS` : null
   const summary = [showLevel ? levelLabel(p.level, locale) : null, showInstitution ? p.institution : null, p.city, languages, years].filter(Boolean)
   const facts: Array<[string, React.ReactNode]> = [
     [d.degree, levelLabel(p.level, locale)],
+    [d.title, p.degreeTitle],
     [d.institution, type ? `${p.institution} (${typeLabel(type, country, lang(locale))})` : p.institution],
+    [d.department, p.department],
+    [d.partners, p.partners],
     [d.place, [p.city, p.region].filter(Boolean).join(', ')],
     [d.language, languages],
-    [d.duration, years],
+    [d.otherLanguages, otherLanguages],
+    [d.duration, [years, ects].filter(Boolean).join(' · ')],
     [d.mode, p.mode ? ct.modes[p.mode] : null],
     [d.focus, p.focus?.length ? p.focus.join(' · ') : null],
     [d.admission, admission],
+    [d.requirements, p.requirements],
+    [d.prior, p.priorStudies?.length ? p.priorStudies.join(', ') : null],
+    [d.deadline, p.deadline],
     [
       d.fields,
       p.fields.map((f, i) => (
@@ -97,6 +106,11 @@ export function CatalogueRow({
             {p.url && (
               <a href={p.url} target="_blank" rel="noopener" className="font-bold text-accent hover:underline">
                 {d.official} ↗
+              </a>
+            )}
+            {p.regulationsUrl && (
+              <a href={p.regulationsUrl} target="_blank" rel="noopener" className="font-bold text-accent hover:underline">
+                {d.regulations} ↗
               </a>
             )}
             {p.institutionUrl && (

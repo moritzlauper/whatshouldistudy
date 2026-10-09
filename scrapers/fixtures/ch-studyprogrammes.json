@@ -4,18 +4,44 @@
     "d": {
       "id": 23893,
       "language": "fr",
-      "institute": { "name": "Berner Fachhochschule", "abbreviation": "BFH" },
-      "degree_level": { "id": 0 },
+      "institute": {
+        "name": "Berner Fachhochschule",
+        "abbreviation": "BFH"
+      },
+      "degree_level": {
+        "id": 0
+      },
       "name": "Bachelor en Agronomie",
       "degree_name": "Bachelor of Science BFH en Agronomie",
       "description": "Jouez un rôle actif dans le secteur agroalimentaire de demain: un bachelor en Agronomie ŕ la Haute école spécialisée bernoise fera de vous un-e spécialiste de l'agronomie.",
-      "keywords": ["BFH", "Agriculture", "Économie alimentaire", "Agriculture internationale", "Science animale"],
+      "keywords": [
+        "BFH",
+        "Agriculture",
+        "Économie alimentaire",
+        "Agriculture internationale",
+        "Science animale"
+      ],
       "specialization": "Économie agraire, Agriculture internationale, Sciences animales, Sciences équines, Sciences végétales et écologie",
       "ects_credits": "180",
       "semester_count": "6 (temps plein), 7-10 (temps partiel)",
-      "languages": [{ "abbreviation": "de" }, { "abbreviation": "fr" }],
+      "languages": [
+        {
+          "abbreviation": "de"
+        },
+        {
+          "abbreviation": "fr"
+        }
+      ],
       "url": "https://www.bfh.ch/fr/etudes/bachelor/agronomie",
-      "location": "Zollikofen"
+      "location": "Zollikofen",
+      "additional_languages": [],
+      "admission_fields_of_study": [],
+      "admission_requirements": "",
+      "regulations_url": "https://www.bfh.ch/fr/la-bfh/bases-legales/",
+      "departement": "",
+      "partner_institutes": "",
+      "admission_deadline": "30.04.",
+      "tuition_fee": "CHF 750, taxes détudes pour les étudiant-e-s étrangers CHF 950"
     }
   },
   {
@@ -23,15 +49,29 @@
     "d": {
       "id": 90001,
       "language": "de",
-      "institute": { "name": "Universität Bern", "abbreviation": "UniBE" },
-      "degree_level": { "id": 1 },
+      "institute": {
+        "name": "Universität Bern",
+        "abbreviation": "UniBE"
+      },
+      "degree_level": {
+        "id": 1
+      },
       "name": "Master Soziologie",
       "description": "Der Master vertieft soziologische Theorien und Methoden, mit Schwerpunkten zu sozialer Ungleichheit, Migration und Bildung.",
-      "keywords": ["Soziale Ungleichheit", "Migration", "Bildungssoziologie", "Quantitative Methoden"],
+      "keywords": [
+        "Soziale Ungleichheit",
+        "Migration",
+        "Bildungssoziologie",
+        "Quantitative Methoden"
+      ],
       "specialization": "Soziale Ungleichheit, Migration, Bildungssoziologie",
       "ects_credits": "120",
       "semester_count": "4",
-      "languages": [{ "abbreviation": "de" }],
+      "languages": [
+        {
+          "abbreviation": "de"
+        }
+      ],
       "url": "https://www.unibe.ch/studium/studienangebot/master/soziologie",
       "location": "Bern"
     }
@@ -41,15 +81,28 @@
     "d": {
       "id": 90002,
       "language": "de",
-      "institute": { "name": "Universität Luzern", "abbreviation": "UniLU" },
-      "degree_level": { "id": 1 },
+      "institute": {
+        "name": "Universität Luzern",
+        "abbreviation": "UniLU"
+      },
+      "degree_level": {
+        "id": 1
+      },
       "name": "Master Soziologie",
       "description": "Kultur, Religion und Weltgesellschaft: der Luzerner Master verbindet Soziologie mit Kulturwissenschaften.",
-      "keywords": ["Kultursoziologie", "Religionssoziologie", "Weltgesellschaft"],
+      "keywords": [
+        "Kultursoziologie",
+        "Religionssoziologie",
+        "Weltgesellschaft"
+      ],
       "specialization": "Kultursoziologie, Religionssoziologie, Weltgesellschaft",
       "ects_credits": "120",
       "semester_count": "4",
-      "languages": [{ "abbreviation": "de" }],
+      "languages": [
+        {
+          "abbreviation": "de"
+        }
+      ],
       "url": "https://www.unilu.ch/studium/studienangebot/master/soziologie",
       "location": "Luzern"
     }

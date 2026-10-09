@@ -14,6 +14,7 @@ import { Contributions } from './contributions.tsx'
 import { COUNTRIES, flag } from '@/lib/countries.ts'
 import type { Level, ResearchInstitution } from '@/lib/programmes.ts'
 import type { RankResult, RankedProgramme } from '@/lib/server/rank.ts'
+import { catalogueText } from '@/lib/site/catalogue-text.ts'
 import { TYPE_LABEL, TYPE_STYLE, admissionText, typeLabel, typeShort } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
 import { withBase } from '@/lib/site.ts'
@@ -307,6 +308,7 @@ const SOURCE_NAMES: Record<string, string> = {
   'us-college-scorecard': 'College Scorecard (US Department of Education)',
   'uk-discover-uni': 'Discover Uni',
   'fr-parcoursup': 'Parcoursup',
+  'ch-studyprogrammes': 'studyprogrammes.ch (swissuniversities)',
 }
 
 function ProgrammeDetails({ p }: { p: RankedProgramme }) {
@@ -316,6 +318,7 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
   const fit = results ? fitFor(p, results) : null
   const hits = useTopicHits(p)
   const d = t.programmes.details
+  const cd = catalogueText(locale).detail
   const home = p.institutionUrl ?? (p.url && isHomepage(p.url) ? p.url : undefined)
   const hasAbout = !!(p.description || p.focus?.length)
   const field = fieldName(p.matchedField, locale)
@@ -429,10 +432,24 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
           <Item k={d.place} v={[p.city, p.region, countryLabel(p.country, intl)].filter(Boolean).join(', ')} />
           <Item k={d.fields} v={p.fields.map((id) => `${emoji(id)} ${fieldName(id, locale)}`).join(', ')} />
           <Item k={t.programmes.row.level} v={levelLabel(p.level as Level, locale)} />
+          <Item k={cd.title} v={p.degreeTitle} />
+          {p.ects ? <Item k={cd.ects} v={`${fmtNumber(p.ects, intl)} ECTS`} /> : null}
+          <Item k={cd.department} v={p.department} />
+          <Item k={cd.partners} v={p.partners} />
+          <Item k={cd.otherLanguages} v={p.otherLanguages?.join(', ')} />
+          <Item k={cd.deadline} v={p.deadline} />
+          <Item k={cd.prior} v={p.priorStudies?.join(', ')} />
+          {/* The institution's own fee wording (paid list only). */}
+          {p.tuition?.note?.startsWith('Laut Hochschule') && <Item k={t.programmes.row.fee} v={p.tuition.note.replace(/^Laut Hochschule:\s*/, '')} />}
           {p.mode && <Item k={d.mode} v={d.modes[p.mode]} />}
           {p.public !== undefined && <Item k={d.sector} v={p.public ? d.public : d.private} />}
           <Item k={d.source} v={`${SOURCE_NAMES[p.source] ?? p.source}, ${new Date(p.updated).toLocaleDateString(intl, { dateStyle: 'medium' })}`} />
         </dl>
+        {p.requirements && (
+          <p className="mt-2 text-muted">
+            <span className="font-bold text-ink">{cd.requirements}:</span> {p.requirements}
+          </p>
+        )}
       </div>
       <div className="flex flex-wrap gap-2">
         <a href={programmeLink(p)} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">
@@ -441,6 +458,11 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
         {home && (
           <a href={home} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
             {d.website} ↗
+          </a>
+        )}
+        {p.regulationsUrl && (
+          <a href={p.regulationsUrl} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+            {cd.regulations} ↗
           </a>
         )}
         <a href={`https://www.google.com/search?q=${encodeURIComponent(`${p.name} ${p.institution}`)}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">

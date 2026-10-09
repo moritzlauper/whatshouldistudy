@@ -40,6 +40,14 @@ export interface SpDetails {
   ects_credits?: string
   semester_count?: string
   languages?: Array<{ abbreviation?: string }>
+  additional_languages?: Array<{ abbreviation?: string } | string>
+  admission_fields_of_study?: Array<{ name?: string } | string>
+  admission_requirements?: string
+  admission_deadline?: string
+  departement?: string
+  partner_institutes?: string
+  regulations_url?: string
+  tuition_fee?: string
   url?: string
   location?: string
 }
@@ -53,34 +61,77 @@ function fixEncoding(s: string): string {
 
 const clean = (s?: string) => fixEncoding((s ?? '').replace(/\s+/g, ' ').trim())
 
-/** Fields from the title first; specialisations and keywords add the rest. */
-function fieldsFor(d: SpDetails): { fields: string[]; confidence: number } {
-  const title = clean(d.name)
-  const fromTitle = germanFields(title)
-  const extra = classify(clean(`${d.specialization ?? ''} ${(d.keywords ?? []).join(' ')} ${d.description ?? ''}`))
-  const fromText = FIELDS.map((f, i) => ({ id: f.id, raw: extra.raw[i] }))
-    .filter((x) => x.raw >= 2.5)
+const fieldsByText = (text: string, min: number) => {
+  const c = classify(clean(text))
+  return FIELDS.map((f, i) => ({ id: f.id, raw: c.raw[i] }))
+    .filter((x) => x.raw >= min)
     .sort((a, b) => b.raw - a.raw)
     .map((x) => x.id)
-  if (fromTitle.fields.length) {
-    const fields = [...new Set([...fromTitle.fields, ...fromText])].slice(0, 4)
-    return { fields, confidence: Math.max(0.6, fromTitle.confidence) }
-  }
-  return { fields: fromText.slice(0, 3), confidence: 0.5 }
 }
 
-function focusOf(d: SpDetails): string[] {
-  const name = clean(d.name).toLowerCase()
-  const abbr = (d.institute?.abbreviation ?? '').toLowerCase()
-  const parts = [...clean(d.specialization).split(/\s*[,;•\n]\s*|\s+\/\s+/), ...(d.keywords ?? []).map(clean)]
-  const out: string[] = []
-  for (const p of parts) {
-    const x = p.replace(/^[-–•\s]+|[.\s]+$/g, '')
-    if (x.length < 3 || x.length > 60) continue
-    if (x.toLowerCase() === abbr || name === x.toLowerCase()) continue
-    if (!out.some((o) => o.toLowerCase() === x.toLowerCase())) out.push(x)
+/**
+ * Fields from the title first; the specialisations and keywords add the rest.
+ * The description only counts when the title says nothing: its marketing prose
+ * («a history of breakthroughs», «liberal arts of engineering») put Quantum
+ * Science under History and Liberal Arts.
+ */
+function fieldsFor(d: SpDetails): { fields: string[]; confidence: number } {
+  const fromTitle = germanFields(clean(d.name))
+  // A list of majors in the description («Majors: Game Design, …») is as good as specialisations.
+  const tagged = `${d.specialization ?? ''} ${(d.keywords ?? []).join(' ')} ${MAJORS.test(clean(d.description)) ? clean(d.description) : ''}`
+  if (fromTitle.fields.length) {
+    const fields = [...new Set([...fromTitle.fields, ...fieldsByText(tagged, 2.5)])].slice(0, 4)
+    return { fields, confidence: Math.max(0.6, fromTitle.confidence) }
   }
+  return { fields: fieldsByText(`${tagged} ${d.description ?? ''}`, 2.5).slice(0, 3), confidence: 0.5 }
+}
+
+const norm = (s: string) =>
+  s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+
+/**
+ * Specialisations as listed, keywords only where they say more than the title
+ * and the fields do: «Physics» on a physics master or «BFH» tells nobody anything.
+ */
+function focusOf(d: SpDetails, fields: string[]): string[] {
+  const abbr = norm(d.institute?.abbreviation ?? '')
+  const known = ` ${norm([d.name, d.degree_name, d.institute?.name, ...fields.map((f) => FIELDS.find((x) => x.id === f)?.name ?? '')].join(' '))} `
+  const said = (x: string) => {
+    const words = norm(x).split(' ').filter((w) => w.length > 2)
+    return !words.length || words.every((w) => known.includes(` ${w}`) || known.includes(`${w} `))
+  }
+  const spec = clean(d.specialization).split(/\s*[,;•\n]\s*|\s+\/\s+/)
+  const out: string[] = []
+  const add = (p: string, keyword: boolean) => {
+    const x = p.replace(/^[-–•\s]+|[.\s]+$/g, '')
+    if (x.length < 3 || x.length > 60) return
+    if (norm(x) === abbr || norm(x) === norm(clean(d.name))) return
+    if (keyword && said(x)) return
+    if (!out.some((o) => norm(o) === norm(x))) out.push(x)
+  }
+  for (const p of spec) add(p, false)
+  for (const k of d.keywords ?? []) add(clean(k), true)
   return out.slice(0, 8)
+}
+
+const names = (xs?: Array<{ name?: string; abbreviation?: string } | string>) =>
+  (xs ?? []).map((x) => clean(typeof x === 'string' ? x : (x.name ?? x.abbreviation))).filter(Boolean)
+
+const link = (s?: string) => (/^https?:\/\/\S+$/.test((s ?? '').trim()) ? s!.trim() : undefined)
+
+/** «30.04.» → «30. April»; free text («30. April (HS), 15. Dezember (FS)») stays as written. */
+const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
+export function deadlineText(s?: string): string | undefined {
+  const x = clean(s)
+  if (!x) return undefined
+  const m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})?$/.exec(x)
+  if (m && Number(m[2]) >= 1 && Number(m[2]) <= 12) return `${Number(m[1])}. ${MONTHS[Number(m[2]) - 1]}${m[3] ? ` ${m[3]}` : ''}`
+  return x.slice(0, 120)
 }
 
 /**
@@ -112,6 +163,12 @@ export function parseSpDetails(d: SpDetails, level: Level, fetchedAt: string): P
   if (!inst) return null
   const { fields, confidence } = fieldsFor(d)
   if (!fields.length) return null
+  const ects = Number(d.ects_credits)
+  const extra = names(d.additional_languages)
+  const prior = names(d.admission_fields_of_study)
+  // The programme's own admission rule, in the institution's words, next to the general one for its type.
+  const requirements = clean(d.admission_requirements).slice(0, 400)
+  const fees = clean(d.tuition_fee)
   const fee = (inst.feeCh ?? 0) * 2
   const langs = (d.languages ?? []).map((l) => (l.abbreviation ?? '').toLowerCase()).filter(Boolean)
   const url = /^https?:\/\//.test(d.url ?? '') ? d.url : undefined
@@ -136,7 +193,7 @@ export function parseSpDetails(d: SpDetails, level: Level, fetchedAt: string): P
           eu: inst.feeForeign ? inst.feeForeign * 2 : fee,
           international: inst.feeForeign ? inst.feeForeign * 2 : fee,
           estimated: true,
-          note: 'Semestergebühren × 2, Stand 2025/26',
+          note: fees ? `Laut Hochschule: ${fees.slice(0, 200)}` : 'Semestergebühren × 2, Stand 2025/26',
         },
     durationYears: years(d, level),
     mode: /teilzeit|temps partiel|tempo parziale|part-time|berufsbegleitend/i.test(d.semester_count ?? '') ? 'both' : 'full-time',
@@ -144,8 +201,17 @@ export function parseSpDetails(d: SpDetails, level: Level, fetchedAt: string): P
     institutionUrl: inst.url,
     public: inst.type !== 'fh' || !['ffhs', 'kalaidos'].includes(inst.id),
     admission: CH_ADMISSION[inst.type].de,
+    requirements: requirements || undefined,
     institutionType: inst.type,
-    focus: focusOf(d),
+    focus: focusOf(d, fields),
+    degreeTitle: clean(d.degree_name) || undefined,
+    ects: ects >= 30 && ects <= 400 ? ects : undefined,
+    deadline: deadlineText(d.admission_deadline),
+    department: clean(d.departement) || undefined,
+    partners: clean(d.partner_institutes) || undefined,
+    otherLanguages: extra.length ? extra : undefined,
+    priorStudies: prior.length ? prior.slice(0, 12) : undefined,
+    regulationsUrl: link(d.regulations_url),
     description: clean(d.description).slice(0, 420) || undefined,
     source: 'ch-studyprogrammes',
     updated: fetchedAt,

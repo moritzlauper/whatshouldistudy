@@ -6,7 +6,7 @@ import { CATALOGUE_KEYS, toCatalogueEntry } from '../lib/programmes.ts'
 import type { CatalogueShard, Programme } from '../lib/programmes.ts'
 
 /** What the paid list adds on top of the free catalogue. */
-const PAID = ['tuition', 'earnings', 'debt', 'admissionRate', 'selective', 'capacity', 'description']
+const PAID = ['tuition', 'earnings', 'debt', 'admissionRate', 'selective', 'capacity', 'description', 'source']
 
 test('the free catalogue carries none of the paid fields', () => {
   for (const k of PAID) assert.ok(!(CATALOGUE_KEYS as readonly string[]).includes(k), k)
