@@ -2,7 +2,7 @@
 
 import { withBase } from '@/lib/site.ts'
 import { useEffect, useState } from 'react'
-import { formatPrice } from '@/lib/pricing.ts'
+import { formatPrice, priceForSite } from '@/lib/pricing.ts'
 import type { Price as PriceT } from '@/lib/pricing.ts'
 import type { ConsentRule } from '@/lib/measure.ts'
 import type { SiteId } from '@/lib/site/config.ts'
@@ -44,10 +44,15 @@ export function useConfig(site: SiteId): Config | null {
   return loaded?.site === site ? loaded.config : null
 }
 
-/** «CHF 17» or «€17», using the same currency as checkout. */
+/** «CHF 17» or «€17», using the same currency as checkout; while discounted, the regular price struck through above it. */
 export function Price({ site }: { site: SiteId }) {
   const config = useConfig(site)
   const conf = SITES[site]
-  const price = config?.price ?? { currency: conf.currency, amount: 17 }
-  return <span>{formatPrice(price, conf.intl)}</span>
+  const price = config?.price ?? priceForSite(site)
+  return (
+    <>
+      {price.regular !== undefined && <s className="text-[0.6em] opacity-75">{formatPrice({ currency: price.currency, amount: price.regular }, conf.intl)}</s>}
+      <span>{formatPrice(price, conf.intl)}</span>
+    </>
+  )
 }

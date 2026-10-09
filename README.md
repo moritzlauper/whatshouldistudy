@@ -325,7 +325,11 @@ organisation plans. The global site uses the visitor's currency
 NOK 189, DKK 125, PLN 75, JPY 2,600, INR 1,099 and more. Checkout uses the
 Stripe price with lookup key `wsis_report` (or `STRIPE_PRICE_ID`); without one
 the amount is sent as `price_data`, so nothing has to be set up in Stripe
-besides the key. For TWINT on the Swiss site, enable it in the Stripe dashboard
+besides the key. While `REPORT_DISCOUNT` in `lib/pricing.ts` is above 0
+(currently 20), the one-time report is discounted in every currency: the site
+shows the regular price struck through, and checkout applies the Stripe coupon
+`wsis_report_20`, created on first use, instead of allowing promotion codes.
+Organisation plans are not discounted. For TWINT on the Swiss site, enable it in the Stripe dashboard
 (payment methods); Checkout shows it automatically for CHF.
 
 **Plans for organisations** (`/organisations`, `/organisationen`): 100, 1,000

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
-import { REPORT_LOOKUP_KEY, priceForSite, stripeAmount } from '@/lib/pricing.ts'
+import { REPORT_COUPON, REPORT_DISCOUNT, REPORT_LOOKUP_KEY, priceForSite, stripeAmount } from '@/lib/pricing.ts'
 import { returnTo } from '@/lib/server/origin.ts'
-import { priceId } from '@/lib/server/stripe.ts'
+import { ensureCoupon, priceId } from '@/lib/server/stripe.ts'
 import { paymentMode, visitorCountry } from '@/lib/server/token.ts'
 import { SITES, isLocal } from '@/lib/site/config.ts'
 
@@ -11,6 +11,8 @@ import { SITES, isLocal } from '@/lib/site/config.ts'
  * one with lookup key «wsis_report» (scripts/stripe-setup.ts); both need a
  * currency option for every currency in lib/pricing.ts. Without either the
  * amount comes from lib/pricing.ts and nothing has to be set up in Stripe.
+ * REPORT_DISCOUNT is applied as a Stripe coupon (created on first use), so the
+ * checkout page shows the regular price and the discount.
  */
 export async function POST(req: Request) {
   const { site, r, abs } = returnTo(req)
@@ -30,18 +32,26 @@ export async function POST(req: Request) {
     mode: 'payment',
     success_url: `${unlocked}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: cancel,
-    allow_promotion_codes: 'true',
     locale: local ? 'de' : 'auto',
     'line_items[0][quantity]': '1',
     'metadata[site]': site,
   })
+  if (REPORT_DISCOUNT) {
+    // Stripe allows either a discount or promotion codes on one session.
+    // The name is shown on Stripe's checkout page in every language.
+    const ready = await ensureCoupon(REPORT_COUPON, REPORT_DISCOUNT, `−${REPORT_DISCOUNT}%`).then(() => true, () => false)
+    if (!ready) return NextResponse.json({ error: 'Could not start checkout.' }, { status: 502 })
+    form.set('discounts[0][coupon]', REPORT_COUPON)
+  } else {
+    form.set('allow_promotion_codes', 'true')
+  }
   const stripePrice = process.env.STRIPE_PRICE_ID || (await priceId(REPORT_LOOKUP_KEY).catch(() => null))
   if (stripePrice) {
     form.set('line_items[0][price]', stripePrice)
     form.set('currency', price.currency.toLowerCase())
   } else {
     form.set('line_items[0][price_data][currency]', price.currency.toLowerCase())
-    form.set('line_items[0][price_data][unit_amount]', String(stripeAmount(price)))
+    form.set('line_items[0][price_data][unit_amount]', String(stripeAmount({ currency: price.currency, amount: price.regular ?? price.amount })))
     form.set('line_items[0][price_data][product_data][name]', local ? `${conf.name}: voller Studiengang-Report` : 'whatshouldistudy: full programme report')
     form.set(
       'line_items[0][price_data][product_data][description]',

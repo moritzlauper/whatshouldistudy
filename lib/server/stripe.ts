@@ -40,3 +40,19 @@ export async function priceId(lookupKey: string): Promise<string | null> {
   priceIds.set(lookupKey, { id, at: Date.now() })
   return id
 }
+
+let couponReady: Promise<void> | null = null
+
+/** Creates the percentage coupon once if it does not exist yet; a coupon applies to every currency. */
+export function ensureCoupon(id: string, percentOff: number, name: string): Promise<void> {
+  couponReady ??= stripe('GET', `coupons/${encodeURIComponent(id)}`)
+    .catch(async (e) => {
+      if (!(e instanceof StripeError) || e.status !== 404) throw e
+      await stripe('POST', 'coupons', { id, percent_off: percentOff, duration: 'once', name })
+    })
+    .then(() => {}, (e) => {
+      couponReady = null
+      throw e
+    })
+  return couponReady
+}

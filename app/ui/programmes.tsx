@@ -17,9 +17,9 @@ import type { RankResult, RankedProgramme } from '@/lib/server/rank.ts'
 import { TYPE_LABEL, TYPE_STYLE, admissionText, typeLabel, typeShort } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
 import { withBase } from '@/lib/site.ts'
-import { formatPrice } from '@/lib/pricing.ts'
+import { formatPrice, priceForSite } from '@/lib/pricing.ts'
 import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel } from '@/lib/site/labels.ts'
-import { useConfig } from './price.tsx'
+import { Price, useConfig } from './price.tsx'
 import type { Config } from './price.tsx'
 import { useSite } from './site-context.tsx'
 import { Burst } from './shapes.tsx'
@@ -127,12 +127,12 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
       setBusy(false)
     }
   }
-  const price = formatPrice(config?.price ?? { currency: conf.currency, amount: 17 }, intl)
+  const price = formatPrice(config?.price ?? priceForSite(site), intl)
 
   async function checkout() {
     setBusy(true)
     setError('')
-    measureCheckout(config?.price ?? { currency: conf.currency, amount: 17 })
+    measureCheckout(config?.price ?? priceForSite(site))
     try {
       const res = await fetch(withBase(`/api/checkout?site=${site}&back=${encodeURIComponent(base)}&o=${encodeURIComponent(window.location.origin)}`), { method: 'POST' })
       const j = (await res.json()) as { url?: string; error?: string }
@@ -190,7 +190,9 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
       <div className="card relative h-fit bg-accent p-7 text-accent-ink lg:sticky lg:top-24">
         <div className="absolute -top-7 right-0 rotate-12 sm:-right-4">
           <Burst size={96} color="var(--yellow)" />
-          <span className="absolute inset-0 flex items-center justify-center font-display text-lg text-on-color">{price}</span>
+          <span className="absolute inset-0 flex flex-col items-center justify-center text-center font-display text-base leading-none text-on-color">
+            <Price site={site} />
+          </span>
         </div>
         <h3 className="pr-16 font-display text-3xl">{t.programmes.boxTitle}</h3>
         <p className="mt-2 text-sm opacity-85">{t.programmes.boxSub}</p>

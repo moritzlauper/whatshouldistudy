@@ -76,12 +76,30 @@ const ZERO_DECIMAL = new Set(['JPY', 'KRW'])
 export interface Price {
   amount: number
   currency: string
+  /** The undiscounted amount while REPORT_DISCOUNT applies. */
+  regular?: number
+}
+
+/**
+ * Discount in percent on the one-time report, in every currency and on every
+ * site; organisation plans are not discounted. Checkout applies it as the
+ * Stripe coupon REPORT_COUPON, so Stripe shows the regular price, the discount
+ * and the total. 0 turns it off.
+ */
+export const REPORT_DISCOUNT = 20
+export const REPORT_COUPON = `wsis_report_${REPORT_DISCOUNT}`
+
+/** The amount after the discount, rounded in Stripe's smallest unit the way Stripe rounds the coupon. */
+export function discounted(amount: number, currency: string, percent = REPORT_DISCOUNT): number {
+  const minor = stripeAmount({ amount, currency })
+  return fromStripeAmount(minor - Math.round((minor * percent) / 100), currency).amount
 }
 
 export function priceFor(country: string | null | undefined, fallbackCurrency = 'USD'): Price {
   const cur = (country && COUNTRY_CURRENCY[country.toUpperCase()]) || fallbackCurrency
   const currency = PRICES[cur] ? cur : 'USD'
-  return { amount: PRICES[currency], currency }
+  const regular = PRICES[currency]
+  return REPORT_DISCOUNT ? { amount: discounted(regular, currency), currency, regular } : { amount: regular, currency }
 }
 
 /** Keep displayed prices and both checkout flows on the same site currency. */
@@ -92,7 +110,7 @@ export function priceForSite(site: SiteId, visitorCountry?: string | null): Pric
 
 /** Amount in Stripe's smallest unit. ISK and HUF use two decimals in Stripe's API. */
 export function stripeAmount(p: Price): number {
-  return ZERO_DECIMAL.has(p.currency) ? p.amount : p.amount * 100
+  return ZERO_DECIMAL.has(p.currency) ? p.amount : Math.round(p.amount * 100)
 }
 
 /** Back from Stripe's smallest unit, e.g. amount_total of a Checkout session. */
@@ -103,7 +121,9 @@ export function fromStripeAmount(amount: number, currency: string): Price {
 
 export function formatPrice(p: Price, locale = 'en'): string {
   try {
-    return new Intl.NumberFormat(locale, { style: 'currency', currency: p.currency, maximumFractionDigits: 0 }).format(p.amount)
+    // Whole amounts without decimals (CHF 17), discounted ones exact (CHF 13.60).
+    const digits = Number.isInteger(p.amount) ? 0 : 2
+    return new Intl.NumberFormat(locale, { style: 'currency', currency: p.currency, minimumFractionDigits: digits, maximumFractionDigits: digits }).format(p.amount)
   } catch {
     return `${p.amount} ${p.currency}`
   }
