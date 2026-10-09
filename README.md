@@ -370,7 +370,7 @@ questionnaire (`start`). Every article says that it was written with AI and
 lists its sources.
 
 The posts are researched and written by Claude in a GitHub Action of the
-private outreach repository, which checks out this one, adds the posts, runs
+private repository, which checks out this one, adds the posts, runs
 typecheck, tests and a production build and pushes to `main`. That's why
 `@anthropic-ai/sdk` is a dev dependency here. `checkPost()` in
 `lib/blog-check.ts` is the bar a post has to clear: free slugs, known fields, at

@@ -4,7 +4,7 @@ import { join } from 'node:path'
 /**
  * Rewrites content/blog/index.ts, which imports every post so the site needs no
  * file system at runtime. Run after adding or deleting a post: the weekly
- * Action in the private outreach repo does it after writing one.
+ * Action in a private repo does it after writing one.
  */
 
 const DIR = join(import.meta.dirname, '..', 'content', 'blog')

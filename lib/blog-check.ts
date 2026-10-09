@@ -1,6 +1,6 @@
 /**
  * The shape of a blog post and the checks it must pass before it is published
- * (by the generator in the outreach repo and test/blog.test.ts). Kept apart from
+ * (by the generator in a private repo and test/blog.test.ts). Kept apart from
  * lib/blog.ts so it loads while content/blog/index.ts points at a deleted post.
  */
 

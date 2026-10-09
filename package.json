@@ -26,8 +26,6 @@
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
     "fflate": "^0.8.2",
-    "imapflow": "^2.2.7",
-    "jose": "^6.2.12",
     "next": "16.3.4",
     "nodemailer": "^10.0.15",
     "react": "19.2.8",
