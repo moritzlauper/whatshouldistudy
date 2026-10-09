@@ -34,3 +34,8 @@ export function fieldLd(site: SiteId, id: string, name: string) {
   ]
   return { '@type': 'BreadcrumbList', itemListElement: crumbs.map(([n, item], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item })) }
 }
+
+/** Any page by its trail of [name, url] from the home page. */
+export function breadcrumbLd(crumbs: Array<[string, string]>) {
+  return { '@type': 'BreadcrumbList', itemListElement: crumbs.map(([n, item], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item })) }
+}

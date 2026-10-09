@@ -1,5 +1,6 @@
 import type { Preferences } from '../engine/types.ts'
 import { fieldSlugDe } from './slugs-de.ts'
+import { countrySlug } from '../catalogue.ts'
 
 /**
  * One codebase, four sites: the global English site and a German-language site
@@ -134,6 +135,10 @@ export interface Routes {
   results: string
   fields: string
   field: (id: string) => string
+  /** The free programme catalogue: every country on the global site, the site's own country on a country site. */
+  programmes: string
+  country: (cc: string) => string
+  countryField: (cc: string, id: string) => string
   how: string
   /** The free lesson for teachers and the link for school websites. */
   teachers: string
@@ -163,6 +168,10 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
       results: `${root}/resultat`,
       fields: `${root}/faecher`,
       field: (id) => `${root}/faecher/${fieldSlugDe(id)}`,
+      // A country site lists its own country only.
+      programmes: `${root}/studiengaenge`,
+      country: () => `${root}/studiengaenge`,
+      countryField: (_cc, id) => `${root}/studiengaenge/${fieldSlugDe(id)}`,
       how: `${root}/so-funktionierts`,
       teachers: `${root}/lehrpersonen`,
       blog: `${root}/blog`,
@@ -183,6 +192,9 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
     results: '/results',
     fields: '/fields',
     field: (id) => `/fields/${id}`,
+    programmes: '/programmes',
+    country: (cc) => `/programmes/${countrySlug(cc)}`,
+    countryField: (cc, id) => `/programmes/${countrySlug(cc)}/${id}`,
     how: '/how-it-works',
     teachers: '/teachers',
     blog: '/blog',

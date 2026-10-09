@@ -1,7 +1,7 @@
 import 'server-only'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import type { DataMeta, FieldStat, ProgrammeShard, ResearchShard } from '../programmes.ts'
+import type { CatalogueShard, DataMeta, FieldStat, ProgrammeShard, ResearchShard } from '../programmes.ts'
 import type { DirectoryEntry } from '../../scrapers/global-directory.ts'
 
 /**
@@ -31,9 +31,9 @@ async function load<T>(path: string): Promise<{ value: T | null; sample: boolean
   const base = remoteBase()
   if (base) {
     try {
-      // Programme shards can exceed the 2 MB limit of Next's fetch cache; they
-      // only serve API routes and live in the in-memory cache above instead.
-      const big = path.startsWith('programmes/')
+      // Programme shards and catalogues can exceed the 2 MB limit of Next's
+      // fetch cache; they live in the in-memory cache above instead.
+      const big = path.startsWith('programmes/') || path.startsWith('catalogue/')
       const res = await fetch(`${base}/${path}`, big ? { cache: 'no-store' } : { next: { revalidate: TTL / 1000 } })
       if (res.ok) {
         const value = (await res.json()) as T
@@ -84,4 +84,12 @@ export async function getResearch(field: string): Promise<ResearchShard | null> 
 export async function getDirectory(country: string): Promise<DirectoryEntry[]> {
   if (!/^[A-Z]{2}$/.test(country)) return []
   return (await load<DirectoryEntry[]>(`directory/${country}.json`)).value ?? []
+}
+
+/** The free catalogue of a country's programmes; null before the data run that adds it. */
+export async function getCatalogue(country: string): Promise<CatalogueShard | null> {
+  if (!/^[A-Z]{2}$/.test(country)) return null
+  // With meta.json from the data branch in the cache, a missing catalogue there is null, not the demo data.
+  await getMeta()
+  return (await load<CatalogueShard>(`catalogue/${country}.json`)).value
 }

@@ -10,6 +10,7 @@ import { ConsentLink, Measurement } from './measurement.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
 import { teachersText } from '@/lib/site/teachers-text.ts'
+import { catalogueText } from '@/lib/site/catalogue-text.ts'
 import { OrgCapture } from './org-capture.tsx'
 import { LangSwitch } from './lang-switch.tsx'
 import type { LangOption } from './lang-switch.tsx'
@@ -36,6 +37,7 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
   const k = kit(site, base, locale)
   const { t, r, conf } = k
   const o = orgsText(k.locale)
+  const ct = catalogueText(k.locale)
   const languages = languageOptions(site, base)
   const lang = blogLang(k.locale)
   const blog = lang && postsFor(site, lang).length ? blogText(k.locale) : null
@@ -56,10 +58,13 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
             <Link href={r.fields} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 sm:inline-block">
               {t.nav.fields}
             </Link>
-            <Link href={r.orgs} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 md:inline-block">
+            <Link href={r.programmes} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 sm:inline-block">
+              {ct.nav}
+            </Link>
+            <Link href={r.orgs} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 lg:inline-block">
               {o.nav}
             </Link>
-            <Link href={r.privacy} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 sm:inline-block">
+            <Link href={r.privacy} className="hidden rounded-full px-3 py-2 hover:bg-surface-2 md:inline-block">
               {t.footer.privacy}
             </Link>
             {languages && <LangSwitch from={{ site, base, locale: k.locale }} options={languages} label={t.misc.language} fieldIds={FIELDS.map((f) => f.id)} />}
@@ -92,6 +97,7 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
           <div className="flex flex-col gap-2.5">
             <Link href={r.how} className="opacity-80 hover:opacity-100">{t.nav.how}</Link>
             <Link href={r.fields} className="opacity-80 hover:opacity-100">{t.footer.allFields}</Link>
+            <Link href={r.programmes} className="opacity-80 hover:opacity-100">{ct.nav}</Link>
             <Link href={`${r.how}#${r.anchors.data}`} className="opacity-80 hover:opacity-100">{t.footer.sources}</Link>
             <Link href={r.orgs} className="opacity-80 hover:opacity-100">{o.title}</Link>
             <Link href={r.teachers} className="opacity-80 hover:opacity-100">{teachersText(k.locale).nav}</Link>

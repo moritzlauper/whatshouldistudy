@@ -4,6 +4,7 @@
  *   programmes/<field>.json   every programme of a field, all countries
  *   research/<field>.json     strongest universities per country (OpenAlex)
  *   directory/<CC>.json       all universities of a country
+ *   catalogue/<CC>.json       the free public catalogue of a country's programmes
  *   meta.json                 sources, counts per field and country, FX rates
  *   stats.json                per field: programme counts, US earnings, Swiss salaries
  *
@@ -13,7 +14,8 @@
  */
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import type { DataMeta, FieldStat, Level, Programme, ProgrammeShard, ResearchInstitution, ResearchShard, SourceStatus } from '../lib/programmes.ts'
+import { toCatalogueEntry } from '../lib/programmes.ts'
+import type { CatalogueShard, DataMeta, FieldStat, Level, Programme, ProgrammeShard, ResearchInstitution, ResearchShard, SourceStatus } from '../lib/programmes.ts'
 import { FIELDS } from '../lib/taxonomy/fields.ts'
 import { FIXTURES, OUT, ROOT, fetchRetry, log, readJson, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
@@ -400,6 +402,18 @@ async function main() {
     .filter(([, s]) => s.usMedianEarnings)
     .sort((a, b) => a[1].usMedianEarnings! - b[1].usMedianEarnings!)
   withEarnings.forEach(([id], i) => (stats[id].salaryPercentile = withEarnings.length > 1 ? Math.round((i / (withEarnings.length - 1)) * 100) / 100 : 0.5))
+
+  const catalogues = new Map<string, Programme[]>()
+  for (const p of all) {
+    if (!p.fields.length) continue
+    if (!catalogues.has(p.country)) catalogues.set(p.country, [])
+    catalogues.get(p.country)!.push(p)
+  }
+  for (const [cc, list] of catalogues) {
+    list.sort((a, b) => a.institution.localeCompare(b.institution) || a.name.localeCompare(b.name))
+    const shard: CatalogueShard = { country: cc, updated, count: list.length, programmes: list.map(toCatalogueEntry) }
+    writeJson(join(outDir, 'catalogue', `${cc}.json`), shard)
+  }
 
   if (inputs.research) {
     for (const f of FIELDS) {

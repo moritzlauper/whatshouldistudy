@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { BASE_PATH, SITE_URL, siteUrl } from '../site.ts'
 import { mountInfo } from './kit.ts'
 import { dict } from './dict.ts'
-import { CH_FR_IT_URL, SITES, routes, siteConf } from './config.ts'
+import { CH_FR_IT_URL, LOCAL_SITES, SITES, routes, siteConf } from './config.ts'
 import { blogLang } from '../blog.ts'
 import type { BlogLang } from '../blog.ts'
 import type { Dict } from './dict.ts'
@@ -115,4 +115,24 @@ export function blogMeta(site: SiteId, page: BlogPage, m: Text, locale = SITES[s
 export async function localMeta(params: Promise<{ mount: string }>, page: Page, pick: (t: Dict) => Text): Promise<Metadata> {
   const { site, locale } = mountInfo((await params).mount)
   return pageMeta(site, page, pick(dict(locale)), locale)
+}
+
+/**
+ * hreflang for a catalogue page about one country: the global English page and,
+ * for Switzerland, Germany and Austria, the same page on that country's site.
+ * A country site's page about its own country has no equivalent elsewhere.
+ */
+export function catalogueLanguages(country: string, page: Page): Record<string, string> {
+  const en = pageUrl('global', page)
+  const out: Record<string, string> = { 'x-default': en, en }
+  const local = LOCAL_SITES.find((s) => SITES[s].country === country)
+  for (const v of variants()) if (v.site === local) out[v.locale] = pageUrl(v.site, page, v.locale)
+  return out
+}
+
+/** pageMeta for a catalogue page about one country. */
+export function catalogueMeta(site: SiteId, country: string, page: Page, m: Text, locale = SITES[site].locale): Metadata {
+  const meta = pageMeta(site, page, m, locale)
+  if (m.index === false) return meta
+  return { ...meta, alternates: { ...meta.alternates, languages: catalogueLanguages(country, page) } }
 }

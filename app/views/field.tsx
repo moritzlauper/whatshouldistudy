@@ -14,6 +14,8 @@ import { Hexagon } from '../ui/hexagon.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { JsonLd, fieldLd } from '../ui/json-ld.tsx'
+import { CATALOGUE_COUNTRIES } from '@/lib/catalogue.ts'
+import { catalogueText } from '@/lib/site/catalogue-text.ts'
 
 
 export async function FieldView({ site, base, locale: selectedLocale, id }: SiteProps & { id: string }) {
@@ -116,6 +118,9 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
                 </a>
               ))}
           </div>
+          <Link href={r.countryField(country!, id)} className="mt-5 inline-block font-bold text-accent hover:underline">
+            {catalogueText(locale).searchIn(name)} →
+          </Link>
         </section>
       )}
 
@@ -123,11 +128,18 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
         <section className="card mt-10 p-6">
           <h2 className="font-display text-2xl">{t.fields.tracked(fmtNumber(country ? (meta?.counts[id]?.[country] ?? 0) : (s?.programmes ?? 0), intl))}</h2>
           <div className="mt-4 flex flex-wrap gap-2">
-            {byCountry.map(([cc, n]) => (
-              <span key={cc} className="chip">
-                {flag(cc)} {countryLabel(cc, intl)} <span className="text-muted">{fmtNumber(n, intl)}</span>
-              </span>
-            ))}
+            {byCountry.map(([cc, n]) =>
+              // Each country's programmes have a page on the global site; a country site has only its own.
+              CATALOGUE_COUNTRIES.includes(cc) && (!country || cc === country) ? (
+                <Link key={cc} href={r.countryField(cc, id)} className="chip hover:-translate-y-0.5">
+                  {flag(cc)} {countryLabel(cc, intl)} <span className="text-muted">{fmtNumber(n, intl)}</span>
+                </Link>
+              ) : (
+                <span key={cc} className="chip">
+                  {flag(cc)} {countryLabel(cc, intl)} <span className="text-muted">{fmtNumber(n, intl)}</span>
+                </span>
+              ),
+            )}
           </div>
         </section>
       )}

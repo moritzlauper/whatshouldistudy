@@ -55,6 +55,28 @@ export interface Programme {
   updated: string
 }
 
+/**
+ * The free public catalogue: what a programme is and where, without what the
+ * paid list adds (fees by citizenship, earnings, debt, admission rates,
+ * capacity, descriptions). One file per country, for search and the
+ * programme pages.
+ */
+export const CATALOGUE_KEYS = ['id', 'name', 'institution', 'city', 'region', 'level', 'fields', 'languages', 'durationYears', 'mode', 'url', 'institutionUrl', 'institutionType', 'public', 'parent'] as const
+export type CatalogueEntry = Pick<Programme, (typeof CATALOGUE_KEYS)[number]>
+
+export interface CatalogueShard {
+  country: string
+  updated: string
+  count: number
+  programmes: CatalogueEntry[]
+}
+
+export function toCatalogueEntry(p: Programme): CatalogueEntry {
+  const out: Record<string, unknown> = {}
+  for (const k of CATALOGUE_KEYS) if (p[k] !== undefined) out[k] = p[k]
+  return out as unknown as CatalogueEntry
+}
+
 export interface Tuition {
   currency: string
   /** Fee for students from the country (US: in-state). */

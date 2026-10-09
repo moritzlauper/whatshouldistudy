@@ -25,6 +25,20 @@ The field results are free. The full programme list (every matching programme
 with the fee for the student's citizenship, earnings, admission rates, filters,
 CSV) is a one-time payment.
 
+**Free programme catalogue for search engines.** Every programme can be found
+for free: `/programmes` lists the countries with programme data,
+`/programmes/<country>` has a search and links to one page per field,
+`/programmes/<country>/<field>` lists every programme of that field by level
+and institution. Each country site has the same for its own country at
+`/studiengaenge` and `/studiengaenge/<fach>`. The catalogue shows name,
+institution, place, degree, field, language, duration, mode and the links
+(`CATALOGUE_KEYS` in `lib/programmes.ts`, search in `/api/catalogue`). What
+stays paid is the ranking for the person, fees by citizenship, earnings and
+admission rates per programme, the filters across countries and the CSV.
+Countries appear once the data has programmes for them, the UK as soon as
+Discover Uni is in. Field pages with fewer than three programmes are not
+indexed.
+
 **Open source, history stays on the device.** The code is public under the MIT licence
 (`LICENSE`), and the site says so on the landing page, the start page, in the
 footer and in the privacy policy, with a link here
@@ -176,7 +190,8 @@ Strava (sports).
 | `global-directory.ts` | ~10,000 universities worldwide with websites | MIT |
 
 `build.ts` merges everything into `programmes/<field>.json`,
-`research/<field>.json`, `directory/<CC>.json`, `meta.json` and `stats.json`,
+`research/<field>.json`, `directory/<CC>.json`, `catalogue/<CC>.json` (the
+free catalogue, without the paid fields), `meta.json` and `stats.json`,
 keeps the date each programme was first seen (so new programmes are flagged),
 and keeps last week's data for any source that failed. The result is
 force-pushed as a single commit to the branch `whatshouldistudy-data`; the site

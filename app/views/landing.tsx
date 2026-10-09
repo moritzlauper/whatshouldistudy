@@ -62,10 +62,10 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
               </Link>
             </div>
             {programmes > 0 && (
-              <p className="mt-7 inline-flex items-center gap-2 rounded-full border-2 border-line bg-surface px-4 py-1.5 text-sm font-semibold">
+              <Link href={r.programmes} className="mt-7 inline-flex items-center gap-2 rounded-full border-2 border-line bg-surface px-4 py-1.5 text-sm font-semibold hover:-translate-y-0.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-good" aria-hidden="true" />
-                {t.landing.totals(fmtNumber(programmes, intl), fmtNumber(institutions, intl))}
-              </p>
+                {t.landing.totals(fmtNumber(programmes, intl), fmtNumber(institutions, intl))} <span aria-hidden="true">→</span>
+              </Link>
             )}
           </div>
           <HeroCard k={k} />

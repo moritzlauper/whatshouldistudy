@@ -11,8 +11,11 @@ import type { Locale, Routes, SiteId } from './config.ts'
 export type Version = { site: SiteId; locale: Locale }
 type Page = (r: Routes) => string
 
-function pages(fieldIds: readonly string[]): Page[] {
+function pages(fieldIds: readonly string[], country?: string): Page[] {
+  // A country site's catalogue pages are about its own country, on the global site too.
+  const catalogue: Page[] = country ? [(r) => r.country(country), ...fieldIds.map((id): Page => (r) => r.countryField(country, id))] : []
   return [
+    ...catalogue,
     (r) => r.home,
     (r) => r.start,
     (r) => r.results,
@@ -31,7 +34,7 @@ function pages(fieldIds: readonly string[]): Page[] {
 
 /** Link to the page at `path` in another version: relative on the same domain, absolute across domains. */
 export function switchHref(from: Version & { base: string }, to: Version, path: string, fieldIds: readonly string[]): string {
-  const page = pages(fieldIds).find((p) => p(routes(from.site, from.base, from.locale)) === path) ?? ((r: Routes) => r.home)
+  const page = pages(fieldIds, SITES[from.site].country).find((p) => p(routes(from.site, from.base, from.locale)) === path) ?? ((r: Routes) => r.home)
   if (to.site === from.site) {
     const p = page(routes(to.site, from.base, to.locale))
     // German and French/Italian Swiss pages on different domains.
