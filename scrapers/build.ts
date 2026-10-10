@@ -104,7 +104,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     name: 'Korea Higher Education Information, 대학알리미 (Ministry of Education, KCUE)',
     countries: ['KR'],
     url: 'https://www.academyinfo.go.kr/',
-    licence: 'Public disclosure data (공공데이터)',
+    licence: 'KOGL Type 1 (공공누리 제1유형): free use with attribution',
   },
   {
     id: 'au-cricos',

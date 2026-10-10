@@ -24,11 +24,20 @@ export function nlLevel(graad: string): Level | null {
   return null
 }
 
+const BARE: Record<string, string> = { sport: 'sports-science', dans: 'performing-arts', dance: 'performing-arts' }
+
 const LANG: Record<string, string> = { NLD: 'nl', ENG: 'en', DEU: 'de', FRA: 'fr' }
 const MODE: Record<string, 'full-time' | 'part-time'> = { VOLTIJD: 'full-time', DEELTIJD: 'part-time', DUAAL: 'part-time' }
 
 /** «2015-09-01» still current on `today`: empty means open-ended. */
 const running = (end: string | undefined, today: string) => !end || end > today
+
+/** «M Finance», «B Food Commerce VT»: the registry's short prefixes for degree and study form go. */
+export const tidy = (s: string) =>
+  cleanTitle(s)
+    .replace(/^(?:B|M|AD|Ad)\s+(?=\p{Lu})/u, '')
+    .replace(/\s+(?:VT|DT|DU)$/, '')
+    .trim()
 
 const titleCase = (s: string) => (s === s.toUpperCase() ? s.toLowerCase().replace(/(^|[\s-])\p{L}/gu, (c) => c.toUpperCase()) : s)
 
@@ -53,11 +62,13 @@ export function parseDuo(rows: Array<Record<string, string>>, fetchedAt: string,
   const examples: string[] = []
   for (const [key, rs] of groups) {
     const r = rs[0]
-    const dutch = cleanTitle(r.NAAM_LANG)
-    const english = cleanTitle(r.EIGENNAAM_ENGELS || r.INTERNATIONALE_NAAM)
+    const dutch = tidy(r.NAAM_LANG)
+    const english = tidy(r.EIGENNAAM_ENGELS || r.INTERNATIONALE_NAAM)
     const name = english || dutch
     if (!name) continue
-    const { fields, confidence } = fieldsForTitle(`${english} ${dutch}`)
+    // Single-word titles the lexicon keeps weak on purpose (it reads video titles too).
+    const bare = BARE[(english || dutch).toLowerCase()]
+    const { fields, confidence } = bare ? { fields: [bare], confidence: 0.7 } : fieldsForTitle(`${english} ${dutch}`)
     if (!fields.length) {
       unclassified++
       if (examples.length < 60) examples.push(`${english} ${dutch}`)

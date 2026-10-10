@@ -148,3 +148,11 @@ test('Norway: DBH programmes with level, ISCED field from NUS, credits and langu
   assert.equal(psy.durationYears, 6)
   assert.deepEqual(psy.languages, ['en'])
 })
+
+test('Netherlands: registry prefixes for degree and study form are dropped from names', async () => {
+  const { tidy } = await import('../scrapers/nl-duo.ts')
+  assert.equal(tidy('M Finance'), 'Finance')
+  assert.equal(tidy('B Food Commerce and Techn. VT'), 'Food Commerce and Techn.')
+  assert.equal(tidy('AD Maintenance DT'), 'Maintenance')
+  assert.equal(tidy('Bachelor of Design'), 'Bachelor of Design')
+})

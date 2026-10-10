@@ -199,6 +199,11 @@ Strava (sports).
 | `ch-bfs.ts` | every Swiss Bachelor and Master: students per institution, subject (Fachrichtung) and level, from the BFS PXWeb tables (universities, FH, PH); institution type, fees, languages and admission from `lib/ch-institutions.ts` | open use, «Quelle: BFS» |
 | `de-studiensuche.ts` | German degree programmes (Bachelor, Master, Staatsexamen, Diplom, Lehramt) at universities, HAW/FH, dual and art colleges, from the Studiensuche API of the Bundesagentur für Arbeit (`rest.arbeitsagentur.de/infosysbub/studisu`, documented at bund.dev); further-education programmes are skipped | no licence stated; public API, credited on the site |
 | `at-hochschulen.ts` | every Austrian degree programme at universities, FH, PH and private universities from studienwahl.at (BMFWF/OeAD), one page per second; institutions, fees and admission from `lib/at-institutions.ts` and `lib/institutions.ts` | no open licence stated; robots.txt allows crawling, each programme links back to its page there |
+| `kr-academyinfo.ts` | every South Korean department and major at universities, colleges and graduate schools from 대학알리미 (academyinfo.go.kr): degree, duration, location, official subject classification | KOGL Type 1 (attribution), as the Ministry of Education publishes these lists on data.go.kr |
+| `au-cricos.ts` | every current Australian bachelor's, master's and doctoral course open to international students (CRICOS, data.gov.au): field of education, duration, city, international tuition | CC BY 2.5 AU |
+| `fi-opintopolku.ts` | every Finnish degree programme at universities and universities of applied sciences (Opintopolku / Studyinfo.fi): level, ISCED-F field, offering institution, language | CC BY 4.0 |
+| `nl-duo.ts` | every accredited Dutch programme at WO and HBO institutions (DUO «HO Opleidingsoverzicht»): place, study form, language, credits, English name, website; field from the names | CC BY |
+| `no-dbh.ts` | every Norwegian degree programme (DBH table 347, HK-dir): level, credits, language, NUS code mapped to ISCED-F with Statistics Norway's KLASS correspondence | NLOD 2.0, credit «DBH» |
 | `global-openalex.ts` | research profiles of universities in ~65 countries → strongest universities per field and country | CC0 |
 | `global-directory.ts` | ~10,000 universities worldwide with websites | MIT |
 
