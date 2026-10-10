@@ -8,6 +8,7 @@ import { toCatalogueEntry } from '@/lib/programmes.ts'
 import type { CatalogueEntry, Programme } from '@/lib/programmes.ts'
 import { getCatalogue, getMeta, getStats } from '@/lib/server/data.ts'
 import { resolveProgramme } from '@/lib/server/programme.ts'
+import { translateDescription } from '@/lib/server/translate.ts'
 import type { FoundProgramme } from '@/lib/server/programme.ts'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
 import type { Locale, SiteProps } from '@/lib/site/config.ts'
@@ -103,7 +104,10 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
   const type = p.institutionType && p.institutionType in TYPE_STYLE ? (p.institutionType as InstType) : undefined
   const source = meta?.sources.find((s) => s.id === full.source)
   // The institution's own words, only where the source's licence covers them (Finland, CC BY 4.0).
-  const about = full.description && source && DESCRIPTION_SOURCES.has(source.id) ? wholeSentences(full.description) : undefined
+  // Translated into the page's language when it is rendered; left out where that fails.
+  const original = full.description && source && DESCRIPTION_SOURCES.has(source.id) ? wholeSentences(full.description) : undefined
+  const alreadyEnglish = locale === 'en' && !!original && (original.match(/\b(the|and|of|to|in|with)\b/gi)?.length ?? 0) >= 4
+  const about = !original ? undefined : alreadyEnglish ? original : await translateDescription(original, locale)
 
   const inCountryShard = shard.programmes.filter((q) => q.country === cc)
   const sameInstitution = inCountryShard
@@ -222,7 +226,7 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
         <section className="mt-10 max-w-3xl">
           <h2 className="font-display text-2xl">{ct.aboutProgramme}</h2>
           <p className="mt-2 leading-relaxed">{about}</p>
-          <p className="mt-1 text-xs text-muted">{ct.aboutSource(`${source!.name} (${source!.licence})`)}</p>
+          <p className="mt-1 text-xs text-muted">{ct.aboutSource(`${source!.name} (${source!.licence})`, !alreadyEnglish)}</p>
         </section>
       )}
 
