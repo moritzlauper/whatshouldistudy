@@ -62,8 +62,17 @@ export function idFromSlug(slug: string): string | null {
   return /^[a-z0-9]{6,16}$/.test(id) ? id : null
 }
 
-/** Countries whose programmes get a page each: an open licence, see LINK_ONLY. */
-export const hasProgrammePages = (cc: string) => CATALOGUE_COUNTRIES.includes(cc) && !LINK_ONLY[cc]
+/**
+ * Countries in the catalogue whose source has no open licence either, but whose
+ * publisher we asked for permission: their programmes stay listed in the
+ * catalogue as before, but get no page of their own until the answer is yes.
+ */
+export const PROGRAMME_PAGES_PENDING: Record<string, string> = {
+  CH: 'studyprogrammes.ch (swissuniversities) states no licence; permission requested',
+}
+
+/** Countries whose programmes get a page each: an open licence, see LINK_ONLY and PROGRAMME_PAGES_PENDING. */
+export const hasProgrammePages = (cc: string) => CATALOGUE_COUNTRIES.includes(cc) && !LINK_ONLY[cc] && !PROGRAMME_PAGES_PENDING[cc]
 
 /** The order levels are listed in. */
 export const LEVEL_ORDER: Level[] = ['bachelor', 'integrated', 'professional', 'master', 'short', 'doctorate']

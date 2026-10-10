@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { CATALOGUE_COUNTRIES, LINK_ONLY, hasProgrammePages, idFromSlug, programmeSlug } from '../lib/catalogue.ts'
+import { CATALOGUE_COUNTRIES, LINK_ONLY, PROGRAMME_PAGES_PENDING, hasProgrammePages, idFromSlug, programmeSlug } from '../lib/catalogue.ts'
 import { routes } from '../lib/site/config.ts'
 import { perFile, sitemapFile, sitemapFiles, sitemapGroups, sitemapXml } from '../lib/site/sitemaps.ts'
 
@@ -18,8 +18,10 @@ test('a programme slug is readable ASCII and ends in its id', () => {
 })
 
 test('programme pages only where the source has an open licence', () => {
-  for (const cc of Object.keys(LINK_ONLY)) assert.equal(hasProgrammePages(cc), false, cc)
-  for (const cc of ['CH', 'US', 'GB', 'FR', 'KR']) assert.equal(hasProgrammePages(cc), CATALOGUE_COUNTRIES.includes(cc), cc)
+  for (const cc of [...Object.keys(LINK_ONLY), ...Object.keys(PROGRAMME_PAGES_PENDING)]) assert.equal(hasProgrammePages(cc), false, cc)
+  // Switzerland until swissuniversities agrees.
+  assert.equal(hasProgrammePages('CH'), false)
+  for (const cc of ['US', 'GB', 'FR']) assert.equal(hasProgrammePages(cc), CATALOGUE_COUNTRIES.includes(cc), cc)
 })
 
 test('a programme lives under its main field', () => {
@@ -32,8 +34,7 @@ test('programme sitemaps: per host, per country, under the 50,000 limit', () => 
   const groups = sitemapGroups('whatshouldistudy.com')
   assert.ok(groups.some((g) => g.site === 'global' && g.country === 'US'))
   assert.ok(!groups.some((g) => g.country === 'DE' || g.country === 'AT'))
-  // Without its own domain, the Swiss site is part of the global host.
-  assert.ok(groups.some((g) => g.site === 'ch' && g.country === 'CH'))
+  assert.ok(!groups.some((g) => g.country === 'CH'))
   const files = sitemapFiles('whatshouldistudy.com', (cc) => (cc === 'US' ? 97_538 : 1000))
   assert.deepEqual(files.filter((f) => f.startsWith('global-us-')), ['global-us-0.xml', 'global-us-1.xml', 'global-us-2.xml'])
   const us = sitemapFile('whatshouldistudy.com', 'global-us-2.xml')
@@ -55,16 +56,19 @@ test('a programme page finds its programme by id and moves to its own address', 
     import { resolveProgramme } from './lib/server/programme.ts';
     import { programmeSlug } from './lib/catalogue.ts';
     import { getCatalogue } from './lib/server/data.ts';
-    const ch = await getCatalogue('CH');
-    const p = ch.programmes.find((x) => x.fields.length > 1);
+    const gb = await getCatalogue('GB');
+    const p = gb.programmes.find((x) => x.fields.length > 1);
     const slug = programmeSlug(p);
-    const ok = await resolveProgramme('CH', p.fields[0], slug);
+    const ok = await resolveProgramme('GB', p.fields[0], slug);
     assert.equal(ok.found.p.id, p.id);
     // Under a second field or an old slug: the programme's own address.
-    assert.deepEqual((await resolveProgramme('CH', p.fields[1], slug)).redirect, { field: p.fields[0], slug });
-    assert.deepEqual((await resolveProgramme('CH', p.fields[0], 'old-name-' + p.id)).redirect, { field: p.fields[0], slug });
-    assert.equal(await resolveProgramme('CH', p.fields[0], 'nothing-zzzzzzzz'), null);
+    assert.deepEqual((await resolveProgramme('GB', p.fields[1], slug)).redirect, { field: p.fields[0], slug });
+    assert.deepEqual((await resolveProgramme('GB', p.fields[0], 'old-name-' + p.id)).redirect, { field: p.fields[0], slug });
+    assert.equal(await resolveProgramme('GB', p.fields[0], 'nothing-zzzzzzzz'), null);
     assert.equal(await resolveProgramme('DE', p.fields[0], slug), null);
+    // No pages for Switzerland until swissuniversities agrees.
+    const ch = (await getCatalogue('CH')).programmes[0];
+    assert.equal(await resolveProgramme('CH', ch.fields[0], programmeSlug(ch)), null);
     // Only the catalogue's fields reach the page.
     assert.equal(ok.found.p.source !== undefined, true);
   `], { cwd: process.cwd(), env, encoding: 'utf8' })

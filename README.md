@@ -46,7 +46,9 @@ end finds the programme; another field or an old slug redirects (308) to the
 programme's address. The pages show the catalogue facts, the programmes of the
 same field at the institution and nearby, and the source with its licence. They
 exist only for countries whose source has an open licence: not for Germany and
-Austria (`LINK_ONLY`). They are built on the first request and cached for a day.
+Austria (`LINK_ONLY`), and not for Switzerland until swissuniversities agrees
+(`PROGRAMME_PAGES_PENDING`; studyprogrammes.ch states no licence, the catalogue
+lists the Swiss programmes as before). They are built on the first request and cached for a day.
 Their sitemaps are separate files of at most 40,000 addresses,
 `/sitemaps/<site>-<country>-<n>.xml`, listed in robots.txt.
 
