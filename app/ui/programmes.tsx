@@ -311,6 +311,8 @@ const SOURCE_NAMES: Record<string, string> = {
   'ch-studyprogrammes': 'studyprogrammes.ch (swissuniversities)',
   'au-cricos': 'CRICOS (Australian Government)',
   'fi-opintopolku': 'Opintopolku / Studyinfo.fi',
+  'nl-duo': 'DUO (Dienst Uitvoering Onderwijs)',
+  'no-dbh': 'DBH (HK-dir)',
 }
 
 function ProgrammeDetails({ p }: { p: RankedProgramme }) {

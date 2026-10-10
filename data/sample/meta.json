@@ -132,6 +132,28 @@
       "count": 0
     },
     {
+      "id": "nl-duo",
+      "name": "DUO HO Opleidingsoverzicht (Dienst Uitvoering Onderwijs)",
+      "countries": [
+        "NL"
+      ],
+      "url": "https://onderwijsdata.duo.nl/dataset/ho-opleidingsoverzicht",
+      "licence": "CC BY",
+      "ok": false,
+      "count": 0
+    },
+    {
+      "id": "no-dbh",
+      "name": "DBH, Database for statistikk om høgre utdanning (HK-dir)",
+      "countries": [
+        "NO"
+      ],
+      "url": "https://dbh.hkdir.no/",
+      "licence": "NLOD 2.0",
+      "ok": false,
+      "count": 0
+    },
+    {
       "id": "global-openalex",
       "name": "OpenAlex institution research profiles",
       "countries": [

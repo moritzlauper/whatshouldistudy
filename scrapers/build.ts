@@ -40,7 +40,7 @@ import type { DirectoryEntry, RawUniversity } from './global-directory.ts'
 import { chSalaryFor, chSalaryValue } from '../lib/ch-salary.ts'
 import type { ChSalaryTable } from '../lib/ch-salary.ts'
 
-const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-studyprogrammes', 'ch-bfs', 'de-studiensuche', 'at-studienwahl', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku']
+const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-studyprogrammes', 'ch-bfs', 'de-studiensuche', 'at-studienwahl', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku', 'nl-duo', 'no-dbh']
 
 const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>> = [
   {
@@ -119,6 +119,20 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['FI'],
     url: 'https://opintopolku.fi/',
     licence: 'CC BY 4.0',
+  },
+  {
+    id: 'nl-duo',
+    name: 'DUO HO Opleidingsoverzicht (Dienst Uitvoering Onderwijs)',
+    countries: ['NL'],
+    url: 'https://onderwijsdata.duo.nl/dataset/ho-opleidingsoverzicht',
+    licence: 'CC BY',
+  },
+  {
+    id: 'no-dbh',
+    name: 'DBH, Database for statistikk om høgre utdanning (HK-dir)',
+    countries: ['NO'],
+    url: 'https://dbh.hkdir.no/',
+    licence: 'NLOD 2.0',
   },
   {
     id: 'global-openalex',

@@ -87,3 +87,64 @@ test('Australia: CRICOS CSV keeps its column names', async () => {
   assert.equal(rows[0]['Course Level'], 'Bachelor Degree')
   assert.equal(rows[0]['CRICOS Provider Code'], '00099F')
 })
+
+test('Netherlands: DUO offerings, merged by place, with level, language and credits', async () => {
+  const { parseDuo } = await import('../scrapers/nl-duo.ts')
+  const { csvObjects } = await import('../scrapers/lib/common.ts')
+  const header = '"ONDERWIJSBESTUURID","ONDERWIJSBESTUUR_NAAM","ONDERWIJSAANBIEDERID","ONDERWIJSAANBIEDER_NAAM","SOORT","OPLEIDINGSEENHEIDCODE","ERKENDEOPLEIDINGSCODE","VARIANT_VAN","ERKENNER","NAAM_LANG","INTERNATIONALE_NAAM","BEGINDATUM","EINDDATUM","NIVEAU","GRAAD","STUDIELAST","EQF","NLQF","WAARDEDOCUMENTSOORT","PENVOERDER","EIGENNAAM","EIGENNAAM_DUITS","EIGENNAAM_ENGELS","VORM","VOERTAAL","AANGEBODEN_OPLEIDING_BEGINDATUM","AANGEBODEN_OPLEIDING_EINDDATUM","EERSTE_INSTROOMDATUM","LAATSTE_INSTROOMDATUM","WEBSITE","SAMENWERKEND_MET","BUITENLANDSEPARTNER","DEFICIENTIE","EISEN_WERKZAAMHEDEN","PROPEDEUTISCHE_FASE","STUDIEKEUZECHECK","VERSNELD_TRAJECT","AANGEBODEN_OPLEIDINGCODE","EIGEN_AANGEBODEN_OPLEIDINGSLEUTEL","ONDERWIJSLOCATIECODE","ONDERWIJSLOCATIESTRAAT","ONDERWIJSLOCATIEPLAATS","OMSCHRIJVING"'
+  const csv = [
+    header,
+    // The programme itself, without a provider: not an offering.
+    '"100B349","Stichting HZ University of Appl. Scienc.","","","OPLEIDING","1001O2667","30020",,"NVAO","ICT","Information & Communication Technology",2013-09-01,,"HBO-BA","BACHELOR",240,"6","6","GETUIGSCHRIFT","Stichting HZ University of Applied Sciences",,,,,,,,,,,,,,,,,,,,,,,',
+    '"100B349","Stichting HZ University of Appl. Scienc.","113A881","HZ University of Applied Sciences","OPLEIDING","1001O2667","30020",,"NVAO","ICT","Information & Communication Technology",2013-09-01,,"HBO-BA","BACHELOR",240,"6","6","GETUIGSCHRIFT","Stichting HZ University of Applied Sciences",,,,"DEELTIJD","NLD",2023-02-23,,2023-09-01,,"https://hz.nl/opleidingen/hbo-ict-deeltijd",,,,,"PROPEDEUTISCHE_FASE_EXAMEN","GEEN_STUDIEKEUZE_CHECK",,"6e574f4c",,"113X626","Het Groene Woud","Middelburg",',
+    '"100B349","Stichting HZ University of Appl. Scienc.","113A881","HZ University of Applied Sciences","OPLEIDING","1001O2667","30020",,"NVAO","ICT","Information & Communication Technology",2013-09-01,,"HBO-BA","BACHELOR",240,"6","6","GETUIGSCHRIFT","Stichting HZ University of Applied Sciences",,,,"VOLTIJD","ENG",2021-09-01,,2021-09-01,,"https://hz.nl/opleidingen/hbo-ict",,,,,"PROPEDEUTISCHE_FASE_EXAMEN","GEEN_STUDIEKEUZE_CHECK",,"7e2f59f9",,"113X626","Het Groene Woud","Middelburg",',
+    // Ended: no longer open to new students.
+    '"100B349","Stichting HZ University of Appl. Scienc.","113A881","HZ University of Applied Sciences","OPLEIDING","1001O3168","34279",,"NVAO","Civiele Techniek","Civil Engineering",2002-09-01,2020-08-31,"HBO-BA","BACHELOR",240,"6","6","GETUIGSCHRIFT","Stichting HZ University of Applied Sciences",,,,"VOLTIJD","NLD",2002-09-01,,2002-09-01,,"https://hz.nl/ct",,,,,,,,"aa11",,"113X626","Het Groene Woud","Middelburg",',
+  ].join('\n')
+  const { programmes } = parseDuo(csvObjects(csv), '2026-10-10T00:00:00.000Z')
+  assert.equal(programmes.length, 1)
+  const ict = programmes[0]
+  assert.equal(ict.name, 'Information & Communication Technology')
+  assert.equal(ict.institution, 'HZ University of Applied Sciences')
+  assert.equal(ict.city, 'Middelburg')
+  assert.equal(ict.level, 'bachelor')
+  assert.equal(ict.mode, 'both')
+  assert.deepEqual(ict.languages?.sort(), ['en', 'nl'])
+  assert.equal(ict.durationYears, 4)
+  assert.equal(ict.ects, 240)
+  assert.equal(ict.institutionType, 'fh')
+  assert.ok(ict.fields.includes('information-systems') || ict.fields.includes('computer-science'), ict.fields.join())
+  assert.deepEqual(ict.focus, ['ICT'])
+})
+
+test('Norway: DBH programmes with level, ISCED field from NUS, credits and language', async () => {
+  const { parseDbh } = await import('../scrapers/no-dbh.ts')
+  const base = { Institusjonskode: '1110', Institusjonsnavn: 'Universitetet i Oslo', Avdelingsnavn: 'Det samfunnsvitenskapelige fakultet', Årstall: '2026', Semester: '3', 'Andel av heltid': '1.00', Organisering_kode: '1', 'Underv.språk': 'NOR', 'Videreutd.': '0', 'Tilbys til': '99999' }
+  const rows = [
+    { ...base, Studieprogramkode: 'SOS-BA', Studieprogramnavn: 'Sosiologi (bachelor)', Nivåkode: 'B3', Studiepoeng: '180.00', 'NUS-kode': '631101' },
+    // The same programme again in the spring term.
+    { ...base, Semester: '1', Studieprogramkode: 'SOS-BA', Studieprogramnavn: 'Sosiologi (bachelor)', Nivåkode: 'B3', Studiepoeng: '180.00', 'NUS-kode': '631101' },
+    { ...base, Studieprogramkode: 'PSY-PR', Studieprogramnavn: 'Profesjonsstudiet i psykologi', Nivåkode: 'PR', Studiepoeng: '360.00', 'NUS-kode': '732101', 'Underv.språk': 'ENG' },
+    // Further education, a one-year unit and an ended programme are left out.
+    { ...base, Studieprogramkode: 'VID', Studieprogramnavn: 'Videreutdanning i ledelse', Nivåkode: 'HN', Studiepoeng: '30.00', 'Videreutd.': '1' },
+    { ...base, Studieprogramkode: 'ARS', Studieprogramnavn: 'Årsstudium i historie', Nivåkode: 'AR', Studiepoeng: '60.00' },
+    { ...base, Studieprogramkode: 'OLD', Studieprogramnavn: 'Bachelor i gammelt fag', Nivåkode: 'B3', Studiepoeng: '180.00', 'Tilbys til': '20201' },
+  ]
+  const isced = new Map([
+    ['631101', '0314'],
+    ['732101', '0313'],
+  ])
+  const { programmes } = parseDbh(rows, isced, '2026-10-10T00:00:00.000Z')
+  assert.equal(programmes.length, 2)
+  const [sos, psy] = programmes
+  assert.equal(sos.level, 'bachelor')
+  assert.equal(sos.fields[0], 'sociology')
+  assert.equal(sos.city, 'Oslo')
+  assert.equal(sos.durationYears, 3)
+  assert.deepEqual(sos.languages, ['no'])
+  assert.equal(sos.institutionType, 'uni')
+  assert.equal(psy.level, 'professional')
+  assert.equal(psy.fields[0], 'psychology')
+  assert.equal(psy.durationYears, 6)
+  assert.deepEqual(psy.languages, ['en'])
+})

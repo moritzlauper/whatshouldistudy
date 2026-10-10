@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: 'Run only these sources (comma list: us,uk,fr,ch,de,at,kr,au,fi,research,directory); empty = all'
+        description: 'Run only these sources (comma list: us,uk,fr,ch,de,at,kr,au,fi,nl,no,research,directory); empty = all'
         required: false
         default: ''
   push:
@@ -135,6 +135,16 @@ jobs:
         if: ${{ !inputs.only || contains(inputs.only, 'fi') }}
         continue-on-error: true
         run: node scrapers/fi-opintopolku.ts
+
+      - name: Netherlands (DUO)
+        if: ${{ !inputs.only || contains(inputs.only, 'nl') }}
+        continue-on-error: true
+        run: node scrapers/nl-duo.ts
+
+      - name: Norway (DBH, HK-dir)
+        if: ${{ !inputs.only || contains(inputs.only, 'no') }}
+        continue-on-error: true
+        run: node scrapers/no-dbh.ts
 
       - name: Research profiles worldwide (OpenAlex)
         if: ${{ !inputs.only || contains(inputs.only, 'research') }}
