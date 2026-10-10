@@ -127,9 +127,15 @@ async function main() {
   }
   const rows = (await (await fetchRetry(DBH, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })).json()) as DbhRow[]
   log(`DBH: ${rows.length} rows`)
-  const corr = await getJson<{ correspondenceItems: Array<{ sourceCode: string; targetCode: string }> }>(`${KLASS}${fetchedAt.slice(0, 10)}`)
-  const isced = new Map(corr.correspondenceItems.map((c) => [c.sourceCode, c.targetCode]))
-  log(`KLASS: ${isced.size} NUS codes mapped to ISCED-F`)
+  // When KLASS is down, the field comes from the programme names alone.
+  let isced = new Map<string, string>()
+  try {
+    const corr = await getJson<{ correspondenceItems: Array<{ sourceCode: string; targetCode: string }> }>(`${KLASS}${fetchedAt.slice(0, 10)}`)
+    isced = new Map(corr.correspondenceItems.map((c) => [c.sourceCode, c.targetCode]))
+    log(`KLASS: ${isced.size} NUS codes mapped to ISCED-F`)
+  } catch (e) {
+    log(`KLASS: ${(e as Error).message}, classifying by name only`)
+  }
   const { programmes, unclassified, examples } = parseDbh(rows, isced, fetchedAt)
   const byLevel: Record<string, number> = {}
   for (const p of programmes) byLevel[p.level] = (byLevel[p.level] ?? 0) + 1
