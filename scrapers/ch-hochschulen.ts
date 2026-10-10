@@ -67,10 +67,15 @@ export function languagesIn(s: string): string[] | undefined {
 
 /** «A, B oder C» → ['A', 'B', 'C']. */
 export function nameList(s: string): string[] {
-  return s
-    .split(/\s*(?:,|;|\boder\b|\bund\b|\bor\b|\band\b|\bet\b|\bou\b)\s*/)
+  // «A, B und C»: «und» separates only the last item, «Banking and Finance» stays whole.
+  const parts = s.split(/\s*,\s*/)
+  if (parts.length >= 2 && !/\bsowie\b/.test(s)) parts.push(...parts.pop()!.split(/\s+(?:und|and|et)\s+/))
+  return parts
+    .join(';')
+    .split(/\s*(?:,|;|\boder\b|\bsowie\b|\bor\b|\bou\b)\s*/)
     .map((x) => cleanTitle(x.replace(/^(?:die|der|das|the|la|le)\s+/i, '')))
-    .filter((x) => x.length > 2 && x.length < 80)
+    // Names of specialisations are short; navigation or sentences that slipped in are not.
+    .filter((x) => x.length > 2 && x.length < 60 && x.split(/\s+/).length <= 6 && !/anmeldung|zulassung|kosten|infoveranstaltung|instagram|blog|studium/i.test(x))
 }
 
 // ETH Zürich: the bachelor list links every programme; the facts are the same for all.
@@ -164,7 +169,6 @@ export function zhawDetail(html: string): Partial<Listed> {
   const lists = [
     /Vertiefungen?\s*\(([^)]{5,200})\)/i.exec(body)?.[1],
     /mit (?:einer )?Vertiefung in ([^:.]{5,200}?)(?:\s+können|:|\.)/i.exec(body)?.[1],
-    /(?:Vertiefungen|Schwerpunkte|Profilschwerpunkte|Spezialisierungen)\s+(?:zur Auswahl|wählen)?:?\s*([A-ZÄÖÜ][^.]{5,200}?)(?:\.|$)/.exec(body)?.[1],
   ].filter(Boolean) as string[]
   const focus = lists.length ? nameList(lists[0]) : undefined
   const out: Partial<Listed> = {}
