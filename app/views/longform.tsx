@@ -43,13 +43,13 @@ function LocalData({ k }: { k: Kit }) {
   if (k.site === 'de')
     return (
       <p>
-        Die deutschen Studiengänge stammen aus der Studiensuche der Bundesagentur für Arbeit, der gleichen Datenbank wie auf studiensuche.arbeitsagentur.de: Bachelor, Master, Staatsexamen und Diplom an Universitäten, Hochschulen für angewandte Wissenschaften, dualen Hochschulen und Kunsthochschulen. Staatliche Hochschulen verlangen keine Studiengebühren, nur einen Semesterbeitrag von meist 100 bis 400 Euro; Baden-Württemberg verlangt von Studierenden aus Nicht-EU-Staaten 1’500 Euro pro Semester. Private Hochschulen legen ihre Gebühren selbst fest.
+        Für Deutschland zeigen wir die Fächer, die Hochschultypen und was das Studium kostet. Die einzelnen Studiengänge führt die Studiensuche der Bundesagentur für Arbeit; wir verlinken pro Fach direkt dorthin, weil ihre Daten keine offene Lizenz haben. Staatliche Hochschulen verlangen keine Studiengebühren, nur einen Semesterbeitrag von meist 100 bis 400 Euro; Baden-Württemberg verlangt von Studierenden aus Nicht-EU-Staaten 1’500 Euro pro Semester. Private Hochschulen legen ihre Gebühren selbst fest.
       </p>
     )
   if (k.site === 'at')
     return (
       <p>
-        Die österreichischen Studien stammen von studienwahl.at, dem Studienportal des Wissenschaftsministeriums: jedes Bachelor-, Master- und Diplomstudium an öffentlichen Universitäten, Fachhochschulen, Pädagogischen Hochschulen und Privatuniversitäten, mit Link zur Seite des Studiums. Öffentliche Universitäten sind für Studierende aus der EU innerhalb der Regelstudienzeit plus zwei Toleranzsemestern gratis, Studierende aus Drittstaaten zahlen 726.72 Euro pro Semester. Fachhochschulen verlangen meist bis 363.36 Euro pro Semester.
+        Für Österreich zeigen wir die Fächer, die Hochschultypen und was das Studium kostet. Die einzelnen Studien führt studienwahl.at, das Studienportal des Wissenschaftsministeriums; wir verlinken pro Fach direkt dorthin, weil seine Daten keine offene Lizenz haben. Öffentliche Universitäten sind für Studierende aus der EU innerhalb der Regelstudienzeit plus zwei Toleranzsemestern gratis, Studierende aus Drittstaaten zahlen 726.72 Euro pro Semester. Fachhochschulen verlangen meist bis 363.36 Euro pro Semester.
       </p>
     )
   return (
@@ -638,7 +638,7 @@ export function TermsView({ site, base, locale }: SiteProps) {
         <h2>Service</h2><p>{k.conf.name} fournit une orientation, pas une garantie. Les correspondances sont des estimations fondées sur tes données et sur des informations publiques qui peuvent être incomplètes ou obsolètes. Vérifie les formations, les frais et les délais auprès de l’établissement avant de déposer ta candidature.</p>
         <h2>Rapport complet</h2><p>Un paiement unique débloque le rapport complet dans le navigateur utilisé lors de l’achat, pour une durée de 12 mois. Les mises à jour hebdomadaires sont incluses. En cas de problème, contacte-nous dans les 14 jours pour demander un remboursement.</p>
         <h2>YouTube et utilisation équitable</h2><p>En connectant YouTube, tu acceptes ses <a href="https://www.youtube.com/t/terms">conditions d’utilisation</a>. N’extrais pas automatiquement les données de l’interface des formations et ne revends pas ses résultats. Les données ouvertes restent disponibles auprès de leurs éditeurs selon leurs licences.</p>
-        <h2>Sources des données</h2><p>Suisse : Office fédéral de la statistique et studyprogrammes.ch (swissuniversities). Allemagne : Bundesagentur für Arbeit. Autriche : studienwahl.at (ministère fédéral). Autres sources : College Scorecard, Discover Uni, Parcoursup, OpenAlex et University Domains List, selon les licences indiquées par leurs éditeurs.</p>
+        <h2>Sources des données</h2><p>Suisse : Office fédéral de la statistique (OFS), libre utilisation avec indication de la source. États-Unis : College Scorecard (domaine public). Royaume-Uni : Discover Uni (Office for Students, CC BY 4.0). France : Parcoursup (Licence Ouverte 2.0). Pays-Bas : DUO (CC BY). Norvège : DBH (HK-dir, NLOD 2.0). Finlande : Opintopolku (Opetushallitus, CC BY 4.0). Australie : CRICOS (Department of Education, CC BY 2.5 AU). Corée du Sud : 대학알리미 (ministère de l’Éducation, utilisation libre). Ainsi qu’OpenAlex (CC0) et University Domains List (MIT). Le classement par domaine est le nôtre. Pour l’Allemagne et l’Autriche, nous renvoyons vers les recherches officielles, sans reprendre leurs données.</p>
         <h2>Droit applicable et contact</h2><p>Le droit suisse s’applique, sous réserve des règles impératives de protection des consommateurs. Contact : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
       </Page>
     )
@@ -650,7 +650,7 @@ export function TermsView({ site, base, locale }: SiteProps) {
         <h2>Servizio</h2><p>{k.conf.name} offre un orientamento, non una garanzia. Le corrispondenze sono stime basate sui dati forniti e su informazioni pubbliche che possono essere incomplete o non aggiornate. Prima di candidarti, verifica corsi, tasse e scadenze presso l’istituto.</p>
         <h2>Report completo</h2><p>Un pagamento unico sblocca il report completo nel browser usato per l’acquisto per 12 mesi. Gli aggiornamenti settimanali sono inclusi. Se qualcosa non funziona, contattaci entro 14 giorni per chiedere un rimborso.</p>
         <h2>YouTube e uso corretto</h2><p>Collegando YouTube accetti i suoi <a href="https://www.youtube.com/t/terms">termini di servizio</a>. Non estrarre automaticamente i dati dall’interfaccia dei corsi e non rivendere i risultati. I dati aperti restano disponibili presso gli editori originali secondo le relative licenze.</p>
-        <h2>Fonti dei dati</h2><p>Svizzera: Ufficio federale di statistica e studyprogrammes.ch (swissuniversities). Germania: Bundesagentur für Arbeit. Austria: studienwahl.at (ministero federale). Altre fonti: College Scorecard, Discover Uni, Parcoursup, OpenAlex e University Domains List, secondo le licenze dei rispettivi editori.</p>
+        <h2>Fonti dei dati</h2><p>Svizzera: Ufficio federale di statistica (UST), libera utilizzazione con indicazione della fonte. Stati Uniti: College Scorecard (pubblico dominio). Regno Unito: Discover Uni (Office for Students, CC BY 4.0). Francia: Parcoursup (Licence Ouverte 2.0). Paesi Bassi: DUO (CC BY). Norvegia: DBH (HK-dir, NLOD 2.0). Finlandia: Opintopolku (Opetushallitus, CC BY 4.0). Australia: CRICOS (Department of Education, CC BY 2.5 AU). Corea del Sud: 대학알리미 (ministero dell’istruzione, uso libero). Inoltre OpenAlex (CC0) e University Domains List (MIT). L’assegnazione alle aree è nostra. Per Germania e Austria rimandiamo alle ricerche ufficiali, senza riprenderne i dati.</p>
         <h2>Legge applicabile e contatto</h2><p>Si applica il diritto svizzero, fatte salve le norme inderogabili di tutela dei consumatori. Contatto: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
       </Page>
     )
@@ -674,7 +674,7 @@ export function TermsView({ site, base, locale }: SiteProps) {
         <p>Die Schnittstelle für Studiengänge ist nicht zum automatischen Auslesen oder Weiterverkaufen gedacht. Die offenen Daten dahinter bleiben bei ihren Herausgebern unter deren Lizenzen frei verfügbar.</p>
         <h2>Datenquellen</h2>
         <p>
-          Schweiz: Bundesamt für Statistik (BFS: Studierende, Absolventenbefragung), freie Nutzung mit Quellenangabe; Studienangebote von studyprogrammes.ch (swissuniversities). Deutschland: Studiensuche der Bundesagentur für Arbeit. Österreich: studienwahl.at (BMFWF). Weitere Länder: College Scorecard des US-Bildungsministeriums (gemeinfrei), Discover Uni (Office for Students, CC BY 4.0), Parcoursup (Licence Ouverte 2.0), OpenAlex (CC0), University Domains List (MIT).
+          Schweiz: Bundesamt für Statistik (BFS: Studierende, Absolventenbefragung), freie Nutzung mit Quellenangabe. USA: College Scorecard des US-Bildungsministeriums (gemeinfrei). Grossbritannien: Discover Uni (Office for Students, CC BY 4.0). Frankreich: Parcoursup (Licence Ouverte 2.0). Niederlande: DUO (CC BY). Norwegen: DBH (HK-dir, NLOD 2.0). Finnland: Opintopolku (Opetushallitus, CC BY 4.0). Australien: CRICOS (Department of Education, CC BY 2.5 AU). Südkorea: 대학알리미 (Bildungsministerium, freie Nutzung). Dazu OpenAlex (CC0) und University Domains List (MIT). Die Zuordnung zu Fächern stammt von uns. Für Deutschland und Österreich verlinken wir auf die offiziellen Suchen der Bundesagentur für Arbeit und von studienwahl.at, ohne ihre Daten zu übernehmen.
         </p>
         {k.site !== 'ch' && (
           <>
@@ -710,7 +710,7 @@ export function TermsView({ site, base, locale }: SiteProps) {
       <p>Don’t scrape the programme API or resell its output. The underlying open data remains available from its original publishers under their licences.</p>
       <h2>Data sources</h2>
       <p>
-        Programme data: U.S. Department of Education College Scorecard (public domain), Discover Uni dataset (Office for Students, CC BY 4.0), Parcoursup open data (Licence Ouverte 2.0), Swiss Federal Statistical Office (BFS: enrolment and graduate survey, open use with attribution), studyprogrammes.ch (swissuniversities), Studiensuche of the German Federal Employment Agency, studienwahl.at (Austrian Federal Ministry of Science), OpenAlex (CC0), University Domains List (MIT).
+        Programme data: U.S. Department of Education College Scorecard (public domain), Discover Uni dataset (Office for Students, CC BY 4.0), Parcoursup open data (Licence Ouverte 2.0), Swiss Federal Statistical Office (BFS: enrolment and graduate survey, open use with attribution), DUO HO Opleidingsoverzicht (CC BY), DBH of HK-dir (NLOD 2.0), Opintopolku of the Finnish National Agency for Education (CC BY 4.0), CRICOS of the Australian Department of Education (CC BY 2.5 AU), Korea Higher Education Information 대학알리미 (Ministry of Education, free use without restrictions), OpenAlex (CC0), University Domains List (MIT). The assignment to fields is ours. For Germany and Austria we link to the official searches without using their data.
       </p>
       <h2>Contact</h2>
       <p>

@@ -13,7 +13,7 @@
       },
       "name": "Bachelor en Agronomie",
       "degree_name": "Bachelor of Science BFH en Agronomie",
-      "description": "Jouez un rôle actif dans le secteur agroalimentaire de demain: un bachelor en Agronomie ŕ la Haute école spécialisée bernoise fera de vous un-e spécialiste de l'agronomie.",
+      "description": "Texte d'exemple pour les tests, rédigé pour ce dépôt: un bachelor ŕ la Haute école avec des cours en agronomie.",
       "keywords": [
         "BFH",
         "Agriculture",
@@ -57,7 +57,7 @@
         "id": 1
       },
       "name": "Master Soziologie",
-      "description": "Der Master vertieft soziologische Theorien und Methoden, mit Schwerpunkten zu sozialer Ungleichheit, Migration und Bildung.",
+      "description": "Beispieltext für die Tests: Der Master vertieft Theorien und Methoden, mit Schwerpunkten zu sozialer Ungleichheit, Migration und Bildung.",
       "keywords": [
         "Soziale Ungleichheit",
         "Migration",
@@ -89,7 +89,7 @@
         "id": 1
       },
       "name": "Master Soziologie",
-      "description": "Kultur, Religion und Weltgesellschaft: der Luzerner Master verbindet Soziologie mit Kulturwissenschaften.",
+      "description": "Beispieltext für die Tests: Kultur, Religion und Weltgesellschaft im Luzerner Master.",
       "keywords": [
         "Kultursoziologie",
         "Religionssoziologie",

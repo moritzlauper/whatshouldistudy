@@ -68,7 +68,7 @@ export function idFromSlug(slug: string): string | null {
  * catalogue as before, but get no page of their own until the answer is yes.
  */
 export const PROGRAMME_PAGES_PENDING: Record<string, string> = {
-  CH: 'studyprogrammes.ch (swissuniversities) states no licence; permission requested',
+  CH: 'the programme catalogue of studyprogrammes.ch needs the consent of swissuniversities (requested); the BFS rows alone are too thin for pages of their own',
 }
 
 /** Countries whose programmes get a page each: an open licence, see LINK_ONLY and PROGRAMME_PAGES_PENDING. */

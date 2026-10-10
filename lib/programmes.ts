@@ -140,6 +140,8 @@ export interface SourceStatus {
   error?: string
   url: string
   licence: string
+  /** The licence text (or the publisher's terms), for the attribution the licence asks for. */
+  licenceUrl?: string
 }
 
 export interface DataMeta {

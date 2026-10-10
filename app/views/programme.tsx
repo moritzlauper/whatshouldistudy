@@ -240,7 +240,22 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
       <Related k={k} cc={cc} title={ct.moreAtInstitution(fname, p.institution)} items={sameInstitution} showInstitution={false} />
       <Related k={k} cc={cc} title={ct.elsewhere(fname, inC)} items={elsewhere} showInstitution more={{ label: ct.allIn(fname, inC), href: r.countryField(cc, field) }} />
 
-      {source && <p className="mt-12 text-xs text-muted">{ct.sourceLine(source.name, source.licence, fmtDate(shard.updated, intl))}</p>}
+      {source && (
+        <p className="mt-12 text-xs text-muted">
+          {ct.sourceLabel}:{' '}
+          <a href={source.url} target="_blank" rel="noopener" className="font-semibold hover:text-ink">
+            {source.name}
+          </a>{' '}
+          ({source.licenceUrl ? (
+            <a href={source.licenceUrl} target="_blank" rel="noopener license" className="hover:text-ink">
+              {source.licence}
+            </a>
+          ) : (
+            source.licence
+          )}
+          ). {ct.sourceNote(fmtDate(shard.updated, intl))}
+        </p>
+      )}
 
       <Cta k={k} title={ct.fieldCtaTitle(fname)} />
     </div>

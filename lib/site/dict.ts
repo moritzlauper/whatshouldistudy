@@ -521,7 +521,7 @@ const en = {
     profileLabel: 'Interest profile',
     menu: 'Menu',
     madeIn: 'Made in Zürich',
-    dataCredit: 'Programme data: College Scorecard, Discover Uni, Parcoursup, BFS, OpenAlex',
+    dataCredit: 'Programme data: College Scorecard, Discover Uni, Parcoursup, BFS, DUO, DBH, Opintopolku, CRICOS, Academyinfo (대학알리미), OpenAlex',
   },
   callback: {
     reading: (s: string) => `Reading your ${s}`,
@@ -1169,7 +1169,7 @@ const deCH: Dict = {
     profileLabel: 'Interessenprofil',
     menu: 'Menü',
     madeIn: 'Gemacht in Zürich',
-    dataCredit: 'Studiengänge: Bundesamt für Statistik (BFS), dazu Parcoursup, Discover Uni, College Scorecard, OpenAlex',
+    dataCredit: 'Studiengänge: Bundesamt für Statistik (BFS), dazu College Scorecard, Discover Uni, Parcoursup, DUO, DBH, Opintopolku, CRICOS, 대학알리미, OpenAlex',
   },
   callback: {
     reading: (s: string) => `Lese dein ${s}`,
@@ -1196,7 +1196,7 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
     faq: [
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
       ['Ist das ein richtiger psychologischer Test?', 'Der Fragebogen nutzt etablierte Instrumente: das RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, und den Mini-IPIP, eine geprüfte Big-Five-Skala mit 20 Fragen. Die Analyse deines Verlaufs ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
-      ['Welche Hochschulen sind drin?', 'Alle Studiengänge aus der Studiensuche der Bundesagentur für Arbeit: Universitäten, Hochschulen für angewandte Wissenschaften, Kunst- und Musikhochschulen, duale Hochschulen und Berufsakademien. Fürs Ausland kommen Österreich, die Schweiz, Frankreich, UK und die USA Studiengang für Studiengang dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
+      ['Welche Hochschulen sind drin?', 'Für Deutschland zeigen wir die Fächer, die Hochschultypen und die Kosten; die einzelnen Studiengänge führt die Studiensuche der Bundesagentur für Arbeit, auf die wir pro Fach verlinken. Ihre Daten haben keine offene Lizenz, deshalb übernehmen wir sie nicht. Studiengang für Studiengang kommen die Schweiz, Frankreich, UK, die Niederlande, Norwegen, Finnland, Australien, Südkorea und die USA dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
       ['Was bringt der volle Report?', 'Deinen Platz 1 mit allen Belegen und jeden passenden Studiengang mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Einmal bezahlen, 12 Monate gültig, die Daten werden wöchentlich aktualisiert.'],
       ['Geht das auch ohne Verbindungen?', 'Ja. Der Fragebogen allein gibt schon ein brauchbares Ergebnis. Jede Quelle macht es genauer, und das Vertrauens-Badge beim Ergebnis zeigt, worauf es beruht.'],
     ],
@@ -1213,7 +1213,7 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
   fields: {
     tracked: (n: string) => `${n} Studiengänge in Deutschland`,
     whereLocal: (f: string) => `Wo du ${f} in Deutschland studieren kannst`,
-    whereLocalSub: 'Hochschulen mit Studiengängen in diesem Fach, laut Studiensuche der Bundesagentur für Arbeit.',
+    whereLocalSub: 'Hochschulen mit Studiengängen in diesem Fach.',
   },
   meta: {
     title: `${DE_NAME}: Welches Studium passt zu mir?`,
@@ -1224,7 +1224,7 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
     fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du sie in Deutschland studieren kannst.`,
     howDesc: `Das Modell hinter ${DE_NAME}: was wir aus jeder Quelle lesen, wie wir Interesse messen, welche Psychologie drinsteckt und woher die Studiengänge kommen.`,
   },
-  misc: { dataCredit: 'Studiengänge: Studiensuche der Bundesagentur für Arbeit, dazu studienwahl.at, BFS, Parcoursup, Discover Uni, College Scorecard, OpenAlex' },
+  misc: { dataCredit: 'Studiengänge: College Scorecard, Discover Uni, Parcoursup, BFS, DUO, DBH, Opintopolku, CRICOS, 대학알리미, OpenAlex; für Deutschland Links zur Studiensuche der Bundesagentur für Arbeit' },
 }
 
 /** Austria: the Swiss texts in Austrian spelling, plus what differs in substance. */
@@ -1236,7 +1236,7 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
     faq: [
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
       ['Ist das ein richtiger psychologischer Test?', 'Der Fragebogen nutzt etablierte Instrumente: das RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, und den Mini-IPIP, eine geprüfte Big-Five-Skala mit 20 Fragen. Die Analyse deines Verlaufs ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
-      ['Welche Hochschulen sind drin?', 'Jedes Studium an öffentlichen Universitäten, Fachhochschulen, Pädagogischen Hochschulen und Privatuniversitäten in Österreich, laut studienwahl.at, dem Studienportal des Wissenschaftsministeriums. Fürs Ausland kommen Deutschland, die Schweiz, Frankreich, UK und die USA Studiengang für Studiengang dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
+      ['Welche Hochschulen sind drin?', 'Für Österreich zeigen wir die Fächer, die Hochschultypen und die Kosten; die einzelnen Studien führt studienwahl.at, das Studienportal des Wissenschaftsministeriums, auf das wir pro Fach verlinken. Seine Daten haben keine offene Lizenz, deshalb übernehmen wir sie nicht. Studiengang für Studiengang kommen die Schweiz, Frankreich, UK, die Niederlande, Norwegen, Finnland, Australien, Südkorea und die USA dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
       ['Was bringt der volle Report?', 'Deinen Platz 1 mit allen Belegen und jedes passende Studium mit Studienbeitrag, Aufnahmeverfahren und Link, sortiert nach deinem Profil. Einmal zahlen, 12 Monate gültig, die Daten werden wöchentlich aktualisiert.'],
       ['Geht das auch ohne Verbindungen?', 'Ja. Der Fragebogen allein gibt schon ein brauchbares Ergebnis. Jede Quelle macht es genauer, und das Vertrauens-Badge beim Ergebnis zeigt, worauf es beruht.'],
     ],
@@ -1252,7 +1252,7 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
   fields: {
     tracked: (n: string) => `${n} Studien in Österreich`,
     whereLocal: (f: string) => `Wo du ${f} in Österreich studieren kannst`,
-    whereLocalSub: 'Hochschulen mit Studien in diesem Fach, laut studienwahl.at.',
+    whereLocalSub: 'Hochschulen mit Studien in diesem Fach.',
   },
   meta: {
     title: `${AT_NAME}: Welches Studium passt zu mir?`,
@@ -1263,7 +1263,7 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
     fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du sie in Österreich studieren kannst.`,
     howDesc: `Das Modell hinter ${AT_NAME}: was wir aus jeder Quelle lesen, wie wir Interesse messen, welche Psychologie drinsteckt und woher die Studien kommen.`,
   },
-  misc: { dataCredit: 'Studien: studienwahl.at (BMFWF), dazu Bundesagentur für Arbeit, BFS, Parcoursup, Discover Uni, College Scorecard, OpenAlex' },
+  misc: { dataCredit: 'Studiengänge: College Scorecard, Discover Uni, Parcoursup, BFS, DUO, DBH, Opintopolku, CRICOS, 대학알리미, OpenAlex; für Österreich Links zu studienwahl.at' },
 }
 
 const deDE = mergeDeep(regionalizeDeep(deCH, 'de-DE'), regionalizeDeep(DE_OVERRIDES, 'de-DE'))
@@ -1457,7 +1457,7 @@ const frCH = mergeDeep(en, {
     how: 'Comment ça marche', howDesc: `Le modèle de ${CH_FR_IT_NAME} : les sources analysées, la mesure des intérêts et les limites des résultats.`,
     privacy: 'Confidentialité', terms: 'Conditions', connecting: 'Connexion…', unlocked: 'Rapport débloqué', imprint: 'Mentions légales',
   },
-  misc: { language: 'Langue', start: 'Commencer', home: (n: string) => `Accueil ${n}`, couldNotUnlock: 'Impossible de débloquer le rapport.', profileLabel: 'Profil d’intérêts', menu: 'Menu', madeIn: 'Créé à Zurich', dataCredit: 'Données : College Scorecard, Discover Uni, Parcoursup, OFS, OpenAlex' },
+  misc: { language: 'Langue', start: 'Commencer', home: (n: string) => `Accueil ${n}`, couldNotUnlock: 'Impossible de débloquer le rapport.', profileLabel: 'Profil d’intérêts', menu: 'Menu', madeIn: 'Créé à Zurich', dataCredit: 'Données : OFS, College Scorecard, Discover Uni, Parcoursup, DUO, DBH, Opintopolku, CRICOS, 대학알리미, OpenAlex' },
   callback: { reading: (s: string) => `Lecture de ${s}`, failed: (s: string) => `Impossible de lire ${s}`, finishing: 'Connexion en cours', local: 'Cette étape se déroule dans ton navigateur. Aucune donnée ne nous est envoyée.', back: 'Retour', unknown: 'Service inconnu.', generic: 'Une erreur est survenue.' },
   unlocked: { working: 'Déblocage du rapport complet…', failed: 'Une erreur est survenue', charged: 'Si tu as été débité, réponds au reçu Stripe pour que nous puissions régler le problème.' },
 } satisfies DeepPartial<Dict>)
@@ -1647,7 +1647,7 @@ const itCH = mergeDeep(en, {
     how: 'Come funziona', howDesc: `Il modello di ${CH_FR_IT_NAME}: le fonti analizzate, la valutazione degli interessi e i limiti dei risultati.`,
     privacy: 'Informativa sulla privacy', terms: 'Condizioni', connecting: 'Connessione…', unlocked: 'Report sbloccato', imprint: 'Note legali',
   },
-  misc: { language: 'Lingua', start: 'Inizia', home: (n: string) => `Home ${n}`, couldNotUnlock: 'Impossibile sbloccare il report.', profileLabel: 'Profilo degli interessi', menu: 'Menu', madeIn: 'Realizzato a Zurigo', dataCredit: 'Dati: College Scorecard, Discover Uni, Parcoursup, UST, OpenAlex' },
+  misc: { language: 'Lingua', start: 'Inizia', home: (n: string) => `Home ${n}`, couldNotUnlock: 'Impossibile sbloccare il report.', profileLabel: 'Profilo degli interessi', menu: 'Menu', madeIn: 'Realizzato a Zurigo', dataCredit: 'Dati: UST, College Scorecard, Discover Uni, Parcoursup, DUO, DBH, Opintopolku, CRICOS, 대학알리미, OpenAlex' },
   callback: { reading: (s: string) => `Lettura di ${s}`, failed: (s: string) => `Impossibile leggere ${s}`, finishing: 'Accesso in corso', local: 'Questa operazione avviene nel browser. Non inviamo dati ai nostri server.', back: 'Indietro', unknown: 'Servizio sconosciuto.', generic: 'Si è verificato un errore.' },
   unlocked: { working: 'Sblocco del report completo…', failed: 'Si è verificato un errore', charged: 'Se hai ricevuto un addebito, rispondi alla ricevuta Stripe e risolveremo il problema.' },
 } satisfies DeepPartial<Dict>)

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CATALOGUE_COUNTRIES, LEVEL_ORDER, LINK_ONLY, hasProgrammePages, programmeSlug } from '@/lib/catalogue.ts'
 import { COUNTRIES, flag } from '@/lib/countries.ts'
-import { ADMISSION, TYPE_STYLE, admissionText, typeLabel } from '@/lib/institutions.ts'
+import { ADMISSION, SCHOOL_TYPES, TYPE_STYLE, admissionText, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
 import { toCatalogueEntry } from '@/lib/programmes.ts'
 import type { CatalogueEntry, DataMeta, Level } from '@/lib/programmes.ts'
@@ -119,7 +119,10 @@ export async function CountryView({ site, base, locale: selectedLocale, country:
   const ct = catalogueText(locale)
   const [{ meta }, catalogue] = await Promise.all([getMeta(), getCatalogue(cc)])
   const totals = countryTotals(meta, cc)
-  if (!totals) notFound()
+  if (!totals) {
+    if (LINK_ONLY[cc]) return <LinkOnlyCountry k={k} cc={cc} />
+    notFound()
+  }
   const inC = inCountry(cc, locale)
   const sources = (meta?.sources ?? []).filter((s) => s.countries.includes(cc) && s.count > 0 && s.id !== 'ch-bfs-salaries')
   const fields = FIELDS.filter((f) => fieldCount(meta, f.id, cc) > 0)
@@ -265,7 +268,16 @@ export async function CountryView({ site, base, locale: selectedLocale, country:
                 <a href={s.url} target="_blank" rel="noopener" className="font-semibold hover:text-accent">
                   {s.name}
                 </a>
-                <span className="text-xs text-muted"> · {s.licence}</span>
+                <span className="text-xs text-muted">
+                  {' · '}
+                  {s.licenceUrl ? (
+                    <a href={s.licenceUrl} target="_blank" rel="noopener license" className="hover:text-ink">
+                      {s.licence}
+                    </a>
+                  ) : (
+                    s.licence
+                  )}
+                </span>
               </li>
             ))}
           </ul>
@@ -311,6 +323,132 @@ function SourceLink({ title, text, href, label }: { title: string; text: string;
   )
 }
 
+/** The ways in that a country's own institutions offer: admission per kind of institution. */
+function Admissions({ k, cc }: { k: Kit; cc: string }) {
+  const ct = catalogueText(k.locale)
+  const list = (SCHOOL_TYPES[cc] ?? []).map((type) => [type, admissionText(cc, type, lang(k.locale))] as const).filter(([, a]) => a)
+  if (!list.length) return null
+  return (
+    <section className="card-sm p-6">
+      <h2 className="font-display text-2xl">{ct.admissionTitle}</h2>
+      <ul className="mt-3 grid gap-3 text-sm">
+        {list.map(([type, a]) => (
+          <li key={type}>
+            <span className="font-bold">{typeLabel(type, cc, lang(k.locale))}:</span> <span className="text-muted">{a}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+/**
+ * A country whose source has no open licence and no data with us: every field
+ * links to the official search there. Nothing of the source is shown or kept.
+ */
+function LinkOnlyCountry({ k, cc }: { k: Kit; cc: string }) {
+  const { r, locale } = k
+  const ct = catalogueText(locale)
+  const src = LINK_ONLY[cc]
+  const inC = inCountry(cc, locale)
+  const fees = ct.fees[cc]
+  const groups = (Object.keys(GROUP_LABELS) as FieldGroup[]).filter((g) => FIELDS.some((f) => f.group === g))
+  return (
+    <div className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
+      <JsonLd data={breadcrumbLd(crumbs(k, cc))} />
+      <div className="relative">
+        <Burst className="spin-slow absolute -right-2 -top-6 hidden sm:block" size={110} color="var(--lime)" />
+        <div className="text-7xl" aria-hidden="true">{flag(cc)}</div>
+        <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.h1(inC)}</h1>
+      </div>
+      <div className="mt-8">
+        <SourceLink title={ct.linkCountryTitle} text={ct.linkOnlyLead(inC, src.name)} href={src.home} label={ct.linkOpen(src.name)} />
+      </div>
+      <section className="mt-14">
+        <h2 className="font-display text-3xl">{ct.fieldsTitle}</h2>
+        {groups.map((g) => (
+          <div key={g} className="mt-8">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-muted">{groupLabel(g, locale)}</h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {FIELDS.filter((f) => f.group === g).map((f) => (
+                <Link key={f.id} href={r.countryField(cc, f.id)} className="card-sm card-pop flex items-center gap-3 p-4">
+                  <span className="text-2xl" aria-hidden="true">{emoji(f.id)}</span>
+                  <span className="min-w-0 hyphens-auto break-words font-bold leading-tight">{fieldName(f.id, locale)}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+      <div className="mt-10 grid gap-5 md:grid-cols-2">
+        {fees && (
+          <section className="card-sm p-6">
+            <h2 className="font-display text-2xl">{ct.feesTitle}</h2>
+            <p className="mt-2 text-sm text-muted">{fees}</p>
+          </section>
+        )}
+        <Admissions k={k} cc={cc} />
+      </div>
+      <Cta k={k} title={ct.ctaTitle} />
+    </div>
+  )
+}
+
+/** One field in a link-only country: what the field is, and the official search for it. */
+function LinkOnlyField({ k, cc, id }: { k: Kit; cc: string; id: string }) {
+  const { r, locale } = k
+  const ct = catalogueText(locale)
+  const src = LINK_ONLY[cc]
+  const name = fieldName(id, locale)
+  const inC = inCountry(cc, locale)
+  const f = FIELD_BY_ID[id]
+  const related = FIELDS.filter((x) => x.id !== id && x.group === f.group).slice(0, 6)
+  return (
+    <div className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
+      <JsonLd data={breadcrumbLd(crumbs(k, cc, { id, name }))} />
+      <Link href={r.country(cc)} className="text-sm font-semibold text-muted hover:text-ink">
+        ← {ct.allProgrammes(inC)}
+      </Link>
+      <div className="relative mt-5">
+        <div className="text-7xl" aria-hidden="true">
+          {emoji(id)}
+          <span className="ml-2 text-5xl">{flag(cc)}</span>
+        </div>
+        <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.fieldH1(name, inC)}</h1>
+      </div>
+      <div className="mt-8">
+        <SourceLink title={ct.linkOnlyFieldTitle(name)} text={ct.linkOnlyFieldText(name, src.name)} href={src.search(fieldName(id, cc === 'AT' ? 'de-AT' : 'de-DE'))} label={ct.linkOpen(src.name)} />
+      </div>
+      <div className="mt-10 grid gap-5 md:grid-cols-[1.3fr_1fr]">
+        <section className="card p-6">
+          <h2 className="font-display text-2xl">{ct.aboutTitle(name)}</h2>
+          <p className="mt-2 text-muted">{fieldBlurb(id, locale)}</p>
+          <h3 className="mt-5 font-bold">{ct.careers}</h3>
+          <p className="mt-1 text-sm text-muted">{fieldCareers(id, locale).join(' · ')}</p>
+          <Link href={r.field(id)} className="mt-5 inline-block font-bold text-accent hover:underline">
+            {ct.aboutMore(name)} →
+          </Link>
+        </section>
+        <Admissions k={k} cc={cc} />
+      </div>
+      {related.length > 0 && (
+        <section className="mt-12">
+          <h2 className="font-display text-3xl">{ct.relatedTitle(inC)}</h2>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((x) => (
+              <Link key={x.id} href={r.countryField(cc, x.id)} className="card-sm card-pop flex items-center gap-3 p-4">
+                <span className="text-2xl" aria-hidden="true">{emoji(x.id)}</span>
+                <span className="font-bold">{fieldName(x.id, locale)}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+      <Cta k={k} title={ct.fieldCtaTitle(name)} />
+    </div>
+  )
+}
+
 /** Every programme of one field in one country, by level and institution. */
 export async function CountryFieldView({ site, base, locale: selectedLocale, country: cc, id }: SiteProps & { country: string; id: string }) {
   const k = kit(site, base, selectedLocale)
@@ -319,10 +457,12 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
   const f = FIELD_BY_ID[id]
   if (!f) notFound()
   const [{ meta }, shard, stats] = await Promise.all([getMeta(), getShard(id), getStats()])
-  if (!countryTotals(meta, cc)) notFound()
   // Only the catalogue's own fields reach the page; fees, earnings and admission rates stay in the paid list.
-  const programmes: CatalogueEntry[] = (shard?.programmes ?? []).filter((p) => p.country === cc).map(toCatalogueEntry)
-  if (!programmes.length) notFound()
+  const programmes: CatalogueEntry[] = countryTotals(meta, cc) ? (shard?.programmes ?? []).filter((p) => p.country === cc).map(toCatalogueEntry) : []
+  if (!programmes.length) {
+    if (LINK_ONLY[cc]) return <LinkOnlyField k={k} cc={cc} id={id} />
+    notFound()
+  }
   const name = fieldName(id, locale)
   const inC = inCountry(cc, locale)
 
@@ -508,8 +648,10 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
 export async function countryFieldText(cc: string, id: string, locale: Locale): Promise<{ title: string; description: string; index: boolean } | null> {
   const ct = catalogueText(locale)
   const [{ meta }, shard] = await Promise.all([getMeta(), getShard(id)])
-  if (!FIELD_BY_ID[id] || !countryTotals(meta, cc)) return null
-  const programmes = (shard?.programmes ?? []).filter((p) => p.country === cc)
+  if (!FIELD_BY_ID[id]) return null
+  const programmes = countryTotals(meta, cc) ? (shard?.programmes ?? []).filter((p) => p.country === cc) : []
+  // A link to the official search only: useful, but not a page to index.
+  if (!programmes.length && LINK_ONLY[cc]) return { title: ct.fieldH1(fieldName(id, locale), inCountry(cc, locale)), description: ct.linkOnlyMetaDesc(inCountry(cc, locale), LINK_ONLY[cc].name), index: false }
   if (!programmes.length) return null
   const intl = locale
   const name = fieldName(id, locale)
@@ -531,11 +673,12 @@ export async function countryFieldText(cc: string, id: string, locale: Locale): 
 }
 
 /** Title and description of a country page. */
-export async function countryText(cc: string, locale: Locale): Promise<{ title: string; description: string } | null> {
+export async function countryText(cc: string, locale: Locale): Promise<{ title: string; description: string; index?: boolean } | null> {
   const ct = catalogueText(locale)
   const { meta } = await getMeta()
   const c = countryTotals(meta, cc)
-  if (!c) return null
   const inC = inCountry(cc, locale)
+  if (!c && LINK_ONLY[cc]) return { title: ct.h1(inC), description: ct.linkOnlyMetaDesc(inC, LINK_ONLY[cc].name), index: false }
+  if (!c) return null
   return { title: ct.metaTitle(inC, fmtNumber(c.programmes, locale)), description: (LINK_ONLY[cc] ? ct.metaDescLink : ct.metaDesc)(inC, fmtNumber(c.programmes, locale), fmtNumber(c.institutions, locale)) }
 }

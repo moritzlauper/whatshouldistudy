@@ -40,7 +40,16 @@ import type { DirectoryEntry, RawUniversity } from './global-directory.ts'
 import { chSalaryFor, chSalaryValue } from '../lib/ch-salary.ts'
 import type { ChSalaryTable } from '../lib/ch-salary.ts'
 
-const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-studyprogrammes', 'ch-bfs', 'de-studiensuche', 'at-studienwahl', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku', 'nl-duo', 'no-dbh']
+/**
+ * Sources whose publisher states no licence for reuse. Their scrapers stay in
+ * the code, but nothing of theirs is read, carried over or published (not even
+ * in the demo data) until the publisher agrees in writing. To add one back,
+ * move it to PROGRAMME_SOURCES and restore its workflow step and SOURCES entry.
+ */
+export const PERMISSION_PENDING = ['ch-studyprogrammes', 'de-studiensuche', 'at-studienwahl']
+
+/** Programme sources with an open licence (or written permission). */
+const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku', 'nl-duo', 'no-dbh']
 
 const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>> = [
   {
@@ -56,6 +65,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['GB'],
     url: 'https://discoveruni.gov.uk/',
     licence: 'CC BY 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by/4.0/',
   },
   {
     id: 'fr-parcoursup',
@@ -63,13 +73,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['FR'],
     url: 'https://data.enseignementsup-recherche.gouv.fr/',
     licence: 'Licence Ouverte 2.0',
-  },
-  {
-    id: 'ch-studyprogrammes',
-    name: 'studyprogrammes.ch (swissuniversities)',
-    countries: ['CH'],
-    url: 'https://www.studyprogrammes.ch',
-    licence: 'Public catalogue of swissuniversities; descriptions © the institutions',
+    licenceUrl: 'https://www.etalab.gouv.fr/licence-ouverte-open-licence/',
   },
   {
     id: 'ch-bfs-salaries',
@@ -77,6 +81,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['CH'],
     url: 'https://www.bfs.admin.ch/bfs/de/home/statistiken/bildung-wissenschaft/uebertritte-verlaeufe-bildungsbereich/absolventen-hochschulen.html',
     licence: 'Open use, source must be credited (BFS)',
+    licenceUrl: 'https://opendata.swiss/de/terms-of-use#terms_by',
   },
   {
     id: 'ch-bfs',
@@ -84,27 +89,15 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['CH'],
     url: 'https://opendata.swiss/de/organization/bundesamt-fur-statistik-bfs',
     licence: 'Open use, Quelle: BFS',
-  },
-  {
-    id: 'de-studiensuche',
-    name: 'Studiensuche (Bundesagentur für Arbeit)',
-    countries: ['DE'],
-    url: 'https://studiensuche.arbeitsagentur.de/',
-    licence: 'Öffentliche Schnittstelle der Bundesagentur für Arbeit',
-  },
-  {
-    id: 'at-studienwahl',
-    name: 'studienwahl.at (Bundesministerium für Frauen, Wissenschaft und Forschung, OeAD)',
-    countries: ['AT'],
-    url: 'https://www.studienwahl.at/',
-    licence: 'Öffentliches Studienportal',
+    licenceUrl: 'https://opendata.swiss/de/terms-of-use#terms_by',
   },
   {
     id: 'kr-academyinfo',
     name: 'Korea Higher Education Information, 대학알리미 (Ministry of Education, KCUE)',
     countries: ['KR'],
     url: 'https://www.academyinfo.go.kr/',
-    licence: 'KOGL Type 1 (공공누리 제1유형): free use with attribution',
+    licence: 'Free use, no restrictions (이용허락범위 제한 없음, Ministry of Education on data.go.kr)',
+    licenceUrl: 'https://www.data.go.kr/data/15139338/fileData.do',
   },
   {
     id: 'au-cricos',
@@ -112,6 +105,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['AU'],
     url: 'https://data.gov.au/data/dataset/cricos',
     licence: 'CC BY 2.5 AU',
+    licenceUrl: 'https://creativecommons.org/licenses/by/2.5/au/',
   },
   {
     id: 'fi-opintopolku',
@@ -119,6 +113,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['FI'],
     url: 'https://opintopolku.fi/',
     licence: 'CC BY 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by/4.0/',
   },
   {
     id: 'nl-duo',
@@ -126,6 +121,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['NL'],
     url: 'https://onderwijsdata.duo.nl/dataset/ho-opleidingsoverzicht',
     licence: 'CC BY',
+    licenceUrl: 'https://onderwijsdata.duo.nl/dataset/ho-opleidingsoverzicht',
   },
   {
     id: 'no-dbh',
@@ -133,6 +129,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['NO'],
     url: 'https://dbh.hkdir.no/',
     licence: 'NLOD 2.0',
+    licenceUrl: 'https://data.norge.no/nlod/en/2.0',
   },
   {
     id: 'global-openalex',
@@ -140,6 +137,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['*'],
     url: 'https://openalex.org/',
     licence: 'CC0',
+    licenceUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
   },
   {
     id: 'global-directory',
@@ -147,6 +145,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['*'],
     url: 'https://github.com/Hipo/university-domains-list',
     licence: 'MIT',
+    licenceUrl: 'https://github.com/Hipo/university-domains-list/blob/master/LICENSE',
   },
 ]
 
@@ -235,14 +234,16 @@ function readFixtures(): Inputs {
     { source: 'at-studienwahl', fetchedAt: at, programmes: atItems },
     { source: 'kr-academyinfo', fetchedAt: at, programmes: krItems },
   ]
-  for (const o of outputs) status.set(o.source, { ok: true, count: o.programmes.length, fetchedAt: at })
+  // The demo data is published too: only sources we may publish.
+  const allowed = outputs.filter((o) => PROGRAMME_SOURCES.includes(o.source))
+  for (const o of allowed) status.set(o.source, { ok: true, count: o.programmes.length, fetchedAt: at })
   const research = rankInstitutions(readJson<RawInstitution[]>(join(FIXTURES, 'openalex-institutions.json'))!)
   const directory = buildDirectory(readJson<RawUniversity[]>(join(FIXTURES, 'directory.json'))!)
   status.set('global-openalex', { ok: true, count: 12, fetchedAt: at })
   status.set('global-directory', { ok: true, count: Object.values(directory).reduce((s, l) => s + l.length, 0), fetchedAt: at })
   const chSalaries = readJson<ChSalaryTable>(join(FIXTURES, 'ch-salaries.json'))
   status.set('ch-bfs-salaries', { ok: true, count: 20, fetchedAt: at })
-  return { outputs, chSalaries, research, directory, status }
+  return { outputs: allowed, chSalaries, research, directory, status }
 }
 
 function previousFirstSeen(dir: string | undefined): Map<string, string> {

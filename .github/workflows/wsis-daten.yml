@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: 'Run only these sources (comma list: us,uk,fr,ch,de,at,kr,au,fi,nl,no,research,directory); empty = all'
+        description: 'Run only these sources (comma list: us,uk,fr,ch,kr,au,fi,nl,no,research,directory); empty = all'
         required: false
         default: ''
   push:
@@ -101,20 +101,9 @@ jobs:
         continue-on-error: true
         run: node scrapers/ch-salaries.ts
 
-      - name: Switzerland programme catalogue (studyprogrammes.ch)
-        if: ${{ !inputs.only || contains(inputs.only, 'ch') }}
-        continue-on-error: true
-        run: node scrapers/ch-studyprogrammes.ts
-
-      - name: Germany (Studiensuche, Bundesagentur für Arbeit)
-        if: ${{ !inputs.only || contains(inputs.only, 'de') }}
-        continue-on-error: true
-        run: node scrapers/de-studiensuche.ts
-
-      - name: Austria (universities, FH, PH)
-        if: ${{ !inputs.only || contains(inputs.only, 'at') }}
-        continue-on-error: true
-        run: node scrapers/at-hochschulen.ts
+      # studyprogrammes.ch (CH), the Studiensuche of the Bundesagentur für Arbeit (DE)
+      # and studienwahl.at (AT) state no licence for reuse: their scrapers don't run
+      # until the publishers agree (PERMISSION_PENDING in scrapers/build.ts).
 
       - name: South Korea (대학알리미, academyinfo.go.kr)
         if: ${{ !inputs.only || contains(inputs.only, 'kr') }}

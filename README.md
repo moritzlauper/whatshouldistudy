@@ -47,8 +47,11 @@ programme's address. The pages show the catalogue facts, the programmes of the
 same field at the institution and nearby, and the source with its licence. They
 exist only for countries whose source has an open licence: not for Germany and
 Austria (`LINK_ONLY`), and not for Switzerland until swissuniversities agrees
-(`PROGRAMME_PAGES_PENDING`; studyprogrammes.ch states no licence, the catalogue
-lists the Swiss programmes as before). They are built on the first request and cached for a day.
+(`PROGRAMME_PAGES_PENDING`). Sources without an open licence are not used at
+all until their publisher agrees in writing (`PERMISSION_PENDING` in
+`scrapers/build.ts`): studyprogrammes.ch, the Studiensuche of the Bundesagentur
+für Arbeit and studienwahl.at. Switzerland then has the BFS data only; Germany
+and Austria get pages per field that link to the official search. They are built on the first request and cached for a day.
 Their sitemaps are separate files of at most 40,000 addresses,
 `/sitemaps/<site>-<country>-<n>.xml`, listed in robots.txt.
 
@@ -197,9 +200,10 @@ Strava (sports).
 | `uk-discoveruni.ts` | every UK undergraduate course at all ~460 providers, from the search API behind discoveruni.gov.uk's course finder: award, length, mode, campus, subjects (CAH, names mapped with the OfS lookup in `scrapers/lib/cah.ts`), provider website from its Discover Uni page | CC BY 4.0 |
 | `fr-parcoursup.ts` | every French first-year programme on Parcoursup, statutory fees, capacity, admission rate | Licence Ouverte 2.0 |
 | `ch-bfs.ts` | every Swiss Bachelor and Master: students per institution, subject (Fachrichtung) and level, from the BFS PXWeb tables (universities, FH, PH); institution type, fees, languages and admission from `lib/ch-institutions.ts` | open use, «Quelle: BFS» |
-| `de-studiensuche.ts` | German degree programmes (Bachelor, Master, Staatsexamen, Diplom, Lehramt) at universities, HAW/FH, dual and art colleges, from the Studiensuche API of the Bundesagentur für Arbeit (`rest.arbeitsagentur.de/infosysbub/studisu`, documented at bund.dev); further-education programmes are skipped | no licence stated; public API, credited on the site |
-| `at-hochschulen.ts` | every Austrian degree programme at universities, FH, PH and private universities from studienwahl.at (BMFWF/OeAD), one page per second; institutions, fees and admission from `lib/at-institutions.ts` and `lib/institutions.ts` | no open licence stated; robots.txt allows crawling, each programme links back to its page there |
-| `kr-academyinfo.ts` | every South Korean department and major at universities, colleges and graduate schools from 대학알리미 (academyinfo.go.kr): degree, duration, location, official subject classification | KOGL Type 1 (attribution), as the Ministry of Education publishes these lists on data.go.kr |
+| `ch-studyprogrammes.ts` | **not run** until swissuniversities agrees: its legal notice reserves public or commercial use of its content. The Swiss catalogue uses the BFS data only | none stated |
+| `de-studiensuche.ts` | **not run** until the Bundesagentur für Arbeit agrees: its Studiensuche API states no licence for reuse. The country pages link to its search instead | none stated |
+| `at-hochschulen.ts` | **not run** until the publisher of studienwahl.at agrees: no licence for reuse. The country pages link to its search instead | none stated |
+| `kr-academyinfo.ts` | every South Korean department and major at universities, colleges and graduate schools from 대학알리미 (academyinfo.go.kr): degree, duration, location, official subject classification | free use without restrictions («이용허락범위 제한 없음»): the Ministry of Education publishes the same department list on data.go.kr (dataset 15139338) |
 | `au-cricos.ts` | every current Australian bachelor's, master's and doctoral course open to international students (CRICOS, data.gov.au): field of education, duration, city, international tuition | CC BY 2.5 AU |
 | `fi-opintopolku.ts` | every Finnish degree programme at universities and universities of applied sciences (Opintopolku / Studyinfo.fi): level, ISCED-F field, offering institution, language | CC BY 4.0 |
 | `nl-duo.ts` | every accredited Dutch programme at WO and HBO institutions (DUO «HO Opleidingsoverzicht»): place, study form, language, credits, English name, website; field from the names | CC BY |
