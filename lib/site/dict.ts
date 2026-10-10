@@ -15,6 +15,8 @@ export type LandingSource = { id: string; glyph: string; name: string; how: stri
 const en = {
   /** Shown instead of the buy buttons where SALES_PAUSED. */
   salesPaused: 'The full report isn’t on sale here at the moment. Your result with the fields that fit you stays free.',
+  /** The same for schools, on the plans page. */
+  salesPausedOrgs: 'School plans aren’t on sale here at the moment. The test with the fields that fit stays free for your students, and existing plans keep running.',
   nav: { how: 'How it works', fields: 'Fields', start: 'Start' },
   footer: {
     about: 'Your digital footprint plus a short questionnaire built on established interest and personality models, matched to fields of study and real programmes.',
@@ -625,6 +627,7 @@ const IT_MESSAGES: Array<[RegExp, string]> = [
 
 const deCH: Dict = {
   salesPaused: 'Den vollen Report verkaufen wir hier im Moment nicht. Dein Resultat mit den passenden Fächern bleibt gratis.',
+  salesPausedOrgs: 'Schul-Abos verkaufen wir hier im Moment nicht. Der Test mit den passenden Fächern bleibt für Ihre Schülerinnen und Schüler gratis, bestehende Abos laufen weiter.',
   nav: { how: 'So funktioniert’s', fields: 'Fächer', start: 'Los geht’s' },
   footer: {
     about: 'Dein digitaler Fussabdruck plus ein kurzer Fragebogen nach bewährten Interessen- und Persönlichkeitsmodellen. Daraus: Studienfächer und echte Studiengänge, die passen.',
@@ -1193,6 +1196,7 @@ const deCH: Dict = {
 /** Germany: the Swiss texts in German spelling, plus what differs in substance. */
 const DE_OVERRIDES: DeepPartial<Dict> = {
   salesPaused: 'Den vollen Report verkaufen wir für Deutschland im Moment nicht: Die Daten der Studiensuche haben keine offene Lizenz, deshalb könnten wir dir keine deutschen Studiengänge zeigen. Dein Resultat mit den passenden Fächern bleibt gratis, und pro Fach führt ein Link direkt zur Studiensuche.',
+  salesPausedOrgs: 'Schul-Abos für Deutschland verkaufen wir im Moment nicht: Die Daten der Studiensuche haben keine offene Lizenz, deshalb könnte der Report keine deutschen Studiengänge zeigen. Der Test mit den passenden Fächern bleibt für Ihre Schülerinnen und Schüler gratis, bestehende Abos laufen weiter.',
   landing: {
     lead: (n: number) =>
       `Du lädst deinen YouTube- und Google-Verlauf hier rein, deinen Instagram- oder TikTok-Export, wenn du willst auch Reddit und GitHub. Dein Browser liest das direkt auf deinem Gerät und zählt, zu welchen Themen du immer wieder zurückkommst. Dazu ein kurzer Fragebogen zu Interessen, Schulfächern und Werten. Heraus kommen deine Fächer aus ${n} Studienfeldern und die passenden Studiengänge an Unis, Hochschulen für angewandte Wissenschaften und dualen Hochschulen. Gespeichert wird nichts.`,
@@ -1234,6 +1238,7 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
 /** Austria: the Swiss texts in Austrian spelling, plus what differs in substance. */
 const AT_OVERRIDES: DeepPartial<Dict> = {
   salesPaused: 'Den vollen Report verkaufen wir für Österreich im Moment nicht: Die Daten von studienwahl.at haben keine offene Lizenz, deshalb könnten wir dir keine österreichischen Studien zeigen. Dein Resultat mit den passenden Fächern bleibt gratis, und pro Fach führt ein Link direkt zu studienwahl.at.',
+  salesPausedOrgs: 'Schul-Abos für Österreich verkaufen wir im Moment nicht: Die Daten von studienwahl.at haben keine offene Lizenz, deshalb könnte der Report keine österreichischen Studien zeigen. Der Test mit den passenden Fächern bleibt für Ihre Schülerinnen und Schüler gratis, bestehende Abos laufen weiter.',
   landing: {
     lead: (n: number) =>
       `Du lädst deinen YouTube- und Google-Verlauf hier rein, deinen Instagram- oder TikTok-Export, wenn du willst auch Reddit und GitHub. Dein Browser liest das direkt auf deinem Gerät und zählt, zu welchen Themen du immer wieder zurückkommst. Dazu ein kurzer Fragebogen zu Interessen, Schulfächern und Werten. Heraus kommen deine Fächer aus ${n} Studienfeldern und die passenden Studien an Unis, Fachhochschulen und Pädagogischen Hochschulen. Gespeichert wird nichts.`,

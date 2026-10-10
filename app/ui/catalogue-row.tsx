@@ -63,10 +63,10 @@ export function catalogueFacts(p: CatalogueEntry, country: string, locale: Local
 }
 
 /**
- * One programme of the free catalogue: its exact title and the key facts, and
- * everything else we know about it on a click, with a link to its own page.
- * Rendered on the server for the field pages and in the browser for search
- * results, so it uses no hooks.
+ * One programme of the free catalogue: its exact title and the key facts. With
+ * a page of its own the row links there; otherwise a click opens everything
+ * else we know about it in place. Rendered on the server for the field pages
+ * and in the browser for search results, so it uses no hooks.
  */
 export function CatalogueRow({
   p,
@@ -92,6 +92,20 @@ export function CatalogueRow({
   const years = p.durationYears ? ct.years(new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(p.durationYears)) : null
   const languages = p.languages?.length ? p.languages.map((l) => languageName(l, locale)).join(', ') : null
   const summary = [showLevel ? levelLabel(p.level, locale) : null, showInstitution ? p.institution : null, p.city, languages, years].filter(Boolean)
+  if (href)
+    return (
+      <li className="border-b border-line/15 last:border-0">
+        <Link href={href} className="group flex items-baseline justify-between gap-x-4 py-2.5">
+          <span className="min-w-0 flex-1">
+            <span className="font-bold group-hover:text-accent">{p.name}</span>
+            <span className="block text-xs text-muted">{summary.join(' · ')}</span>
+          </span>
+          <span className="shrink-0 text-sm font-bold text-accent transition-transform group-hover:translate-x-0.5" aria-hidden="true">
+            →
+          </span>
+        </Link>
+      </li>
+    )
   const facts = catalogueFacts(p, country, locale, fieldHref)
   return (
     <li className="border-b border-line/15 last:border-0">
@@ -105,7 +119,7 @@ export function CatalogueRow({
             ▾
           </span>
         </summary>
-        <div className="mb-4 rounded-2xl border-2 border-line bg-surface-2 p-4 text-sm">
+        <div className="pb-4 text-sm">
           <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
             {facts.map(([k, v]) => (
               <div key={k} className="contents">
@@ -115,11 +129,6 @@ export function CatalogueRow({
             ))}
           </dl>
           <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
-            {href && (
-              <Link href={href} className="font-bold text-accent hover:underline">
-                {d.page} →
-              </Link>
-            )}
             {p.url && (
               <a href={p.url} target="_blank" rel="noopener" className="font-bold text-accent hover:underline">
                 {d.official} ↗

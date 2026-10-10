@@ -19,9 +19,9 @@ test('a programme slug is readable ASCII and ends in its id', () => {
 
 test('programme pages only where the source has an open licence', () => {
   for (const cc of [...Object.keys(LINK_ONLY), ...Object.keys(PROGRAMME_PAGES_PENDING)]) assert.equal(hasProgrammePages(cc), false, cc)
-  // Switzerland until swissuniversities agrees.
-  assert.equal(hasProgrammePages('CH'), false)
-  for (const cc of ['US', 'GB', 'FR']) assert.equal(hasProgrammePages(cc), CATALOGUE_COUNTRIES.includes(cc), cc)
+  // Germany and Austria link to the official search only.
+  for (const cc of ['DE', 'AT']) assert.equal(hasProgrammePages(cc), false, cc)
+  for (const cc of ['US', 'GB', 'FR', 'CH']) assert.equal(hasProgrammePages(cc), CATALOGUE_COUNTRIES.includes(cc), cc)
 })
 
 test('a programme lives under its main field', () => {
@@ -34,7 +34,8 @@ test('programme sitemaps: per host, per country, under the 50,000 limit', () => 
   const groups = sitemapGroups('whatshouldistudy.com')
   assert.ok(groups.some((g) => g.site === 'global' && g.country === 'US'))
   assert.ok(!groups.some((g) => g.country === 'DE' || g.country === 'AT'))
-  assert.ok(!groups.some((g) => g.country === 'CH'))
+  assert.ok(groups.some((g) => g.site === 'global' && g.country === 'CH'))
+  assert.ok(sitemapGroups('wasstudieren.ch').some((g) => g.site === 'ch' && g.country === 'CH'))
   const files = sitemapFiles('whatshouldistudy.com', (cc) => (cc === 'US' ? 97_538 : 1000))
   assert.deepEqual(files.filter((f) => f.startsWith('global-us-')), ['global-us-0.xml', 'global-us-1.xml', 'global-us-2.xml'])
   const us = sitemapFile('whatshouldistudy.com', 'global-us-2.xml')
@@ -66,9 +67,9 @@ test('a programme page finds its programme by id and moves to its own address', 
     assert.deepEqual((await resolveProgramme('GB', p.fields[0], 'old-name-' + p.id)).redirect, { field: p.fields[0], slug });
     assert.equal(await resolveProgramme('GB', p.fields[0], 'nothing-zzzzzzzz'), null);
     assert.equal(await resolveProgramme('DE', p.fields[0], slug), null);
-    // No pages for Switzerland until swissuniversities agrees.
+    // Switzerland, from the BFS rows.
     const ch = (await getCatalogue('CH')).programmes[0];
-    assert.equal(await resolveProgramme('CH', ch.fields[0], programmeSlug(ch)), null);
+    assert.equal((await resolveProgramme('CH', ch.fields[0], programmeSlug(ch))).found.p.id, ch.id);
     // Only the catalogue's fields reach the page.
     assert.equal(ok.found.p.source !== undefined, true);
   `], { cwd: process.cwd(), env, encoding: 'utf8' })

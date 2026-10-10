@@ -35,7 +35,7 @@ export function OrgPlans() {
     }
   }
 
-  if (SALES_PAUSED[site]) return <p className="card-sm max-w-3xl p-6 font-semibold">{t.salesPaused}</p>
+  if (SALES_PAUSED[site]) return <p className="card-sm max-w-3xl p-6 font-semibold">{t.salesPausedOrgs}</p>
 
   return (
     <div>

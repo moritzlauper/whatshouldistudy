@@ -14,22 +14,70 @@ import { Hexagon } from '../ui/hexagon.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { JsonLd, fieldLd } from '../ui/json-ld.tsx'
-import { CATALOGUE_COUNTRIES, LEVEL_ORDER, LINK_ONLY } from '@/lib/catalogue.ts'
+import { CATALOGUE_COUNTRIES, LEVEL_ORDER, LINK_ONLY, hasProgrammePages, programmeSlug } from '@/lib/catalogue.ts'
 import { toCatalogueEntry } from '@/lib/programmes.ts'
+import type { CatalogueEntry, Programme } from '@/lib/programmes.ts'
 import { CatalogueRow } from '../ui/catalogue-row.tsx'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
+import { inCountry } from './catalogue.tsx'
 
+/** Programmes per country on the global field page. */
+const PER_COUNTRY = 6
+
+/**
+ * A few programmes of one country for the field's page: the field's own before
+ * those that only touch it, the surest matches first, bachelor before master,
+ * one per institution (its plainest title), and the institutions with the most
+ * programmes in the field first.
+ */
+function sample(ps: Programme[], id: string, n: number, intl: string): CatalogueEntry[] {
+  const perInstitution = new Map<string, number>()
+  for (const p of ps) perInstitution.set(p.institution, (perInstitution.get(p.institution) ?? 0) + 1)
+  const sorted = ps
+    .filter((p) => !p.parent)
+    .sort(
+      (a, b) =>
+        Number(b.fields[0] === id) - Number(a.fields[0] === id) ||
+        Math.round((b.fieldConfidence ?? 0) * 5) - Math.round((a.fieldConfidence ?? 0) * 5) ||
+        LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level) ||
+        perInstitution.get(b.institution)! - perInstitution.get(a.institution)! ||
+        // At one institution, the plainest title stands for the rest.
+        a.name.length - b.name.length ||
+        a.name.localeCompare(b.name, intl),
+    )
+  const seen = new Set<string>()
+  const out: CatalogueEntry[] = []
+  for (const p of sorted) {
+    if (seen.has(p.institution)) continue
+    seen.add(p.institution)
+    out.push(toCatalogueEntry(p))
+    if (out.length === n) break
+  }
+  return out
+}
 
 export async function FieldView({ site, base, locale: selectedLocale, id }: SiteProps & { id: string }) {
   const { t, r, locale, intl, conf } = kit(site, base, selectedLocale)
   const country = conf.country
   const f = FIELD_BY_ID[id]
   if (!f) notFound()
-  const [stats, { meta }, shard] = await Promise.all([getStats(), country ? Promise.resolve({ meta: null }) : getMeta(), country ? getShard(id) : Promise.resolve(null)])
+  const [stats, { meta }, shard] = await Promise.all([getStats(), country ? Promise.resolve({ meta: null }) : getMeta(), getShard(id)])
   const s = stats[id]
   const name = fieldName(id, locale)
   // Global site only: links each country's catalogue. A country site has only its own, linked above.
-  const byCountry = Object.entries(meta?.counts[id] ?? {}).sort((a, b) => b[1] - a[1])
+  const byCountry = Object.entries(meta?.counts[id] ?? {})
+    .filter(([cc]) => CATALOGUE_COUNTRIES.includes(cc))
+    .sort((a, b) => b[1] - a[1])
+  const sampleByCountry = new Map<string, CatalogueEntry[]>()
+  if (!country) {
+    const perCountry = new Map<string, Programme[]>()
+    for (const p of shard?.programmes ?? []) {
+      if (!perCountry.has(p.country)) perCountry.set(p.country, [])
+      perCountry.get(p.country)!.push(p)
+    }
+    for (const [cc] of byCountry) sampleByCountry.set(cc, sample(perCountry.get(cc) ?? [], id, PER_COUNTRY, intl))
+  }
+  const programmeHref = (cc: string, p: CatalogueEntry) => (hasProgrammePages(cc) ? r.programme(cc, p.fields[0], programmeSlug(p)) : undefined)
   const subjects = Object.entries(f.subjects)
     .filter(([, d]) => (d ?? 0) >= 0.5)
     .sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0))
@@ -125,14 +173,14 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
           <h2 className="font-display text-2xl">{t.fields.whereLocal(name)}</h2>
           <p className="mt-1 text-sm text-muted">{ownProgrammes.length ? catalogueText(locale).listSub(fmtNumber(ownProgrammes.length, intl)) : t.fields.whereLocalSub}</p>
           {byInstitution.size > 0 ? (
-            <div className="mt-5 grid gap-4">
+            <div className="mt-6 grid gap-7">
               {[...byInstitution.entries()]
                 .sort((a, b) => a[0].localeCompare(b[0], intl))
                 .map(([inst, ps]) => {
                   const i = chInstitutions.get(inst)
                   return (
-                    <div key={inst} className="rounded-2xl border-2 border-line p-4">
-                      <h3 className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <div key={inst}>
+                      <h3 className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b-2 border-line pb-2">
                         <span className="font-display text-lg leading-tight">{inst}</span>
                         {i?.type && TYPE_STYLE[i.type] && (
                           <span className="chip on-color text-xs" style={{ background: TYPE_STYLE[i.type].color }}>
@@ -140,9 +188,9 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
                           </span>
                         )}
                       </h3>
-                      <ul className="mt-1">
+                      <ul>
                         {ps.map((p) => (
-                          <CatalogueRow key={p.id} p={p} country={country!} locale={locale} fieldHref={(x) => r.countryField(country!, x)} />
+                          <CatalogueRow key={p.id} p={p} country={country!} locale={locale} fieldHref={(x) => r.countryField(country!, x)} href={programmeHref(country!, p)} />
                         ))}
                       </ul>
                     </div>
@@ -169,19 +217,27 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
 
       {byCountry.length > 0 && (
         <section className="card mt-10 p-6">
-          <h2 className="font-display text-2xl">{t.fields.tracked(fmtNumber(s?.programmes ?? 0, intl))}</h2>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {byCountry.map(([cc, n]) =>
-              CATALOGUE_COUNTRIES.includes(cc) ? (
-                <Link key={cc} href={r.countryField(cc, id)} className="chip hover:-translate-y-0.5">
-                  {flag(cc)} {countryLabel(cc, intl)} <span className="text-muted">{fmtNumber(n, intl)}</span>
+          <h2 className="font-display text-2xl">{t.fields.whereLocal(name)}</h2>
+          <p className="mt-1 text-sm text-muted">{t.fields.tracked(fmtNumber(s?.programmes ?? 0, intl))}</p>
+          <div className="mt-6 grid gap-x-10 gap-y-8 md:grid-cols-2">
+            {byCountry.map(([cc, n]) => (
+              <div key={cc}>
+                <h3 className="flex items-baseline justify-between gap-3 border-b-2 border-line pb-2">
+                  <span className="font-display text-lg leading-tight">
+                    {flag(cc)} {countryLabel(cc, intl)}
+                  </span>
+                  <span className="shrink-0 text-xs text-muted">{catalogueText(locale).programmesShort(fmtNumber(n, intl))}</span>
+                </h3>
+                <ul>
+                  {(sampleByCountry.get(cc) ?? []).map((p) => (
+                    <CatalogueRow key={p.id} p={p} country={cc} locale={locale} showInstitution fieldHref={(x) => r.countryField(cc, x)} href={programmeHref(cc, p)} />
+                  ))}
+                </ul>
+                <Link href={r.countryField(cc, id)} className="mt-2 inline-block text-sm font-bold text-accent hover:underline">
+                  {catalogueText(locale).allIn(name, inCountry(cc, locale))} →
                 </Link>
-              ) : (
-                <span key={cc} className="chip">
-                  {flag(cc)} {countryLabel(cc, intl)} <span className="text-muted">{fmtNumber(n, intl)}</span>
-                </span>
-              ),
-            )}
+              </div>
+            ))}
           </div>
         </section>
       )}

@@ -63,13 +63,12 @@ export function idFromSlug(slug: string): string | null {
 }
 
 /**
- * Countries in the catalogue whose source has no open licence either, but whose
- * publisher we asked for permission: their programmes stay listed in the
- * catalogue as before, but get no page of their own until the answer is yes.
+ * Countries in the catalogue that get no page per programme for now, with the
+ * reason: their programmes stay listed in the catalogue, but get no page of
+ * their own. Empty since Switzerland's catalogue comes from the BFS alone
+ * (free use with attribution, commercial use included).
  */
-export const PROGRAMME_PAGES_PENDING: Record<string, string> = {
-  CH: 'the programme catalogue of studyprogrammes.ch needs the consent of swissuniversities (requested); the BFS rows alone are too thin for pages of their own',
-}
+export const PROGRAMME_PAGES_PENDING: Record<string, string> = {}
 
 /** Countries whose programmes get a page each: an open licence, see LINK_ONLY and PROGRAMME_PAGES_PENDING. */
 export const hasProgrammePages = (cc: string) => CATALOGUE_COUNTRIES.includes(cc) && !LINK_ONLY[cc] && !PROGRAMME_PAGES_PENDING[cc]

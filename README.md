@@ -46,12 +46,16 @@ end finds the programme; another field or an old slug redirects (308) to the
 programme's address. The pages show the catalogue facts, the programmes of the
 same field at the institution and nearby, and the source with its licence. They
 exist only for countries whose source has an open licence: not for Germany and
-Austria (`LINK_ONLY`), and not for Switzerland until swissuniversities agrees
-(`PROGRAMME_PAGES_PENDING`). Sources without an open licence are not used at
-all until their publisher agrees in writing (`PERMISSION_PENDING` in
-`scrapers/build.ts`): studyprogrammes.ch, the Studiensuche of the Bundesagentur
-für Arbeit and studienwahl.at. Switzerland then has the BFS data only; Germany
-and Austria get pages per field that link to the official search. They are built on the first request and cached for a day.
+Austria (`LINK_ONLY`); `PROGRAMME_PAGES_PENDING` can hold back others. Sources
+without an open licence are not used at all until their publisher agrees in
+writing (`PERMISSION_PENDING` in `scrapers/build.ts`): studyprogrammes.ch, the
+Studiensuche of the Bundesagentur für Arbeit and studienwahl.at. Switzerland
+then has the BFS data only (free use with attribution), one page per field of
+study at an institution; Germany and Austria get pages per field that link to
+the official search, and the report is not on sale there (`SALES_PAUSED` in
+`lib/site/config.ts`). Field pages list the programmes as links to these pages,
+on the global site a few per country. They are built on the first request and
+cached for a day.
 Their sitemaps are separate files of at most 40,000 addresses,
 `/sitemaps/<site>-<country>-<n>.xml`, listed in robots.txt.
 
