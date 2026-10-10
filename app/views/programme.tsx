@@ -46,6 +46,9 @@ export function wholeSentences(text: string, limit = 420): string {
   return end > limit / 3 ? text.slice(0, end + 1) : `${text.replace(/\s+\S*$/, '')} …`
 }
 
+/** Sources whose licence covers the descriptions; others (e.g. studyprogrammes.ch) are never shown. */
+const DESCRIPTION_SOURCES = new Set(['fi-opintopolku'])
+
 const href = (k: Kit, cc: string, p: Pick<CatalogueEntry, 'id' | 'name' | 'institution' | 'focus' | 'fields'>) => k.r.programme(cc, p.fields[0], programmeSlug(p))
 
 /** Where a programme is: city and region, or the country. */
@@ -99,8 +102,8 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
   const inC = inCountry(cc, locale)
   const type = p.institutionType && p.institutionType in TYPE_STYLE ? (p.institutionType as InstType) : undefined
   const source = meta?.sources.find((s) => s.id === full.source)
-  // The institution's own words, where an openly licensed source carries them (Finland).
-  const about = full.description && source ? wholeSentences(full.description) : undefined
+  // The institution's own words, only where the source's licence covers them (Finland, CC BY 4.0).
+  const about = full.description && source && DESCRIPTION_SOURCES.has(source.id) ? wholeSentences(full.description) : undefined
 
   const inCountryShard = shard.programmes.filter((q) => q.country === cc)
   const sameInstitution = inCountryShard
