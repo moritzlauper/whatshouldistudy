@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { LEVEL_ORDER, programmeSlug } from '@/lib/catalogue.ts'
@@ -8,6 +9,7 @@ import { toCatalogueEntry } from '@/lib/programmes.ts'
 import type { CatalogueEntry, Programme } from '@/lib/programmes.ts'
 import { getCatalogue, getMeta, getStats } from '@/lib/server/data.ts'
 import { resolveProgramme } from '@/lib/server/programme.ts'
+import { officialFacts } from '@/lib/server/official-facts.ts'
 import { translateDescription } from '@/lib/server/translate.ts'
 import type { FoundProgramme } from '@/lib/server/programme.ts'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
@@ -262,6 +264,10 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
         </section>
       </div>
 
+      <Suspense fallback={null}>
+        {OFFICIAL_FACTS_COUNTRIES.has(cc) && <FromOfficialPage p={p} locale={locale} />}
+      </Suspense>
+
       <Related k={k} cc={cc} title={d.majors} items={majors} showInstitution={false} />
       <Related k={k} cc={cc} title={ct.moreAtInstitution(fname, p.institution)} items={sameInstitution} showInstitution={false} />
       <Related k={k} cc={cc} title={ct.elsewhere(fname, inC)} items={elsewhere} showInstitution more={{ label: ct.allIn(fname, inC), href: r.countryField(cc, field) }} />
@@ -285,6 +291,55 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
 
       <Cta k={k} title={ct.fieldCtaTitle(fname)} />
     </div>
+  )
+}
+
+/**
+ * Countries whose programme pages read facts from the official page. Each
+ * first view costs a Claude call, and search engines visit every page, so it
+ * starts with Switzerland's catalogue of a few thousand programmes.
+ */
+const OFFICIAL_FACTS_COUNTRIES = new Set(['CH'])
+
+/**
+ * Facts read from the programme's official page while the rest of the page is
+ * already shown. Only what the catalogue doesn't have yet.
+ */
+async function FromOfficialPage({ p, locale }: { p: CatalogueEntry; locale: Locale }) {
+  const f = await officialFacts(p.url, p.institutionUrl)
+  if (!f) return null
+  const o = catalogueText(locale).official
+  const rows: Array<[string, string]> = []
+  if (f.specialisations.length && !p.focus?.length) rows.push([o.specialisations, f.specialisations.join(' · ')])
+  if (f.freeChoice && !p.focus?.length) rows.push([o.specialisations, o.freeChoice])
+  if (f.degree && !p.degreeTitle) rows.push([o.degree, f.degree])
+  if (f.start.length) rows.push([o.start, f.start.map((x) => o[x]).join(', ')])
+  const flags = [f.partTime && o.partTime, f.internship && o.internship].filter(Boolean) as string[]
+  if (!rows.length && !flags.length) return null
+  return (
+    <section className="card mt-5 p-6">
+      <h2 className="font-display text-2xl">{o.title}</h2>
+      {rows.length > 0 && (
+        <dl className="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
+          {rows.map(([key, v]) => (
+            <div key={key} className="contents">
+              <dt className="font-bold">{key}</dt>
+              <dd className="text-muted">{v}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {flags.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {flags.map((x) => (
+            <span key={x} className="chip">
+              {x}
+            </span>
+          ))}
+        </div>
+      )}
+      <p className="mt-4 text-xs text-muted">{o.note}</p>
+    </section>
   )
 }
 
