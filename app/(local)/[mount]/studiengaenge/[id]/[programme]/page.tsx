@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SITES } from '@/lib/site/config.ts'
-import { mountInfo } from '@/lib/site/kit.ts'
+import { localMount } from '@/lib/site/local-mount.ts'
 import { catalogueMeta } from '@/lib/site/meta.ts'
 import { FIELD_ID_BY_SLUG_DE } from '@/lib/site/slugs-de.ts'
 import { ProgrammeView, programmeText } from '../../../../../views/programme.tsx'
@@ -19,7 +19,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { mount, id: slug, programme } = await params
   const field = FIELD_ID_BY_SLUG_DE[slug]
-  const { site, locale } = mountInfo(mount)
+  const { site, locale } = localMount(mount)
   const cc = SITES[site].country!
   const text = field && (await programmeText(cc, field, programme, locale))
   if (!text) return {}
@@ -30,6 +30,6 @@ export default async function StudiengangPage({ params }: Params) {
   const { mount, id: slug, programme } = await params
   const field = FIELD_ID_BY_SLUG_DE[slug]
   if (!field) notFound()
-  const info = mountInfo(mount)
+  const info = localMount(mount)
   return <ProgrammeView {...info} country={SITES[info.site].country!} field={field} slug={programme} />
 }

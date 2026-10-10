@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { BASE_PATH, SITE_URL, siteUrl } from '../site.ts'
-import { mountInfo } from './kit.ts'
+import { ALL_MOUNTS, mountInfo } from './kit.ts'
 import { dict } from './dict.ts'
 import { CH_FR_IT_URL, LOCAL_SITES, SITES, routes, siteConf } from './config.ts'
 import { blogLang } from '../blog.ts'
@@ -113,7 +113,10 @@ export function blogMeta(site: SiteId, page: BlogPage, m: Text, locale = SITES[s
 
 /** pageMeta for a country-site page, whose site and language come from its mount. */
 export async function localMeta(params: Promise<{ mount: string }>, page: Page, pick: (t: Dict) => Text): Promise<Metadata> {
-  const { site, locale } = mountInfo((await params).mount)
+  const { mount } = await params
+  // A path that is no country site: the page answers with a 404.
+  if (!ALL_MOUNTS.includes(mount)) return {}
+  const { site, locale } = mountInfo(mount)
   return pageMeta(site, page, pick(dict(locale)), locale)
 }
 

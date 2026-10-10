@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from 'next'
 import { SITE_URL } from '@/lib/site.ts'
 import { CH_FR_IT_URL, isChFrIt, siteConf } from '@/lib/site/config.ts'
 import { dict } from '@/lib/site/dict.ts'
-import { ALL_MOUNTS, mountInfo } from '@/lib/site/kit.ts'
+import { ALL_MOUNTS } from '@/lib/site/kit.ts'
+import { localMount } from '@/lib/site/local-mount.ts'
 import { ICONS, ogImage, pageUrl } from '@/lib/site/meta.ts'
 import { bricolage } from '../../ui/fonts.ts'
 import { Shell } from '../../ui/shell.tsx'
@@ -17,10 +18,10 @@ import '../../globals.css'
 export function generateStaticParams() {
   return ALL_MOUNTS.map((mount) => ({ mount }))
 }
-// No dynamicParams = false: it would hold for every page below, and the programme pages are built on request. Unknown mounts are a 404 in mountInfo.
+// No dynamicParams = false: it would hold for every page below, and the programme pages are built on request. localMount answers unknown mounts with a 404.
 
 export async function generateMetadata({ params }: { params: Promise<{ mount: string }> }): Promise<Metadata> {
-  const { site, locale } = mountInfo((await params).mount)
+  const { site, locale } = localMount((await params).mount)
   const c = siteConf(site, locale)
   const t = dict(locale)
   return {
@@ -45,7 +46,7 @@ export const viewport: Viewport = {
 }
 
 export default async function CountryLayout({ children, params }: { children: React.ReactNode; params: Promise<{ mount: string }> }) {
-  const { site, base, locale } = mountInfo((await params).mount)
+  const { site, base, locale } = localMount((await params).mount)
   return (
     <html lang={locale} data-site={site} className={bricolage.variable}>
       <body className="flex min-h-dvh flex-col">
