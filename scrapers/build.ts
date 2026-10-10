@@ -93,7 +93,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
   },
   {
     id: 'ch-hochschulen',
-    name: 'Studienangebot der Hochschulen (ETH Zürich, EPFL, Universität Zürich, ZHAW, Universität Basel)',
+    name: 'Studienangebot der Hochschulen (ETH Zürich, EPFL, Universitäten Zürich, Bern, Basel, Luzern, St. Gallen, Freiburg, Genf, Lausanne, ZHAW, FHNW, BFH, HSLU)',
     countries: ['CH'],
     url: 'https://wasstudieren.ch/so-funktionierts#data',
     licence: 'Fakten von den Websites der Hochschulen, je mit Link',

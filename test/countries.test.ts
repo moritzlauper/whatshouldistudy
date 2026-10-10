@@ -176,3 +176,27 @@ test('Switzerland: the universities’ own lists, with specialisations and Eckda
   assert.deepEqual(p?.fields, ['languages', 'literature'])
   assert.equal(p?.source, 'ch-hochschulen')
 })
+
+test('Switzerland: names, groups and fact sheets of the further universities', async () => {
+  const ch = await import('../scrapers/ch-hochschulen.ts')
+  assert.equal(ch.degreeName('bachelor', 'Bachelor of Science in Bauingenieurwesen'), 'Bachelor Bauingenieurwesen')
+  assert.equal(ch.degreeName('bachelor', 'Industrial Design BA'), 'Bachelor Industrial Design')
+  assert.equal(ch.degreeName('master', 'Masterstudio Scenography MA'), 'Master Scenography')
+  assert.equal(ch.degreeName('master', 'MSE  - Profil Electrical Engineering\uFEFF'), 'Master Engineering, Profil Electrical Engineering')
+  const eth = ch.ethMasters(JSON.stringify({ path: '/de.html', children: [{ path: '/de/studium/master/studienangebot.html', children: [{ title: 'Ingenieurwissenschaften', path: '/a.html', children: [{ title: 'Informatik', path: '/de/x/informatik.html' }, { title: 'Alt', path: '/de/x/alt.html', hidden: true }] }] }] }), 'https://ethz.ch/')
+  assert.deepEqual(eth.map((x) => [x.name, x.url]), [['Master Informatik', 'https://ethz.ch/de/x/informatik.html']])
+  assert.deepEqual(ch.ethDetail('<h2>Vertiefungen</h2><ul><li>Machine Intelligence</li><li>Theoretical Computer Science</li></ul><h2>Unterrichtssprache</h2><p>Englisch</p><h2>Umfang | Studiendauer</h2><p>120 ECTS | 2 Jahre</p>'), { focus: ['Machine Intelligence', 'Theoretical Computer Science'], languages: ['en'], ects: 120, durationYears: 2 })
+  const hslu = ch.hsluList(
+    `<a href="/de-ch/wirtschaft/studium/bachelor/business-administration/marketing">Bachelor of Science in Business Administration, Major Marketing</a>
+     <a href="/de-ch/wirtschaft/studium/bachelor/business-administration/tourismus">Bachelor of Science in Business Administration, Major Tourismus</a>
+     <a href="/de-ch/design-film-kunst/studium/bachelor/animation/fakten">Fakten zum Bachelor Animation</a>`,
+    'https://www.hslu.ch/', 'bachelor')
+  assert.deepEqual(hslu.map((x) => [x.name, x.url, x.focus]).sort(), [
+    ['Bachelor Animation', 'https://www.hslu.ch/de-ch/design-film-kunst/studium/bachelor/animation', undefined],
+    ['Bachelor Business Administration', 'https://www.hslu.ch/de-ch/wirtschaft/studium/bachelor/business-administration', ['Marketing', 'Tourismus']],
+  ])
+  assert.deepEqual(ch.bfhDetail('<h1>Informatik</h1><li><span class="infolist-title">Vertiefungen</span>IT-Security<br>Distributed Systems</li><li><span class="infolist-title">Studienform</span>Vollzeit (VZ, 6 Semester)</li><li><span class="infolist-title">Anzahl ECTS</span>180 ECTS</li><li><span class="infolist-title">Unterrichtssprache</span>Deutsch, ergänzt durch Englisch</li>'), { name: 'Informatik', focus: ['IT-Security', 'Distributed Systems'], ects: 180, durationYears: 3, languages: ['de', 'en'] })
+  assert.deepEqual(ch.unifrDetail('<h4>Studienstruktur</h4><div><p>120 ECTS-Kreditpunkte + 60 ECTS-Kreditpunkte in Nebenprogrammen, 6 Semester</p></div><h4>Studiensprachen</h4><div><p>Studium auf Deutsch und Französisch</p></div>'), { ects: 180, durationYears: 3, languages: ['de', 'fr'] })
+  const unibe = ch.unibeList('<a href="https://www.philnat.unibe.ch/studium/studienprogramme/bachelor_biologie/index_ger.html">Biologie (Mono)</a><a href="https://www.philhist.unibe.ch/studium/studienprogramme/bachelor_x/index_ger.html">Nur Minor</a>', 'https://www.unibe.ch/', 'bachelor')
+  assert.deepEqual(unibe.map((x) => x.name), ['Bachelor Biologie'])
+})

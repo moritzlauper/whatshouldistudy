@@ -227,7 +227,8 @@ const deCH: CatalogueText = {
   aboutProgramme: 'Über den Studiengang',
   aboutSource: (source, translated) => `Beschreibung: ${source}${translated ? ', maschinell übersetzt' : ''}.`,
   partOf: 'Gehört zu',
-  moreAtInstitution: (field, inst) => `Mehr ${field} an der Hochschule ${inst}`,
+  // «an der Hochschule Universität Zürich» doubles the type; a name that says it already stands alone.
+  moreAtInstitution: (field, inst) => `Mehr ${field} an der ${/universit|hochschule|école|scuola/i.test(inst) ? '' : 'Hochschule '}${inst}`,
   elsewhere: (field, inC) => `${field} an anderen Hochschulen ${inC}`,
   allIn: (field, inC) => `Alle Studiengänge in ${field} ${inC}`,
   sourceLabel: 'Quelle',
