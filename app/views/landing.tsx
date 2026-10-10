@@ -6,7 +6,7 @@ import { admissionText, SCHOOL_TYPES, TYPE_STYLE, typeLabel } from '@/lib/instit
 import { AT_INSTITUTIONS } from '@/lib/at-institutions.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { Kit } from '@/lib/site/kit.ts'
-import { isLocal } from '@/lib/site/config.ts'
+import { SALES_PAUSED, isLocal } from '@/lib/site/config.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
 import { emoji, fieldName, fmtNumber } from '@/lib/site/labels.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
@@ -174,14 +174,20 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
             </ul>
           </div>
           <div className="card relative bg-accent p-8 text-accent-ink" style={{ transform: 'rotate(0.6deg)' }}>
-            <div className="absolute -top-10 right-0 rotate-12 sm:-right-6">
-              <Burst size={132} color="var(--yellow)" />
-              <span className="absolute inset-0 flex flex-col items-center justify-center text-center font-display text-xl leading-none text-on-color">
-                <Price site={site} />
-              </span>
-            </div>
+            {!SALES_PAUSED[site] && (
+              <div className="absolute -top-10 right-0 rotate-12 sm:-right-6">
+                <Burst size={132} color="var(--yellow)" />
+                <span className="absolute inset-0 flex flex-col items-center justify-center text-center font-display text-xl leading-none text-on-color">
+                  <Price site={site} />
+                </span>
+              </div>
+            )}
             <h3 className="font-display text-3xl">{t.landing.full}</h3>
-            <p className="mt-1 text-sm font-semibold opacity-80">{t.landing.oneTime}</p>
+            {SALES_PAUSED[site] ? (
+              <p className="mt-3 rounded-xl bg-surface p-3 text-sm font-semibold text-ink">{t.salesPaused}</p>
+            ) : (
+              <p className="mt-1 text-sm font-semibold opacity-80">{t.landing.oneTime}</p>
+            )}
             <ul className="mt-6 grid gap-3">
               {t.landing.fullList.map((x) => (
                 <li key={x} className="flex gap-3">

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { withBase } from '@/lib/site.ts'
+import { SALES_PAUSED } from '@/lib/site/config.ts'
 import { ORG_REPORTS, ORG_TIERS, formatPrice, orgBilled, orgPrice } from '@/lib/pricing.ts'
 import type { Interval, OrgTier } from '@/lib/pricing.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
@@ -11,7 +12,7 @@ import { useSite } from './site-context.tsx'
 
 /** The three plans in the visitor's currency, yearly or monthly, each with its checkout button. */
 export function OrgPlans() {
-  const { site, base, locale, intl, conf } = useSite()
+  const { site, base, locale, intl, conf, t } = useSite()
   const o = orgsText(locale)
   const config = useConfig(site)
   const currency = config?.price.currency ?? conf.currency
@@ -33,6 +34,8 @@ export function OrgPlans() {
       setBusy(null)
     }
   }
+
+  if (SALES_PAUSED[site]) return <p className="card-sm max-w-3xl p-6 font-semibold">{t.salesPaused}</p>
 
   return (
     <div>

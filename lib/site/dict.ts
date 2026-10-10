@@ -13,6 +13,8 @@ import type { Locale } from './config.ts'
 export type LandingSource = { id: string; glyph: string; name: string; how: string; what: string; n: string; color: string; badge?: 'best' | 'optional' }
 
 const en = {
+  /** Shown instead of the buy buttons where SALES_PAUSED. */
+  salesPaused: 'The full report isn’t on sale here at the moment. Your result with the fields that fit you stays free.',
   nav: { how: 'How it works', fields: 'Fields', start: 'Start' },
   footer: {
     about: 'Your digital footprint plus a short questionnaire built on established interest and personality models, matched to fields of study and real programmes.',
@@ -622,6 +624,7 @@ const IT_MESSAGES: Array<[RegExp, string]> = [
 ]
 
 const deCH: Dict = {
+  salesPaused: 'Den vollen Report verkaufen wir hier im Moment nicht. Dein Resultat mit den passenden Fächern bleibt gratis.',
   nav: { how: 'So funktioniert’s', fields: 'Fächer', start: 'Los geht’s' },
   footer: {
     about: 'Dein digitaler Fussabdruck plus ein kurzer Fragebogen nach bewährten Interessen- und Persönlichkeitsmodellen. Daraus: Studienfächer und echte Studiengänge, die passen.',
@@ -1189,6 +1192,7 @@ const deCH: Dict = {
 
 /** Germany: the Swiss texts in German spelling, plus what differs in substance. */
 const DE_OVERRIDES: DeepPartial<Dict> = {
+  salesPaused: 'Den vollen Report verkaufen wir für Deutschland im Moment nicht: Die Daten der Studiensuche haben keine offene Lizenz, deshalb könnten wir dir keine deutschen Studiengänge zeigen. Dein Resultat mit den passenden Fächern bleibt gratis, und pro Fach führt ein Link direkt zur Studiensuche.',
   landing: {
     lead: (n: number) =>
       `Du lädst deinen YouTube- und Google-Verlauf hier rein, deinen Instagram- oder TikTok-Export, wenn du willst auch Reddit und GitHub. Dein Browser liest das direkt auf deinem Gerät und zählt, zu welchen Themen du immer wieder zurückkommst. Dazu ein kurzer Fragebogen zu Interessen, Schulfächern und Werten. Heraus kommen deine Fächer aus ${n} Studienfeldern und die passenden Studiengänge an Unis, Hochschulen für angewandte Wissenschaften und dualen Hochschulen. Gespeichert wird nichts.`,
@@ -1197,7 +1201,7 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
       ['Ist das ein richtiger psychologischer Test?', 'Der Fragebogen nutzt etablierte Instrumente: das RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, und den Mini-IPIP, eine geprüfte Big-Five-Skala mit 20 Fragen. Die Analyse deines Verlaufs ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
       ['Welche Hochschulen sind drin?', 'Für Deutschland zeigen wir die Fächer, die Hochschultypen und die Kosten; die einzelnen Studiengänge führt die Studiensuche der Bundesagentur für Arbeit, auf die wir pro Fach verlinken. Ihre Daten haben keine offene Lizenz, deshalb übernehmen wir sie nicht. Studiengang für Studiengang kommen die Schweiz, Frankreich, UK, die Niederlande, Norwegen, Finnland, Australien, Südkorea und die USA dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
-      ['Was bringt der volle Report?', 'Deinen Platz 1 mit allen Belegen, deine Fächer mit Link zur Studiensuche der Bundesagentur für Arbeit und die passenden Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Die einzelnen Studiengänge in Deutschland enthält der Report nicht. Einmal bezahlen, 12 Monate gültig, die Daten werden wöchentlich aktualisiert.'],
+      ['Was bringt der volle Report?', 'Deinen Platz 1 mit allen Belegen, deine Fächer mit Link zur Studiensuche der Bundesagentur für Arbeit und die passenden Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Die einzelnen Studiengänge in Deutschland enthält er nicht, deshalb verkaufen wir ihn für Deutschland im Moment nicht.'],
       ['Geht das auch ohne Verbindungen?', 'Ja. Der Fragebogen allein gibt schon ein brauchbares Ergebnis. Jede Quelle macht es genauer, und das Vertrauens-Badge beim Ergebnis zeigt, worauf es beruht.'],
     ],
     typesTitle: 'Uni, HAW oder duales Studium?',
@@ -1229,6 +1233,7 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
 
 /** Austria: the Swiss texts in Austrian spelling, plus what differs in substance. */
 const AT_OVERRIDES: DeepPartial<Dict> = {
+  salesPaused: 'Den vollen Report verkaufen wir für Österreich im Moment nicht: Die Daten von studienwahl.at haben keine offene Lizenz, deshalb könnten wir dir keine österreichischen Studien zeigen. Dein Resultat mit den passenden Fächern bleibt gratis, und pro Fach führt ein Link direkt zu studienwahl.at.',
   landing: {
     lead: (n: number) =>
       `Du lädst deinen YouTube- und Google-Verlauf hier rein, deinen Instagram- oder TikTok-Export, wenn du willst auch Reddit und GitHub. Dein Browser liest das direkt auf deinem Gerät und zählt, zu welchen Themen du immer wieder zurückkommst. Dazu ein kurzer Fragebogen zu Interessen, Schulfächern und Werten. Heraus kommen deine Fächer aus ${n} Studienfeldern und die passenden Studien an Unis, Fachhochschulen und Pädagogischen Hochschulen. Gespeichert wird nichts.`,
@@ -1237,7 +1242,7 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
       ['Ist das ein richtiger psychologischer Test?', 'Der Fragebogen nutzt etablierte Instrumente: das RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, und den Mini-IPIP, eine geprüfte Big-Five-Skala mit 20 Fragen. Die Analyse deines Verlaufs ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
       ['Welche Hochschulen sind drin?', 'Für Österreich zeigen wir die Fächer, die Hochschultypen und die Kosten; die einzelnen Studien führt studienwahl.at, das Studienportal des Wissenschaftsministeriums, auf das wir pro Fach verlinken. Seine Daten haben keine offene Lizenz, deshalb übernehmen wir sie nicht. Studiengang für Studiengang kommen die Schweiz, Frankreich, UK, die Niederlande, Norwegen, Finnland, Australien, Südkorea und die USA dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
-      ['Was bringt der volle Report?', 'Deinen Platz 1 mit allen Belegen, deine Fächer mit Link zu studienwahl.at und die passenden Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Die einzelnen Studien in Österreich enthält der Report nicht. Einmal zahlen, 12 Monate gültig, die Daten werden wöchentlich aktualisiert.'],
+      ['Was bringt der volle Report?', 'Deinen Platz 1 mit allen Belegen, deine Fächer mit Link zu studienwahl.at und die passenden Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Die einzelnen Studien in Österreich enthält er nicht, deshalb verkaufen wir ihn für Österreich im Moment nicht.'],
       ['Geht das auch ohne Verbindungen?', 'Ja. Der Fragebogen allein gibt schon ein brauchbares Ergebnis. Jede Quelle macht es genauer, und das Vertrauens-Badge beim Ergebnis zeigt, worauf es beruht.'],
     ],
     typesTitle: 'Uni, FH oder PH?',

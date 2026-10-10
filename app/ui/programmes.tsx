@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { studentId, unlockToken, update, useAppState } from '@/lib/store.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
-import { isLocal } from '@/lib/site/config.ts'
+import { SALES_PAUSED, isLocal } from '@/lib/site/config.ts'
 import type { FieldMatch, Preferences, Results } from '@/lib/engine/types.ts'
 import { normalize } from '@/lib/engine/text.ts'
 import { topicWeights } from '@/lib/engine/topics.ts'
@@ -189,12 +189,14 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
         )}
       </div>
       <div className="card relative h-fit bg-accent p-7 text-accent-ink lg:sticky lg:top-24">
-        <div className="absolute -top-7 right-0 rotate-12 sm:-right-4">
-          <Burst size={108} color="var(--yellow)" />
-          <span className="absolute inset-0 flex flex-col items-center justify-center text-center font-display text-base leading-none text-on-color">
-            <Price site={site} />
-          </span>
-        </div>
+        {!SALES_PAUSED[site] && (
+          <div className="absolute -top-7 right-0 rotate-12 sm:-right-4">
+            <Burst size={108} color="var(--yellow)" />
+            <span className="absolute inset-0 flex flex-col items-center justify-center text-center font-display text-base leading-none text-on-color">
+              <Price site={site} />
+            </span>
+          </div>
+        )}
         <h3 className="pr-16 font-display text-3xl">{t.programmes.boxTitle}</h3>
         <p className="mt-2 text-sm opacity-85">{t.programmes.boxSub}</p>
         <ul className="mt-5 grid gap-2 text-sm font-medium">
@@ -211,7 +213,9 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
           </>
         )}
         {orgError && <p className="mt-6 rounded-xl bg-surface p-2 text-sm font-semibold text-ink">{orgError}</p>}
-        {config?.payments === 'off' ? (
+        {SALES_PAUSED[site] && !org ? (
+          <p className="mt-6 rounded-xl bg-surface p-3 text-sm font-semibold text-ink">{t.salesPaused}</p>
+        ) : config?.payments === 'off' ? (
           <p className="mt-6 text-sm opacity-85">{t.programmes.paymentsOff}</p>
         ) : org && !orgError ? null : (
           <button type="button" disabled={busy || !config} onClick={checkout} className="btn btn-lime btn-lg mt-6 w-full">
@@ -219,8 +223,8 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
           </button>
         )}
         {error && <p className="mt-3 rounded-xl bg-surface p-2 text-sm font-semibold text-bad">{error}</p>}
-        {!org && config?.payments === 'stripe' && <p className="mt-3 text-center text-sm font-semibold">{t.programmes.boxNote}</p>}
-        {config?.payments !== 'off' && (
+        {!org && !SALES_PAUSED[site] && config?.payments === 'stripe' && <p className="mt-3 text-center text-sm font-semibold">{t.programmes.boxNote}</p>}
+        {config?.payments !== 'off' && !(SALES_PAUSED[site] && !org) && (
           <p className="mt-2 text-center text-xs opacity-80">
             {t.programmes.minors}{' '}
             <Link href={r.terms} className="underline">

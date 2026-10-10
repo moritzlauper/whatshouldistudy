@@ -105,6 +105,14 @@ export const SITES: Record<SiteId, SiteConf> = {
 }
 
 export const LOCAL_SITES: LocalSiteId[] = ['ch', 'de', 'at']
+
+/**
+ * Sites where the report and the school plans are not on sale: Germany and
+ * Austria have no open programme data (see LINK_ONLY), so the report could not
+ * list programmes there. The paywall stays as it is: nothing is unlocked, the
+ * buy buttons are only hidden. Earlier purchases and school links keep working.
+ */
+export const SALES_PAUSED: Partial<Record<SiteId, true>> = { de: true, at: true }
 export const isLocal = (site: SiteId): site is LocalSiteId => site !== 'global'
 export const isGerman = (locale: Locale) => locale.startsWith('de-')
 
