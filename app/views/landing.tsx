@@ -18,6 +18,9 @@ import { JsonLd, homeLd } from '../ui/json-ld.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 import { isConfigured } from '@/lib/sources/oauth.ts'
 
+/** A spread of fields for the browse card, so it does not show six kinds of computing. */
+const SAMPLE_FIELDS = ['psychology', 'medicine', 'computer-science', 'law', 'architecture', 'biology']
+
 export async function Landing({ site, base, locale: selectedLocale }: SiteProps) {
   const k = kit(site, base, selectedLocale)
   const { t, r, locale, intl } = k
@@ -90,6 +93,39 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
               <p className="mt-3 leading-relaxed text-muted">{text}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Browse without the analysis */}
+      <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+        <div className="max-w-3xl">
+          <h2 className="font-display text-4xl sm:text-5xl">{t.landing.explore.title}</h2>
+          <p className="mt-4 text-lg text-muted">{t.landing.explore.sub}</p>
+        </div>
+        <div className={`mt-10 grid gap-5 ${programmes > 0 ? 'md:grid-cols-2' : ''}`}>
+          <Link href={r.fields} className="card card-pop on-color group flex flex-col p-7 hover:-translate-y-0.5" style={{ background: 'var(--lime)' }}>
+            <span className="font-display text-3xl">{t.landing.explore.fieldsTitle}</span>
+            <span className="mt-3 flex-1 leading-relaxed text-muted">{t.landing.explore.fieldsText(FIELDS.length)}</span>
+            <span className="mt-5 flex flex-wrap gap-2" aria-hidden="true">
+              {SAMPLE_FIELDS.map((id) => (
+                <span key={id} className="rounded-full border-2 border-line bg-surface px-3 py-1 text-sm font-semibold text-ink">
+                  {emoji(id)} {fieldName(id, locale)}
+                </span>
+              ))}
+            </span>
+            <span className="mt-6 font-semibold">
+              {t.landing.explore.fieldsCta} <span aria-hidden="true">→</span>
+            </span>
+          </Link>
+          {programmes > 0 && (
+            <Link href={r.programmes} className="card card-pop on-color group flex flex-col p-7 hover:-translate-y-0.5" style={{ background: 'var(--sky)' }}>
+              <span className="font-display text-3xl">{t.landing.explore.programmesTitle}</span>
+              <span className="mt-3 flex-1 leading-relaxed text-muted">{t.landing.explore.programmesText(fmtNumber(programmes, intl), fmtNumber(institutions, intl))}</span>
+              <span className="mt-6 font-semibold">
+                {t.landing.explore.programmesCta} <span aria-hidden="true">→</span>
+              </span>
+            </Link>
+          )}
         </div>
       </section>
 

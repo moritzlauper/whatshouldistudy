@@ -48,6 +48,16 @@ const en = {
     ] as Array<[string, string]>,
     sourcesTitle: 'Plug in what you like. Skip the rest.',
     sourcesSub: 'Every source is optional and read-only. The more you add, the sharper it gets.',
+    explore: {
+      title: 'Rather browse on your own?',
+      sub: 'No history, no questionnaire: look through the fields or go straight to the programmes.',
+      fieldsTitle: 'Explore fields',
+      fieldsText: (n: number) => `${n} fields, each with its own page: who it suits, which school subjects help and where it leads.`,
+      fieldsCta: 'See all fields',
+      programmesTitle: 'Browse programmes',
+      programmesText: (p: string, i: string) => `${p} programmes at ${i} institutions, sorted by field.`,
+      programmesCta: 'See programmes',
+    },
     sources: [
       { id: 'takeout', glyph: '▶', name: 'YouTube & Google', how: 'One request at Google, one file', what: 'Every video you watched, often years of it, plus your Google searches, the pages you visited, Maps and apps. The richest source by far.', n: '5,000–100,000 signals', color: 'pink', badge: 'best' },
       { id: 'instagram', glyph: '📸', name: 'Instagram', how: 'Request it in the app, drop the file', what: 'The topics Instagram files you under, the accounts you follow, what you like, save and search.', n: '300–20,000 signals', color: 'violet', badge: 'best' },
@@ -659,6 +669,16 @@ const deCH: Dict = {
     ],
     sourcesTitle: 'Verbinde, was du willst. Den Rest lässt du weg.',
     sourcesSub: 'Jede Quelle ist freiwillig und nur lesend. Je mehr, desto genauer.',
+    explore: {
+      title: 'Lieber selbst stöbern?',
+      sub: 'Ganz ohne Verlauf und Fragebogen: Schau dir die Fächer an oder geh direkt zu den Studiengängen.',
+      fieldsTitle: 'Fächer entdecken',
+      fieldsText: (n: number) => `${n} Studienfelder, jedes mit eigener Seite: für wen es passt, welche Schulfächer helfen und wohin es führt.`,
+      fieldsCta: 'Zu den Fächern',
+      programmesTitle: 'Studiengänge durchsuchen',
+      programmesText: (p: string, i: string) => `${p} Studiengänge an ${i} Hochschulen, nach Fach sortiert.`,
+      programmesCta: 'Zu den Studiengängen',
+    },
     sources: [
       { id: 'takeout', glyph: '▶', name: 'YouTube & Google', how: 'Einmal bei Google anfordern, eine Datei', what: 'Jedes Video, das du geschaut hast, oft über Jahre, dazu deine Google-Suchen, besuchte Seiten, Maps und Apps. Mit Abstand die beste Quelle.', n: '5’000–100’000 Signale', color: 'pink', badge: 'best' },
       { id: 'instagram', glyph: '📸', name: 'Instagram', how: 'In der App anfordern, Datei reinziehen', what: 'Die Themen, unter denen dich Instagram führt, wem du folgst, was du likest, speicherst und suchst.', n: '300–20’000 Signale', color: 'violet', badge: 'best' },
@@ -1303,6 +1323,7 @@ const frCH = mergeDeep(en, {
     totals: (p: string, i: string) => `${p} formations dans ${i} hautes écoles, actualisées chaque semaine.`,
     cols: [['Ton historique montre', 'les sujets auxquels tu consacres réellement ton attention, au fil des mois.'], ['Les questionnaires demandent', 'ce que tu penses aimer. La réponse dépend aussi de la formulation et de ton humeur.'], ['Nous combinons les deux', 'car ton historique ne connaît ni tes notes ni tes priorités. Chaque méthode complète l’autre.']] as Array<[string, string]>,
     sourcesTitle: 'Connecte tes sources. Le reste est facultatif.', sourcesSub: 'Chaque source est facultative et consultée en lecture seule.',
+    explore: { title: 'Envie d’explorer par toi-même ?', sub: 'Sans historique ni questionnaire : parcours les domaines ou va directement aux formations.', fieldsTitle: 'Explorer les domaines', fieldsText: (n: number) => `${n} domaines d’études, chacun avec sa page : pour qui il est fait, quelles branches scolaires aident et où il mène.`, fieldsCta: 'Voir les domaines', programmesTitle: 'Parcourir les formations', programmesText: (p: string, i: string) => `${p} formations dans ${i} hautes écoles, classées par domaine.`, programmesCta: 'Voir les formations' },
     sources: [
       { id: 'takeout', glyph: '▶', name: 'YouTube et Google', how: 'Une demande chez Google, un fichier', what: 'Chaque vidéo regardée, souvent sur des années, plus tes recherches Google, les pages visitées, Maps et les applications. De loin la source la plus riche.', n: '5 000–100 000 signaux', color: 'pink', badge: 'best' },
       { id: 'instagram', glyph: '📸', name: 'Instagram', how: 'Demande-le dans l’app, importe le fichier', what: 'Les thèmes sous lesquels Instagram te classe, les comptes suivis, ce que tu aimes, enregistres et recherches.', n: '300–20 000 signaux', color: 'violet', badge: 'best' },
@@ -1496,6 +1517,7 @@ const itCH = mergeDeep(en, {
     totals: (p: string, i: string) => `${p} corsi in ${i} scuole universitarie, aggiornati ogni settimana.`,
     cols: [['La tua cronologia mostra', 'a quali temi dedichi davvero attenzione, mese dopo mese.'], ['I questionari chiedono', 'cosa pensi ti piaccia. La risposta dipende anche dalla formulazione e dalla giornata.'], ['Combiniamo entrambi', 'perché la cronologia non conosce voti e priorità. Ogni metodo completa l’altro.']] as Array<[string, string]>,
     sourcesSub: 'Ogni fonte è facoltativa e viene letta soltanto.', privacyTitle: 'I tuoi dati restano tuoi.',
+    explore: { title: 'Preferisci esplorare da solo?', sub: 'Senza cronologia né questionario: sfoglia le aree di studio o vai direttamente ai corsi.', fieldsTitle: 'Esplora le aree', fieldsText: (n: number) => `${n} aree di studio, ognuna con la sua pagina: per chi è adatta, quali materie scolastiche aiutano e dove porta.`, fieldsCta: 'Vedi le aree', programmesTitle: 'Sfoglia i corsi', programmesText: (p: string, i: string) => `${p} corsi in ${i} scuole universitarie, ordinati per area.`, programmesCta: 'Vedi i corsi' },
     sources: [
       { id: 'takeout', glyph: '▶', name: 'YouTube e Google', how: 'Una richiesta a Google, un file', what: 'Ogni video che hai guardato, spesso per anni, più le tue ricerche Google, le pagine visitate, Maps e le app. Di gran lunga la fonte più ricca.', n: '5.000–100.000 segnali', color: 'pink', badge: 'best' },
       { id: 'instagram', glyph: '📸', name: 'Instagram', how: 'Richiedilo nell’app, importa il file', what: 'I temi a cui Instagram ti associa, chi segui, cosa ti piace, salvi e cerchi.', n: '300–20.000 segnali', color: 'violet', badge: 'best' },
