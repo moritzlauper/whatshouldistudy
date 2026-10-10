@@ -36,7 +36,7 @@ const titleCase = (s: string) => (s === s.toUpperCase() ? s.toLowerCase().replac
  * Programmes from the registry's rows. A programme offered full-time and
  * part-time at the same place is one row with mode «both»; at two places, two.
  */
-export function parseDuo(rows: Array<Record<string, string>>, fetchedAt: string, today = fetchedAt.slice(0, 10)): { programmes: Programme[]; unclassified: number } {
+export function parseDuo(rows: Array<Record<string, string>>, fetchedAt: string, today = fetchedAt.slice(0, 10)): { programmes: Programme[]; unclassified: number; examples: string[] } {
   const groups = new Map<string, Array<Record<string, string>>>()
   for (const r of rows) {
     // Rows without a provider describe the programme only, not where it is offered.
@@ -49,6 +49,8 @@ export function parseDuo(rows: Array<Record<string, string>>, fetchedAt: string,
   }
   const programmes: Programme[] = []
   let unclassified = 0
+  // A sample of what found no field, for the run log.
+  const examples: string[] = []
   for (const [key, rs] of groups) {
     const r = rs[0]
     const dutch = cleanTitle(r.NAAM_LANG)
@@ -58,6 +60,7 @@ export function parseDuo(rows: Array<Record<string, string>>, fetchedAt: string,
     const { fields, confidence } = fieldsForTitle(`${english} ${dutch}`)
     if (!fields.length) {
       unclassified++
+      if (examples.length < 60) examples.push(`${english} ${dutch}`)
       continue
     }
     const level = nlLevel(r.GRAAD)!
@@ -94,7 +97,7 @@ export function parseDuo(rows: Array<Record<string, string>>, fetchedAt: string,
       updated: fetchedAt,
     })
   }
-  return { programmes, unclassified }
+  return { programmes, unclassified, examples }
 }
 
 async function main() {
@@ -108,10 +111,11 @@ async function main() {
   }
   const rows = csvObjects(await (await fetchRetry(url)).text())
   log(`DUO: ${rows.length} rows`)
-  const { programmes, unclassified } = parseDuo(rows, fetchedAt)
+  const { programmes, unclassified, examples } = parseDuo(rows, fetchedAt)
   const byLevel: Record<string, number> = {}
   for (const p of programmes) byLevel[p.level] = (byLevel[p.level] ?? 0) + 1
   log(`DUO: ${programmes.length} programmes ${JSON.stringify(byLevel)}, ${unclassified} without a field`)
+  if (examples.length) log(`  without a field, e.g.: ${examples.join(' · ')}`)
   if (programmes.length < 1500) throw new Error(`only ${programmes.length} programmes, the file may have changed`)
   const out: ScrapeOutput = { source: 'nl-duo', fetchedAt, programmes }
   writeJson(join(OUT, 'nl-duo.json'), out)

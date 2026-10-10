@@ -60,11 +60,13 @@ const typeOf = (inst: string) => (/universitet/i.test(inst) ? 'uni' : /kunst|mus
 const termCode = (d: Date) => d.getUTCFullYear() * 10 + (d.getUTCMonth() >= 6 ? 3 : 1)
 
 /** Programmes from table 347; `isced` maps a NUS code to its ISCED-F 2013 code. */
-export function parseDbh(rows: DbhRow[], isced: Map<string, string>, fetchedAt: string): { programmes: Programme[]; unclassified: number } {
+export function parseDbh(rows: DbhRow[], isced: Map<string, string>, fetchedAt: string): { programmes: Programme[]; unclassified: number; examples: string[] } {
   const now = termCode(new Date(fetchedAt))
   const seen = new Set<string>()
   const programmes: Programme[] = []
   let unclassified = 0
+  // A sample of what found no field, for the run log.
+  const examples: string[] = []
   for (const r of rows) {
     const s = (k: string) => (r[k] ?? '').trim()
     const level = noLevel(s('Nivåkode'))
@@ -83,6 +85,7 @@ export function parseDbh(rows: DbhRow[], isced: Map<string, string>, fetchedAt: 
     const fields = byTitle.fields.length ? byTitle.fields : candidates.slice(0, 2)
     if (!fields.length) {
       unclassified++
+      if (examples.length < 60) examples.push(name)
       continue
     }
     const confidence = candidates.includes(fields[0]) ? (byTitle.fields.length ? 1 : 0.8) : byTitle.confidence
@@ -108,7 +111,7 @@ export function parseDbh(rows: DbhRow[], isced: Map<string, string>, fetchedAt: 
       updated: fetchedAt,
     })
   }
-  return { programmes, unclassified }
+  return { programmes, unclassified, examples }
 }
 
 async function main() {
@@ -127,10 +130,11 @@ async function main() {
   const corr = await getJson<{ correspondenceItems: Array<{ sourceCode: string; targetCode: string }> }>(`${KLASS}${fetchedAt.slice(0, 10)}`)
   const isced = new Map(corr.correspondenceItems.map((c) => [c.sourceCode, c.targetCode]))
   log(`KLASS: ${isced.size} NUS codes mapped to ISCED-F`)
-  const { programmes, unclassified } = parseDbh(rows, isced, fetchedAt)
+  const { programmes, unclassified, examples } = parseDbh(rows, isced, fetchedAt)
   const byLevel: Record<string, number> = {}
   for (const p of programmes) byLevel[p.level] = (byLevel[p.level] ?? 0) + 1
   log(`DBH: ${programmes.length} programmes ${JSON.stringify(byLevel)}, ${unclassified} without a field`)
+  if (examples.length) log(`  without a field, e.g.: ${examples.join(' · ')}`)
   if (programmes.length < 800) throw new Error(`only ${programmes.length} programmes, the table may have changed`)
   const out: ScrapeOutput = { source: 'no-dbh', fetchedAt, programmes }
   writeJson(join(OUT, 'no-dbh.json'), out)
