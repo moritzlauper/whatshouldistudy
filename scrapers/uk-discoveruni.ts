@@ -121,6 +121,8 @@ export function parseCourses(courses: UkCourse[], fetchedAt: string, sites = new
         note: 'Home fee cap (England, 2025/26). International fees are set by each university.',
       },
       durationYears: years || level.years,
+      // Joint and combined honours: each subject the course is made of.
+      focus: (c.subjects?.length ?? 0) > 1 ? c.subjects!.map((x) => x.en) : undefined,
       mode: /only available through distance/i.test(c.distanceLearning?.en ?? '') ? 'distance' : modeLabel === 'Part-time' ? 'part-time' : 'full-time',
       url: `https://discoveruni.gov.uk/course-details/${c.courseId.split('/').map(encodeURIComponent).join('/')}/`,
       institutionUrl: sites.get(prn),

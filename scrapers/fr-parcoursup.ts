@@ -153,6 +153,8 @@ export function parseRecords(records: Rec[], fetchedAt: string): { programmes: P
       languages: ['fr'],
       tuition: tuitionFor(level.level, name, isPublic),
       durationYears: level.years,
+      // «Licence - Licence générale», «BTS - Production»: the kind of degree in Parcoursup's words.
+      degreeTitle: fili || undefined,
       mode: /apprentissage/i.test(`${name} ${pick(r, ['app']) ?? ''}`) ? 'both' : 'full-time',
       url: pick(r, ['fiche', 'lien_form_psup', 'lien_formation']),
       institutionUrl: pick(r, ['etab_url', 'url_etab']),

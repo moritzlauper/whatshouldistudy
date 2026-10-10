@@ -39,6 +39,13 @@ async function programmeOr404(k: Kit, cc: string, field: string, slug: string): 
   return res.found
 }
 
+/** A stored description cut at its length limit ends at the last full sentence. */
+export function wholeSentences(text: string, limit = 420): string {
+  if (text.length < limit) return text
+  const end = Math.max(text.lastIndexOf('. '), text.lastIndexOf('! '), text.lastIndexOf('? '))
+  return end > limit / 3 ? text.slice(0, end + 1) : `${text.replace(/\s+\S*$/, '')} …`
+}
+
 const href = (k: Kit, cc: string, p: Pick<CatalogueEntry, 'id' | 'name' | 'institution' | 'focus' | 'fields'>) => k.r.programme(cc, p.fields[0], programmeSlug(p))
 
 /** Where a programme is: city and region, or the country. */
@@ -92,6 +99,8 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
   const inC = inCountry(cc, locale)
   const type = p.institutionType && p.institutionType in TYPE_STYLE ? (p.institutionType as InstType) : undefined
   const source = meta?.sources.find((s) => s.id === full.source)
+  // The institution's own words, where an openly licensed source carries them (Finland).
+  const about = full.description && source ? wholeSentences(full.description) : undefined
 
   const inCountryShard = shard.programmes.filter((q) => q.country === cc)
   const sameInstitution = inCountryShard
@@ -205,6 +214,14 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
           )}
         </div>
       </div>
+
+      {about && (
+        <section className="mt-10 max-w-3xl">
+          <h2 className="font-display text-2xl">{ct.aboutProgramme}</h2>
+          <p className="mt-2 leading-relaxed">{about}</p>
+          <p className="mt-1 text-xs text-muted">{ct.aboutSource(`${source!.name} (${source!.licence})`)}</p>
+        </section>
+      )}
 
       <div className="mt-10 grid gap-5 md:grid-cols-[1.4fr_1fr]">
         <section className="card p-6">
