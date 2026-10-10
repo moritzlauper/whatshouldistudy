@@ -35,6 +35,36 @@ export function countryBySlug(slug: string): string | null {
   return CATALOGUE_COUNTRIES.find((cc) => countrySlug(cc) === slug) ?? null
 }
 
+/**
+ * The last part of a programme's address: its name, institution and id
+ * (computer-science-eth-zurich-q9sc9jkfs1). Only the id finds the programme; a
+ * page asked for under another slug redirects to this one. ASCII only, so a
+ * Korean title gives way to its English focus or field.
+ */
+export function programmeSlug(p: Pick<CatalogueEntry, 'id' | 'name' | 'institution' | 'focus'>): string {
+  const words = (s?: string) =>
+    (s ?? '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/ß/g, 'ss')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+  const name = words(p.name) || words(p.focus?.[0])
+  let text = [name, words(p.institution)].filter(Boolean).join('-')
+  if (text.length > 80) text = text.slice(0, 80).replace(/-[^-]*$/, '')
+  return text ? `${text}-${p.id}` : p.id
+}
+
+/** The id at the end of a programme slug. */
+export function idFromSlug(slug: string): string | null {
+  const id = slug.split('-').pop() ?? ''
+  return /^[a-z0-9]{6,16}$/.test(id) ? id : null
+}
+
+/** Countries whose programmes get a page each: an open licence, see LINK_ONLY. */
+export const hasProgrammePages = (cc: string) => CATALOGUE_COUNTRIES.includes(cc) && !LINK_ONLY[cc]
+
 /** The order levels are listed in. */
 export const LEVEL_ORDER: Level[] = ['bachelor', 'integrated', 'professional', 'master', 'short', 'doctorate']
 

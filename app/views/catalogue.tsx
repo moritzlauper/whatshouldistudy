@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { CATALOGUE_COUNTRIES, LEVEL_ORDER, LINK_ONLY } from '@/lib/catalogue.ts'
+import { CATALOGUE_COUNTRIES, LEVEL_ORDER, LINK_ONLY, hasProgrammePages, programmeSlug } from '@/lib/catalogue.ts'
 import { COUNTRIES, flag } from '@/lib/countries.ts'
 import { ADMISSION, TYPE_STYLE, admissionText, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
@@ -51,11 +51,11 @@ function list(items: string[], intl: string): string {
   }
 }
 
-function fmtDate(iso: string | undefined, intl: string): string {
+export function fmtDate(iso: string | undefined, intl: string): string {
   return iso ? new Date(iso).toLocaleDateString(intl, { day: 'numeric', month: 'long', year: 'numeric' }) : ''
 }
 
-function crumbs(k: Kit, cc?: string, field?: { id: string; name: string }): Array<[string, string]> {
+export function crumbs(k: Kit, cc?: string, field?: { id: string; name: string }): Array<[string, string]> {
   const { site, locale, conf } = k
   const ct = catalogueText(locale)
   const out: Array<[string, string]> = [[conf.name, pageUrl(site, (r) => r.home, locale)]]
@@ -65,7 +65,7 @@ function crumbs(k: Kit, cc?: string, field?: { id: string; name: string }): Arra
   return out
 }
 
-function Cta({ k, title }: { k: Kit; title: string }) {
+export function Cta({ k, title }: { k: Kit; title: string }) {
   const ct = catalogueText(k.locale)
   return (
     <div className="card relative mt-14 overflow-hidden bg-accent p-8 text-accent-ink sm:p-10">
@@ -439,7 +439,7 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
                     </h3>
                     <ul className="mt-2">
                       {ps.slice(0, limit).map((p) => (
-                        <CatalogueRow key={p.id} p={p} country={cc} locale={locale} showLevel={false} fieldHref={(x) => r.countryField(cc, x)} />
+                        <CatalogueRow key={p.id} p={p} country={cc} locale={locale} showLevel={false} fieldHref={(x) => r.countryField(cc, x)} href={hasProgrammePages(cc) ? r.programme(cc, p.fields[0], programmeSlug(p)) : undefined} />
                       ))}
                     </ul>
                     {ps.length > limit && <MoreAt label={ct.moreAt(fmtNumber(ps.length - limit, intl))} q={inst} level={l.level} />}

@@ -139,6 +139,8 @@ export interface Routes {
   programmes: string
   country: (cc: string) => string
   countryField: (cc: string, id: string) => string
+  /** One programme, under its main field; `slug` from programmeSlug. */
+  programme: (cc: string, field: string, slug: string) => string
   how: string
   /** The free lesson for teachers and the link for school websites. */
   teachers: string
@@ -172,6 +174,7 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
       programmes: `${root}/studiengaenge`,
       country: () => `${root}/studiengaenge`,
       countryField: (_cc, id) => `${root}/studiengaenge/${fieldSlugDe(id)}`,
+      programme: (_cc, field, slug) => `${root}/studiengaenge/${fieldSlugDe(field)}/${slug}`,
       how: `${root}/so-funktionierts`,
       teachers: `${root}/lehrpersonen`,
       blog: `${root}/blog`,
@@ -195,6 +198,7 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
     programmes: '/programmes',
     country: (cc) => `/programmes/${countrySlug(cc)}`,
     countryField: (cc, id) => `/programmes/${countrySlug(cc)}/${id}`,
+    programme: (cc, field, slug) => `/programmes/${countrySlug(cc)}/${field}/${slug}`,
     how: '/how-it-works',
     teachers: '/teachers',
     blog: '/blog',

@@ -16,27 +16,8 @@ function languageName(code: string, intl: string): string {
 
 const lang = (locale: Locale) => (locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it')
 
-/**
- * One programme of the free catalogue: its exact title and the key facts, and
- * everything else we know about it on a click. Rendered on the server for the
- * field pages and in the browser for search results, so it uses no hooks.
- */
-export function CatalogueRow({
-  p,
-  country,
-  locale,
-  fieldHref,
-  showInstitution = false,
-  showLevel = true,
-}: {
-  p: CatalogueEntry
-  country: string
-  locale: Locale
-  /** Link to a field's page in this country. */
-  fieldHref?: (id: string) => string
-  showInstitution?: boolean
-  showLevel?: boolean
-}) {
+/** Every fact the free catalogue has on a programme, as label and value; empty ones are left out. */
+export function catalogueFacts(p: CatalogueEntry, country: string, locale: Locale, fieldHref?: (id: string) => string): Array<[string, React.ReactNode]> {
   const ct = catalogueText(locale)
   const d = ct.detail
   const years = p.durationYears ? ct.years(new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(p.durationYears)) : null
@@ -46,7 +27,6 @@ export function CatalogueRow({
   const admission = (locale.startsWith('de-') ? p.admission : undefined) ?? admissionText(country, type, lang(locale))
   const otherLanguages = p.otherLanguages?.length ? p.otherLanguages.map((l) => (/^[a-z]{2}$/.test(l) ? languageName(l, locale) : l)).join(', ') : null
   const ects = p.ects ? `${new Intl.NumberFormat(locale).format(p.ects)} ECTS` : null
-  const summary = [showLevel ? levelLabel(p.level, locale) : null, showInstitution ? p.institution : null, p.city, languages, years].filter(Boolean)
   const facts: Array<[string, React.ReactNode]> = [
     [d.degree, levelLabel(p.level, locale)],
     [d.title, p.degreeTitle],
@@ -79,6 +59,40 @@ export function CatalogueRow({
       )),
     ],
   ]
+  return facts.filter(([, v]) => v !== null && v !== undefined && v !== '')
+}
+
+/**
+ * One programme of the free catalogue: its exact title and the key facts, and
+ * everything else we know about it on a click, with a link to its own page.
+ * Rendered on the server for the field pages and in the browser for search
+ * results, so it uses no hooks.
+ */
+export function CatalogueRow({
+  p,
+  country,
+  locale,
+  fieldHref,
+  href,
+  showInstitution = false,
+  showLevel = true,
+}: {
+  p: CatalogueEntry
+  country: string
+  locale: Locale
+  /** Link to a field's page in this country. */
+  fieldHref?: (id: string) => string
+  /** The programme's own page, where the country has them. */
+  href?: string
+  showInstitution?: boolean
+  showLevel?: boolean
+}) {
+  const ct = catalogueText(locale)
+  const d = ct.detail
+  const years = p.durationYears ? ct.years(new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(p.durationYears)) : null
+  const languages = p.languages?.length ? p.languages.map((l) => languageName(l, locale)).join(', ') : null
+  const summary = [showLevel ? levelLabel(p.level, locale) : null, showInstitution ? p.institution : null, p.city, languages, years].filter(Boolean)
+  const facts = catalogueFacts(p, country, locale, fieldHref)
   return (
     <li className="border-b border-line/15 last:border-0">
       <details className="group">
@@ -93,16 +107,19 @@ export function CatalogueRow({
         </summary>
         <div className="mb-4 rounded-2xl border-2 border-line bg-surface-2 p-4 text-sm">
           <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
-            {facts
-              .filter(([, v]) => v !== null && v !== undefined && v !== '')
-              .map(([k, v]) => (
-                <div key={k} className="contents">
-                  <dt className="font-bold">{k}</dt>
-                  <dd className="text-muted">{v}</dd>
-                </div>
-              ))}
+            {facts.map(([k, v]) => (
+              <div key={k} className="contents">
+                <dt className="font-bold">{k}</dt>
+                <dd className="text-muted">{v}</dd>
+              </div>
+            ))}
           </dl>
           <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
+            {href && (
+              <Link href={href} className="font-bold text-accent hover:underline">
+                {d.page} →
+              </Link>
+            )}
             {p.url && (
               <a href={p.url} target="_blank" rel="noopener" className="font-bold text-accent hover:underline">
                 {d.official} ↗

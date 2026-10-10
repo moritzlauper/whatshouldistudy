@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { LOCAL_SITES, SITES, isLocal, routes, siteConf } from './config.ts'
 import type { Locale, LocalSiteId, SiteId } from './config.ts'
 import { dict } from './dict.ts'
@@ -22,7 +23,8 @@ export function mountInfo(mount: string): { site: LocalSiteId; base: string; loc
     if (mount === SITES[site].mount) return { site, base: `/${mount}`, locale: SITES[site].locale }
     if (mount === SITES[site].domainMount) return { site, base: '', locale: SITES[site].locale }
   }
-  throw new Error(`Unknown mount ${mount}`)
+  // Pages that take addresses not built in advance (the programme pages) meet unknown mounts too.
+  notFound()
 }
 
 /**

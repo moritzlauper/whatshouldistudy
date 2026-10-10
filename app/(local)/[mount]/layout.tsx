@@ -17,7 +17,7 @@ import '../../globals.css'
 export function generateStaticParams() {
   return ALL_MOUNTS.map((mount) => ({ mount }))
 }
-export const dynamicParams = false
+// No dynamicParams = false: it would hold for every page below, and the programme pages are built on request. Unknown mounts are a 404 in mountInfo.
 
 export async function generateMetadata({ params }: { params: Promise<{ mount: string }> }): Promise<Metadata> {
   const { site, locale } = mountInfo((await params).mount)

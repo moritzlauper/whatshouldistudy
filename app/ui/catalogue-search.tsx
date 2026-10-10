@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { hasProgrammePages, programmeSlug } from '@/lib/catalogue.ts'
 import type { CatalogueResult } from '@/lib/catalogue.ts'
 import type { Level } from '@/lib/programmes.ts'
 import { withBase } from '@/lib/site.ts'
@@ -100,7 +101,7 @@ export function CatalogueSearch({ country, field, levels, title }: { country: st
               <p className="text-sm font-bold text-muted">{data.total ? ct.search.results(fmtNumber(data.total, intl)) : ct.search.none}</p>
               <ul className="mt-2">
                 {data.items.map((p) => (
-                  <CatalogueRow key={p.id} p={p} country={country} locale={locale} showInstitution fieldHref={(f) => r.countryField(country, f)} />
+                  <CatalogueRow key={p.id} p={p} country={country} locale={locale} showInstitution fieldHref={(f) => r.countryField(country, f)} href={hasProgrammePages(country) ? r.programme(country, p.fields[0], programmeSlug(p)) : undefined} />
                 ))}
               </ul>
               {data.items.length < data.total && (

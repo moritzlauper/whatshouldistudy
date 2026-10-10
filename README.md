@@ -39,6 +39,17 @@ Countries appear once the data has programmes for them, the UK as soon as
 Discover Uni is in. Field pages with fewer than three programmes are not
 indexed.
 
+Every programme also has a page of its own under its main field,
+`/programmes/<country>/<field>/<name-institution-id>` and
+`/studiengaenge/<fach>/<slug>` (about 177,000 addresses). Only the id at the
+end finds the programme; another field or an old slug redirects (308) to the
+programme's address. The pages show the catalogue facts, the programmes of the
+same field at the institution and nearby, and the source with its licence. They
+exist only for countries whose source has an open licence: not for Germany and
+Austria (`LINK_ONLY`). They are built on the first request and cached for a day.
+Their sitemaps are separate files of at most 40,000 addresses,
+`/sitemaps/<site>-<country>-<n>.xml`, listed in robots.txt.
+
 **Open source, history stays on the device.** The code is public under the MIT licence
 (`LICENSE`), and the site says so on the landing page, the start page, in the
 footer and in the privacy policy, with a link here
