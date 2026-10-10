@@ -65,7 +65,9 @@ test('a programme page finds its programme by id and moves to its own address', 
     // Under a second field or an old slug: the programme's own address.
     assert.deepEqual((await resolveProgramme('GB', p.fields[1], slug)).redirect, { field: p.fields[0], slug });
     assert.deepEqual((await resolveProgramme('GB', p.fields[0], 'old-name-' + p.id)).redirect, { field: p.fields[0], slug });
-    assert.equal(await resolveProgramme('GB', p.fields[0], 'nothing-zzzzzzzz'), null);
+    // An id from an older data run: found again by name, else the field's list.
+    assert.deepEqual((await resolveProgramme('GB', p.fields[0], slug.replace(/[a-z0-9]+$/, 'zzzzzzzz'))).redirect, { field: p.fields[0], slug });
+    assert.deepEqual(await resolveProgramme('GB', p.fields[0], 'nothing-zzzzzzzz'), { gone: p.fields[0] });
     assert.equal(await resolveProgramme('DE', p.fields[0], slug), null);
     // Switzerland, from the BFS rows.
     const ch = (await getCatalogue('CH')).programmes[0];

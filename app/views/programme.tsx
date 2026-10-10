@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { notFound, permanentRedirect } from 'next/navigation'
+import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { LEVEL_ORDER, programmeSlug } from '@/lib/catalogue.ts'
 import { flag } from '@/lib/countries.ts'
 import { TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
@@ -37,6 +37,8 @@ async function programmeOr404(k: Kit, cc: string, field: string, slug: string): 
   const res = await resolveProgramme(cc, field, slug)
   if (!res) notFound()
   if ('redirect' in res) permanentRedirect(k.r.programme(cc, res.redirect.field, res.redirect.slug))
+  // Temporary: the programme may be listed again after the next data run.
+  if ('gone' in res) redirect(k.r.countryField(cc, res.gone))
   return res.found
 }
 

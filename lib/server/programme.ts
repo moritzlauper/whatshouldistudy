@@ -35,7 +35,19 @@ export async function findInCatalogue(cc: string, id: string): Promise<Catalogue
   return catalogue?.programmes.find((p) => p.id === id) ?? null
 }
 
-type Resolved = { found: FoundProgramme } | { redirect: { field: string; slug: string } } | null
+type Resolved = { found: FoundProgramme } | { redirect: { field: string; slug: string } } | { gone: string } | null
+
+/**
+ * A programme whose id changed between data runs (its source or link moved),
+ * found again by the name and institution in its old address.
+ */
+async function findByName(cc: string, field: string, slug: string): Promise<CatalogueEntry | null> {
+  const catalogue = await getCatalogue(cc)
+  const text = slug.replace(/-[a-z0-9]{6,16}$/, '')
+  if (!catalogue || !text) return null
+  const same = catalogue.programmes.filter((p) => programmeSlug(p).replace(/-[a-z0-9]{6,16}$/, '') === text)
+  return same.find((p) => p.fields.includes(field)) ?? (same.length === 1 ? same[0] : null)
+}
 
 /**
  * The programme behind an address. Only the id counts: under another field or
@@ -46,8 +58,9 @@ export async function resolveProgramme(cc: string, field: string, slug: string):
   const id = idFromSlug(slug)
   if (!id || !hasProgrammePages(cc) || !FIELD_BY_ID[field]) return null
   const found = await findProgramme(cc, field, id)
-  const target = found ? found.p : await findInCatalogue(cc, id)
-  if (!target) return null
+  const target = found ? found.p : ((await findInCatalogue(cc, id)) ?? (await findByName(cc, field, slug)))
+  // An old link to a programme that is no longer listed leads to its field's list, not to an error.
+  if (!target) return { gone: field }
   const own = { field: target.fields[0], slug: programmeSlug(target) }
   if (found && own.field === field && own.slug === slug) return { found }
   // A catalogue that disagrees with the field files must not send the page in a circle.
