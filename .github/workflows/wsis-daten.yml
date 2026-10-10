@@ -95,6 +95,10 @@ jobs:
         if: ${{ !inputs.only || contains(inputs.only, 'ch') }}
         continue-on-error: true
         run: node scrapers/ch-bfs.ts
+      - name: Switzerland (the universities' own programme lists)
+        if: ${{ !inputs.only || contains(inputs.only, 'ch') }}
+        continue-on-error: true
+        run: node scrapers/ch-hochschulen.ts
 
       - name: Switzerland salaries (BFS graduate survey)
         if: ${{ !inputs.only || contains(inputs.only, 'ch') }}

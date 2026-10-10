@@ -156,3 +156,23 @@ test('Netherlands: registry prefixes for degree and study form are dropped from 
   assert.equal(tidy('AD Maintenance DT'), 'Maintenance')
   assert.equal(tidy('Bachelor of Design'), 'Bachelor of Design')
 })
+
+test('Switzerland: the universities’ own lists, with specialisations and Eckdaten', async () => {
+  const ch = await import('../scrapers/ch-hochschulen.ts')
+  const { findChInstitution } = await import('../lib/ch-institutions.ts')
+  const uzh = ch.uzhList(
+    `<article class="SubpageList--entry"><a class="Link" href="/de/studies/programs/bachelor/biology.html">Biologie</a><div class="SubpageList--entry--text">Typ: Mono, Major / Bereich: Naturwissenschaften / Sprache: deutsch, englisch</div></article>
+     <article class="SubpageList--entry"><a class="Link" href="/de/studies/programs/bachelor/x.html">Nur Nebenfach</a><div class="SubpageList--entry--text">Typ: Minor / Bereich: X / Sprache: deutsch</div></article>`,
+    'https://www.uzh.ch/', 'bachelor')
+  assert.deepEqual(uzh.map((x) => [x.name, x.url, x.languages]), [['Bachelor Biologie', 'https://www.uzh.ch/de/studies/programs/bachelor/biology.html', ['de', 'en']]])
+  const epfl = ch.epflDetail('<p>The EPFL program offers specializations in the following areas:</p><ul><li>AI &amp; Data Science</li><li>Cyber Security</li></ul><h3>Teaching language</h3><p>English. Excellent skills are required.</p>')
+  assert.deepEqual(epfl, { focus: ['AI & Data Science', 'Cyber Security'], languages: ['en'] })
+  assert.deepEqual(ch.zhawDetail('<p>Im letzten Studienjahr wählen Sie eine von drei Vertiefungen (Artificial Intelligence, Cybersecurity, Software Engineering) aus.</p>').focus, ['Artificial Intelligence', 'Cybersecurity', 'Software Engineering'])
+  const zhaw = ch.zhawList('<a href="/de/linguistik/studium/master-lc"><h3>Detailinformationen zum Masterstudiengang Language and Communication</h3></a><a href="/de/linguistik/studium/master-lc/master-profil-konferenzdolmetschen"><h3>Konferenzdolmetschen</h3></a>', 'https://www.zhaw.ch/', 'master')
+  assert.deepEqual(zhaw.map((x) => [x.name, x.focus]), [['Master Language and Communication', ['Konferenzdolmetschen']]])
+  assert.deepEqual(ch.unibasDetail('<dl><dt>Regelstudienzeit</dt><dd>6 Semester</dd><dt>Credits</dt><dd>180</dd><dt>Sprache</dt><dd>Deutsch &amp; Englisch</dd></dl>'), { ects: 180, durationYears: 3, languages: ['de', 'en'] })
+  // Philologies and other Swiss names the general classifier misses still get a field.
+  const p = ch.toProgramme({ name: 'Bachelor Griechische Philologie', level: 'bachelor', url: 'https://www.uzh.ch/x' }, findChInstitution('UZH')!, '2026-01-01')
+  assert.deepEqual(p?.fields, ['languages', 'literature'])
+  assert.equal(p?.source, 'ch-hochschulen')
+})

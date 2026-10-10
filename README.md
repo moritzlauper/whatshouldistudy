@@ -50,7 +50,8 @@ Austria (`LINK_ONLY`); `PROGRAMME_PAGES_PENDING` can hold back others. Sources
 without an open licence are not used at all until their publisher agrees in
 writing (`PERMISSION_PENDING` in `scrapers/build.ts`): studyprogrammes.ch, the
 Studiensuche of the Bundesagentur für Arbeit and studienwahl.at. Switzerland
-then has the BFS data only (free use with attribution), one page per field of
+then has the BFS data (free use with attribution), and for the largest
+universities their own programme lists (`ch-hochschulen.ts`), one page per field of
 study at an institution; Germany and Austria get pages per field that link to
 the official search, and the report is not on sale there (`SALES_PAUSED` in
 `lib/site/config.ts`). Field pages list the programmes as links to these pages,
@@ -204,6 +205,7 @@ Strava (sports).
 | `uk-discoveruni.ts` | every UK undergraduate course at all ~460 providers, from the search API behind discoveruni.gov.uk's course finder: award, length, mode, campus, subjects (CAH, names mapped with the OfS lookup in `scrapers/lib/cah.ts`), provider website from its Discover Uni page | CC BY 4.0 |
 | `fr-parcoursup.ts` | every French first-year programme on Parcoursup, statutory fees, capacity, admission rate | Licence Ouverte 2.0 |
 | `ch-bfs.ts` | every Swiss Bachelor and Master: students per institution, subject (Fachrichtung) and level, from the BFS PXWeb tables (universities, FH, PH); institution type, fees, languages and admission from `lib/ch-institutions.ts` | open use, «Quelle: BFS» |
+| `ch-hochschulen.ts` | the degree programmes as ETH Zürich, EPFL, Universität Zürich, ZHAW and Universität Basel list them on their own websites: name, level, teaching language, credits, duration, specialisations, link. Facts only, no descriptions; one request every 1.5 s. Replaces the BFS row for the same institution, level and field | facts from public pages, each with a link to the source |
 | `ch-studyprogrammes.ts` | **not run** until swissuniversities agrees: its legal notice reserves public or commercial use of its content. The Swiss catalogue uses the BFS data only | none stated |
 | `de-studiensuche.ts` | **not run** until the Bundesagentur für Arbeit agrees: its Studiensuche API states no licence for reuse. The country pages link to its search instead | none stated |
 | `at-hochschulen.ts` | **not run** until the publisher of studienwahl.at agrees: no licence for reuse. The country pages link to its search instead | none stated |

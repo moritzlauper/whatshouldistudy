@@ -49,7 +49,7 @@ import type { ChSalaryTable } from '../lib/ch-salary.ts'
 export const PERMISSION_PENDING = ['ch-studyprogrammes', 'de-studiensuche', 'at-studienwahl']
 
 /** Programme sources with an open licence (or written permission). */
-const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku', 'nl-duo', 'no-dbh']
+const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'ch-hochschulen', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku', 'nl-duo', 'no-dbh']
 
 const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>> = [
   {
@@ -90,6 +90,13 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     url: 'https://opendata.swiss/de/organization/bundesamt-fur-statistik-bfs',
     licence: 'Open use, Quelle: BFS',
     licenceUrl: 'https://opendata.swiss/de/terms-of-use#terms_by',
+  },
+  {
+    id: 'ch-hochschulen',
+    name: 'Studienangebot der Hochschulen (ETH Zürich, EPFL, Universität Zürich, ZHAW, Universität Basel)',
+    countries: ['CH'],
+    url: 'https://wasstudieren.ch/so-funktionierts#data',
+    licence: 'Fakten von den Websites der Hochschulen, je mit Link',
   },
   {
     id: 'kr-academyinfo',
@@ -324,7 +331,8 @@ function carryOver(inputs: Inputs, dir: string) {
 function dedupeSwiss(all: Programme[]) {
   const key = (p: Programme) => `${p.institution}|${p.level}|${p.fields[0]}`
   const sp = new Map<string, Programme[]>()
-  for (const p of all) if (p.source === 'ch-studyprogrammes') sp.set(key(p), [...(sp.get(key(p)) ?? []), p])
+  // The programmes the universities list themselves, each replacing the BFS row for its institution, level and field.
+  for (const p of all) if (p.source === 'ch-studyprogrammes' || p.source === 'ch-hochschulen') sp.set(key(p), [...(sp.get(key(p)) ?? []), p])
   if (!sp.size) return
   let dropped = 0
   for (let i = all.length - 1; i >= 0; i--) {

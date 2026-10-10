@@ -66,6 +66,17 @@
       "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
+      "id": "ch-hochschulen",
+      "name": "Studienangebot der Hochschulen (ETH Zürich, EPFL, Universität Zürich, ZHAW, Universität Basel)",
+      "countries": [
+        "CH"
+      ],
+      "url": "https://wasstudieren.ch/so-funktionierts#data",
+      "licence": "Fakten von den Websites der Hochschulen, je mit Link",
+      "ok": false,
+      "count": 0
+    },
+    {
       "id": "kr-academyinfo",
       "name": "Korea Higher Education Information, 대학알리미 (Ministry of Education, KCUE)",
       "countries": [
