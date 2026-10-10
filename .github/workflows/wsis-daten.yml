@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: 'Run only these sources (comma list: us,uk,fr,ch,de,at,kr,research,directory); empty = all'
+        description: 'Run only these sources (comma list: us,uk,fr,ch,de,at,kr,au,fi,research,directory); empty = all'
         required: false
         default: ''
   push:
@@ -125,6 +125,16 @@ jobs:
           OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
           OPENALEX_EMAIL: ${{ secrets.OPENALEX_EMAIL }}
         run: node scrapers/kr-academyinfo.ts
+
+      - name: Australia (CRICOS, data.gov.au)
+        if: ${{ !inputs.only || contains(inputs.only, 'au') }}
+        continue-on-error: true
+        run: node scrapers/au-cricos.ts
+
+      - name: Finland (Opintopolku)
+        if: ${{ !inputs.only || contains(inputs.only, 'fi') }}
+        continue-on-error: true
+        run: node scrapers/fi-opintopolku.ts
 
       - name: Research profiles worldwide (OpenAlex)
         if: ${{ !inputs.only || contains(inputs.only, 'research') }}

@@ -110,6 +110,28 @@
       "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
+      "id": "au-cricos",
+      "name": "CRICOS (Australian Government Department of Education)",
+      "countries": [
+        "AU"
+      ],
+      "url": "https://data.gov.au/data/dataset/cricos",
+      "licence": "CC BY 2.5 AU",
+      "ok": false,
+      "count": 0
+    },
+    {
+      "id": "fi-opintopolku",
+      "name": "Opintopolku / Studyinfo.fi (Finnish National Agency for Education)",
+      "countries": [
+        "FI"
+      ],
+      "url": "https://opintopolku.fi/",
+      "licence": "CC BY 4.0",
+      "ok": false,
+      "count": 0
+    },
+    {
       "id": "global-openalex",
       "name": "OpenAlex institution research profiles",
       "countries": [
