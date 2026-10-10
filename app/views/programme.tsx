@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { LEVEL_ORDER, programmeSlug } from '@/lib/catalogue.ts'
-import { flag } from '@/lib/countries.ts'
 import { TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
 import { toCatalogueEntry } from '@/lib/programmes.ts'
@@ -170,11 +169,7 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
       </Link>
       <div className="relative mt-5">
         <Burst className="spin-slow absolute -right-2 -top-6 hidden sm:block" size={100} color="var(--yellow)" />
-        <div className="text-6xl" aria-hidden="true">
-          {emoji(field)}
-          <span className="ml-2 text-4xl">{flag(cc)}</span>
-        </div>
-        <h1 className="mt-3 max-w-4xl hyphens-auto break-words font-display text-4xl sm:text-5xl">{p.name}</h1>
+        <h1 className="max-w-4xl hyphens-auto break-words font-display text-4xl sm:text-5xl">{p.name}</h1>
         <p className="mt-4 max-w-3xl text-xl text-muted">
           {p.institutionUrl ? (
             <a href={p.institutionUrl} target="_blank" rel="noopener" className="font-semibold text-ink hover:text-accent">

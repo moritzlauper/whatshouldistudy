@@ -72,7 +72,8 @@ async function run(url: string): Promise<OfficialFacts> {
   const text = pageText(await fetchText(url)).slice(0, MAX_CHARS)
   if (text.length < 200) throw new Error(`no text on ${url}`)
   const response = await c.messages.create({
-    model: 'claude-opus-5-5',
+    // The cheapest current model: sorting a page into a form needs no more.
+    model: 'claude-haiku-5-5',
     max_tokens: 4000,
     output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
     system: SYSTEM,
