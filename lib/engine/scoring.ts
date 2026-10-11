@@ -49,7 +49,10 @@ export const SOURCE_RELIABILITY: Record<SourceId, number> = {
 
 const BASE_WEIGHTS = { interest: 0.56, riasec: 0.16, personality: 0.05, subjects: 0.15, values: 0.08 }
 /** With the interest scales answered: the questionnaire's own weights, personality shown but not counted. */
-const Q_WEIGHTS = { riasec: 0.6, subjects: 0.28, values: 0.12, personality: 0 }
+// Interests lead, but a school subject someone loves and is good at must not
+// vanish behind one low RIASEC scale (review of a real result: computer
+// science at 5/5 ended up hidden).
+const Q_WEIGHTS = { riasec: 0.5, subjects: 0.36, values: 0.14, personality: 0 }
 /** The most a field's data can move its match when the questionnaire leads. */
 const DATA_SHARE = 0.25
 /** Closer than this, two fields are a tie the questionnaire can't separate. */
@@ -502,7 +505,7 @@ export function score(input: ScoreInput): Results {
     ? footprintConf >= 0.6 ? 'medium' : 'low'
     : flat || isCareless
       ? 'low'
-      : riasecCompleteness(answers) >= 0.9 && hasSubjects && hasValues
+      : riasecCompleteness(answers) >= 0.9 && hasSubjects && hasValues && (shape?.differentiation ?? 0) >= 0.45
         ? 'high'
         : 'medium'
   const topTie = sorted.length > 1 && sorted[0].match - sorted[1].match < TIE

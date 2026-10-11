@@ -230,3 +230,16 @@ test('old activity fades and a degree under way stops counting as interest', asy
   assert.ok(studying.fields.find((f) => f.id === 'psychology')!.reasons.some((r) => r.k === 'studying'))
   assert.ok(!studying.timeline.find((y) => y.year === String(year))?.fields.some((f) => f.id === 'psychology'))
 })
+
+test('false friends: singers, films, costumes and series lookups are not subject interest', () => {
+  const ids = (t: string) => topFields(t, 3).map((f) => f.id)
+  assert.ok(!ids('Frank Ocean - Pink + White').includes('marine-biology'))
+  assert.ok(!ids("Ocean's Eleven ganzer Film").includes('marine-biology'))
+  assert.ok(!ids('Pfarrer Kostüm Fasnacht').includes('religious-studies'))
+  assert.ok(!ids('nurse outfit halloween').includes('nursing'))
+  assert.ok(!ids('prison break staffel 2').includes('criminology'))
+  assert.equal(ids('best true crime imdb').length, 0)
+  // The real subject still counts.
+  assert.ok(ids('ocean currents and marine ecosystems').includes('marine-biology'))
+  assert.ok(ids('Kriminologie studieren an der Uni').includes('criminology'))
+})

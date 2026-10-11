@@ -153,6 +153,23 @@ const EMPTY: Classification = {
 const BRANDS =
   /\b(samsung\s+galaxy|galaxy\s+(?:s|a|z|m|note|tab|watch|buds|fold|flip)\s*\d*\w*|apple\s+watch|iphone\s*\d*\w*|mercedes[\s-]benz|jaguar\s+land\s+rover|ford\s+mustang|red\s+bull|monster\s+energy|amazon\s+prime|apple\s+music|opera\s+(?:gx|mini|browser)|(?:home|movie)\s+theat(?:er|re)s?|galaxus|python\s+(?:monty|flying circus))\b/gi
 
+/**
+ * Words that look like a subject but here name something else: a singer
+ * (Frank Ocean), a film or series (Ocean's Eleven, Prison Break, Nocturnal
+ * Animals, Predator), or a costume («Pfarrer Kostüm», «nurse outfit»: the
+ * word before is what someone dresses up as). Removed before matching.
+ */
+const FALSE_FRIENDS =
+  /\b(frank\s+ocean|ocean'?s\s+(?:eleven|twelve|thirteen|eight|8|11|12|13)|prison\s+break|orange\s+is\s+the\s+new\s+black|nocturnal\s+animals|(?:the\s+)?predator(?:s)?\s+(?:\d+|film|movie|prey|badlands|trailer)|grey'?s\s+anatomy|dr\.?\s+house|breaking\s+bad|criminal\s+minds|[\p{L}-]+\s+(?:outfits?|kost(?:ü|u|ue)m\w*|costumes?|verkleidung\w*|halloween))\b/giu
+
+/**
+ * Looking something up on a film or series database is choosing what to
+ * watch, not interest in the subject: «best true crime imdb» counts as
+ * entertainment only.
+ */
+const MEDIA_LOOKUP = /\b(imdb|rotten\s+tomatoes|letterboxd|netflix|disney\+|staffel\s+\d+|season\s+\d+|episode\s+\d+|folge\s+\d+|ganze\s+folge|full\s+episode|stream\s+deutsch|serien?stream|bs\.to)\b/i
+const MEDIA_ONLY: Classification = { raw: new Float32Array(FIELD_COUNT), learning: 0, entertainment: 2, matched: [] }
+
 const cache = new Map<string, Classification>()
 const CACHE_LIMIT = 60_000
 
@@ -162,8 +179,9 @@ export function classify(text: string, opts: { splitCamel?: boolean } = {}): Cla
   const hit = cache.get(key)
   if (hit) return hit
 
+  if (MEDIA_LOOKUP.test(text)) return MEDIA_ONLY
   const lx = lexicon()
-  const norm = normalize(text.replace(BRANDS, ' '), opts)
+  const norm = normalize(text.replace(BRANDS, ' ').replace(FALSE_FRIENDS, ' '), opts)
   const toks = tokens(norm)
   const seen = new Set<number>()
   const raw = new Float32Array(FIELD_COUNT)
