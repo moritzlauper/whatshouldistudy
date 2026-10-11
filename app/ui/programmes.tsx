@@ -633,9 +633,9 @@ function ProgrammeRow({ p, ai }: { p: RankedProgramme; ai?: { token: string | nu
             {combined(p, aiFit)}
           </span>
           {aiFit && (
-            <span className="chip text-xs" title={`${aiFit.fit}/5`}>
-              🤖 {'●'.repeat(aiFit.fit)}
-              <span className="opacity-30">{'●'.repeat(5 - aiFit.fit)}</span>
+            <span className="chip text-xs" title={`${dotsFor(combined(p, aiFit))}/5`}>
+              🤖 {'●'.repeat(dotsFor(combined(p, aiFit)))}
+              <span className="opacity-30">{'●'.repeat(5 - dotsFor(combined(p, aiFit)))}</span>
             </span>
           )}
         </div>
@@ -1023,8 +1023,13 @@ function countRefresh() {
 /** Candidates the AI reads for the top five, in batches the endpoint takes at once. */
 const AI_POOL = 20
 const AI_BATCH = 5
-/** AI fit counts more than the match from the profile alone: it has read what the programme contains. */
-const combined = (p: RankedProgramme, f?: AiFit) => (f ? Math.round(0.6 * f.score + 0.4 * p.match) : p.match)
+/**
+ * Once the AI has read a programme, its score decides: it knows what the
+ * programme contains. The profile match (the same for a whole field) only
+ * nudges it. Dots and label follow the same number, so they never disagree.
+ */
+const combined = (p: RankedProgramme, f?: AiFit) => (f ? Math.round(0.8 * f.score + 0.2 * p.match) : p.match)
+const dotsFor = (n: number) => (n >= 80 ? 5 : n >= 60 ? 4 : n >= 40 ? 3 : n >= 20 ? 2 : 1)
 
 function AiCompare({ token, items, one }: { token: string | null; items: RankedProgramme[]; one?: boolean }) {
   const { t, locale } = useSite()
@@ -1099,9 +1104,9 @@ function AiCompare({ token, items, one }: { token: string | null; items: RankedP
                         {p.name} <span className="font-normal text-muted">· {p.institution}</span>
                       </span>
                     )}
-                    <span className="chip text-xs" title={`${f.fit}/5`}>
-                      {'●'.repeat(f.fit)}
-                      <span className="opacity-30">{'●'.repeat(5 - f.fit)}</span> {a.fit(f.fit)}
+                    <span className="chip text-xs" title={`${combined(p, f)}`}>
+                      {'●'.repeat(dotsFor(combined(p, f)))}
+                      <span className="opacity-30">{'●'.repeat(5 - dotsFor(combined(p, f)))}</span> {a.fit(dotsFor(combined(p, f)))} · {combined(p, f)}
                     </span>
                   </div>
                   <ul className="mt-2 list-disc pl-5 text-sm">
