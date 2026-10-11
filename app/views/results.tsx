@@ -163,7 +163,7 @@ export function ResultsView() {
         </>
       )}
 
-      {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop shared={isShared} />}
+      {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop shared={isShared} score={first.score} />}
       <TopProgrammes results={results} prefs={prefs} topics={topics} unlocked={unlocked} shared={isShared}
         token={isShared ? ((shared as Snapshot).token ?? null) : paid ? state.unlock!.token : null} />
 
@@ -702,13 +702,15 @@ function SourceInsights({ summaries, unlocked, studying }: { summaries: SourceSu
 }
 
 /** Place 1 before the report is unlocked: the card's shape, nothing of its content. */
-function LockedTop({ shared = false }: { shared?: boolean }) {
+/** Place 1 behind the purchase. Its match is shown, so it is clear there is a strong fit to unlock. */
+function LockedTop({ shared = false, score }: { shared?: boolean; score: number }) {
   const { t, r } = useSite()
   const bar = (w: string) => <span className="block h-3 rounded-full bg-surface-2" style={{ width: w }} />
   return (
     <section className="card pop-in relative mt-9 overflow-hidden">
       <div className="on-color relative flex flex-wrap items-center gap-4 border-b-2 border-line bg-yellow px-6 py-4 sm:px-10">
         <span className="sticker" style={{ background: 'var(--surface)', color: 'var(--ink)' }}>🏆 {t.results.best}</span>
+        <span className="rounded-full border-2 border-line bg-surface px-3 py-1 font-display text-lg text-ink">{t.results.matchPct(score)}</span>
         <Burst className="spin-slow absolute -right-8 -top-8 hidden sm:block" size={110} color="var(--pink)" />
       </div>
       <div className="relative">

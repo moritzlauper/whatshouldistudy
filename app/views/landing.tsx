@@ -238,7 +238,12 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
               ))}
             </ul>
             {t.reportScope && <p className="mt-5 rounded-xl bg-surface p-4 text-sm font-semibold text-ink">{t.reportScope}</p>}
-            {!SALES_PAUSED[site] && <LandingCheckout />}
+            {!SALES_PAUSED[site] && (
+              <>
+                <LandingCheckout />
+                <p className="mt-3 text-center text-sm font-semibold">{t.programmes.boxNote}</p>
+              </>
+            )}
           </div>
         </div>
       </section>
