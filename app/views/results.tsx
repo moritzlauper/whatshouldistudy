@@ -570,23 +570,24 @@ function StudyInfoNote({ summaries }: { summaries: SourceSummary[] }) {
           </Link>
         </div>
       )}
+      {/* Folded: a side note, not part of the result. */}
       {n > 0 && (
-        <div>
-          <div className="font-bold">🎓 {s.title(fmtNumber(n, intl))}</div>
-          <p className="mt-1 max-w-3xl text-muted">{s.text(top)}</p>
+        <details>
+          <summary className="cursor-pointer font-bold">🎓 {s.title(fmtNumber(n, intl))}</summary>
+          <p className="mt-2 max-w-3xl text-muted">{s.text(top)}</p>
           {ex.length > 0 && (
-            <details className="mt-2 text-xs">
-              <summary className="cursor-pointer font-bold text-muted">{s.examples}</summary>
-              <ul className="mt-1 grid gap-0.5">
+            <>
+              <div className="mt-2 text-xs font-bold text-muted">{s.examples}</div>
+              <ul className="mt-1 grid gap-0.5 text-xs">
                 {ex.map((e) => (
                   <li key={e} className="break-words">
                     {e}
                   </li>
                 ))}
               </ul>
-            </details>
+            </>
           )}
-        </div>
+        </details>
       )}
     </div>
   )

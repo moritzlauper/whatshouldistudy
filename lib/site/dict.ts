@@ -1267,9 +1267,9 @@ const deCH: Dict = {
     } as Record<string, string>,
   },
   studyInfo: {
-    title: (n: string) => `${n} Einträge über die Studienwahl zählen nicht`,
+    title: (n: string) => `${n} Einträge zur Studienwahl nicht gezählt`,
     text: (fields: string) =>
-      `Videos, Suchen und Seiten wie «Psychologie studieren: lohnt sich das?» oder «soziologie uzh master» drehen sich um die Entscheidung, nicht um das Thema. Darum zählen sie nicht als Interesse.${fields ? ` Am meisten ging es um ${fields}.` : ''}`,
+      `Suchen wie «soziologie uzh master» drehen sich um die Entscheidung, nicht um das Thema, und zählen darum nicht als Interesse.${fields ? ` Am meisten ging es um ${fields}.` : ''}`,
     examples: 'Beispiele, die wir weggelassen haben',
     stale: 'Ein Teil deiner Daten wurde mit einer älteren Version gelesen. Seither erkennen wir Studienwahl-Inhalte in allen Quellen und vergleichen deine Themen mit einzelnen Studiengängen. Lade die Dateien nochmals hoch (oder verbinde neu), damit das wirkt.',
     staleCta: 'Neu hochladen',
