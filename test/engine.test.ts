@@ -244,24 +244,6 @@ test('false friends: singers, films, costumes and series lookups are not subject
   assert.ok(ids('Kriminologie studieren an der Uni').includes('criminology'))
 })
 
-test('AI corrections take a term out of a field without touching the rest', async () => {
-  const { applyCorrections, correctionCandidates } = await import('../lib/engine/corrections.ts')
-  const summary = accumulate(engineeringPerson(), { source: 'takeout', label: 'YouTube history' })
-  const field = Object.entries(summary.fields).sort((a, b) => b[1].score - a[1].score)[0][0]
-  const cands = correctionCandidates([summary], [field])
-  assert.equal(cands[0].field, field)
-  const term = cands[0].terms[0].term
-  const [fixed] = applyCorrections([summary], [{ field, term }])
-  assert.ok(fixed.fields[field].score < summary.fields[field].score)
-  assert.ok(!(term in fixed.fields[field].terms))
-  // The original stays as it was, and an empty list changes nothing.
-  assert.ok(term in summary.fields[field].terms)
-  assert.equal(applyCorrections([summary], [])[0], summary)
-  const before = score({ summaries: [summary] }).fields.find((f) => f.id === field)!.match
-  const after = score({ summaries: [fixed] }).fields.find((f) => f.id === field)!.match
-  assert.ok(after <= before)
-})
-
 test('more false friends: ambient sounds, cat TV, TV judges and climate talk about the planet', () => {
   const ids = (t: string) => topFields(t, 3).map((f) => f.id)
   assert.ok(!ids('rain sounds for sleeping 3 hours').includes('zoology'))

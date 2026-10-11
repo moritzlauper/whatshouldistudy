@@ -1,25 +1,24 @@
 import 'server-only'
-import { createHash } from 'node:crypto'
 import { redis } from './usage.ts'
 
 /**
- * A hard daily ceiling on what Claude may cost, per purpose and in total, so
- * that crawlers, retries or a bug can never run up a bill. Spend is counted
- * from each response's token usage in millionths of a dollar; once a limit
- * is reached the feature answers as if no key were set, until the next day
- * (UTC). With the counter store (USAGE_* Redis) the limits hold across all
- * server instances; without it, each instance keeps its own count.
+ * A hard daily ceiling on what Claude may cost, so that crawlers, retries or
+ * a bug can never run up a bill. Spend is counted from each response's token
+ * usage in millionths of a dollar; once a limit is reached the feature answers
+ * as if no key were set, until the next day (UTC). With the counter store
+ * (USAGE_* Redis) the limit holds across all server instances; without it,
+ * each instance keeps its own count.
+ *
+ * Only the translation of public programme descriptions uses Claude now. No
+ * personal data goes to Claude.
  */
 
-export type AiPurpose = 'translate' | 'fit' | 'facts' | 'improve'
+export type AiPurpose = 'translate'
 
 /** Daily limits in dollars. */
 const LIMIT_USD: Record<AiPurpose | 'total', number> = {
   translate: 0.2,
-  facts: 0.1,
-  fit: 1.5,
-  improve: 2,
-  total: 4,
+  total: 0.2,
 }
 
 /** List prices in millionths of a dollar per token (input, output). */
@@ -63,57 +62,4 @@ export async function aiSpend(p: AiPurpose, model: string, usage: { input_tokens
     local.spend.total = (local.spend.total ?? 0) + micro
   }
   return micro
-}
-
-/**
- * Budget per purchase (one report, CHF 9): at most this much Claude in all,
- * for the programme ratings and the ranking improvement together. Above it
- * the report asks people to write to us. Without the counter store nothing
- * is counted.
- */
-export const PURCHASE_BUDGET_MICRO_USD = 1_000_000
-const purchaseKey = (sid: string) => `wsis:fit:cost:${createHash('sha256').update(sid).digest('hex').slice(0, 32)}`
-
-export async function purchaseSpent(sid: string): Promise<number> {
-  try {
-    return Number((await redis(['GET', purchaseKey(sid)])) ?? 0)
-  } catch {
-    return 0
-  }
-}
-
-const RUNS = `
-local day = redis.call('INCR', KEYS[1])
-if day == 1 then redis.call('EXPIRE', KEYS[1], 86400) end
-local all = redis.call('INCR', KEYS[2])
-if all == 1 then redis.call('EXPIRE', KEYS[2], 34560000) end
-if day > tonumber(ARGV[1]) or all > tonumber(ARGV[2]) then
-  redis.call('DECR', KEYS[1])
-  redis.call('DECR', KEYS[2])
-  return 0
-end
-return 1
-`
-
-/**
- * Counts one run of a limited feature for a purchase (e.g. «Ranking mit KI
- * verbessern»: 5 a day, 20 in all). False when the limit is reached; a run
- * over the limit is not counted. Without the counter store: allowed.
- */
-export async function purchaseRun(sid: string, feature: string, perDay: number, inAll: number): Promise<boolean> {
-  const h = createHash('sha256').update(sid).digest('hex').slice(0, 32)
-  try {
-    return Number(await redis(['EVAL', RUNS, 2, `wsis:${feature}:day:${day()}:${h}`, `wsis:${feature}:all:${h}`, perDay, inAll])) === 1
-  } catch {
-    return true
-  }
-}
-
-export async function purchaseAdd(sid: string, micro: number): Promise<void> {
-  try {
-    await redis(['INCRBY', purchaseKey(sid), Math.max(0, Math.round(micro))])
-    await redis(['EXPIRE', purchaseKey(sid), 400 * 86400])
-  } catch {
-    // Not counted; the next request tries again.
-  }
 }

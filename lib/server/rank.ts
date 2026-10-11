@@ -1,10 +1,8 @@
 import 'server-only'
 import { COUNTRIES, feeFor } from '../countries.ts'
 import { textTopics } from '../engine/classifier.ts'
-import { spreadByField } from '../engine/spread.ts'
 import type { Preferences } from '../engine/types.ts'
 import type { Level, Programme } from '../programmes.ts'
-export { spreadByField }
 import { FIELD_BY_ID } from '../taxonomy/fields.ts'
 import { getMeta, getShard } from './data.ts'
 
@@ -15,12 +13,6 @@ export interface RankRequest {
   country?: string
   level?: Level | 'any'
   sort?: 'match' | 'cost' | 'earnings' | 'new'
-  /**
-   * With sort «match»: take turns between the fields, so a page holds the best
-   * of each field and not only the strongest field (all programmes of one
-   * field share its score, so without this the first field fills every place).
-   */
-  spread?: boolean
   q?: string
   page?: number
   pageSize?: number
@@ -115,7 +107,6 @@ export function sanitizeRequest(body: unknown): RankRequest | null {
     level: typeof b.level === 'string' ? (b.level as Level | 'any') : undefined,
     sort: (['match', 'cost', 'earnings', 'new'] as const).includes(b.sort as never) ? (b.sort as RankRequest['sort']) : 'match',
     q: typeof b.q === 'string' ? b.q.slice(0, 80) : undefined,
-    spread: b.spread === true,
     page: Math.max(0, Math.floor(Number(b.page) || 0)),
     pageSize: Math.max(1, Math.min(2000, Math.floor(Number(b.pageSize) || 40))),
   }
@@ -198,7 +189,6 @@ export async function rank(req: RankRequest): Promise<RankResult> {
     new: (a, b) => (b.firstSeen ?? '').localeCompare(a.firstSeen ?? '') || b.match - a.match,
   }
   filtered.sort(sorters[req.sort ?? 'match'])
-  const ordered = req.spread && (req.sort ?? 'match') === 'match' ? spreadByField(filtered) : filtered
 
   const pageSize = req.pageSize ?? 40
   const page = req.page ?? 0
@@ -206,7 +196,7 @@ export async function rank(req: RankRequest): Promise<RankResult> {
     total: filtered.length,
     page,
     pageSize,
-    items: ordered.slice(page * pageSize, (page + 1) * pageSize),
+    items: filtered.slice(page * pageSize, (page + 1) * pageSize),
     facets,
     updated: meta?.updated,
     sample,

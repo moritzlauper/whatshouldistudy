@@ -10,7 +10,6 @@ import { score, sourceProfile } from '@/lib/engine/scoring.ts'
 import { resultsReady } from '@/lib/engine/questionnaire.ts'
 import { userTopics } from '@/lib/engine/topics.ts'
 import { SUMMARY_VERSION } from '@/lib/engine/accumulate.ts'
-import { applyCorrections } from '@/lib/engine/corrections.ts'
 import type { FieldMatch, Preferences, Results, SourceSummary } from '@/lib/engine/types.ts'
 import type { FieldStat } from '@/lib/programmes.ts'
 import { BIG5_KEYS, FIELDS, FIELD_BY_ID, RIASEC_KEYS } from '@/lib/taxonomy/fields.ts'
@@ -19,7 +18,6 @@ import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes, TopProgrammes } from '../ui/programmes.tsx'
 import { StudyingControl } from '../ui/prefs-form.tsx'
-import { ImprovePanel } from '../ui/improve-panel.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { Contributions } from '../ui/contributions.tsx'
 import { useConfig } from '../ui/price.tsx'
@@ -67,8 +65,7 @@ export function ResultsView() {
   }, [])
 
   const isShared = !!shared && shared !== 'broken'
-  // With the AI's corrections applied, if the person asked for them (paid report).
-  const summaries = isShared ? [] : applyCorrections(Object.values(state.summaries).filter(Boolean) as SourceSummary[], state.corrections?.exclude ?? [])
+  const summaries = isShared ? [] : (Object.values(state.summaries).filter(Boolean) as SourceSummary[])
   const own = useMemo<Results | null>(() => {
     if (!mounted || shared === undefined || isShared) return null
     const swiss = k.site === 'ch' || (k.site === 'global' && state.prefs.countries.includes('CH'))
@@ -167,10 +164,6 @@ export function ResultsView() {
       )}
 
       {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop shared={isShared} score={first.score} />}
-      {/* The word check sits with the ranking it changes; it runs only on request and with consent. */}
-      {!isShared && unlocked && (
-        <ImprovePanel results={results} raw={Object.values(state.summaries).filter(Boolean) as SourceSummary[]} token={paid ? state.unlock!.token : null} corrections={state.corrections} />
-      )}
       <TopProgrammes results={results} prefs={prefs} topics={topics} unlocked={unlocked} shared={isShared}
         token={isShared ? ((shared as Snapshot).token ?? null) : paid ? state.unlock!.token : null} />
 

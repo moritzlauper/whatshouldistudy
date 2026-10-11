@@ -1,7 +1,7 @@
 /**
- * The checks behind the facts read from a programme's official page
- * (lib/server/official-facts.ts): whether the page may be read, its visible
- * text, and which of Claude's answers the page backs up word for word.
+ * Helpers for reading a programme's official page: whether robots.txt allows
+ * it, its visible text, and a check that a quoted passage occurs on the page.
+ * They are kept and tested, although no page uses Claude to extract facts now.
  */
 
 export interface OfficialFacts {
