@@ -769,9 +769,10 @@ export function toProgramme(x: Listed, inst: ChInstitution, fetchedAt: string): 
   }
 }
 
-async function page(url: string): Promise<string | null> {
+// Lists may be large (the BFH sitemap is 2.6 MB and slow), so they get longer than a programme page.
+async function page(url: string, timeout = 30_000): Promise<string | null> {
   try {
-    const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'de-CH,de;q=0.9,en;q=0.5' }, signal: AbortSignal.timeout(30_000) })
+    const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'de-CH,de;q=0.9,en;q=0.5' }, signal: AbortSignal.timeout(timeout) })
     if (!res.ok) {
       log(`  HTTP ${res.status} ${url}`)
       return null
@@ -794,7 +795,7 @@ async function main() {
     const listed: Listed[] = []
     const fetched = new Map<string, string | null>()
     for (const l of src.lists) {
-      if (!fetched.has(l.url)) fetched.set(l.url, await page(l.url))
+      if (!fetched.has(l.url)) fetched.set(l.url, await page(l.url, 120_000))
       const html = fetched.get(l.url)
       const found = html ? l.read(html, l.url, l.level) : []
       log(`${inst.name}: ${found.length} ${l.level} programmes listed`)
