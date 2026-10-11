@@ -52,6 +52,9 @@ function requestFields(results: Results) {
   return results.fields.slice(0, 6).map((f) => ({ id: f.id, score: f.score }))
 }
 
+/** The top five as last shown, for the owner's review (app/ui/review-panel.tsx). */
+export const lastTop: { current: unknown[] } = { current: [] }
+
 /** Fetch the top five programmes through the same paid endpoint as the full list. */
 export function TopProgrammes({ results, prefs, topics = [], token, unlocked, shared = false }: {
   results: Results; prefs: Preferences; topics?: UserTopic[]; token: string | null; unlocked: boolean; shared?: boolean
@@ -87,6 +90,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const left = refreshesLeft()
   // Until the AI is through, the order from the profile alone; then the combined one.
   const best = (ai.state === 'done' ? [...pool].sort((x, y) => combined(y, ai.fits.get(y.id)) - combined(x, ai.fits.get(x.id))) : pool).slice(0, 5)
+  lastTop.current = best.map((p) => ({ name: p.name, institution: p.institution, city: p.city, level: p.level, field: p.matchedField, match: p.match, ai: ai.fits.get(p.id) }))
   return (
     <section className="mt-8" aria-label={t.programmes.topTitle}>
       <h2 className="mb-4 font-display text-3xl">{t.programmes.topTitle}</h2>

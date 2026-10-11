@@ -18,6 +18,7 @@ import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes, TopProgrammes } from '../ui/programmes.tsx'
 import { StudyingControl } from '../ui/prefs-form.tsx'
+import { ReviewPanel } from '../ui/review-panel.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { Contributions } from '../ui/contributions.tsx'
 import { useConfig } from '../ui/price.tsx'
@@ -141,6 +142,7 @@ export function ResultsView() {
       </div>
 
       <QualityNotes results={results} />
+      {!isShared && <ReviewPanel results={results} answers={state.answers} prefs={prefs} summaries={summaries} />}
 
       {isShared ? (
         <div className="card-sm mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent-soft p-4">
