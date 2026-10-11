@@ -1,6 +1,7 @@
 import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { pageText, robotsAllow, sameSite } from '../official-facts.ts'
+import { officialPageOf } from '../official-pages.ts'
 import { findProgramme } from './programme.ts'
 import { aiAllowed, aiSpend } from './ai-budget.ts'
 import { redis } from './usage.ts'
@@ -28,7 +29,9 @@ const UA = 'Mozilla/5.0 (compatible; wasstudieren-bot/1.0; +https://wasstudieren
 // Per programme: enough for its structure and specialisations, not for a whole site.
 const MAX_CHARS = 7000
 const KEEP_SECONDS = 7 * 86400
-const keepKey = (id: string, locale: string) => `wsis:facts:v1:${locale}:${id}`
+/** A programme without a readable page is kept for a day, so a fixed link is picked up soon. */
+const KEEP_UNREADABLE_SECONDS = 86400
+const keepKey = (id: string, locale: string) => `wsis:facts:v2:${locale}:${id}`
 /** Claude Haiku 5.5 list prices, in millionths of a dollar per token (prompts under 100K tokens). */
 const MICRO_USD_IN = 0.1
 const MICRO_USD_OUT = 0.5
@@ -81,19 +84,33 @@ For each programme give:
 Rules: base every statement on the page text or the listed focus areas. Write "check" in your own words and never copy sentences from the page.`
 
 async function officialText(url: string | undefined, institutionUrl: string | undefined): Promise<string | null> {
-  if (!url || !institutionUrl || !sameSite(url, institutionUrl)) return null
+  if (!url || !institutionUrl || !sameSite(url, institutionUrl)) {
+    if (url) console.warn(`official page: not on the institution's site: ${url}`)
+    return null
+  }
   try {
     const origin = new URL(url).origin
     const robots = await fetch(`${origin}/robots.txt`, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(5000), next: { revalidate: 86400 } })
       .then((r) => (r.ok ? r.text() : ''))
       .catch(() => '')
-    if (!robotsAllow(robots, url)) return null
+    if (!robotsAllow(robots, url)) {
+      console.warn(`official page: robots.txt does not allow ${url}`)
+      return null
+    }
     // Kept by Next's fetch cache for a day, so a page popular with several people is read once.
     const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'de-CH,de;q=0.9,fr;q=0.8,en;q=0.7' }, signal: AbortSignal.timeout(10_000), next: { revalidate: 86400 } })
-    if (!res.ok) return null
+    if (!res.ok) {
+      console.warn(`official page: HTTP ${res.status} for ${url}`)
+      return null
+    }
     const text = pageText(await res.text()).slice(0, MAX_CHARS)
-    return text.length >= 200 ? text : null
-  } catch {
+    if (text.length < 200) {
+      console.warn(`official page: only ${text.length} characters at ${url}`)
+      return null
+    }
+    return text
+  } catch (e) {
+    console.warn(`official page: ${(e as Error).message} for ${url}`)
     return null
   }
 }
@@ -109,7 +126,7 @@ async function readKept(id: string, locale: Locale): Promise<ProgrammeFacts | nu
 
 async function keep(f: ProgrammeFacts, locale: Locale): Promise<void> {
   try {
-    await redis(['SET', keepKey(f.id, locale), JSON.stringify(f), 'EX', KEEP_SECONDS])
+    await redis(['SET', keepKey(f.id, locale), JSON.stringify(f), 'EX', f.enough ? KEEP_SECONDS : KEEP_UNREADABLE_SECONDS])
   } catch {
     // Not kept: the next visitor reads the page again.
   }
@@ -125,19 +142,33 @@ export async function programmeFacts(req: FactsRequest): Promise<{ items: Progra
       if (f) known.set(wanted[i].id, f)
     })
   }
-  const inOrder = () => wanted.flatMap((x) => {
-    const f = known.get(x.id)
-    return f ? [f] : []
-  })
+  const inOrder = () =>
+    wanted.flatMap((x) => {
+      const f = known.get(x.id)
+      return f ? [f] : []
+    })
   const missing = wanted.filter((x) => !known.has(x.id))
   if (!missing.length) return { items: inOrder(), costMicroUsd: 0 }
-  // Without a key, or with the day's budget used up, only what is kept can be shown.
-  if (!process.env.ANTHROPIC_API_KEY || !(await aiAllowed('fit'))) return known.size ? { items: inOrder(), costMicroUsd: 0 } : null
-  const found = (await Promise.all(missing.map((x) => findProgramme(x.country, x.field, x.id)))).flatMap((f) => (f ? [f.p] : []))
-  if (!found.length) return known.size ? { items: inOrder(), costMicroUsd: 0 } : null
-  const pages = await Promise.all(found.map((p) => officialText(p.url, p.institutionUrl)))
 
-  const blocks = found.map((p, i) =>
+  const found = (await Promise.all(missing.map((x) => findProgramme(x.country, x.field, x.id)))).flatMap((f) => (f ? [f.p] : []))
+  const pages = await Promise.all(found.map((p) => officialText(officialPageOf(p) ?? p.url, p.institutionUrl)))
+  const readable = found.flatMap((p, i) => {
+    const text = pages[i]
+    return text ? [{ p, text }] : []
+  })
+  // A programme without a readable page has nothing to describe: no model call, and the neutral rating says so.
+  const readableIds = new Set(readable.map((r) => r.p.id))
+  for (const p of found) {
+    if (readableIds.has(p.id)) continue
+    const f: ProgrammeFacts = { id: p.id, riasec: [0, 0, 0, 0, 0, 0], subjects: [], check: '', enough: false }
+    known.set(p.id, f)
+    await keep(f, req.locale)
+  }
+  if (!readable.length) return { items: inOrder(), costMicroUsd: 0 }
+  // Without a key, or with the day's budget used up, only what is kept can be shown.
+  if (!process.env.ANTHROPIC_API_KEY || !(await aiAllowed('fit'))) return inOrder().length ? { items: inOrder(), costMicroUsd: 0 } : null
+
+  const blocks = readable.map(({ p, text }) =>
     [
       `<programme id="${p.id}">`,
       `Name: ${p.name}`,
@@ -145,7 +176,7 @@ export async function programmeFacts(req: FactsRequest): Promise<{ items: Progra
       `Level: ${p.level}`,
       p.focus?.length ? `Listed focus areas: ${p.focus.join('; ')}` : '',
       p.languages?.length ? `Languages: ${p.languages.join(', ')}` : '',
-      pages[i] ? `Official page text:\n${pages[i]}` : 'Official page: could not be read.',
+      `Official page text:\n${text}`,
       '</programme>',
     ]
       .filter(Boolean)
@@ -164,7 +195,7 @@ export async function programmeFacts(req: FactsRequest): Promise<{ items: Progra
     await aiSpend('fit', 'claude-haiku-5-5', response.usage)
     if (response.stop_reason !== 'end_turn') throw new Error(`stopped: ${response.stop_reason}`)
     const out = JSON.parse(response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('')) as { programmes?: unknown[] }
-    const allowed = new Set(found.map((p) => p.id))
+    const allowed = new Set(readable.map((r) => r.p.id))
     for (const raw of out.programmes ?? []) {
       const f = toFacts(raw, allowed)
       if (!f) continue
@@ -175,6 +206,6 @@ export async function programmeFacts(req: FactsRequest): Promise<{ items: Progra
     return { items: inOrder(), costMicroUsd }
   } catch (e) {
     console.error(`programme facts: ${(e as Error).message}`)
-    return known.size ? { items: inOrder(), costMicroUsd: 0 } : null
+    return inOrder().length ? { items: inOrder(), costMicroUsd: 0 } : null
   }
 }

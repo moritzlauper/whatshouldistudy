@@ -21,6 +21,7 @@ import { CONTACT, withBase } from '@/lib/site.ts'
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
 import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import { localFit, type FitReason, type LocalFit, type LocalProfile, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
+import { officialPageOf } from '@/lib/official-pages.ts'
 import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
 import { Price, useConfig } from './price.tsx'
 import type { Config } from './price.tsx'
@@ -346,6 +347,8 @@ function isHomepage(url: string): boolean {
  * first result on the institution's site, usually the programme page.
  */
 function programmeLink(p: RankedProgramme): string {
+  const official = officialPageOf(p)
+  if (official) return official
   if (p.url && p.url !== p.institutionUrl && !isHomepage(p.url)) return p.url
   const home = p.institutionUrl ?? p.url
   let site = ''
@@ -887,7 +890,7 @@ function Explorer({
  * What Claude read about each programme, kept in this browser per language. It
  * holds nothing about the person: the comparison with them is made by `localFit`.
  */
-const FACTS_STORE = 'wsis:ai-facts:v3'
+const FACTS_STORE = 'wsis:ai-facts:v4'
 const factKey = (id: string, locale: string) => `${locale}|${id}`
 let factsMem: Map<string, ProgrammeFacts> | null = null
 let factsVersion = 0
