@@ -1,0 +1,909 @@
+{
+  "mathematics": {
+    "programmes": 4384,
+    "countries": 9,
+    "usMedianEarnings": 47460,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300
+    },
+    "chSalaryPercentile": 0.2,
+    "salaryPercentile": 0.68
+  },
+  "statistics-data-science": {
+    "programmes": 2372,
+    "countries": 9,
+    "usMedianEarnings": 54910,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.22,
+    "salaryPercentile": 0.77
+  },
+  "computer-science": {
+    "programmes": 7001,
+    "countries": 9,
+    "usMedianEarnings": 60259,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.58,
+    "salaryPercentile": 0.82
+  },
+  "artificial-intelligence": {
+    "programmes": 1266,
+    "countries": 8,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.59
+  },
+  "cybersecurity": {
+    "programmes": 2097,
+    "countries": 9,
+    "usMedianEarnings": 52433.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.61,
+    "salaryPercentile": 0.73
+  },
+  "information-systems": {
+    "programmes": 1393,
+    "countries": 8,
+    "usMedianEarnings": 54021.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000,
+      "fhBachelor": 85000
+    },
+    "chSalaryPercentile": 0.86,
+    "salaryPercentile": 0.76
+  },
+  "computer-engineering": {
+    "programmes": 1779,
+    "countries": 7,
+    "usMedianEarnings": 70001,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.62,
+    "salaryPercentile": 0.95
+  },
+  "physics": {
+    "programmes": 2937,
+    "countries": 9,
+    "usMedianEarnings": 48747,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300
+    },
+    "chSalaryPercentile": 0.23,
+    "salaryPercentile": 0.69
+  },
+  "astronomy": {
+    "programmes": 419,
+    "countries": 9,
+    "usMedianEarnings": 36191.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300
+    },
+    "chSalaryPercentile": 0.24,
+    "salaryPercentile": 0.43
+  },
+  "chemistry": {
+    "programmes": 3044,
+    "countries": 9,
+    "usMedianEarnings": 38944.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300,
+      "fhBachelor": 79600
+    },
+    "chSalaryPercentile": 0.25,
+    "salaryPercentile": 0.54
+  },
+  "biology": {
+    "programmes": 4736,
+    "countries": 9,
+    "usMedianEarnings": 28644,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300,
+      "fhBachelor": 79600
+    },
+    "chSalaryPercentile": 0.27,
+    "salaryPercentile": 0.11
+  },
+  "molecular-biology": {
+    "programmes": 4029,
+    "countries": 9,
+    "usMedianEarnings": 38059,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300,
+      "fhBachelor": 79600
+    },
+    "chSalaryPercentile": 0.28,
+    "salaryPercentile": 0.5
+  },
+  "neuroscience": {
+    "programmes": 712,
+    "countries": 7,
+    "usMedianEarnings": 29556.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300
+    },
+    "chSalaryPercentile": 0.29,
+    "salaryPercentile": 0.15
+  },
+  "cognitive-science": {
+    "programmes": 172,
+    "countries": 7,
+    "usMedianEarnings": 38906,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300
+    },
+    "chSalaryPercentile": 0.3,
+    "salaryPercentile": 0.53
+  },
+  "environmental-science": {
+    "programmes": 3565,
+    "countries": 9,
+    "usMedianEarnings": 32653,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300,
+      "fhBachelor": 79600
+    },
+    "chSalaryPercentile": 0.32,
+    "salaryPercentile": 0.26
+  },
+  "earth-sciences": {
+    "programmes": 1380,
+    "countries": 9,
+    "usMedianEarnings": 38413,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300
+    },
+    "chSalaryPercentile": 0.33,
+    "salaryPercentile": 0.51
+  },
+  "marine-biology": {
+    "programmes": 464,
+    "countries": 8,
+    "usMedianEarnings": 27857,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300
+    },
+    "chSalaryPercentile": 0.34,
+    "salaryPercentile": 0.08
+  },
+  "zoology": {
+    "programmes": 807,
+    "countries": 6,
+    "usMedianEarnings": 27348.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300
+    },
+    "chSalaryPercentile": 0.35,
+    "salaryPercentile": 0.05
+  },
+  "geography": {
+    "programmes": 1487,
+    "countries": 9,
+    "usMedianEarnings": 37148,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 78300
+    },
+    "chSalaryPercentile": 0.37,
+    "salaryPercentile": 0.46
+  },
+  "mechanical-engineering": {
+    "programmes": 5762,
+    "countries": 9,
+    "usMedianEarnings": 63849,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.63,
+    "salaryPercentile": 0.86
+  },
+  "electrical-engineering": {
+    "programmes": 3589,
+    "countries": 9,
+    "usMedianEarnings": 69511,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.65,
+    "salaryPercentile": 0.93
+  },
+  "civil-engineering": {
+    "programmes": 3348,
+    "countries": 9,
+    "usMedianEarnings": 62942,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 78800
+    },
+    "chSalaryPercentile": 0.66,
+    "salaryPercentile": 0.84
+  },
+  "aerospace-engineering": {
+    "programmes": 684,
+    "countries": 9,
+    "usMedianEarnings": 65739.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.67,
+    "salaryPercentile": 0.89
+  },
+  "automotive-engineering": {
+    "programmes": 697,
+    "countries": 8,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.68
+  },
+  "chemical-engineering": {
+    "programmes": 1433,
+    "countries": 9,
+    "usMedianEarnings": 68006.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 79600
+    },
+    "chSalaryPercentile": 0.7,
+    "salaryPercentile": 0.92
+  },
+  "biomedical-engineering": {
+    "programmes": 852,
+    "countries": 9,
+    "usMedianEarnings": 56453,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.71,
+    "salaryPercentile": 0.78
+  },
+  "materials-science": {
+    "programmes": 1189,
+    "countries": 9,
+    "usMedianEarnings": 67003,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.72,
+    "salaryPercentile": 0.91
+  },
+  "robotics-mechatronics": {
+    "programmes": 882,
+    "countries": 9,
+    "usMedianEarnings": 70279,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.73,
+    "salaryPercentile": 0.96
+  },
+  "energy-engineering": {
+    "programmes": 1300,
+    "countries": 9,
+    "usMedianEarnings": 57964,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.75,
+    "salaryPercentile": 0.81
+  },
+  "industrial-engineering": {
+    "programmes": 1909,
+    "countries": 9,
+    "usMedianEarnings": 65159,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.76,
+    "salaryPercentile": 0.88
+  },
+  "architecture": {
+    "programmes": 2070,
+    "countries": 9,
+    "usMedianEarnings": 48904.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 78800
+    },
+    "chSalaryPercentile": 0.77,
+    "salaryPercentile": 0.7
+  },
+  "urban-planning": {
+    "programmes": 1074,
+    "countries": 9,
+    "usMedianEarnings": 41057,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 78800
+    },
+    "chSalaryPercentile": 0.78,
+    "salaryPercentile": 0.58
+  },
+  "industrial-design": {
+    "programmes": 1626,
+    "countries": 9,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 60000
+    },
+    "chSalaryPercentile": 0
+  },
+  "game-design": {
+    "programmes": 866,
+    "countries": 8,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 60000
+    },
+    "chSalaryPercentile": 0.01
+  },
+  "ux-design": {
+    "programmes": 213,
+    "countries": 8,
+    "usMedianEarnings": 113397,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 60000
+    },
+    "chSalaryPercentile": 0.03,
+    "salaryPercentile": 1
+  },
+  "medicine": {
+    "programmes": 3472,
+    "countries": 9,
+    "usMedianEarnings": 52715,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000
+    },
+    "chSalaryPercentile": 0.87,
+    "salaryPercentile": 0.74
+  },
+  "nursing": {
+    "programmes": 4340,
+    "countries": 9,
+    "usMedianEarnings": 63197.5,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 74800
+    },
+    "chSalaryPercentile": 0.16,
+    "salaryPercentile": 0.85
+  },
+  "pharmacy": {
+    "programmes": 1317,
+    "countries": 9,
+    "usMedianEarnings": 85130.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000
+    },
+    "chSalaryPercentile": 0.89,
+    "salaryPercentile": 0.99
+  },
+  "dentistry": {
+    "programmes": 503,
+    "countries": 9,
+    "usMedianEarnings": 57541,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000
+    },
+    "chSalaryPercentile": 0.9,
+    "salaryPercentile": 0.8
+  },
+  "veterinary-medicine": {
+    "programmes": 424,
+    "countries": 8,
+    "usMedianEarnings": 41954,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000
+    },
+    "chSalaryPercentile": 0.91,
+    "salaryPercentile": 0.61
+  },
+  "physiotherapy": {
+    "programmes": 2900,
+    "countries": 9,
+    "usMedianEarnings": 32875.5,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 74800
+    },
+    "chSalaryPercentile": 0.18,
+    "salaryPercentile": 0.27
+  },
+  "sports-science": {
+    "programmes": 3316,
+    "countries": 9,
+    "usMedianEarnings": 29818,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83100
+    },
+    "chSalaryPercentile": 0.56,
+    "salaryPercentile": 0.2
+  },
+  "nutrition": {
+    "programmes": 1801,
+    "countries": 9,
+    "usMedianEarnings": 34107.5,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 74800
+    },
+    "chSalaryPercentile": 0.19,
+    "salaryPercentile": 0.35
+  },
+  "public-health": {
+    "programmes": 3461,
+    "countries": 9,
+    "usMedianEarnings": 37200,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000,
+      "fhBachelor": 74800
+    },
+    "chSalaryPercentile": 0.92,
+    "salaryPercentile": 0.47
+  },
+  "psychology": {
+    "programmes": 6776,
+    "countries": 9,
+    "usMedianEarnings": 29678,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000,
+      "fhBachelor": 82000
+    },
+    "chSalaryPercentile": 0.38,
+    "salaryPercentile": 0.18
+  },
+  "economics": {
+    "programmes": 3510,
+    "countries": 9,
+    "usMedianEarnings": 47268.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000,
+      "fhBachelor": 85000
+    },
+    "chSalaryPercentile": 0.94,
+    "salaryPercentile": 0.66
+  },
+  "business-management": {
+    "programmes": 16630,
+    "countries": 9,
+    "usMedianEarnings": 42524,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000,
+      "fhBachelor": 85000
+    },
+    "chSalaryPercentile": 0.95,
+    "salaryPercentile": 0.62
+  },
+  "finance-accounting": {
+    "programmes": 6201,
+    "countries": 9,
+    "usMedianEarnings": 49128,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000,
+      "fhBachelor": 85000
+    },
+    "chSalaryPercentile": 0.96,
+    "salaryPercentile": 0.72
+  },
+  "marketing": {
+    "programmes": 6077,
+    "countries": 9,
+    "usMedianEarnings": 40685,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000,
+      "fhBachelor": 85000
+    },
+    "chSalaryPercentile": 0.97,
+    "salaryPercentile": 0.57
+  },
+  "entrepreneurship": {
+    "programmes": 967,
+    "countries": 9,
+    "usMedianEarnings": 44039,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000,
+      "fhBachelor": 85000
+    },
+    "chSalaryPercentile": 0.99,
+    "salaryPercentile": 0.64
+  },
+  "logistics": {
+    "programmes": 985,
+    "countries": 9,
+    "usMedianEarnings": 75128,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 90000,
+      "fhBachelor": 85000
+    },
+    "chSalaryPercentile": 1,
+    "salaryPercentile": 0.97
+  },
+  "hospitality-tourism": {
+    "programmes": 2140,
+    "countries": 9,
+    "usMedianEarnings": 35741,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 85000
+    },
+    "chSalaryPercentile": 0.81,
+    "salaryPercentile": 0.42
+  },
+  "political-science": {
+    "programmes": 5937,
+    "countries": 9,
+    "usMedianEarnings": 35418,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000
+    },
+    "chSalaryPercentile": 0.39,
+    "salaryPercentile": 0.41
+  },
+  "law": {
+    "programmes": 3317,
+    "countries": 9,
+    "usMedianEarnings": 39791,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 70000
+    },
+    "chSalaryPercentile": 0.14,
+    "salaryPercentile": 0.55
+  },
+  "criminology": {
+    "programmes": 2857,
+    "countries": 8,
+    "usMedianEarnings": 34272,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 70000
+    },
+    "chSalaryPercentile": 0.15,
+    "salaryPercentile": 0.36
+  },
+  "sociology": {
+    "programmes": 3938,
+    "countries": 9,
+    "usMedianEarnings": 31647.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000
+    },
+    "chSalaryPercentile": 0.41,
+    "salaryPercentile": 0.23
+  },
+  "anthropology": {
+    "programmes": 2207,
+    "countries": 9,
+    "usMedianEarnings": 28054.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000
+    },
+    "chSalaryPercentile": 0.42,
+    "salaryPercentile": 0.09
+  },
+  "social-work": {
+    "programmes": 4284,
+    "countries": 9,
+    "usMedianEarnings": 33527,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 85700
+    },
+    "chSalaryPercentile": 0.84,
+    "salaryPercentile": 0.31
+  },
+  "education": {
+    "programmes": 13111,
+    "countries": 9,
+    "usMedianEarnings": 37401,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000,
+      "teaching": 99000
+    },
+    "chSalaryPercentile": 0.43,
+    "salaryPercentile": 0.49
+  },
+  "journalism": {
+    "programmes": 960,
+    "countries": 9,
+    "usMedianEarnings": 32103,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000,
+      "fhBachelor": 78000
+    },
+    "chSalaryPercentile": 0.44,
+    "salaryPercentile": 0.24
+  },
+  "media-communication": {
+    "programmes": 3386,
+    "countries": 9,
+    "usMedianEarnings": 33360.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000,
+      "fhBachelor": 78000
+    },
+    "chSalaryPercentile": 0.46,
+    "salaryPercentile": 0.3
+  },
+  "history": {
+    "programmes": 4426,
+    "countries": 9,
+    "usMedianEarnings": 30609.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000
+    },
+    "chSalaryPercentile": 0.47,
+    "salaryPercentile": 0.22
+  },
+  "archaeology": {
+    "programmes": 1180,
+    "countries": 9,
+    "usMedianEarnings": 29685,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000
+    },
+    "chSalaryPercentile": 0.48,
+    "salaryPercentile": 0.19
+  },
+  "philosophy": {
+    "programmes": 3550,
+    "countries": 9,
+    "usMedianEarnings": 33224.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000
+    },
+    "chSalaryPercentile": 0.49,
+    "salaryPercentile": 0.28
+  },
+  "religious-studies": {
+    "programmes": 3464,
+    "countries": 9,
+    "usMedianEarnings": 29606,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000
+    },
+    "chSalaryPercentile": 0.51,
+    "salaryPercentile": 0.16
+  },
+  "linguistics": {
+    "programmes": 1578,
+    "countries": 9,
+    "usMedianEarnings": 27410,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000,
+      "fhBachelor": 78000
+    },
+    "chSalaryPercentile": 0.52,
+    "salaryPercentile": 0.07
+  },
+  "languages": {
+    "programmes": 5721,
+    "countries": 9,
+    "usMedianEarnings": 33908,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000,
+      "fhBachelor": 78000
+    },
+    "chSalaryPercentile": 0.53,
+    "salaryPercentile": 0.34
+  },
+  "literature": {
+    "programmes": 5234,
+    "countries": 9,
+    "usMedianEarnings": 29136.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83000
+    },
+    "chSalaryPercentile": 0.54,
+    "salaryPercentile": 0.14
+  },
+  "liberal-arts": {
+    "programmes": 3237,
+    "countries": 9,
+    "usMedianEarnings": 34751.5,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 83100
+    },
+    "chSalaryPercentile": 0.57,
+    "salaryPercentile": 0.38
+  },
+  "fine-arts": {
+    "programmes": 3070,
+    "countries": 9,
+    "usMedianEarnings": 25847,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 62400
+    },
+    "chSalaryPercentile": 0.08,
+    "salaryPercentile": 0.01
+  },
+  "graphic-design": {
+    "programmes": 2656,
+    "countries": 9,
+    "usMedianEarnings": 35133,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 60000
+    },
+    "chSalaryPercentile": 0.04,
+    "salaryPercentile": 0.39
+  },
+  "fashion-design": {
+    "programmes": 665,
+    "countries": 9,
+    "usMedianEarnings": 36691,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 60000
+    },
+    "chSalaryPercentile": 0.05,
+    "salaryPercentile": 0.45
+  },
+  "film-production": {
+    "programmes": 2574,
+    "countries": 9,
+    "usMedianEarnings": 27057,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 62400
+    },
+    "chSalaryPercentile": 0.09,
+    "salaryPercentile": 0.04
+  },
+  "animation-vfx": {
+    "programmes": 509,
+    "countries": 8,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 60000
+    },
+    "chSalaryPercentile": 0.06
+  },
+  "music": {
+    "programmes": 2846,
+    "countries": 9,
+    "usMedianEarnings": 28665,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 62400
+    },
+    "chSalaryPercentile": 0.1,
+    "salaryPercentile": 0.12
+  },
+  "music-production": {
+    "programmes": 903,
+    "countries": 8,
+    "usMedianEarnings": 26857.5,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 62400
+    },
+    "chSalaryPercentile": 0.11,
+    "salaryPercentile": 0.03
+  },
+  "performing-arts": {
+    "programmes": 2199,
+    "countries": 9,
+    "usMedianEarnings": 23140.5,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 62400
+    },
+    "chSalaryPercentile": 0.13,
+    "salaryPercentile": 0
+  },
+  "culinary-arts": {
+    "programmes": 320,
+    "countries": 7,
+    "usMedianEarnings": 33826,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 85000
+    },
+    "chSalaryPercentile": 0.82,
+    "salaryPercentile": 0.32
+  },
+  "agriculture": {
+    "programmes": 3187,
+    "countries": 9,
+    "usMedianEarnings": 41434,
+    "ch": {
+      "year": "2024",
+      "uhMaster": 84500,
+      "fhBachelor": 83000
+    },
+    "chSalaryPercentile": 0.8,
+    "salaryPercentile": 0.59
+  },
+  "aviation": {
+    "programmes": 284,
+    "countries": 9,
+    "usMedianEarnings": 45882,
+    "ch": {
+      "year": "2024",
+      "fhBachelor": 88000
+    },
+    "chSalaryPercentile": 0.85,
+    "salaryPercentile": 0.65
+  }
+}
