@@ -160,7 +160,7 @@ const BRANDS =
  * word before is what someone dresses up as). Removed before matching.
  */
 const FALSE_FRIENDS =
-  /\b(frank\s+ocean|ocean'?s\s+(?:eleven|twelve|thirteen|eight|8|11|12|13)|prison\s+break|orange\s+is\s+the\s+new\s+black|nocturnal\s+animals|(?:the\s+)?predator(?:s)?\s+(?:\d+|film|movie|prey|badlands|trailer)|grey'?s\s+anatomy|dr\.?\s+house|breaking\s+bad|criminal\s+minds|[\p{L}-]+\s+(?:outfits?|kost(?:ü|u|ue)m\w*|costumes?|verkleidung\w*|halloween))\b/giu
+  /\b(frank\s+ocean|ocean'?s\s+(?:eleven|twelve|thirteen|eight|8|11|12|13)|prison\s+break|orange\s+is\s+the\s+new\s+black|nocturnal\s+animals|(?:the\s+)?predator(?:s)?\s+(?:\d+|film|movie|prey|badlands|trailer)|grey'?s\s+anatomy|dr\.?\s+house|breaking\s+bad|criminal\s+minds|save\s+the\s+planet|our\s+planet|unseren?\s+planeten|planet\s+based|planetary\s+health|judge\s+(?:rinder|judy|mathis|jules)|cat\s+tv|katzen[\s-]?tv|(?:rain|thunder|ocean|jungle|forest|desert|nature|white|brown|fire|night|study|sleep)\s+(?:sounds?|noises?|ambien\w*)|ambient\s+(?:music|sounds?)|white\s+noise|[\p{L}-]+\s+(?:outfits?|kost(?:ü|u|ue)m\w*|costumes?|verkleidung\w*|halloween))\b/giu
 
 /**
  * Looking something up on a film or series database is choosing what to

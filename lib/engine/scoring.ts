@@ -256,7 +256,8 @@ export function score(input: ScoreInput): Results {
   // Big Five: questionnaire, else music taste (weak).
   const qBig5 = scoreBig5(answers)
   let big5: Big5 | null = qBig5
-  let big5Conf = qBig5 ? 1 : 0
+  // Four items per trait (Mini-IPIP): a reliable but rough picture, so not full confidence.
+  let big5Conf = qBig5 ? 0.6 : 0
   const big5From: string[] = qBig5 ? ['questionnaire'] : []
   const musicSource = summaries.find((s) => s.music)
   if (musicSource?.music) {

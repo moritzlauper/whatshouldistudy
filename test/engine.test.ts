@@ -279,3 +279,13 @@ test('the review payload carries no titles, channel names or links of third part
   // The counts themselves are still there.
   assert.ok(json.includes('"items"'))
 })
+
+test('more false friends: ambient sounds, cat TV, TV judges and climate talk about the planet', () => {
+  const ids = (t: string) => topFields(t, 3).map((f) => f.id)
+  assert.ok(!ids('rain sounds for sleeping 3 hours').includes('zoology'))
+  assert.ok(!ids('jungle sounds white noise').includes('zoology'))
+  assert.ok(!ids('cat tv for cats 4k').includes('zoology'))
+  assert.ok(!ids('Judge Rinder show episode').includes('law'))
+  assert.ok(!ids('save the planet vegan recipes').includes('astronomy'))
+  assert.ok(!ids('planet based diet').includes('astronomy'))
+})
