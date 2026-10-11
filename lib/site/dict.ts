@@ -12,7 +12,37 @@ import type { Locale } from './config.ts'
 /** A source card on the landing page; Reddit only shows where its sign-in is set up. */
 export type LandingSource = { id: string; glyph: string; name: string; how: string; what: string; n: string; color: string; badge?: 'best' | 'optional' }
 
+/** German long-form explanation; DE/AT spelling is applied by the view. */
+export const HOW_DE = {
+  lead: (n: number) => `Du startest mit einem kurzen Fragebogen, ohne Konto und ohne Upload. Wir vergleichen deine Interessen, Schulfächer und Werte mit ${n} Studienfeldern. Eigene Daten kannst du freiwillig für einen zweiten Blick ergänzen.`,
+  questionnaireTitle: '1. Den Fragebogen ausfüllen',
+  questionnaireIntro: 'Im Fragebogen schätzt du ein, welche Tätigkeiten dir gefallen, welche Schulfächer dir liegen und was dir im Beruf wichtig ist. Du brauchst dafür keinen Suchverlauf und keine verbundenen Konten.',
+  questionnaireParts: [
+    ['Interessen (RIASEC)', '24 Fragen zu Tätigkeiten bilden die sechs Interessentypen nach John Holland ab: praktisch, forschend, kreativ, sozial, unternehmerisch und ordnend. Damit dein Interessenprofil ausgewertet werden kann, brauchst du mindestens zwei Antworten pro Typ.'],
+    ['Schulfächer', 'Du gibst an, was du gern machst und wie gut du dich darin einschätzt. Das vergleichen wir mit den Grundlagen der Studienfelder.'],
+    ['Werte', 'Du gewichtest, was du von einem Beruf erwartest, etwa Sicherheit, Kreativität oder die Möglichkeit, anderen zu helfen.'],
+    ['Persönlichkeit (freiwillig)', 'Die 20 zusätzlichen Fragen des Mini-IPIP ergänzen dein Resultat um ein Big-Five-Profil. Sie verändern die Fächerrangliste im Fragebogen-Modus nicht. Der freiwillige KI-Vergleich kann das Profil berücksichtigen.'],
+  ],
+  matchTitle: '2. Passende Studienfelder finden',
+  matchIntro: 'Wir vergleichen dein Profil mit den Profilen der Studienfelder. Wenn alle drei Teile auswertbar sind, zählen die Interessen zu 60 %, die Schulfächer zu 28 % und die Werte zu 12 %. Fehlende oder nicht aussagekräftige Teile werden nicht als neutrale Antworten gewertet; die übrigen Gewichte werden entsprechend angepasst.',
+  matchMeaning: 'Die Passungswerte helfen dir, Fächer miteinander zu vergleichen. Sie sind keine Wahrscheinlichkeit für einen Studienerfolg. Wenn dein Interessenprofil wenig Unterschiede zeigt oder Fächer nahe beieinanderliegen, weisen wir darauf hin.',
+  resultTitle: '3. Dein Resultat und die Studiengänge anschauen',
+  resultIntro: 'Passende Fächer kannst du dir gratis ansehen. Dein bestes Fach und dein bester Studiengang gehören zum kostenpflichtigen Report. Dort findest du passende Studiengänge an konkreten Hochschulen aus den abgedeckten Ländern und kannst einzelne Studiengänge freiwillig mit KI mit deinem Profil vergleichen.',
+  dataTitle: 'Optional: eigene Daten ergänzen',
+  dataIntro: 'Mit dem Modus «Mit deinen Daten» kannst du zum Beispiel einen YouTube-, Instagram- oder TikTok-Export ergänzen. Wenn dein Interessenfragebogen auswertbar ist, bleibt er die Grundlage: Die zusätzlichen Daten machen höchstens 25 % der Passung aus, abhängig davon, wie aussagekräftig sie sind. Ohne auswertbaren Interessenfragebogen ist die Datenanalyse eine Erkundung mit geringer Sicherheit.',
+  dataDetails: 'Wie die freiwillige Datenanalyse funktioniert',
+  limitsTitle: 'Was das Resultat nicht kann',
+  limits: [
+    'Deine Antworten sind Selbsteinschätzungen. Der Fragebogen prüft weder deine Fähigkeiten noch die Zulassung zu einem Studiengang.',
+    'Ein ähnliches Interessenprofil allein sagt Zufriedenheit und Erfolg im Studium nicht zuverlässig voraus. Das Resultat hilft dir, Möglichkeiten einzugrenzen.',
+    'Falls du Daten ergänzt: Geteilte Konten, Autoplay und vorübergehende Interessen können das Bild verzerren. Inhalte in anderen Sprachen als Deutsch, Englisch, Französisch, Italienisch und Spanisch werden nur teilweise erkannt.',
+    'Sprich mit Studierenden und einer Studienberatung, schau dir Studienpläne an und geh an einen Infotag, bevor du dich entscheidest.',
+  ],
+}
+
 const en = {
+  /** Coverage notice displayed before buying a report or a school plan. */
+  reportScope: '',
   /** Shown instead of the buy buttons where SALES_PAUSED. */
   salesPaused: 'The full report isn’t on sale here at the moment. Your result with the fields that fit you stays free.',
   /** The same for schools, on the plans page. */
@@ -678,6 +708,7 @@ const IT_MESSAGES: Array<[RegExp, string]> = [
 ]
 
 const deCH: Dict = {
+  reportScope: '',
   salesPaused: 'Den vollen Report verkaufen wir hier im Moment nicht. Dein Resultat mit den passenden Fächern bleibt gratis.',
   salesPausedOrgs: 'Schul-Abos verkaufen wir hier im Moment nicht. Der Test mit den passenden Fächern bleibt für Ihre Schülerinnen und Schüler gratis, bestehende Abos laufen weiter.',
   nav: { how: 'So funktioniert’s', fields: 'Fächer', start: 'Los geht’s' },
@@ -1281,7 +1312,7 @@ const deCH: Dict = {
     fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du sie in der Schweiz studieren kannst.`,
     fieldDesc: (name: string, blurb: string) => `${blurb} Wem ${name} liegt, auf welchen Schulfächern es aufbaut, wohin es führt und wo du es studieren kannst.`,
     how: 'So funktioniert’s',
-    howDesc: `Das Modell hinter ${CH_NAME}: was wir aus jeder Quelle lesen, wie wir Interesse messen, welche Psychologie drinsteckt und woher die Studiengänge kommen.`,
+    howDesc: `So findest du mit ${CH_NAME} passende Studiengänge: Fragebogen ausfüllen, Interessen, Schulfächer und Werte vergleichen und freiwillig eigene Daten ergänzen.`,
     privacy: 'Datenschutz',
     terms: 'AGB',
     connecting: 'Verbinde …',
@@ -1316,17 +1347,16 @@ const deCH: Dict = {
 
 /** Germany: the Swiss texts in German spelling, plus what differs in substance. */
 const DE_OVERRIDES: DeepPartial<Dict> = {
-  salesPaused: 'Den vollen Report verkaufen wir für Deutschland im Moment nicht: Die Daten der Studiensuche haben keine offene Lizenz, deshalb könnten wir dir keine deutschen Studiengänge zeigen. Dein Resultat mit den passenden Fächern bleibt gratis, und pro Fach führt ein Link direkt zur Studiensuche.',
-  salesPausedOrgs: 'Schul-Abos für Deutschland verkaufen wir im Moment nicht: Die Daten der Studiensuche haben keine offene Lizenz, deshalb könnte der Report keine deutschen Studiengänge zeigen. Der Test mit den passenden Fächern bleibt für Ihre Schülerinnen und Schüler gratis, bestehende Abos laufen weiter.',
+  reportScope: 'Der volle Report enthält dein bestes Fach mit Belegen und passende Studiengänge aus unserer Datenbank in der Schweiz, Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA. Einzelne Studiengänge in Deutschland und Österreich sind derzeit nicht enthalten. Für diese Länder gibt es Links zu den offiziellen Suchportalen pro Fach. Wer nur Deutschland oder Österreich als Studienland auswählt, erhält keine einzelnen Studiengänge im Report.',
   landing: {
     lead: (n: number) =>
-      `Finde deinen Weg zu einem passenden Studiengang: mit einem kurzen Fragebogen oder zusätzlich deinen eigenen Daten. Du erhältst passende Fächer aus ${n} Studienfeldern. Für die einzelnen Studiengänge verlinken wir auf Studiensuche der Bundesagentur für Arbeit. Den vollen Report verkaufen wir hier im Moment nicht.`,
-    fullList: ['Dein Platz 1, mit allen Belegen', 'Deine Fächer, für dich sortiert, je mit Link zur Studiensuche der Bundesagentur für Arbeit', 'Passende Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studiengänge markiert'],
+      `Finde deinen Weg zu einem passenden Studiengang: mit einem kurzen Fragebogen oder zusätzlich deinen eigenen Daten. Du erhältst passende Fächer aus ${n} Studienfeldern. Für Studiengänge in Deutschland verlinken wir pro Fach auf die Studiensuche der Bundesagentur für Arbeit. Der kostenpflichtige Report ergänzt dein bestes Fach mit Belegen und passende Studiengänge in den abgedeckten Auslandsländern.`,
+    fullList: ['Dein bestes Fach, mit allen Belegen', 'Deine Fächer, für dich sortiert, je mit Link zur Studiensuche der Bundesagentur für Arbeit', 'Passende Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studiengänge markiert'],
     faq: [
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
       ['Ist das ein richtiger psychologischer Test?', 'Er baut auf gesicherter Forschung auf, ist aber kein geprüfter Test. Die Interessenfragen folgen dem RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, mit vier Tätigkeiten pro Bereich. Die Fragen sind unsere eigenen und noch nicht in einer Studie geprüft. Der freiwillige Teil zur Persönlichkeit ist der Mini-IPIP, eine veröffentlichte Big-Five-Skala mit 20 Fragen, in eigener Übersetzung. Die Analyse deiner Daten ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
       ['Welche Hochschulen sind drin?', 'Für Deutschland zeigen wir die Fächer, die Hochschultypen und die Kosten; die einzelnen Studiengänge führt die Studiensuche der Bundesagentur für Arbeit, auf die wir pro Fach verlinken. Ihre Daten haben keine offene Lizenz, deshalb übernehmen wir sie nicht. Studiengang für Studiengang kommen die Schweiz, Frankreich, UK, die Niederlande, Norwegen, Finnland, Australien, Südkorea und die USA dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
-      ['Was bringt der volle Report?', 'Deinen Platz 1 mit allen Belegen, deine Fächer mit Link zur Studiensuche der Bundesagentur für Arbeit und die passenden Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Die einzelnen Studiengänge in Deutschland enthält er nicht, deshalb verkaufen wir ihn für Deutschland im Moment nicht.'],
+      ['Was bringt der volle Report?', 'Dein bestes Fach mit allen Belegen, deine Fächer mit Link zur Studiensuche der Bundesagentur für Arbeit und die passenden Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Einzelne Studiengänge in Deutschland und Österreich sind nicht enthalten. Wenn du nur diese Länder auswählst, erhältst du die Fächerauswertung und Links zu den offiziellen Suchportalen, aber keine einzelnen Studiengänge.'],
       ['Geht das auch ohne Verbindungen?', 'Ja. Der Fragebogen allein gibt schon ein brauchbares Ergebnis. Jede Quelle macht es genauer, und das Vertrauens-Badge beim Ergebnis zeigt, worauf es beruht.'],
     ],
     typesTitle: 'Uni, HAW oder duales Studium?',
@@ -1336,7 +1366,8 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
   results: { title: 'Dein Ergebnis', nothingText: 'Beantworte zuerst die Interessenfragen oder verbinde eine Quelle.', quality: { counselling: { label: 'Berufsberatung vor dem Studium der Bundesagentur für Arbeit', href: 'https://www.arbeitsagentur.de/bildung/studium' } } },
   start: { seeResult: 'Mein Ergebnis →', lead: 'Beantworte den Fragebogen und schau dir dann dein Ergebnis an. Wenn du willst, ergänzt du deine Daten für einen zweiten Blick. Du kannst jederzeit zurückkommen und mehr ergänzen.' },
   programmes: {
-    boxList: (n: string) => ['Dein Platz 1, mit allen Belegen', `Alle ${n} passenden Studiengänge in den Ländern, die du wählst`, 'Abschluss, Studienform und Ort', 'Für Deutschland: Link zur Studiensuche pro Fach', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche und CSV-Export', 'Neue Studiengänge markiert, wöchentlich aktualisiert'],
+    boxSub: 'Dein bestes Fach mit Belegen und passende Studiengänge aus den abgedeckten Ländern.',
+    boxList: (n: string) => ['Dein bestes Fach, mit allen Belegen', `Alle ${n} passenden Studiengänge aus unserer Datenbank für deine gewählten Länder und Filter`, 'Abschluss, Studienform und Ort', 'Für Deutschland: Link zur Studiensuche pro Fach', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche und CSV-Export', 'Neue Studiengänge markiert, wöchentlich aktualisiert'],
     boxNote: 'Einmalig · 12 Monate gültig · sichere Bezahlung über Stripe',
   },
   fields: {
@@ -1351,24 +1382,23 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
     keywords: ['Was soll ich studieren', 'Welches Studium passt zu mir', 'Studienwahltest', 'Studiengänge Deutschland', 'Uni oder FH', 'Studienorientierung', 'RIASEC', 'Big Five'],
     results: 'Dein Ergebnis',
     fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du in Deutschland danach suchst.`,
-    howDesc: `Das Modell hinter ${DE_NAME}: was wir aus jeder Quelle lesen, wie wir Interesse messen, welche Psychologie drinsteckt und woher die Studiengänge kommen.`,
+    howDesc: `So findest du mit ${DE_NAME} passende Studiengänge: Fragebogen ausfüllen, Interessen, Schulfächer und Werte vergleichen und freiwillig eigene Daten ergänzen.`,
   },
   misc: { dataCredit: 'Studiengänge: College Scorecard, Discover Uni, Parcoursup, BFS, DUO, DBH, Opintopolku, CRICOS, 대학알리미, OpenAlex; für Deutschland Links zur Studiensuche der Bundesagentur für Arbeit' },
 }
 
 /** Austria: the Swiss texts in Austrian spelling, plus what differs in substance. */
 const AT_OVERRIDES: DeepPartial<Dict> = {
-  salesPaused: 'Den vollen Report verkaufen wir für Österreich im Moment nicht: Die Daten von studienwahl.at haben keine offene Lizenz, deshalb könnten wir dir keine österreichischen Studien zeigen. Dein Resultat mit den passenden Fächern bleibt gratis, und pro Fach führt ein Link direkt zu studienwahl.at.',
-  salesPausedOrgs: 'Schul-Abos für Österreich verkaufen wir im Moment nicht: Die Daten von studienwahl.at haben keine offene Lizenz, deshalb könnte der Report keine österreichischen Studien zeigen. Der Test mit den passenden Fächern bleibt für Ihre Schülerinnen und Schüler gratis, bestehende Abos laufen weiter.',
+  reportScope: 'Der volle Report enthält dein bestes Fach mit Belegen und passende Studiengänge aus unserer Datenbank in der Schweiz, Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA. Einzelne Studiengänge in Deutschland und Österreich sind derzeit nicht enthalten. Für diese Länder gibt es Links zu den offiziellen Suchportalen pro Fach. Wer nur Deutschland oder Österreich als Studienland auswählt, erhält keine einzelnen Studiengänge im Report.',
   landing: {
     lead: (n: number) =>
-      `Finde deinen Weg zu einem passenden Studiengang: mit einem kurzen Fragebogen oder zusätzlich deinen eigenen Daten. Du erhältst passende Fächer aus ${n} Studienfeldern. Für die einzelnen Studiengänge verlinken wir auf studienwahl.at. Den vollen Report verkaufen wir hier im Moment nicht.`,
-    fullList: ['Dein Platz 1, mit allen Belegen', 'Deine Fächer, für dich sortiert, je mit Link zu studienwahl.at', 'Passende Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studien markiert'],
+      `Finde deinen Weg zu einem passenden Studiengang: mit einem kurzen Fragebogen oder zusätzlich deinen eigenen Daten. Du erhältst passende Fächer aus ${n} Studienfeldern. Für Studiengänge in Österreich verlinken wir pro Fach auf studienwahl.at. Der kostenpflichtige Report ergänzt dein bestes Fach mit Belegen und passende Studiengänge in den abgedeckten Auslandsländern.`,
+    fullList: ['Dein bestes Fach, mit allen Belegen', 'Deine Fächer, für dich sortiert, je mit Link zu studienwahl.at', 'Passende Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studien markiert'],
     faq: [
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
       ['Ist das ein richtiger psychologischer Test?', 'Er baut auf gesicherter Forschung auf, ist aber kein geprüfter Test. Die Interessenfragen folgen dem RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, mit vier Tätigkeiten pro Bereich. Die Fragen sind unsere eigenen und noch nicht in einer Studie geprüft. Der freiwillige Teil zur Persönlichkeit ist der Mini-IPIP, eine veröffentlichte Big-Five-Skala mit 20 Fragen, in eigener Übersetzung. Die Analyse deiner Daten ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
       ['Welche Hochschulen sind drin?', 'Für Österreich zeigen wir die Fächer, die Hochschultypen und die Kosten; die einzelnen Studien führt studienwahl.at, das Studienportal des Wissenschaftsministeriums, auf das wir pro Fach verlinken. Seine Daten haben keine offene Lizenz, deshalb übernehmen wir sie nicht. Studiengang für Studiengang kommen die Schweiz, Frankreich, UK, die Niederlande, Norwegen, Finnland, Australien, Südkorea und die USA dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
-      ['Was bringt der volle Report?', 'Deinen Platz 1 mit allen Belegen, deine Fächer mit Link zu studienwahl.at und die passenden Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Die einzelnen Studien in Österreich enthält er nicht, deshalb verkaufen wir ihn für Österreich im Moment nicht.'],
+      ['Was bringt der volle Report?', 'Dein bestes Fach mit allen Belegen, deine Fächer mit Link zu studienwahl.at und die passenden Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Einzelne Studiengänge in Österreich und Deutschland sind nicht enthalten. Wenn du nur diese Länder auswählst, erhältst du die Fächerauswertung und Links zu den offiziellen Suchportalen, aber keine einzelnen Studiengänge.'],
       ['Geht das auch ohne Verbindungen?', 'Ja. Der Fragebogen allein gibt schon ein brauchbares Ergebnis. Jede Quelle macht es genauer, und das Vertrauens-Badge beim Ergebnis zeigt, worauf es beruht.'],
     ],
     typesTitle: 'Uni, FH oder PH?',
@@ -1377,7 +1407,8 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
   results: { title: 'Dein Ergebnis', nothingText: 'Beantworte zuerst die Interessenfragen oder verbinde eine Quelle.', quality: { counselling: { label: 'Studienberatung auf studienwahl.at', href: 'https://www.studienwahl.at' } } },
   start: { seeResult: 'Mein Ergebnis →', lead: 'Beantworte den Fragebogen und schau dir dann dein Ergebnis an. Wenn du willst, ergänzt du deine Daten für einen zweiten Blick. Du kannst jederzeit zurückkommen und mehr ergänzen.' },
   programmes: {
-    boxList: (n: string) => ['Dein Platz 1, mit allen Belegen', `Alle ${n} passenden Studien in den Ländern, die du wählst`, 'Abschluss, Studienform und Ort', 'Für Österreich: Link zu studienwahl.at pro Fach', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche und CSV-Export', 'Neue Studien markiert, wöchentlich aktualisiert'],
+    boxSub: 'Dein bestes Fach mit Belegen und passende Studiengänge aus den abgedeckten Ländern.',
+    boxList: (n: string) => ['Dein bestes Fach, mit allen Belegen', `Alle ${n} passenden Studien aus unserer Datenbank für deine gewählten Länder und Filter`, 'Abschluss, Studienform und Ort', 'Für Österreich: Link zu studienwahl.at pro Fach', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche und CSV-Export', 'Neue Studien markiert, wöchentlich aktualisiert'],
     boxNote: 'Einmalig · 12 Monate gültig · sichere Bezahlung über Stripe',
   },
   fields: {
@@ -1392,7 +1423,7 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
     keywords: ['Was soll ich studieren', 'Welches Studium passt zu mir', 'Studienwahl Test', 'Studieren in Österreich', 'Uni oder FH', 'Studienberatung', 'RIASEC', 'Big Five'],
     results: 'Dein Ergebnis',
     fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du in Österreich danach suchst.`,
-    howDesc: `Das Modell hinter ${AT_NAME}: was wir aus jeder Quelle lesen, wie wir Interesse messen, welche Psychologie drinsteckt und woher die Studien kommen.`,
+    howDesc: `So findest du mit ${AT_NAME} passende Studien: Fragebogen ausfüllen, Interessen, Schulfächer und Werte vergleichen und freiwillig eigene Daten ergänzen.`,
   },
   misc: { dataCredit: 'Studiengänge: College Scorecard, Discover Uni, Parcoursup, BFS, DUO, DBH, Opintopolku, CRICOS, 대학알리미, OpenAlex; für Österreich Links zu studienwahl.at' },
 }

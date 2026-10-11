@@ -258,6 +258,7 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
             <li key={x}>★ {x}</li>
           ))}
         </ul>
+        {t.reportScope && <p className="mt-5 rounded-xl bg-surface p-4 text-sm font-semibold text-ink">{t.reportScope}</p>}
         {org && config?.payments !== 'off' && !orgError && (
           <>
             <button type="button" disabled={busy || !config} onClick={unlockViaOrg} className="btn btn-lime btn-lg mt-6 w-full">

@@ -56,8 +56,11 @@ Studiensuche of the Bundesagentur für Arbeit and studienwahl.at. Switzerland
 then has the BFS data (free use with attribution), and for the largest
 universities their own programme lists (`ch-hochschulen.ts`), one page per field of
 study at an institution; Germany and Austria get pages per field that link to
-the official search, and the report is not on sale there (`SALES_PAUSED` in
-`lib/site/config.ts`). Field pages list the programmes as links to these pages,
+the official search. Reports and school plans are on sale in both countries;
+the landing page, report checkout and school plans disclose that individual
+German and Austrian programmes are not included. Selecting only DE/AT returns
+no individual programmes. The paid report includes the top field with evidence
+and matching programmes from the covered countries. Field pages list the programmes as links to these pages,
 on the global site a few per country. They are built on the first request and
 cached for a day.
 Their sitemaps are separate files of at most 40,000 addresses,

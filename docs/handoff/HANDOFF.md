@@ -15,7 +15,7 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 Die fünf Produkt- und Outreach-Aufträge sind umgesetzt:
 
 1. **Bester Studiengang:** eigene Karte direkt nach dem Fach auf Platz 1 (`TopProgramme`). Vor dem Kauf bleibt sie gesperrt; Details kommen erst nach Freigabe über `/api/programmes`. Der kostenlose Teaser schliesst den tatsächlichen besten Studiengang und das erste Fach aus, auch wenn der beste Studiengang zu einem anderen Fach gehört. Token-Prüfung und Checkout bleiben unverändert.
-2. **Studiengang-Fokus:** Hero, Ablauf, Beispielkarte und CTAs in Englisch, Deutsch, Französisch und Italienisch nennen konkrete Hochschulen, beide Modi und den freiwilligen KI-Vergleich. Die Hinweise auf die fehlenden DE/AT-Daten und pausierten Verkäufe bleiben bestehen.
+2. **Studiengang-Fokus:** Hero, Ablauf, Beispielkarte und CTAs in Englisch, Deutsch, Französisch und Italienisch nennen konkrete Hochschulen, beide Modi und den freiwilligen KI-Vergleich. Die Hinweise auf die fehlenden DE/AT-Daten bleiben bestehen; die Verkaufspause wurde anschliessend auf ausdrücklichen Wunsch des Inhabers aufgehoben.
 3. **Datenschutz:** Der Hinweis beim Start erscheint nur im Datenmodus.
 4. **Kürzerer Fragebogen:** 24 Interessenfragen (vier pro Typ), Kontrollitem nach Frage 12, Warnung bei zehn gleichen Antworten in Folge. Zwei Antworten je Typ bleiben das Minimum. Behaltene IDs und Übersetzungen sind stabil; entfernte Antworten zählen nicht mehr für Fortschritt oder Ergebnis. Big Five ist freiwillig eingeklappt und zählt nicht zum Kernfortschritt (47 Einträge). Schulfächer und Werte bleiben unverändert. Die Auswahl bewahrt konkrete Tätigkeiten und thematische Breite; unveränderte Reliabilität ist ohne Validierungsdaten nicht belegt.
 5. **Outreach:** `mail.ts` im separaten Repo `moritzlauper/whatshouldistudy-outreach` nennt in DE/FR/IT/EN Studiengänge an konkreten Hochschulen und beide Modi. DE/AT-Vorlagen weisen auf die fehlenden Studiengangdaten und pausierten Verkäufe hin. Bestehende Entwürfe und Briefe wurden nicht überschrieben; keine Mails wurden versendet.
@@ -39,7 +39,8 @@ Stand:
   - de-mitte: unigoettingen, luh, jgu, jmu, unimannheim, unistuttgart, cau
 - Seitenproben (HTML der Listen und robots.txt) liegen auf den Branches `wsis-probe-at`, `wsis-probe-de-sued`, `-de-ost`, `-de-west`, `-de-mitte` unter `probe-out/`. Neue Proben: Branch `wsis-probe-<name>` von `wsis-probe` abzweigen, URLs in `scrapers/probe/urls.json`, pushen; der Workflow `wsis-probe.yml` legt die Seiten unter `probe-out/` zurück. Je Gruppe ein Test `test/sites-<gruppe>.test.ts` mit kleinen HTML-Ausschnitten.
 - Danach: `de-hochschulen`/`at-hochschulen` in `PROGRAMME_SOURCES` und `SOURCES` (`scrapers/build.ts`) aufnehmen, Schritt in `.github/workflows/wsis-daten.yml` ergänzen, DE/AT aus `LINK_ONLY` in `lib/catalogue.ts` nehmen, README nachführen.
-- `SALES_PAUSED` für de/at in `lib/site/config.ts` nicht ohne Rückfrage beim Inhaber aufheben.
+- Verkaufspause für DE/AT am 11.10.2026 auf ausdrücklichen Wunsch des Inhabers aufgehoben, auch für Schul-Abos. `SALES_PAUSED` ist leer. Kaufbereiche auf Startseite und Ergebnis sowie Schul-Abos zeigen den Umfang: bestes Fach mit Belegen, Studiengänge aus den abgedeckten Ländern, keine einzelnen Studiengänge aus DE/AT. Bei ausschliesslicher DE/AT-Auswahl gibt es keine einzelnen Studiengänge. `LINK_ONLY` und `PERMISSION_PENDING` bleiben bestehen.
+- Die oben erwähnten Outreach-Texte im separaten Repository wurden bei der Aufhebung der Pause nicht angepasst und enthalten möglicherweise noch den alten Pausenhinweis.
 
 ## Hinweise für den Inhaber (Vercel)
 

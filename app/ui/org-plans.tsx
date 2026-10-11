@@ -39,6 +39,7 @@ export function OrgPlans() {
 
   return (
     <div>
+      {t.reportScope && <p className="mt-5 rounded-xl bg-surface p-4 text-sm font-semibold text-ink">{t.reportScope}</p>}
       <div className="flex flex-wrap items-center gap-3">
         <div className="inline-flex rounded-full border-2 border-line bg-surface p-1 font-semibold" role="group">
           {(['year', 'month'] as const).map((p) => (

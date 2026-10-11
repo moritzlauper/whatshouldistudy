@@ -40,7 +40,15 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
       <JsonLd data={homeLd(site, t.landing.faq)} />
       {/* Hero */}
       <section className="dots relative overflow-hidden border-b-2 border-line">
-        <Burst className="spin-slow absolute -right-6 top-10 hidden md:block" size={130} color="var(--yellow)" />
+        <a href="#pricing" className="absolute -right-6 top-10 z-10 hidden text-on-color focus-visible:outline-2 focus-visible:outline-accent md:block">
+          <Burst className="spin-slow" size={130} color="var(--yellow)" />
+          {!SALES_PAUSED[site] && (
+            <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-center">
+              <span className="font-display text-xl leading-none"><Price site={site} swissNotation /></span>
+              <span className="max-w-20 text-xs font-extrabold leading-tight">{t.landing.full}</span>
+            </span>
+          )}
+        </a>
         <Ring className="float absolute -left-6 bottom-16 hidden md:block" size={86} color="var(--sky)" style={{ ['--r' as string]: '0deg' }} />
         <Sparkle className="float-slow absolute left-[46%] top-8 hidden lg:block" size={44} color="var(--pink)" />
         <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 px-4 pb-20 pt-12 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pt-20">
@@ -229,6 +237,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
                 </li>
               ))}
             </ul>
+            {t.reportScope && <p className="mt-5 rounded-xl bg-surface p-4 text-sm font-semibold text-ink">{t.reportScope}</p>}
             {!SALES_PAUSED[site] && <LandingCheckout />}
           </div>
         </div>

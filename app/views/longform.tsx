@@ -10,6 +10,7 @@ import { FIELDS } from '@/lib/taxonomy/fields.ts'
 import { CONTACT, SOURCE_URL } from '@/lib/site.ts'
 import { CONSENT_MODE, GOOGLE_TAG, VERCEL_ANALYTICS } from '@/lib/measure.ts'
 import { kit } from '@/lib/site/kit.ts'
+import { HOW_DE } from '@/lib/site/dict.ts'
 import type { Kit } from '@/lib/site/kit.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
 import { fmtNumber } from '@/lib/site/labels.ts'
@@ -172,82 +173,82 @@ export async function HowView({ site, base, locale }: SiteProps) {
   }
   if (k.locale !== 'en') {
     return rz(
-      <Page title="So funktioniert’s" lead={`Drei Schritte: Wir lesen, was du schaust, hörst und baust, übersetzen das in ${FIELDS.length} Studienfelder und verrechnen es mit dem, was du uns über dich sagst. Hier steht jeder Schritt, auch was das Ganze nicht kann.`}>
-        <h2>1. Deine Quellen lesen, in deinem Browser</h2>
-        <p>
-          Wenn du YouTube, Spotify oder Reddit verbindest, meldest du dich direkt beim Dienst an und erlaubst nur Lesezugriff. Der Schlüssel dafür bleibt in deinem Browser-Tab, und dein Browser fragt den Dienst selbst ab. Ziehst du einen Export von Google Takeout, Spotify, Instagram oder TikTok rein, wird die Datei auf deinem Gerät entpackt. Unser Server ist nie dabei.
-        </p>
+      <Page title="So funktioniert’s" lead={HOW_DE.lead(FIELDS.length)}>
+        <h2>{HOW_DE.questionnaireTitle}</h2>
+        <p>{HOW_DE.questionnaireIntro}</p>
         <ul>
-          <li>
-            <strong>YouTube:</strong> Abos mit dem Datum, an dem du abonniert hast, gelikte Videos mit Datum, Tags, Kategorie und Thema, deine Playlists und Uploads. Dazu die Beschreibung und die Stichworte jedes Kanals dahinter.
-          </li>
-          <li>
-            <strong>Google Takeout:</strong> dein ganzer Wiedergabe- und Suchverlauf, Kommentare und Abos, dazu aus «Meine Aktivitäten» deine Google-Suchen, besuchte Seiten, Maps-Suchen, Apps, Bücher und Artikel. YouTube gibt den Wiedergabeverlauf nicht über die Schnittstelle heraus, deshalb dieser Umweg. Oft stecken Jahre drin. Werbeeinträge lesen wir nicht. Bist du im selben Tab mit YouTube angemeldet, fragt dein Browser bei YouTube die öffentlichen Angaben zu deinen bis zu 2'500 neusten Videos und 300 meistgeschauten Kanälen ab: Kategorie, Tags, Beschreibung und YouTubes eigene Themen. Dafür gehen die Video- und Kanal-Kennungen an YouTube, nicht an uns.
-          </li>
-          <li>
-            <strong>Instagram und TikTok:</strong> aus deinem Daten-Download die Themen, unter denen dich Instagram führt, die Konten, denen du folgst, deine Likes, Gespeichertes, Suchen, Hashtags und eigene Kommentare. Per Login geben beide das nicht heraus, deshalb der Download. Direktnachrichten lesen wir nicht.
-          </li>
-          <li>
-            <strong>Spotify:</strong> gespeicherte Podcasts und Folgen, Hörbücher, Playlists und deine Top-Artists mit ihren Genres.
-          </li>
-          <li>
-            <strong>Reddit (Datenexport):</strong> deine Communities, gespeicherte und upgevotete Posts, eigene Posts und Kommentare. Communities für Erwachsene lassen wir weg. Direktnachrichten und Chats im Export werden nicht geöffnet.
-          </li>
-          <li>
-            <strong>GitHub:</strong> deine öffentlichen Repos und Sterne, mit Namen, Beschreibung, Themen und Programmiersprachen.
-          </li>
+          {HOW_DE.questionnaireParts.map(([title, text]) => (
+            <li key={title}><strong>{title}:</strong> {text}</li>
+          ))}
         </ul>
+        <h2>{HOW_DE.matchTitle}</h2>
+        <p>{HOW_DE.matchIntro}</p>
+        <p>{HOW_DE.matchMeaning}</p>
+        <h2>{HOW_DE.resultTitle}</h2>
+        <p>{HOW_DE.resultIntro}</p>
 
-        <h2>2. Von einzelnen Videos zu Fächern</h2>
-        <p>
-          Jedes Element läuft durch ein Lexikon mit mehreren tausend Begriffen auf Deutsch, Englisch, Französisch, Italienisch und Spanisch, egal ob Video, Kanal, Podcast, Subreddit, Repo oder Suche. Dazu kommen Kanäle und Creators, die eng mit einem Fach verbunden sind. Heraus kommt, wie stark das Element zu jedem Fach gehört. Vier Regeln machen das robust:
-        </p>
+        <h2>{HOW_DE.dataTitle}</h2>
+        <p>{HOW_DE.dataIntro}</p>
+        <details className="mt-4 rounded-xl border-2 border-line p-4">
+          <summary className="cursor-pointer font-bold">{HOW_DE.dataDetails}</summary>
+          <h3>Deine Quellen lesen, in deinem Browser</h3>
+          <p>
+            Wenn du YouTube, Spotify oder Reddit verbindest, meldest du dich direkt beim Dienst an und erlaubst nur Lesezugriff. Der Schlüssel dafür bleibt in deinem Browser-Tab, und dein Browser fragt den Dienst selbst ab. Ziehst du einen Export von Google Takeout, Spotify, Instagram oder TikTok rein, wird die Datei auf deinem Gerät entpackt. Unser Server ist nie dabei.
+          </p>
+          <ul>
+            <li>
+              <strong>YouTube:</strong> Abos mit dem Datum, an dem du abonniert hast, gelikte Videos mit Datum, Tags, Kategorie und Thema, deine Playlists und Uploads. Dazu die Beschreibung und die Stichworte jedes Kanals dahinter.
+            </li>
+            <li>
+              <strong>Google Takeout:</strong> dein ganzer Wiedergabe- und Suchverlauf, Kommentare und Abos, dazu aus «Meine Aktivitäten» deine Google-Suchen, besuchte Seiten, Maps-Suchen, Apps, Bücher und Artikel. YouTube gibt den Wiedergabeverlauf nicht über die Schnittstelle heraus, deshalb dieser Umweg. Oft stecken Jahre drin. Werbeeinträge lesen wir nicht. Bist du im selben Tab mit YouTube angemeldet, fragt dein Browser bei YouTube die öffentlichen Angaben zu deinen bis zu 2'500 neusten Videos und 300 meistgeschauten Kanälen ab: Kategorie, Tags, Beschreibung und YouTubes eigene Themen. Dafür gehen die Video- und Kanal-Kennungen an YouTube, nicht an uns.
+            </li>
+            <li>
+              <strong>Instagram und TikTok:</strong> aus deinem Daten-Download die Themen, unter denen dich Instagram führt, die Konten, denen du folgst, deine Likes, Gespeichertes, Suchen, Hashtags und eigene Kommentare. Per Login geben beide das nicht heraus, deshalb der Download. Direktnachrichten lesen wir nicht.
+            </li>
+            <li>
+              <strong>Spotify:</strong> gespeicherte Podcasts und Folgen, Hörbücher, Playlists und deine Top-Artists mit ihren Genres.
+            </li>
+            <li>
+              <strong>Reddit (Datenexport):</strong> deine Communities, gespeicherte und upgevotete Posts, eigene Posts und Kommentare. Communities für Erwachsene lassen wir weg. Direktnachrichten und Chats im Export werden nicht geöffnet.
+            </li>
+            <li>
+              <strong>GitHub:</strong> deine öffentlichen Repos und Sterne, mit Namen, Beschreibung, Themen und Programmiersprachen.
+            </li>
+          </ul>
+
+          <h3>Von einzelnen Videos zu Fächern</h3>
+          <p>
+            Jedes Element läuft durch ein Lexikon mit mehreren tausend Begriffen auf Deutsch, Englisch, Französisch, Italienisch und Spanisch, egal ob Video, Kanal, Podcast, Subreddit, Repo oder Suche. Dazu kommen Kanäle und Creators, die eng mit einem Fach verbunden sind. Heraus kommt, wie stark das Element zu jedem Fach gehört. Vier Regeln machen das robust:
+          </p>
+          <ul>
+            <li>
+              <strong>Kanal-Kontext:</strong> Ein Video erbt die Hälfte vom Profil seines Kanals. Ein Physik-Kanal zählt also auch dann für Physik, wenn das Video «Das ändert alles» heisst.
+            </li>
+            <li>
+              <strong>Abnehmender Ertrag:</strong> Innerhalb eines Kanals und Monats zählen <code>n</code> Videos wie <code>log₂(1+n)</code>. Ein Binge-Wochenende schlägt nicht drei Jahre stetiges Interesse.
+            </li>
+            <li>
+              <strong>Lernen oder Unterhaltung:</strong> Vorlesungen, Erklärvideos und die Kategorie Bildung zählen bis 1.3-fach, Let’s Plays, Reactions und Compilations bis 0.7-fach. Musik dient nur dem Geschmack, nie als Hinweis auf ein Musikstudium.
+            </li>
+            <li>
+              <strong>Bewusste Entscheidungen zählen mehr:</strong> Ein Abo wiegt zehnmal so viel wie ein einzelner Aufruf. Eigene Uploads und Repos noch mehr.
+            </li>
+          </ul>
+
+          <h3>Interesse aus den Daten gewichten</h3>
+          <p>Rohe Zählungen würden alle zu Sportwissenschaftler:innen machen, weil Fitness und Kochen einfach überall sind. Deshalb vergleichen wir für jedes Fach deinen Anteil mit dem, wie häufig solcher Inhalt allgemein ist:</p>
+          <p>
+            <code>lift = ln((dein Anteil + ε) / (Grundrate + ε))</code>
+          </p>
+          <p>
+            Danach ziehen wir den Wert Richtung null, wenn nur wenige Elemente dahinterstehen (<code>n / (n + 4)</code>), belohnen Fächer, die über viele Monate auftauchen, und kombinieren die Quellen nach Zuverlässigkeit und Menge. Taucht ein Fach in zwei unabhängigen Quellen stark auf, gibt es einen Bonus. Sagen Reddit und YouTube dasselbe, ist das ein besserer Beleg als jede Quelle allein.
+          </p>
+
+        </details>
+
+        <h2>{HOW_DE.limitsTitle}</h2>
         <ul>
-          <li>
-            <strong>Kanal-Kontext:</strong> Ein Video erbt die Hälfte vom Profil seines Kanals. Ein Physik-Kanal zählt also auch dann für Physik, wenn das Video «Das ändert alles» heisst.
-          </li>
-          <li>
-            <strong>Abnehmender Ertrag:</strong> Innerhalb eines Kanals und Monats zählen <code>n</code> Videos wie <code>log₂(1+n)</code>. Ein Binge-Wochenende schlägt nicht drei Jahre stetiges Interesse.
-          </li>
-          <li>
-            <strong>Lernen oder Unterhaltung:</strong> Vorlesungen, Erklärvideos und die Kategorie Bildung zählen bis 1.3-fach, Let’s Plays, Reactions und Compilations bis 0.7-fach. Musik dient nur dem Geschmack, nie als Hinweis auf ein Musikstudium.
-          </li>
-          <li>
-            <strong>Bewusste Entscheidungen zählen mehr:</strong> Ein Abo wiegt zehnmal so viel wie ein einzelner Aufruf. Eigene Uploads und Repos noch mehr.
-          </li>
-        </ul>
-
-        <h2>3. Interesse fair messen</h2>
-        <p>Rohe Zählungen würden alle zu Sportwissenschaftler:innen machen, weil Fitness und Kochen einfach überall sind. Deshalb vergleichen wir für jedes Fach deinen Anteil mit dem, wie häufig solcher Inhalt allgemein ist:</p>
-        <p>
-          <code>lift = ln((dein Anteil + ε) / (Grundrate + ε))</code>
-        </p>
-        <p>
-          Danach ziehen wir den Wert Richtung null, wenn nur wenige Elemente dahinterstehen (<code>n / (n + 4)</code>), belohnen Fächer, die über viele Monate auftauchen, und kombinieren die Quellen nach Zuverlässigkeit und Menge. Taucht ein Fach in zwei unabhängigen Quellen stark auf, gibt es einen Bonus. Sagen Reddit und YouTube dasselbe, ist das ein besserer Beleg als jede Quelle allein.
-        </p>
-
-        <h2>4. Die Psychologie</h2>
-        <ul>
-          <li>
-            <strong>Interessen (RIASEC):</strong> Die sechs Interessentypen von John Holland (praktisch, forschend, kreativ, sozial, unternehmerisch, ordnend) stecken hinter den meisten Studien- und Berufsberatungen. Auch Explorix, das viele aus der Berufsberatung kennen, baut darauf auf. Jedes Fach hat ein RIASEC-Profil. Deins kommt aus 24 Fragen und aus den Fächern, mit denen du dich beschäftigst. Passen die beiden zusammen, sind Studierende zufriedener und brechen seltener ab.
-          </li>
-          <li>
-            <strong>Persönlichkeit (Big Five):</strong> der Mini-IPIP (Donnellan et al., 2006), eine geprüfte Skala mit 20 frei verfügbaren Fragen. Im Fragebogen-Modus verändert dieser freiwillige Teil die Fächerrangliste nicht. Er ergänzt das Resultat um ein Persönlichkeitsprofil und kann im freiwilligen KI-Vergleich berücksichtigt werden. Ohne Fragebogen schätzen wir sie grob aus deinem Musikgeschmack und schreiben das auch so hin.
-          </li>
-          <li>
-            <strong>Schulfächer und Werte:</strong> was du gern machst und gut kannst, und was du vom Job willst, etwa Lohn, Sicherheit, Kreativität oder Wirkung. Das vergleichen wir mit dem, worauf ein Fach aufbaut und was es bietet. Beim Lohn nutzen wir vorerst Daten zu Absolvent:innen in den USA.
-          </li>
-        </ul>
-        <p>
-          Das Resultat mischt diese Teile. Die Gewichte passen sich an: Mit viel Verlauf führt das Interesse, mit wenig zählt der Fragebogen mehr. Die Werte sind relativ. 90 heisst, dass ein Fach unter allen {FIELDS.length} für dich heraussticht, nicht dass du darin sicher Erfolg hast.
-        </p>
-
-        <h2>Was es nicht kann</h2>
-        <ul>
-          <li>Dein Verlauf zeigt Neugier, nicht Können oder Noten. Deshalb fragt der Fragebogen nach Schulfächern.</li>
-          <li>Geteilte Konten, Autoplay und Phasen verrauschen das Bild. Die Gewichtung über Monate dämpft das, beseitigen kann sie es nicht.</li>
-          <li>Inhalte in anderen Sprachen als den fünf oben verstehen wir nur teilweise. Schweizerdeutsche Titel klappen oft, aber nicht immer.</li>
-          <li>Das ist ein Startpunkt, kein Urteil. Sprich mit Studierenden, schau dir Studienpläne an, geh an einen Infotag.</li>
+          {HOW_DE.limits.map((text) => <li key={text}>{text}</li>)}
         </ul>
 
         <h2 id="daten">Woher die Studiengänge kommen</h2>

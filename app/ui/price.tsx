@@ -45,9 +45,10 @@ export function useConfig(site: SiteId): Config | null {
 }
 
 /** «CHF 9» or «€9», using the same currency as checkout. */
-export function Price({ site }: { site: SiteId }) {
+export function Price({ site, swissNotation = false }: { site: SiteId; swissNotation?: boolean }) {
   const config = useConfig(site)
   const conf = SITES[site]
   const price = config?.price ?? priceForSite(site)
-  return <span>{formatPrice(price, conf.intl)}</span>
+  const formatted = formatPrice(price, conf.intl)
+  return <span>{swissNotation && price.currency === 'CHF' && Number.isInteger(price.amount) ? `${formatted}.–` : formatted}</span>
 }
