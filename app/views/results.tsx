@@ -326,11 +326,11 @@ function QualityNotes({ results }: { results: Results }) {
   const tq = t.results.quality
   const notes = [
     q && !q.questionnaireLed && tq.explore,
-    q?.questionnaireLed && results.dataPoints > 0 && tq.lead,
     q?.flat && tq.flat,
     q?.careless && tq.careless,
     q?.topTie && !q.flat && tq.topTie,
   ].filter(Boolean) as string[]
+  if (!notes.length) return null
   return (
     <div className="mt-6 grid gap-3">
       {notes.map((n) => (
@@ -496,14 +496,14 @@ function ShareCard({ results, prefs, token }: { results: Results; prefs: Prefere
   }
 
   return (
-    <section className="card on-color mt-6 overflow-hidden bg-lime p-5 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <section className="card on-color mt-6 overflow-hidden bg-lime p-4 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 max-w-xl">
-          <h2 className="font-display text-2xl sm:text-3xl">{s.title}</h2>
+          <h2 className="font-display text-xl sm:text-2xl">{s.title}</h2>
           <p className="mt-1 text-sm">{s.sub}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={copy} className="btn btn-primary btn-lg">
+          <button type="button" onClick={copy} className="btn btn-primary">
             {copied ? s.copied : s.copy}
           </button>
           {canShare && (
@@ -521,7 +521,7 @@ function ShareCard({ results, prefs, token }: { results: Results; prefs: Prefere
         </div>
       </div>
       {emailOpen && (
-        <form onSubmit={emailResult} className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
+        <form onSubmit={emailResult} className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
           <label className="sr-only" htmlFor="share-email">{emailText.label}</label>
           <input id="share-email" type="email" required maxLength={254} autoComplete="email" value={email} onChange={(event) => { setEmail(event.target.value); setEmailState('idle') }} placeholder={emailText.label} className="input min-w-0 bg-surface text-ink" />
           <div className="flex gap-2">
