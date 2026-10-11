@@ -1,1 +1,18 @@
-{}
+{
+"koeln-robots": "https://www.uni-koeln.de/robots.txt",
+"koeln-sa": "https://www.uni-koeln.de/studium/studienangebot",
+"koeln-portal": "https://portal.uni-koeln.de/studium/studienangebot",
+"muenster-robots": "https://www.uni-muenster.de/robots.txt",
+"muenster-sa": "https://www.uni-muenster.de/studium/studienangebot/",
+"bonn-robots": "https://www.uni-bonn.de/robots.txt",
+"bonn-sa": "https://www.uni-bonn.de/de/studium/studienangebot",
+"rwth-robots": "https://www.rwth-aachen.de/robots.txt",
+"rwth-sa": "https://www.rwth-aachen.de/studiengaenge",
+"frankfurt-robots": "https://www.uni-frankfurt.de/robots.txt",
+"frankfurt-sa": "https://www.uni-frankfurt.de/studienangebot",
+"rub-robots": "https://www.ruhr-uni-bochum.de/robots.txt",
+"rub-sa": "https://www.ruhr-uni-bochum.de/de/studienangebot",
+"rub-studium": "https://studium.ruhr-uni-bochum.de/de/studienangebot",
+"ude-robots": "https://www.uni-due.de/robots.txt",
+"ude-sa": "https://www.uni-due.de/studienangebote/"
+}
