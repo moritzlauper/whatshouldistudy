@@ -366,6 +366,8 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <p>Pour YouTube, Spotify et Reddit, tu t’authentifies directement auprès du service. Le jeton de lecture reste dans la mémoire de session de l’onglet et disparaît lorsque tu le fermes. Ton navigateur récupère les données auprès du service. Les exports de Google Takeout, Spotify, Instagram et TikTok sont lus et décompressés sur ton appareil. Nous ne recevons ni ces fichiers ni les jetons.</p>
         <h2>Recherche de formations</h2>
         <p>Pour rechercher des formations, ton navigateur transmet les identifiants et scores de tes domaines principaux, jusqu’à 80 thèmes pondérés et tes filtres de recherche. Il ne transmet ni titres consultés, ni recherches, ni chaînes, ni noms permettant de t’identifier. Nous ne conservons pas cette requête.</p>
+        <h2>Évaluation des formations par l’IA</h2>
+        <p>Seulement si tu actives l’évaluation par IA en haut de la liste des formations, ton profil d’intérêts (les six valeurs RIASEC, les valeurs Big Five si remplies, tes matières, tes valeurs et tes domaines principaux) est envoyé, sans nom ni compte, à notre serveur et à Anthropic (Claude, États-Unis). Claude lit les pages officielles des formations et les compare à ton profil. Les historiques, titres et termes de recherche ne sont pas envoyés. Les évaluations sont conservées dans ton navigateur ; retirer ton accord les supprime. Base légale : ton consentement (art. 6, al. 1, let. a RGPD ; la LPD suisse également). Selon Anthropic, les données de l’API ne servent pas à l’entraînement, et un transfert vers les États-Unis est possible. Moins de 16 ans : seulement avec l’accord de tes parents.</p>
         <h2>Paiements et hébergement</h2>
         <p>Stripe traite le paiement et nous indique s’il a abouti, sans nous transmettre les données de ta carte. Le site est hébergé par Vercel, qui peut enregistrer temporairement l’adresse IP, l’heure et la page consultée. Nous utilisons l’adresse IP uniquement pour déterminer le pays et afficher la devise correspondante.</p>
         <h2>Données Google et YouTube</h2>
@@ -407,6 +409,8 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <p>Per YouTube, Spotify e Reddit accedi direttamente al servizio. Il token di sola lettura resta nella memoria di sessione della scheda e scompare quando la chiudi. Il browser recupera i dati dal servizio. Gli export di Google Takeout, Spotify, Instagram e TikTok vengono letti e decompressi sul tuo dispositivo. Non riceviamo i file né i token.</p>
         <h2>Ricerca dei corsi</h2>
         <p>Per cercare i corsi, il browser invia gli identificativi e i punteggi delle tue aree principali, fino a 80 temi con il relativo peso e i filtri di ricerca. Non invia titoli consultati, ricerche, canali o nomi che possano identificarti. Non conserviamo la richiesta.</p>
+        <h2>Valutazione dei corsi con l’IA</h2>
+        <p>Solo se attivi la valutazione con l’IA in cima alla lista dei corsi, il tuo profilo di interessi (i sei valori RIASEC, i valori Big Five se compilati, le materie, i valori e le aree principali) viene inviato, senza nome né account, al nostro server e ad Anthropic (Claude, USA). Claude legge le pagine ufficiali dei corsi e le confronta con il tuo profilo. Cronologie, titoli e termini di ricerca non vengono inviati. Le valutazioni restano salvate nel tuo browser; se ritiri il consenso vengono cancellate. Base giuridica: il tuo consenso (art. 6 par. 1 lett. a GDPR; anche la LPD svizzera). Secondo Anthropic i dati dell’API non servono all’addestramento, ed è possibile un trasferimento negli Stati Uniti. Sotto i 16 anni solo con il consenso dei tuoi genitori.</p>
         <h2>Pagamenti e hosting</h2>
         <p>Stripe gestisce il pagamento e ci comunica se è andato a buon fine, senza trasmetterci i dati della carta. Il sito è ospitato da Vercel, che può registrare temporaneamente indirizzo IP, ora e pagina visitata. Usiamo l’indirizzo IP solo per determinare il Paese e mostrare la valuta corretta.</p>
         <h2>Dati Google e YouTube</h2>
@@ -477,6 +481,9 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
           </li>
           <li>
             <strong>Hosting:</strong> Die Website läuft bei Vercel. Wie bei jeder Website fallen dort technische Protokolle an (IP-Adresse, Zeitpunkt, aufgerufene Seite), die Vercel kurz aufbewahrt. Aus deiner IP-Adresse leiten wir nur das Land ab, um den Preis in deiner Währung zu zeigen.
+          </li>
+          <li>
+            <strong>KI-Bewertung der Studiengänge (nur mit Einwilligung):</strong> Nur wenn du oben bei den Studiengängen die KI-Bewertung einschaltest, schicken wir dein Interessenprofil ohne Namen und ohne Konto an unseren Server und an Anthropic (Claude) in den USA: die sechs Interessenwerte, Big-Five-Werte (falls ausgefüllt), Schulfächer, Werte und deine Top-Fächer. Claude liest die offiziellen Seiten der Studiengänge und vergleicht sie mit deinem Profil. Verläufe, Titel und Suchbegriffe gehen nicht mit. Die Bewertungen speichert dein Browser; wenn du die Einwilligung zurückziehst, werden sie gelöscht und nichts mehr gesendet. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, revDSG ebenso). Anthropic trainiert nach eigenen Angaben keine Modelle mit API-Daten, und die Übermittlung in die USA ist möglich.
           </li>
         </ul>
 
@@ -582,6 +589,9 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         </li>
         <li>
           <strong>Hosting:</strong> the site runs on Vercel, which keeps short-lived technical logs (IP address, time, page). We use your IP address only to infer your country and show the price in your currency.
+        </li>
+        <li>
+          <strong>AI rating of programmes (only with consent):</strong> only if you switch on the AI rating at the top of the programme section do we send your interest profile, without name and without account, to our server and to Anthropic (Claude) in the USA: the six interest values, Big Five values (if filled in), school subjects, work values and your top fields. Claude reads the official pages of the programmes and compares them with your profile. Histories, titles and search terms are not included. Your browser keeps the ratings; if you withdraw consent they are deleted and nothing more is sent. The legal basis is your consent (Art. 6(1)(a) GDPR, the Swiss FADP likewise). According to Anthropic, it does not train models on API data; a transfer to the USA is possible.
         </li>
       </ul>
 

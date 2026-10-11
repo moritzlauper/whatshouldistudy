@@ -166,6 +166,8 @@ export function ResultsView() {
       {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop shared={isShared} score={first.score} />}
       <TopProgrammes results={results} prefs={prefs} topics={topics} unlocked={unlocked} shared={isShared}
         token={isShared ? ((shared as Snapshot).token ?? null) : paid ? state.unlock!.token : null} />
+      {/* Browsing the programmes sits right under the top list: the main thing on this page. */}
+      <Programmes results={results} prefs={prefs} topics={topics} hideFirst={!unlocked} shared={isShared} />
 
       <section className="mt-16">
         <h2 className="font-display text-4xl">{t.results.next}</h2>
@@ -313,8 +315,6 @@ export function ResultsView() {
       )}
 
       {summaries.some((s) => s.source !== 'questionnaire') && <SourceInsights summaries={summaries} unlocked={unlocked} studying={state.prefs.studying} />}
-
-      <Programmes results={results} prefs={prefs} topics={topics} hideFirst={!unlocked} />
     </div>
   )
 }

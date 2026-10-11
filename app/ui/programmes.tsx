@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { studentId, unlockToken, update, useAppState } from '@/lib/store.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
 import { SALES_PAUSED, isLocal } from '@/lib/site/config.ts'
@@ -17,9 +17,10 @@ import type { RankResult, RankedProgramme } from '@/lib/server/rank.ts'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
 import { TYPE_LABEL, TYPE_STYLE, admissionText, typeLabel, typeShort } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
-import { withBase } from '@/lib/site.ts'
+import { CONTACT, withBase } from '@/lib/site.ts'
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
-import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel } from '@/lib/site/labels.ts'
+import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
+import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
 import { Price, useConfig } from './price.tsx'
 import type { Config } from './price.tsx'
 import { useSite } from './site-context.tsx'
@@ -56,12 +57,12 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   results: Results; prefs: Preferences; topics?: UserTopic[]; token: string | null; unlocked: boolean; shared?: boolean
 }) {
   const { t, r } = useSite()
+  const { aiConsent } = useAppState()
   const [reply, setReply] = useState<{ key: string; data: RankResult | null; error?: boolean; locked?: boolean } | null>(null)
   const [attempt, setAttempt] = useState(0)
-  const [shown, setShown] = useState(5)
   const weights = useMemo(() => topics.length ? topicWeights(topics) : undefined, [topics])
   const topicMap = useMemo(() => new Map(topics.map((x) => [x.key, x])), [topics])
-  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: 20 })
+  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: AI_POOL })
   const key = JSON.stringify([body, token, unlocked, attempt])
   useEffect(() => {
     if (!unlocked) return
@@ -82,7 +83,14 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const current = reply?.key === key ? reply : null
   const locked = !unlocked || current?.locked
   const pool = current?.data?.items ?? []
-  const best = pool.slice(0, shown)
+  const [refresh, setRefresh] = useState(0)
+  const [shown, setShown] = useState(5)
+  // The AI rating runs only with the consent switched on at the top of this section.
+  const consent = !!aiConsent && !shared
+  const ai = useAiTop(pool, token, results, consent && !current?.data?.sample, refresh)
+  const left = refreshesLeft()
+  // Until the AI is through, the order from the profile alone; then the combined one.
+  const best = (ai.state === 'done' ? [...pool].sort((x, y) => combined(y, ai.fits.get(y.id)) - combined(x, ai.fits.get(x.id))) : pool).slice(0, shown)
   return (
     <section className="mt-8" aria-label={t.programmes.topTitle}>
       <h2 className="mb-4 font-display text-3xl">{t.programmes.topTitle.replace('5', String(Math.min(shown, Math.max(5, pool.length))))}</h2>
@@ -95,16 +103,36 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
         </div>
       ) : best.length > 0 ? (
         <ResultsContext.Provider value={results}><TopicsContext.Provider value={topicMap}>
+          {!shared && <AiConsent />}
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
+          {ai.state !== 'off' && (
+            <p className={`mb-3 max-w-2xl text-sm ${ai.state === 'loading' ? 'animate-pulse text-muted' : 'text-muted'}`} role="status">
+              🤖 {ai.state === 'loading' ? t.programmes.ai.topLoading(pool.length) : ai.state === 'done' ? t.programmes.ai.topDone(ai.fits.size) : ai.state === 'budget' ? <BudgetNote /> : t.programmes.ai.topFailed}
+            </p>
+          )}
           <ol className="grid list-decimal gap-4 pl-6 marker:font-bold marker:text-accent">
-            {best.map((p) => <li key={p.id}><ProgrammeRow p={p} /></li>)}
+            {best.map((p) => <li key={p.id}><ProgrammeRow p={p} ai={consent ? { token } : undefined} /></li>)}
           </ol>
           {pool.length > shown && (
             <button type="button" onClick={() => setShown(shown < 10 ? 10 : 20)} className="btn btn-ghost btn-sm mt-3">
-              ▾ {t.programmes.showTop(shown < 10 ? 10 : 20)}
+              ▾ {t.programmes.ai.showTop(shown < 10 ? 10 : 20)}
             </button>
           )}
           <p className="mt-2 text-sm text-muted">{t.programmes.topNote}</p>
+          {ai.state !== 'off' && (
+            <button
+              type="button"
+              disabled={ai.state === 'loading' || left.today <= 0}
+              onClick={() => {
+                countRefresh()
+                setRefresh((n) => n + 1)
+              }}
+              className="btn btn-ghost btn-sm mt-3"
+              title={t.programmes.ai.refreshTip(left.today, left.total)}
+            >
+              ↻ {left.today > 0 ? t.programmes.ai.refresh : t.programmes.ai.refreshNone}
+            </button>
+          )}
         </TopicsContext.Provider></ResultsContext.Provider>
       ) : <div className="card p-6 text-muted" role="status">
         {current?.error ? <>{t.programmes.topError} <button className="btn btn-ghost btn-sm" type="button" onClick={() => setAttempt((n) => n + 1)}>{t.programmes.topRetry}</button></>
@@ -114,7 +142,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   )
 }
 
-export function Programmes({ results, prefs, topics = [], hideFirst = true }: { results: Results; prefs: Preferences; topics?: UserTopic[]; hideFirst?: boolean }) {
+export function Programmes({ results, prefs, topics = [], hideFirst = true, shared = false }: { results: Results; prefs: Preferences; topics?: UserTopic[]; hideFirst?: boolean; shared?: boolean }) {
   const { t, r, site, locale, intl } = useSite()
   const [token, setToken] = useState<string | null>(null)
   const [teaser, setTeaser] = useState<Teaser | null>(null)
@@ -153,7 +181,7 @@ export function Programmes({ results, prefs, topics = [], hideFirst = true }: { 
         {teaser?.sample && <p className="on-color mt-5 rounded-2xl border-2 border-line bg-yellow px-4 py-3 text-sm font-semibold">⚠ {t.programmes.demo}</p>}
 
         {token || config?.payments === 'off' ? (
-          <Explorer token={token} fields={fields} prefs={prefs} topics={weights} onInvalid={() => setToken(null)} />
+          <Explorer token={token} fields={fields} prefs={prefs} topics={weights} onInvalid={() => setToken(null)} shared={shared} />
         ) : (
           <Locked teaser={teaser} config={config} hideFirst={hideFirst} onUnlocked={setToken} />
         )}
@@ -380,7 +408,7 @@ const SOURCE_NAMES: Record<string, string> = {
   'no-dbh': 'DBH (HK-dir)',
 }
 
-function ProgrammeDetails({ p }: { p: RankedProgramme }) {
+function ProgrammeDetails({ p, ai }: { p: RankedProgramme; ai?: { token: string | null } }) {
   const kit = useSite()
   const { t, locale, intl } = kit
   const results = useContext(ResultsContext)
@@ -394,7 +422,7 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
   return (
     <div className="mt-4 grid gap-6 border-t-2 border-soft-line pt-4 text-sm">
       {/* 1. What the programme is. */}
-      <div>
+      {(hasAbout || !ai) && <div>
         <h5 className="font-display text-lg">{d.about}</h5>
         {hasAbout ? (
           <>
@@ -412,7 +440,15 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
         ) : (
           <p className="mt-2 text-muted">{d.noInfo}</p>
         )}
-      </div>
+      </div>}
+
+      {/* 1b. In the paid report: Claude reads the official page and rates the fit with the profile. */}
+      {ai && (
+        <div>
+          <h5 className="font-display text-lg">🤖 {t.programmes.ai.oneTitle}</h5>
+          <AiCompare token={ai.token} item={p} />
+        </div>
+      )}
 
       {/* 2. Why this programme: your topics it names, with what you looked at. */}
       {hits.length > 0 && (
@@ -445,7 +481,7 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
       )}
 
       {/* 3. What else in it fits you: only what this programme says about itself. */}
-      {fit && (!hits.length || fit.also.length > 0) && (
+      {fit && (!hits.length || fit.also.length > 0) && (!ai || fit.named.length > 0 || fit.also.length > 0) && (
         <div>
           <h5 className="font-display text-lg">{d.forYou}</h5>
           <ul className="mt-2 grid gap-1.5">
@@ -542,7 +578,8 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
   )
 }
 
-function ProgrammeRow({ p }: { p: RankedProgramme }) {
+/** `ai`: the report is unlocked, so a programme without a description can be checked with AI instead. */
+function ProgrammeRow({ p, ai }: { p: RankedProgramme; ai?: { token: string | null } }) {
   const { t, locale, intl, site } = useSite()
   const [open, setOpen] = useState(false)
   // Switzerland, Germany and Austria talk about fees per semester.
@@ -554,6 +591,8 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
   const example = hits.flatMap((h) => h.examples)[0]
   const results = useContext(ResultsContext)
   const fieldRank = (results?.fields.findIndex((f) => f.id === p.matchedField) ?? -1) + 1
+  // In the paid report: the AI rating, once made (top five, or details opened before).
+  const aiFit = ai ? aiCacheMap().get(aiKey(p.id, locale, results)) : undefined
   return (
     <article className="card-sm p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -589,9 +628,16 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
               {typeShort(type, p.country)}
             </span>
           )}
-          <span className="rounded-full border-2 border-line bg-accent px-2.5 py-0.5 text-sm font-extrabold text-accent-ink" title={t.programmes.row.matchTip}>
-            {p.match}
+          {/* Once the AI has read the programme: the combined score, which tells programmes of one field apart. */}
+          <span className="rounded-full border-2 border-line bg-accent px-2.5 py-0.5 text-sm font-extrabold text-accent-ink" title={aiFit ? t.programmes.ai.scoreTip(p.match, aiFit.score) : t.programmes.row.matchTip}>
+            {combined(p, aiFit)}
           </span>
+          {aiFit && (
+            <span className="chip text-xs" title={`${dotsFor(combined(p, aiFit))}/5`}>
+              🤖 {'●'.repeat(dotsFor(combined(p, aiFit)))}
+              <span className="opacity-30">{'●'.repeat(5 - dotsFor(combined(p, aiFit)))}</span>
+            </span>
+          )}
         </div>
       </div>
       {hits.length > 0 && (
@@ -631,7 +677,7 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
       <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="mt-3 text-sm font-bold text-accent hover:underline">
         {open ? `▴ ${t.programmes.details.close}` : `▾ ${t.programmes.details.open}`}
       </button>
-      {open && <ProgrammeDetails p={p} />}
+      {open && <ProgrammeDetails p={p} ai={ai} />}
     </article>
   )
 }
@@ -652,12 +698,14 @@ function Explorer({
   prefs,
   topics,
   onInvalid,
+  shared,
 }: {
   token: string | null
   fields: Array<{ id: string; score: number }>
   prefs: Preferences
   topics?: Record<string, number>
   onInvalid: () => void
+  shared?: boolean
 }) {
   const { t, locale, intl, conf, site } = useSite()
   const [country, setCountry] = useState('')
@@ -666,6 +714,18 @@ function Explorer({
   const [q, setQ] = useState('')
   const [page, setPage] = useState(0)
   const [data, setData] = useState<RankResult | null>(null)
+  // AI ranking of the hits on screen, on request: the first 20 are read and rated, then sorted by the combined score.
+  const results = useContext(ResultsContext)
+  const hitPool = useMemo(() => (data?.items ?? []).slice(0, AI_POOL), [data])
+  const hitIds = hitPool.map((p) => p.id).join(',')
+  // Only for the hits it was asked for: paging or filtering does not start new ratings by itself.
+  const [rankedFor, setRankedFor] = useState('')
+  const { aiConsent } = useAppState()
+  const consent = !!aiConsent && !shared
+  const aiHits = useAiTop(hitPool, token, results!, consent && rankedFor === hitIds && !!results, 0)
+  const shownItems = aiHits.state === 'done' && data
+    ? [...data.items].sort((x, y) => combined(y, aiHits.fits.get(y.id)) - combined(x, aiHits.fits.get(x.id)))
+    : (data?.items ?? [])
   const [loading, setLoading] = useState(false)
 
   const query = useCallback(
@@ -760,9 +820,19 @@ function Explorer({
         {data?.updated && t.programmes.dataFrom(new Date(data.updated).toLocaleDateString(intl, { dateStyle: 'medium' }))}
         {loading && data && t.programmes.updating}
       </p>
+      {consent && data && data.items.length > 0 && results && (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => setRankedFor(hitIds)} disabled={aiHits.state === 'loading'} className="btn btn-primary btn-sm">
+            🤖 {aiHits.state === 'loading' ? t.programmes.ai.loading : t.programmes.ai.rankHits(Math.min(AI_POOL, data.items.length))}
+          </button>
+          {aiHits.state === 'done' && <span className="text-sm text-muted">{t.programmes.ai.rankedHits}</span>}
+          {aiHits.state === 'failed' && <span className="text-sm font-semibold text-bad">{t.programmes.ai.error}</span>}
+          {aiHits.state === 'budget' && <span className="text-sm"><BudgetNote /></span>}
+        </div>
+      )}
       <div className="mt-3 grid gap-4">
-        {(data?.items ?? []).map((p) => (
-          <ProgrammeRow key={p.id} p={p} />
+        {shownItems.map((p) => (
+          <ProgrammeRow key={p.id} p={p} ai={consent ? { token } : undefined} />
         ))}
       </div>
       {pages > 1 && (
@@ -782,6 +852,288 @@ function Explorer({
   )
 }
 
+
+interface AiFit {
+  id: string
+  fit: number
+  /** 0..100, finer than `fit`. */
+  score: number
+  reasons: string[]
+  check: string
+  thin: boolean
+}
+
+/**
+ * Part of the paid report: Claude compares the first few programmes in the
+ * list with your profile, reading their official pages. Only on request, and
+ * only the profile (never data exports) leaves the browser.
+ */
+/**
+ * AI ratings already made, per programme and profile, kept in this browser so
+ * neither reopening details nor coming back to the result asks Claude again.
+ */
+// v2: ratings carry a 0..100 score.
+const AI_STORE = 'wsis:ai-fit:v2'
+let aiCache: Map<string, AiFit> | null = null
+
+/** Withdrawing consent deletes the ratings kept in this browser. */
+export function clearAiCache() {
+  aiCache = null
+  try {
+    window.localStorage.removeItem(AI_STORE)
+  } catch {
+    // Nothing stored, nothing to remove.
+  }
+}
+
+/** The switch at the top of the programme section: nothing is sent before it is on. */
+function AiConsent() {
+  const { t } = useSite()
+  const { aiConsent } = useAppState()
+  const tx = t.programmes.aiOn
+  const on = !!aiConsent
+  return (
+    <div className="card-sm mb-4 p-4 text-sm">
+      <p className="font-bold">🤖 {tx.title}</p>
+      <p className="mt-1 max-w-3xl text-muted">{tx.text}</p>
+      <label className="mt-3 flex items-start gap-2">
+        <input
+          type="checkbox"
+          checked={on}
+          onChange={(e) => {
+            if (!e.target.checked) clearAiCache()
+            update((s) => ({ ...s, aiConsent: e.target.checked ? { at: new Date().toISOString() } : undefined }))
+          }}
+          className="mt-0.5"
+        />
+        <span>{on ? tx.on : tx.check}</span>
+      </label>
+    </div>
+  )
+}
+function aiCacheMap(): Map<string, AiFit> {
+  if (aiCache) return aiCache
+  aiCache = new Map()
+  try {
+    const raw = typeof window !== 'undefined' ? window.localStorage.getItem(AI_STORE) : null
+    if (raw) for (const [k, v] of JSON.parse(raw) as Array<[string, AiFit]>) aiCache.set(k, v)
+  } catch {
+    // Storage blocked or broken: start empty.
+  }
+  return aiCache
+}
+function aiCacheSet(entries: Array<[string, AiFit]>) {
+  const m = aiCacheMap()
+  for (const [k, v] of entries) m.set(k, v)
+  try {
+    window.localStorage.setItem(AI_STORE, JSON.stringify([...m].slice(-200)))
+  } catch {
+    // Not kept beyond this page view; fine.
+  }
+}
+/** A rating holds for one programme, one profile and one language. */
+function aiKey(id: string, locale: string, results: Results | null): string {
+  return `${id}|${locale}|${results?.riasec.code ?? ''}|${results?.fields.slice(0, 5).map((f) => f.id).join(',') ?? ''}`
+}
+
+type FitProfileBody = {
+  riasec?: { code: string; profile: number[] }
+  big5?: Record<string, number>
+  subjects: string[]
+  values: string[]
+  fields?: string[]
+}
+
+/** What the AI gets: the profile only, never data exports. */
+function useFitProfile(given?: Results | null): () => FitProfileBody {
+  const { locale } = useSite()
+  const context = useContext(ResultsContext)
+  const results = given ?? context
+  const { answers } = useAppState()
+  return () => {
+    const fromQuestionnaire = results?.big5?.from.includes('questionnaire')
+    return {
+      riasec: results?.riasec.code ? { code: results.riasec.code, profile: results.riasec.profile } : undefined,
+      big5: fromQuestionnaire ? results!.big5!.z : undefined,
+      subjects: Object.entries(answers.subjects ?? {}).filter(([, v]) => (v?.enjoy ?? 0) >= 4).map(([k]) => subjectLabel(k as SubjectKey, locale)),
+      values: Object.entries(answers.values ?? {}).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => valueLabel(k as ValueKey, locale)),
+      fields: results?.fields.slice(0, 5).map((f) => fieldName(f.id, locale)),
+    }
+  }
+}
+
+async function fetchFits(token: string | null, items: RankedProgramme[], profile: FitProfileBody, locale: string): Promise<AiFit[]> {
+  const res = await fetch(withBase('/api/programme-fit'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    body: JSON.stringify({ programmes: items.map((p) => ({ id: p.id, field: p.matchedField, country: p.country })), profile, locale }),
+  })
+  if (!res.ok) throw new Error(String(res.status))
+  return ((await res.json()) as { items: AiFit[] }).items
+}
+
+/**
+ * The top five in the paid report: Claude reads the official pages of the
+ * best candidates by profile and rates each; the five best by the combined
+ * score are shown. Ratings already made are taken from this browser.
+ */
+function useAiTop(pool: RankedProgramme[], token: string | null, results: Results, enabled: boolean, refresh: number) {
+  const { locale } = useSite()
+  const profile = useFitProfile(results)
+  const [out, setOut] = useState<{ key: string; state: 'loading' | 'done' | 'failed' | 'budget'; fits: Map<string, AiFit> } | null>(null)
+  const ids = pool.map((p) => p.id).join(',')
+  const key = `${ids}|${aiKey('', locale, results)}|${refresh}`
+  useEffect(() => {
+    if (!enabled || !pool.length) return
+    let live = true
+    const fits = new Map<string, AiFit>()
+    // «Aktualisieren» reads every page again; otherwise ratings already made are reused.
+    if (!refresh) {
+      for (const p of pool) {
+        const f = aiCacheMap().get(aiKey(p.id, locale, results))
+        if (f) fits.set(p.id, f)
+      }
+    }
+    const missing = pool.filter((p) => !fits.has(p.id))
+    if (!missing.length) {
+      setOut({ key, state: 'done', fits })
+      return
+    }
+    setOut({ key, state: 'loading', fits })
+    const batches = Array.from({ length: Math.ceil(missing.length / AI_BATCH) }, (_, i) => missing.slice(i * AI_BATCH, (i + 1) * AI_BATCH))
+    const body = profile()
+    void Promise.allSettled(batches.map((b) => fetchFits(token, b, body, locale))).then((settled) => {
+      const got = settled.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
+      aiCacheSet(got.map((f) => [aiKey(f.id, locale, results), f]))
+      for (const f of got) fits.set(f.id, f)
+      // 429: this purchase has used up its AI budget.
+      const budget = settled.some((r) => r.status === 'rejected' && (r.reason as Error).message === '429')
+      if (live) setOut({ key, state: budget && !got.length ? 'budget' : fits.size ? 'done' : 'failed', fits: new Map(fits) })
+    })
+    return () => {
+      live = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, enabled, token])
+  const current = out?.key === key ? out : null
+  return { state: !enabled || !pool.length ? ('off' as const) : (current?.state ?? 'loading'), fits: current?.fits ?? new Map<string, AiFit>() }
+}
+
+/** The AI budget of this purchase is used up: write to us for more. */
+function BudgetNote() {
+  const { t } = useSite()
+  return (
+    <>
+      {t.programmes.ai.budget}{' '}
+      <a href={`mailto:${CONTACT}?subject=${encodeURIComponent(t.programmes.ai.budgetSubject)}`} className="font-semibold text-accent underline">
+        {CONTACT}
+      </a>
+    </>
+  )
+}
+
+/** «Aktualisieren» is limited: 5 a day and 20 in all, counted in this browser (the server has its own cap). */
+const REFRESH_STORE = 'wsis:ai-refresh:v1'
+const REFRESH_PER_DAY = 5
+const REFRESH_IN_ALL = 20
+function readRefresh(): { day: string; today: number; total: number } {
+  const day = new Date().toISOString().slice(0, 10)
+  try {
+    const x = JSON.parse(window.localStorage.getItem(REFRESH_STORE) ?? '') as { day: string; today: number; total: number }
+    return { day, today: x.day === day ? x.today : 0, total: x.total || 0 }
+  } catch {
+    return { day, today: 0, total: 0 }
+  }
+}
+function refreshesLeft(): { today: number; total: number } {
+  if (typeof window === 'undefined') return { today: REFRESH_PER_DAY, total: REFRESH_IN_ALL }
+  const r = readRefresh()
+  const total = Math.max(0, REFRESH_IN_ALL - r.total)
+  return { today: Math.min(total, Math.max(0, REFRESH_PER_DAY - r.today)), total }
+}
+function countRefresh() {
+  const r = readRefresh()
+  try {
+    window.localStorage.setItem(REFRESH_STORE, JSON.stringify({ day: r.day, today: r.today + 1, total: r.total + 1 }))
+  } catch {
+    // Not counted beyond this page view.
+  }
+}
+
+/** Candidates the AI reads for the top five, in batches the endpoint takes at once. */
+const AI_POOL = 20
+const AI_BATCH = 5
+/**
+ * Once the AI has read a programme, its score decides: it knows what the
+ * programme contains. The profile match (the same for a whole field) only
+ * nudges it. Dots and label follow the same number, so they never disagree.
+ */
+const combined = (p: RankedProgramme, f?: AiFit) => (f ? Math.round(0.8 * f.score + 0.2 * p.match) : p.match)
+const dotsFor = (n: number) => (n >= 80 ? 5 : n >= 60 ? 4 : n >= 40 ? 3 : n >= 20 ? 2 : 1)
+
+/** One programme in the paid report, opened in its details: rated once, then kept in this browser. */
+function AiCompare({ token, item }: { token: string | null; item: RankedProgramme }) {
+  const { t, locale } = useSite()
+  const results = useContext(ResultsContext)
+  const profile = useFitProfile()
+  const [fresh, setFresh] = useState<AiFit | null>(null)
+  const [failed, setFailed] = useState(false)
+  const a = t.programmes.ai
+  const fit = fresh ?? aiCacheMap().get(aiKey(item.id, locale, results))
+
+  async function run() {
+    setFailed(false)
+    try {
+      const [got] = await fetchFits(token, [item], profile(), locale)
+      if (!got) throw new Error('no rating')
+      aiCacheSet([[aiKey(got.id, locale, results), got]])
+      setFresh(got)
+    } catch {
+      setFailed(true)
+    }
+  }
+
+  // Read and rated right away when first opened; after that it comes from this browser.
+  const started = useRef(false)
+  useEffect(() => {
+    if (fit || started.current) return
+    started.current = true
+    void run()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fit])
+
+  if (!fit) {
+    return failed ? (
+      <div className="flex flex-wrap items-center gap-3">
+        <p className="text-sm font-semibold text-bad">{a.error}</p>
+        <button type="button" onClick={run} className="btn btn-ghost btn-sm">{a.again}</button>
+      </div>
+    ) : (
+      <p className="animate-pulse text-sm text-muted">{a.loading}</p>
+    )
+  }
+  const dots = dotsFor(combined(item, fit))
+  return (
+    <section className="mt-2">
+      <span className="chip text-xs" title={`${combined(item, fit)}`}>
+        {'●'.repeat(dots)}
+        <span className="opacity-30">{'●'.repeat(5 - dots)}</span> {a.fit(dots)} · {combined(item, fit)}
+      </span>
+      <ul className="mt-2 list-disc pl-5 text-sm">
+        {fit.reasons.map((r) => (
+          <li key={r}>{r}</li>
+        ))}
+      </ul>
+      {fit.check && (
+        <p className="mt-1 text-sm text-muted">
+          <strong>{a.check}</strong> {fit.check}
+        </p>
+      )}
+      {fit.thin && <p className="mt-1 text-xs text-muted">{a.thin}</p>}
+      <p className="mt-4 text-xs text-muted">{`${a.note} ${a.consent}`}</p>
+    </section>
+  )
+}
 
 interface ResearchResponse {
   paid: boolean
