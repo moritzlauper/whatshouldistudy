@@ -19,7 +19,6 @@ import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes, TopProgrammes } from '../ui/programmes.tsx'
 import { StudyingControl } from '../ui/prefs-form.tsx'
-import { ReviewPanel } from '../ui/review-panel.tsx'
 import { ImprovePanel } from '../ui/improve-panel.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { Contributions } from '../ui/contributions.tsx'
@@ -145,10 +144,6 @@ export function ResultsView() {
       </div>
 
       <QualityNotes results={results} />
-      {!isShared && <ReviewPanel results={results} answers={state.answers} prefs={prefs} summaries={summaries} />}
-      {!isShared && unlocked && (
-        <ImprovePanel results={results} raw={Object.values(state.summaries).filter(Boolean) as SourceSummary[]} token={paid ? state.unlock!.token : null} corrections={state.corrections} />
-      )}
 
       {isShared ? (
         <div className="card-sm mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent-soft p-4">
@@ -172,6 +167,10 @@ export function ResultsView() {
       )}
 
       {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop shared={isShared} score={first.score} />}
+      {/* The word check sits with the ranking it changes; it runs only on request and with consent. */}
+      {!isShared && unlocked && (
+        <ImprovePanel results={results} raw={Object.values(state.summaries).filter(Boolean) as SourceSummary[]} token={paid ? state.unlock!.token : null} corrections={state.corrections} />
+      )}
       <TopProgrammes results={results} prefs={prefs} topics={topics} unlocked={unlocked} shared={isShared}
         token={isShared ? ((shared as Snapshot).token ?? null) : paid ? state.unlock!.token : null} />
 

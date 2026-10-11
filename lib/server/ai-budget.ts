@@ -11,16 +11,15 @@ import { redis } from './usage.ts'
  * server instances; without it, each instance keeps its own count.
  */
 
-export type AiPurpose = 'translate' | 'fit' | 'review' | 'facts' | 'improve'
+export type AiPurpose = 'translate' | 'fit' | 'facts' | 'improve'
 
 /** Daily limits in dollars. */
 const LIMIT_USD: Record<AiPurpose | 'total', number> = {
   translate: 0.2,
   facts: 0.1,
-  review: 1,
   fit: 1.5,
   improve: 2,
-  total: 5,
+  total: 4,
 }
 
 /** List prices in millionths of a dollar per token (input, output). */
