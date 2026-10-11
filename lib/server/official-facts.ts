@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { unstable_cache } from 'next/cache'
 import { pageText, robotsAllow, sameSite, verified } from '../official-facts.ts'
 import type { OfficialFacts, Raw } from '../official-facts.ts'
+import { aiAllowed, aiSpend } from './ai-budget.ts'
 
 export type { OfficialFacts }
 
@@ -69,6 +70,7 @@ async function run(url: string): Promise<OfficialFacts> {
   const origin = new URL(url).origin
   const robots = await fetchText(`${origin}/robots.txt`).catch(() => '')
   if (!robotsAllow(robots, url)) throw new Error(`robots.txt disallows ${url}`)
+  if (!(await aiAllowed('facts'))) throw new Error('daily AI budget for facts reached')
   const text = pageText(await fetchText(url)).slice(0, MAX_CHARS)
   if (text.length < 200) throw new Error(`no text on ${url}`)
   const response = await c.messages.create({
@@ -79,6 +81,7 @@ async function run(url: string): Promise<OfficialFacts> {
     system: SYSTEM,
     messages: [{ role: 'user', content: `Page: ${url}\n\n${text}` }],
   })
+  await aiSpend('facts', 'claude-haiku-5-5', response.usage)
   if (response.stop_reason !== 'end_turn') throw new Error(`stopped: ${response.stop_reason}`)
   const out = response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('')
   return verified(JSON.parse(out) as Raw, text)

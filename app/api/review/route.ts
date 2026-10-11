@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Invalid JSON.' }, { status: 400 })
   }
-  return new Response(reviewStream(input), {
+  return new Response(reviewStream(input, req.signal), {
     headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'private, no-store', 'X-Accel-Buffering': 'no' },
   })
 }

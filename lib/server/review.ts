@@ -2,6 +2,7 @@ import 'server-only'
 import { createHash, timingSafeEqual } from 'node:crypto'
 import Anthropic from '@anthropic-ai/sdk'
 import { redis } from './usage.ts'
+import { aiAllowed, aiSpend } from './ai-budget.ts'
 
 /**
  * Claude reads one whole result (questionnaire answers, the summaries of
@@ -64,13 +65,14 @@ Write in German (Swiss spelling, no «ß»), in Markdown with short sections, at
  * first ones (and between them), a NUL byte every few seconds keeps proxies
  * from dropping a connection that looks idle. The client removes NULs.
  */
-export function reviewStream(input: unknown): ReadableStream<Uint8Array> {
+export function reviewStream(input: unknown, signal?: AbortSignal): ReadableStream<Uint8Array> {
   const enc = new TextEncoder()
   return new ReadableStream<Uint8Array>({
     async start(controller) {
       const beat = setInterval(() => controller.enqueue(enc.encode('\u0000')), 5000)
       controller.enqueue(enc.encode('\u0000'))
       try {
+        if (!(await aiAllowed('review'))) throw new Error('Das Tagesbudget für KI-Prüfungen ist aufgebraucht.')
         const client = new Anthropic({ timeout: 120_000, maxRetries: 0 })
         const stream = client.messages.stream({
           // The cheapest current model, like the other AI parts: fast enough
@@ -79,10 +81,11 @@ export function reviewStream(input: unknown): ReadableStream<Uint8Array> {
           max_tokens: 6000,
           output_config: { effort: 'medium' },
           system: SYSTEM,
-          messages: [{ role: 'user', content: `Result to review (JSON):\n\n${JSON.stringify(input)}` }],
-        })
+          messages: [{ role: 'user', content: `Result to review (JSON):\n\n${JSON.stringify(input).slice(0, 80_000)}` }],
+        }, { signal })
         stream.on('text', (t) => controller.enqueue(enc.encode(t)))
         const message = await stream.finalMessage()
+        await aiSpend('review', 'claude-haiku-5-5', message.usage)
         if (message.stop_reason === 'refusal') controller.enqueue(enc.encode('\n\nClaude hat die Prüfung abgelehnt.'))
       } catch (e) {
         console.error(`review: ${(e as Error).message}`)

@@ -2,6 +2,7 @@ import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { unstable_cache } from 'next/cache'
 import type { Locale } from '../site/config.ts'
+import { aiAllowed, aiSpend } from './ai-budget.ts'
 
 /**
  * Translates a programme description into the page's language with Claude,
@@ -29,14 +30,17 @@ const client = () => (process.env.ANTHROPIC_API_KEY ? new Anthropic({
 async function run(text: string, locale: Locale): Promise<string> {
   const c = client()
   if (!c) throw new Error('ANTHROPIC_API_KEY is not set')
+  // Crawlers open thousands of programme pages: a daily ceiling, and the cheapest model.
+  if (!(await aiAllowed('translate'))) throw new Error('daily AI budget for translations reached')
   {
     const response = await c.messages.create({
-      model: 'claude-opus-5-5',
+      model: 'claude-haiku-5-5',
       max_tokens: 2000,
       output_config: { effort: 'low' },
       system: `You translate short descriptions of university degree programmes for a study-choice website. Translate the text the user sends into ${LANGUAGE[locale]}. Keep the meaning and the facts exactly; do not add, shorten or comment. Keep names of programmes and institutions as they are. If the text is already in that language, return it unchanged. Reply with the translation only.`,
       messages: [{ role: 'user', content: text }],
     })
+    await aiSpend('translate', 'claude-haiku-5-5', response.usage)
     if (response.stop_reason !== 'end_turn') throw new Error(`stopped: ${response.stop_reason}`)
     const out = response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('').trim()
     if (!out) throw new Error('empty translation')
