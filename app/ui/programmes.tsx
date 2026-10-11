@@ -96,7 +96,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
         <ResultsContext.Provider value={results}><TopicsContext.Provider value={topicMap}>
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
           <ol className="grid list-decimal gap-4 pl-6 marker:font-bold marker:text-accent">
-            {best.map((p) => <li key={p.id}><ProgrammeRow p={p} /></li>)}
+            {best.map((p) => <li key={p.id}><ProgrammeRow p={p} ai={{ token }} /></li>)}
           </ol>
           <p className="mt-2 text-sm text-muted">{t.programmes.topNote}</p>
         </TopicsContext.Provider></ResultsContext.Provider>
@@ -374,7 +374,7 @@ const SOURCE_NAMES: Record<string, string> = {
   'no-dbh': 'DBH (HK-dir)',
 }
 
-function ProgrammeDetails({ p }: { p: RankedProgramme }) {
+function ProgrammeDetails({ p, ai }: { p: RankedProgramme; ai?: { token: string | null } }) {
   const kit = useSite()
   const { t, locale, intl } = kit
   const results = useContext(ResultsContext)
@@ -403,6 +403,8 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
               </ul>
             )}
           </>
+        ) : ai ? (
+          <AiCompare token={ai.token} items={[p]} one />
         ) : (
           <p className="mt-2 text-muted">{d.noInfo}</p>
         )}
@@ -445,7 +447,7 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
           <ul className="mt-2 grid gap-1.5">
             {!hits.length && fit.named.length > 0 && <li>✓ {d.named(fit.named)}</li>}
             {fit.also.length > 0 && <li>✓ {d.also(fit.also.map((a) => d.alsoRank(fieldName(a.id, locale), a.rank)))}</li>}
-            {!hits.length && !fit.named.length && !fit.also.length && <li className="text-muted">{hasAbout ? d.noOverlap(field) : d.onlyField(field)}</li>}
+            {!hits.length && !fit.named.length && !fit.also.length && <li className="text-muted">{hasAbout || ai ? d.noOverlap(field) : d.onlyField(field)}</li>}
           </ul>
         </div>
       )}
@@ -536,7 +538,8 @@ function ProgrammeDetails({ p }: { p: RankedProgramme }) {
   )
 }
 
-function ProgrammeRow({ p }: { p: RankedProgramme }) {
+/** `ai`: the report is unlocked, so a programme without a description can be checked with AI instead. */
+function ProgrammeRow({ p, ai }: { p: RankedProgramme; ai?: { token: string | null } }) {
   const { t, locale, intl, site } = useSite()
   const [open, setOpen] = useState(false)
   // Switzerland, Germany and Austria talk about fees per semester.
@@ -624,7 +627,7 @@ function ProgrammeRow({ p }: { p: RankedProgramme }) {
       <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="mt-3 text-sm font-bold text-accent hover:underline">
         {open ? `▴ ${t.programmes.details.close}` : `▾ ${t.programmes.details.open}`}
       </button>
-      {open && <ProgrammeDetails p={p} />}
+      {open && <ProgrammeDetails p={p} ai={ai} />}
     </article>
   )
 }
@@ -756,7 +759,7 @@ function Explorer({
       {data && data.items.length > 0 && <AiCompare token={token} items={data.items.slice(0, AI_COUNT)} />}
       <div className="mt-3 grid gap-4">
         {data?.items.map((p) => (
-          <ProgrammeRow key={p.id} p={p} />
+          <ProgrammeRow key={p.id} p={p} ai={{ token }} />
         ))}
       </div>
       {pages > 1 && (
@@ -791,7 +794,7 @@ interface AiFit {
  * list with your profile, reading their official pages. Only on request, and
  * only the profile (never data exports) leaves the browser.
  */
-function AiCompare({ token, items }: { token: string | null; items: RankedProgramme[] }) {
+function AiCompare({ token, items, one }: { token: string | null; items: RankedProgramme[]; one?: boolean }) {
   const { t, locale } = useSite()
   const results = useContext(ResultsContext)
   const { answers } = useAppState()
@@ -828,14 +831,14 @@ function AiCompare({ token, items }: { token: string | null; items: RankedProgra
   const byId = new Map(items.map((p) => [p.id, p]))
   const shown = fits?.key === key ? fits.items : null
   return (
-    <section className="card mt-5 p-5 sm:p-6">
-      <h3 className="font-display text-2xl">🤖 {a.title}</h3>
+    <section className={one ? 'mt-2' : 'card mt-5 p-5 sm:p-6'}>
+      {!one && <h3 className="font-display text-2xl">🤖 {a.title}</h3>}
       {!shown && (
         <>
-          <p className="mt-2 text-sm text-muted">{a.text(items.length)}</p>
+          <p className={`text-sm text-muted ${one ? '' : 'mt-2'}`}>{one ? a.oneText : a.text(items.length)}</p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button type="button" onClick={run} disabled={state === 'loading'} className="btn btn-primary btn-sm">
-              {state === 'loading' ? a.loading : a.button}
+              {state === 'loading' ? a.loading : one ? `🤖 ${a.oneButton}` : a.button}
             </button>
             <span className="text-xs text-muted">{a.consent}</span>
           </div>
@@ -851,9 +854,11 @@ function AiCompare({ token, items }: { token: string | null; items: RankedProgra
               return (
                 <li key={f.id} className="border-t-2 border-soft-line pt-4 first:border-0 first:pt-0">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <span className="font-bold">
-                      {p.name} <span className="font-normal text-muted">· {p.institution}</span>
-                    </span>
+                    {!one && (
+                      <span className="font-bold">
+                        {p.name} <span className="font-normal text-muted">· {p.institution}</span>
+                      </span>
+                    )}
                     <span className="chip text-xs" title={`${f.fit}/5`}>
                       {'●'.repeat(f.fit)}
                       <span className="opacity-30">{'●'.repeat(5 - f.fit)}</span> {a.fit(f.fit)}
