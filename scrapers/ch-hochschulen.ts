@@ -60,7 +60,7 @@ function fhnwCampus(url: string, location: string): string | undefined {
 }
 
 
-const decode = (s: string) =>
+export const decode = (s: string) =>
   s
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
@@ -81,7 +81,7 @@ const decode = (s: string) =>
 /** Text of an HTML fragment. */
 export const text = (html: string) => decode(html.replace(/<[^>]+>/g, ' ')).normalize('NFC').replace(/\s+/g, ' ').trim()
 
-const absolute = (href: string, base: string) => new URL(decode(href), base).href
+export const absolute = (href: string, base: string) => new URL(decode(href), base).href
 
 const LANG: Record<string, string> = { deutsch: 'de', german: 'de', englisch: 'en', english: 'en', anglais: 'en', französisch: 'fr', french: 'fr', français: 'fr', francais: 'fr', italienisch: 'it', italian: 'it', italiano: 'it' }
 
@@ -304,7 +304,7 @@ export function degreeName(level: Level, raw: string): string {
  * the specialisations as its focus. Its link is the programme's own page
  * where the list has one, else the common parent page, else the first.
  */
-function groupFocus(xs: Listed[], split: (name: string) => [string, string] | null): Listed[] {
+export function groupFocus(xs: Listed[], split: (name: string) => [string, string] | null): Listed[] {
   const groups = new Map<string, Listed[]>()
   const rest: Listed[] = []
   for (const x of xs) {
@@ -334,7 +334,7 @@ function groupFocus(xs: Listed[], split: (name: string) => [string, string] | nu
 }
 
 /** «6-8 Semester», «3 Semester (Vollzeit)/6 …», «2 Jahre» → years, from the first number. */
-function durationIn(s: string | undefined): number | undefined {
+export function durationIn(s: string | undefined): number | undefined {
   const m = /(\d+(?:[.,]\d+)?)(?:\s*(?:-|bis|oder)\s*[\d.,]+)?\s*(Semester|Jahre?)/i.exec(s ?? '')
   if (!m) return undefined
   const n = Number(m[1].replace(',', '.'))
@@ -547,9 +547,9 @@ export function bfhDetail(html: string): Partial<Listed> {
 }
 
 /** «Bachelor X», without doubling a level the name already starts with. */
-const titled = (level: Level, name: string) => (/^(bachelor|master)\b/i.test(name) ? name : `${level === 'bachelor' ? 'Bachelor' : 'Master'} ${name}`)
+export const titled = (level: Level, name: string) => (/^(bachelor|master)\b/i.test(name) ? name : `${level === 'bachelor' ? 'Bachelor' : 'Master'} ${name}`)
 
-function dedupe(xs: Listed[]): Listed[] {
+export function dedupe(xs: Listed[]): Listed[] {
   const seen = new Set<string>()
   return xs.filter((x) => (seen.has(x.url) ? false : (seen.add(x.url), true)))
 }
