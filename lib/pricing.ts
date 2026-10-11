@@ -1,7 +1,6 @@
 /**
- * One-time price of the full report: 17 in the local currency, rounded to a
- * price that looks deliberate there (£15, 189 kr, ¥2,600) instead of a raw
- * conversion. Country sites use their own currency; the global site follows
+ * One-time price of the full report: CHF/EUR/USD 9, with fixed local
+ * prices in other currencies and no discount. Country sites use their own currency; the global site follows
  * the visitor's country (Vercel geo header), with USD as its fallback.
  */
 
@@ -10,9 +9,9 @@ import type { SiteId } from './site/config.ts'
 
 /** Price in major units per currency. */
 export const PRICES: Record<string, number> = {
-  CHF: 17,
-  EUR: 17,
-  USD: 17,
+  CHF: 9,
+  EUR: 9,
+  USD: 9,
   GBP: 15,
   CAD: 23,
   AUD: 25,
@@ -76,30 +75,12 @@ const ZERO_DECIMAL = new Set(['JPY', 'KRW'])
 export interface Price {
   amount: number
   currency: string
-  /** The undiscounted amount while REPORT_DISCOUNT applies. */
-  regular?: number
-}
-
-/**
- * Discount in percent on the one-time report, in every currency and on every
- * site; organisation plans are not discounted. Checkout applies it as the
- * Stripe coupon REPORT_COUPON, so Stripe shows the regular price, the discount
- * and the total. 0 turns it off.
- */
-export const REPORT_DISCOUNT = 20
-export const REPORT_COUPON = `wsis_report_${REPORT_DISCOUNT}`
-
-/** The amount after the discount, rounded in Stripe's smallest unit the way Stripe rounds the coupon. */
-export function discounted(amount: number, currency: string, percent = REPORT_DISCOUNT): number {
-  const minor = stripeAmount({ amount, currency })
-  return fromStripeAmount(minor - Math.round((minor * percent) / 100), currency).amount
 }
 
 export function priceFor(country: string | null | undefined, fallbackCurrency = 'USD'): Price {
   const cur = (country && COUNTRY_CURRENCY[country.toUpperCase()]) || fallbackCurrency
   const currency = PRICES[cur] ? cur : 'USD'
-  const regular = PRICES[currency]
-  return REPORT_DISCOUNT ? { amount: discounted(regular, currency), currency, regular } : { amount: regular, currency }
+  return { amount: PRICES[currency], currency }
 }
 
 /** Keep displayed prices and both checkout flows on the same site currency. */
@@ -121,25 +102,11 @@ export function fromStripeAmount(amount: number, currency: string): Price {
 
 export function formatPrice(p: Price, locale = 'en'): string {
   try {
-    // Whole amounts without decimals (CHF 17), discounted ones exact (CHF 13.60).
+    // Show whole amounts without decimals and fractional amounts with two digits.
     const digits = Number.isInteger(p.amount) ? 0 : 2
     return new Intl.NumberFormat(locale, { style: 'currency', currency: p.currency, minimumFractionDigits: digits, maximumFractionDigits: digits }).format(p.amount)
   } catch {
     return `${p.amount} ${p.currency}`
-  }
-}
-
-/** The amount and the currency sign apart («13.60» and «CHF»), for a badge too narrow for both on one line. */
-export function priceParts(p: Price, locale = 'en'): { amount: string; currency: string } {
-  try {
-    const digits = Number.isInteger(p.amount) ? 0 : 2
-    const parts = new Intl.NumberFormat(locale, { style: 'currency', currency: p.currency, minimumFractionDigits: digits, maximumFractionDigits: digits }).formatToParts(p.amount)
-    return {
-      amount: parts.filter((x) => x.type !== 'currency' && x.type !== 'literal').map((x) => x.value).join(''),
-      currency: parts.find((x) => x.type === 'currency')?.value ?? p.currency,
-    }
-  } catch {
-    return { amount: String(p.amount), currency: p.currency }
   }
 }
 

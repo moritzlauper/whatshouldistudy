@@ -105,7 +105,7 @@ development. `.env.example` lists everything else.
 | Path | `/` | `/schweiz` | `/deutschland` | `/oesterreich` |
 | Language | English | Swiss Standard German | German (Germany) | German (Austria) |
 | Default filter | anywhere | Switzerland, Swiss citizenship | Germany, EU citizenship | Austria, EU citizenship |
-| Price | 17 in the visitor's currency | CHF 17 | EUR 17 | EUR 17 |
+| Price | 9 CHF/EUR/USD | CHF 9 | EUR 9 | EUR 9 |
 | Browser storage | `wsis:v1` | `wsis:v1:ch` | `wsis:v1:de` | `wsis:v1:at` |
 
 All four render the same views (`app/views/`, `app/ui/`). The global routes are
@@ -364,19 +364,18 @@ plus up to three examples, excluding the best programme and top field).
 The best programme appears directly below the top field in results; its details
 are fetched through `/api/programmes` only after unlock.
 
-Price: country sites always use their own currency (Germany/Austria EUR 17,
-Switzerland CHF 17), for both the displayed price and checkout, including
+Price: country sites always use their own currency (Germany/Austria EUR 9,
+Switzerland CHF 9), for both the displayed price and checkout, including
 organisation plans. The global site uses the visitor's currency
 (`lib/pricing.ts`, country from Vercel's
-`x-vercel-ip-country`): CHF 17, EUR 17, USD 17, GBP 15, CAD 23, AUD 25, SEK 189,
+`x-vercel-ip-country`): CHF 9, EUR 9, USD 9, GBP 15, CAD 23, AUD 25, SEK 189,
 NOK 189, DKK 125, PLN 75, JPY 2,600, INR 1,099 and more. Checkout uses the
-Stripe price with lookup key `wsis_report` (or `STRIPE_PRICE_ID`); without one
-the amount is sent as `price_data`, so nothing has to be set up in Stripe
-besides the key. While `REPORT_DISCOUNT` in `lib/pricing.ts` is above 0
-(currently 20), the one-time report is discounted in every currency: the site
-shows the regular price struck through, and checkout applies the Stripe coupon
-`wsis_report_20`, created on first use, instead of allowing promotion codes.
-Organisation plans are not discounted. For TWINT on the Swiss site, enable it in the Stripe dashboard
+Stripe price with lookup key `wsis_report` (or `STRIPE_PRICE_ID`) only when
+its amount matches the displayed price in the selected currency. Otherwise
+the amount is sent as `price_data`, so an old Stripe price cannot override
+the current price. The one-time report has a fixed price with no discount,
+struck-through price or promotion codes. Run `pnpm stripe:setup` to update
+the stored Stripe prices as well. For TWINT on the Swiss site, enable it in the Stripe dashboard
 (payment methods); Checkout shows it automatically for CHF.
 
 **Plans for organisations** (`/organisations`, `/organisationen`): 100, 1,000
