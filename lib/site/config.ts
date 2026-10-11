@@ -128,9 +128,9 @@ export function siteConf(site: SiteId, locale = SITES[site].locale): SiteConf {
 }
 
 const ANCHORS: Record<'de' | 'fr' | 'it', Routes['anchors']> = {
-  de: { sources: 'quellen', questionnaire: 'fragebogen', prefs: 'wohin', programmes: 'studiengaenge', data: 'daten' },
-  fr: { sources: 'sources', questionnaire: 'questionnaire', prefs: 'preferences', programmes: 'programmes', data: 'donnees' },
-  it: { sources: 'fonti', questionnaire: 'questionario', prefs: 'preferenze', programmes: 'corsi', data: 'dati' },
+  de: { sources: 'quellen', questionnaire: 'fragebogen', prefs: 'wohin', programmes: 'studiengaenge', data: 'daten', unlock: 'freischalten' },
+  fr: { sources: 'sources', questionnaire: 'questionnaire', prefs: 'preferences', programmes: 'programmes', data: 'donnees', unlock: 'debloquer' },
+  it: { sources: 'fonti', questionnaire: 'questionario', prefs: 'preferenze', programmes: 'corsi', data: 'dati', unlock: 'sblocca' },
 }
 
 export interface Routes {
@@ -159,7 +159,7 @@ export interface Routes {
   orgs: string
   orgWelcome: string
   callback: (provider: string) => string
-  anchors: { sources: string; questionnaire: string; prefs: string; programmes: string; data: string }
+  anchors: { sources: string; questionnaire: string; prefs: string; programmes: string; data: string; unlock: string }
 }
 
 /** Links inside a site. `base` is '' on the site's own domain, '/schweiz' etc. under the global one. */
@@ -214,7 +214,7 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
     orgs: '/organisations',
     orgWelcome: '/organisations/welcome',
     callback: (p) => `/callback/${p}`,
-    anchors: { sources: 'sources', questionnaire: 'questionnaire', prefs: 'preferences', programmes: 'programmes', data: 'data' },
+    anchors: { sources: 'sources', questionnaire: 'questionnaire', prefs: 'preferences', programmes: 'programmes', data: 'data', unlock: 'unlock' },
   }
 }
 

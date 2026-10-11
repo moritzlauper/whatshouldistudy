@@ -690,7 +690,7 @@ function SourceInsights({ summaries, unlocked, studying }: { summaries: SourceSu
                   )
                 })}
               </ul>
-              <a href={`#${r.anchors.programmes}`} className="btn btn-primary mt-5">
+              <a href={`#${r.anchors.unlock}`} className="btn btn-primary mt-5">
                 {t.results.lockedCta}
               </a>
             </div>
@@ -744,7 +744,7 @@ function LockedTop({ shared = false }: { shared?: boolean }) {
                 {t.share.own}
               </Link>
             ) : (
-              <a href={`#${r.anchors.programmes}`} className="btn btn-primary mt-5">
+              <a href={`#${r.anchors.unlock}`} className="btn btn-primary mt-5">
                 {t.results.lockedCta}
               </a>
             )}

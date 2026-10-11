@@ -90,7 +90,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
           <div className="text-3xl" aria-hidden="true">🔒</div>
           <p className="mt-3 max-w-2xl text-muted">{t.programmes.topLocked}</p>
           {shared ? <Link href={r.start} className="btn btn-primary mt-5">{t.share.own}</Link>
-            : <a href={`#${r.anchors.programmes}`} className="btn btn-primary mt-5">{t.results.lockedCta}</a>}
+            : <a href={`#${r.anchors.unlock}`} className="btn btn-primary mt-5">{t.results.lockedCta}</a>}
         </div>
       ) : best.length > 0 ? (
         <ResultsContext.Provider value={results}><TopicsContext.Provider value={topicMap}>
@@ -242,7 +242,7 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
           <div className="card animate-soft p-6 font-semibold text-muted">{t.programmes.loading}</div>
         )}
       </div>
-      <div className="card relative h-fit bg-accent p-7 text-accent-ink lg:sticky lg:top-24">
+      <div id={r.anchors.unlock} className="card relative h-fit scroll-mt-24 bg-accent p-7 text-accent-ink lg:sticky lg:top-24">
         {!SALES_PAUSED[site] && (
           <div className="absolute -top-7 right-0 rotate-12 sm:-right-4">
             <Burst size={108} color="var(--yellow)" />
@@ -273,7 +273,7 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
         ) : config?.payments === 'off' ? (
           <p className="mt-6 text-sm opacity-85">{t.programmes.paymentsOff}</p>
         ) : org && !orgError ? null : (
-          <button type="button" disabled={busy || !config} onClick={checkout} className="btn btn-lime btn-lg mt-6 w-full">
+          <button type="button" disabled={busy || !config} onClick={checkout} className="btn btn-lime btn-lg mt-6 w-full whitespace-normal text-center">
             {busy ? t.programmes.opening : config?.payments === 'free' ? t.programmes.unlockFree : t.programmes.unlock(price)}
           </button>
         )}

@@ -1106,7 +1106,8 @@ const deCH: Dict = {
     boxList: (n: string) => ['Dein Platz 1, mit allen Belegen', `Alle ${n} passenden Studiengänge`, 'Gebühren und Zulassung für dich', 'Uni, ETH, FH und PH im Vergleich', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche und CSV-Export', 'Neue Studiengänge markiert, wöchentlich aktualisiert'],
     paymentsOff: 'Bezahlen ist hier noch nicht eingerichtet.',
     unlockFree: 'Freischalten (hier gratis)',
-    unlock: (p: string) => `Zahlungspflichtig bestellen · ${p}`,
+    // «Jetzt kaufen» names the obligation to pay clearly enough for § 312j BGB and fits a phone screen.
+    unlock: (p: string) => `Jetzt kaufen · ${p}`,
     minors: 'Unter 18? Bitte nur mit Einverständnis deiner Eltern kaufen.',
     opening: 'Öffne Bezahlung …',
     boxNote: 'Bezahlung mit TWINT oder Karte über Stripe. Einmalig, 12 Monate gültig.',
