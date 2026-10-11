@@ -1,1 +1,20 @@
-{}
+{
+"lmu-robots": "https://www.lmu.de/robots.txt",
+"lmu-list": "https://www.lmu.de/de/studium/studienangebot/alle-studiengaenge/",
+"lmu-studienangebot": "https://www.lmu.de/de/studium/studienangebot/",
+"tum-robots": "https://www.tum.de/robots.txt",
+"tum-list": "https://www.tum.de/studium/studienangebot",
+"heid-robots": "https://www.uni-heidelberg.de/robots.txt",
+"heid-list": "https://www.uni-heidelberg.de/de/studium/alle-studienfaecher",
+"kit-robots": "https://www.kit.edu/robots.txt",
+"kit-list": "https://www.kit.edu/studium/studiengaenge.php",
+"kitsle-robots": "https://www.sle.kit.edu/robots.txt",
+"kitsle-list": "https://www.sle.kit.edu/vorstudium/studiengaenge.php",
+"frei-robots": "https://uni-freiburg.de/robots.txt",
+"frei-list": "https://uni-freiburg.de/studium/studienangebot/",
+"freistud-robots": "https://www.studium.uni-freiburg.de/robots.txt",
+"tue-robots": "https://uni-tuebingen.de/robots.txt",
+"tue-list": "https://uni-tuebingen.de/studium/studienangebot/verzeichnis-der-studiengaenge/",
+"fau-robots": "https://www.fau.de/robots.txt",
+"fau-list": "https://www.fau.de/studium/studienangebot/"
+}
