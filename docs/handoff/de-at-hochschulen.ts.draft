@@ -1,0 +1,223 @@
+/**
+ * Germany and Austria: programme lists read from the universities' own
+ * websites, for want of an openly licensed national list (the Studiensuche of
+ * the Bundesagentur für Arbeit and studienwahl.at state no licence). Same
+ * rules as scrapers/ch-hochschulen.ts: facts only (name, level, language,
+ * credits, duration, names of specialisations, link), robots.txt respected,
+ * one request every 1.5 seconds. The readers per university live in
+ * scrapers/sites/.
+ *
+ *   node scrapers/de-at-hochschulen.ts          both countries
+ *   node scrapers/de-at-hochschulen.ts de       one of them
+ */
+import { join } from 'node:path'
+import { ADMISSION } from '../lib/institutions.ts'
+import type { InstType } from '../lib/institutions.ts'
+import { atTuition } from '../lib/at-institutions.ts'
+import { programmeId } from '../lib/programmes.ts'
+import type { Level, Programme } from '../lib/programmes.ts'
+import { OUT, cleanTitle, isMain, log, sleep, writeJson } from './lib/common.ts'
+import type { ScrapeOutput } from './lib/common.ts'
+import { germanFields } from './lib/de-titles.ts'
+import { degreeName, toProgramme as chToProgramme } from './ch-hochschulen.ts'
+import type { Listed } from './ch-hochschulen.ts'
+import type { SiteSource } from './sites/types.ts'
+import { AT_SITES } from './sites/at.ts'
+import { DE_SUED_SITES } from './sites/de-sued.ts'
+import { DE_OST_SITES } from './sites/de-ost.ts'
+import { DE_WEST_SITES } from './sites/de-west.ts'
+import { DE_MITTE_SITES } from './sites/de-mitte.ts'
+
+export const SITES: SiteSource[] = [...DE_SUED_SITES, ...DE_OST_SITES, ...DE_WEST_SITES, ...DE_MITTE_SITES, ...AT_SITES]
+
+const UA = 'Mozilla/5.0 (compatible; wasstudieren-bot/1.0; +https://wasstudieren.ch)'
+const PAUSE = 1500
+// Below this a country's run counts as broken, so yesterday's data stays.
+const MINIMUM: Record<'DE' | 'AT', number> = { DE: 1500, AT: 500 }
+
+const STATES: Record<string, string> = {
+  BW: 'Baden-Württemberg', BY: 'Bayern', BE: 'Berlin', BB: 'Brandenburg', HB: 'Bremen', HH: 'Hamburg', HE: 'Hessen', MV: 'Mecklenburg-Vorpommern',
+  NI: 'Niedersachsen', NW: 'Nordrhein-Westfalen', RP: 'Rheinland-Pfalz', SL: 'Saarland', SN: 'Sachsen', ST: 'Sachsen-Anhalt', SH: 'Schleswig-Holstein', TH: 'Thüringen',
+  B: 'Burgenland', K: 'Kärnten', NÖ: 'Niederösterreich', OÖ: 'Oberösterreich', S: 'Salzburg', T: 'Tirol', V: 'Vorarlberg', W: 'Wien',
+}
+// Austria's Steiermark shares its code with Sachsen-Anhalt.
+const stateName = (country: 'DE' | 'AT', code: string) => (country === 'AT' && code === 'ST' ? 'Steiermark' : (STATES[code] ?? code))
+
+const instType = (s: SiteSource): InstType => (s.type === 'tu' ? 'uni' : s.type)
+
+function tuition(s: SiteSource): Programme['tuition'] {
+  if (s.country === 'AT') {
+    const fee = atTuition(s.type === 'tu' ? 'uni' : s.type)
+    return { currency: 'EUR', domestic: fee.domestic, eu: fee.eu, international: fee.international, estimated: true, note: fee.note }
+  }
+  // Baden-Württemberg: EUR 1,500 per semester for students from outside the EU.
+  return { currency: 'EUR', domestic: 0, eu: 0, international: s.region === 'BW' ? 3000 : 0, estimated: true, note: 'Keine Studiengebühren, Semesterbeitrag ca. 100–400 €' }
+}
+
+/** A listed programme as a catalogue entry; null where it fits no field. */
+export function toProgramme(x: Listed, s: SiteSource, fetchedAt: string): Programme | null {
+  const title = x.name.replace(/^(Bachelor|Master)\s+/, '')
+  // The Swiss list knows names the general classifier misses; it is tried first through the Swiss mapping.
+  const ch = chToProgramme(x, { id: s.id, name: s.name, type: 'uni', city: s.city, canton: s.region, url: s.url, languages: s.languages } as never, fetchedAt)
+  const { fields, confidence } = ch?.fieldConfidence === 0.85 ? { fields: ch.fields, confidence: 0.85 } : germanFields(`${title} ${(x.focus ?? []).join(' ')}`)
+  if (!fields.length) return null
+  const type = instType(s)
+  return {
+    id: programmeId([s.country.toLowerCase(), s.id, x.url]),
+    name: cleanTitle(x.name),
+    institution: s.name,
+    country: s.country,
+    city: x.city ?? s.city,
+    region: stateName(s.country, s.region),
+    level: x.level,
+    fields: fields.slice(0, 3),
+    fieldConfidence: Math.round(confidence * 100) / 100,
+    languages: x.languages ?? s.languages,
+    durationYears: x.durationYears,
+    ects: x.ects,
+    focus: x.focus?.length ? x.focus : undefined,
+    mode: 'full-time',
+    url: x.url,
+    institutionUrl: s.url,
+    institutionType: type,
+    public: true,
+    admission: x.level === 'master' ? undefined : ADMISSION[s.country]?.[type]?.de,
+    tuition: tuition(s),
+    source: s.country === 'DE' ? 'de-hochschulen' : 'at-hochschulen',
+    updated: fetchedAt,
+  }
+}
+
+const robotsCache = new Map<string, string>()
+
+/** Whether robots.txt lets a generic crawler read the path (Disallow/Allow for «*», longest match wins). */
+export function robotsAllow(robots: string, url: string): boolean {
+  const path = new URL(url).pathname + new URL(url).search
+  let applies = false
+  const rules: Array<[boolean, string]> = []
+  for (const raw of robots.split(/\r?\n/)) {
+    const line = raw.replace(/#.*/, '').trim()
+    const m = /^(user-agent|allow|disallow)\s*:\s*(.*)$/i.exec(line)
+    if (!m) continue
+    const [key, value] = [m[1].toLowerCase(), m[2].trim()]
+    if (key === 'user-agent') applies = value === '*'
+    else if (applies && value) rules.push([key === 'allow', value])
+  }
+  const match = (rule: string) => new RegExp('^' + rule.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\\\$$/, '$')).test(path)
+  const best = rules.filter(([, r]) => match(r)).sort((a, b) => b[1].length - a[1].length)[0]
+  return !best || best[0]
+}
+
+async function allowed(url: string): Promise<boolean> {
+  const origin = new URL(url).origin
+  if (!robotsCache.has(origin)) {
+    const r = await fetch(`${origin}/robots.txt`, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(15_000) })
+      .then((res) => (res.ok ? res.text() : ''))
+      .catch(() => '')
+    robotsCache.set(origin, r)
+    await sleep(PAUSE)
+  }
+  return robotsAllow(robotsCache.get(origin)!, url)
+}
+
+async function page(url: string, timeout = 30_000): Promise<string | null> {
+  if (!(await allowed(url))) {
+    log(`  robots.txt disallows ${url}`)
+    return null
+  }
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'de-DE,de;q=0.9,en;q=0.5' }, signal: AbortSignal.timeout(timeout) })
+    if (!res.ok) {
+      log(`  HTTP ${res.status} ${url}`)
+      return null
+    }
+    return await res.text()
+  } catch (e) {
+    log(`  ${(e as Error).message} ${url}`)
+    return null
+  } finally {
+    await sleep(PAUSE)
+  }
+}
+
+async function readSite(s: SiteSource, fetchedAt: string): Promise<Programme[]> {
+  const listed: Listed[] = []
+  const fetched = new Map<string, string | null>()
+  for (const l of s.lists) {
+    if (!fetched.has(l.url)) fetched.set(l.url, await page(l.url, 120_000))
+    const html = fetched.get(l.url)
+    let found: Listed[] = []
+    try {
+      found = html ? l.read(html, l.url, l.level) : []
+    } catch (e) {
+      log(`  ${s.name}: reader failed: ${(e as Error).message}`)
+    }
+    log(`${s.name}: ${found.length} ${l.level} programmes listed`)
+    listed.push(...found)
+  }
+  if (s.detail) {
+    for (const [i, x] of listed.entries()) {
+      if (s.detailLevels && !s.detailLevels.includes(x.level)) continue
+      const html = await page(x.url)
+      if (!html) continue
+      let found: Partial<Listed> = {}
+      try {
+        found = s.detail(html)
+      } catch {
+        continue
+      }
+      // What the list already knows wins over what a page's text yields.
+      const merged = { ...Object.fromEntries(Object.entries(found).filter(([, v]) => v !== undefined)), ...Object.fromEntries(Object.entries(x).filter(([, v]) => v !== undefined)) } as Listed
+      if (x.provisional && found.name) merged.name = degreeName(x.level, found.name)
+      delete merged.provisional
+      listed[i] = merged
+    }
+  }
+  const out: Programme[] = []
+  const seen = new Set<string>()
+  let unclassified = 0
+  for (const x of listed) {
+    const p = toProgramme(x, s, fetchedAt)
+    if (!p) unclassified++
+    else if (!seen.has(p.id)) {
+      seen.add(p.id)
+      out.push(p)
+    }
+  }
+  log(`${s.name}: ${out.length} programmes, ${listed.filter((x) => x.focus?.length).length} with specialisations, ${unclassified} without a field`)
+  return out
+}
+
+async function main() {
+  const only = process.argv[2]?.toUpperCase()
+  const fetchedAt = new Date().toISOString()
+  for (const country of ['DE', 'AT'] as const) {
+    if (only && only !== country) continue
+    const programmes: Programme[] = []
+    for (const s of SITES.filter((x) => x.country === country)) {
+      try {
+        programmes.push(...(await readSite(s, fetchedAt)))
+      } catch (e) {
+        log(`${s.name} failed: ${(e as Error).message}`)
+      }
+    }
+    log(`${country} universities: ${programmes.length} programmes`)
+    if (programmes.length < MINIMUM[country]) {
+      log(`only ${programmes.length} programmes in ${country}, sites may have changed; nothing written`)
+      process.exitCode = 1
+      continue
+    }
+    const source = country === 'DE' ? 'de-hochschulen' : 'at-hochschulen'
+    const out: ScrapeOutput = { source, fetchedAt, programmes }
+    writeJson(join(OUT, `${source}.json`), out)
+  }
+}
+
+if (isMain(import.meta.url)) {
+  main().catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+}
+
+export type { Level }

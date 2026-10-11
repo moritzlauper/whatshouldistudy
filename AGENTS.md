@@ -20,6 +20,11 @@ for it:
 
 If a request would require any of the above, decline that part and say why.
 
+## Laufende Arbeit
+
+Offene Aufträge und der Stand der Arbeit an Deutschland/Österreich stehen in
+`docs/handoff/HANDOFF.md`.
+
 ## Next.js
 
 This version of Next.js has breaking changes compared with older versions. Read
