@@ -52,15 +52,23 @@ export function reviewStream(input: unknown, signal?: AbortSignal): ReadableStre
           // The cheapest current model, like the other AI parts: fast enough
           // that the answer arrives in well under a minute.
           model: 'claude-haiku-5-5',
-          max_tokens: 6000,
-          output_config: { effort: 'medium' },
+          // Room for thinking and a full answer: at 6000 the thinking alone used it all up.
+          max_tokens: 16000,
+          output_config: { effort: 'low' },
           system: SYSTEM,
           messages: [{ role: 'user', content: `Result to review (JSON):\n\n${JSON.stringify(input).slice(0, 80_000)}` }],
         }, { signal })
-        stream.on('text', (t) => controller.enqueue(enc.encode(t)))
+        let wrote = false
+        stream.on('text', (t) => {
+          wrote = true
+          controller.enqueue(enc.encode(t))
+        })
         const message = await stream.finalMessage()
         await aiSpend('review', 'claude-haiku-5-5', message.usage)
         if (message.stop_reason === 'refusal') controller.enqueue(enc.encode('\n\nClaude hat die Prüfung abgelehnt.'))
+        else if (message.stop_reason === 'max_tokens') controller.enqueue(enc.encode('\n\n⚠ Die Antwort wurde abgeschnitten (Längenlimit).'))
+        // Say why instead of an empty box.
+        if (!wrote) controller.enqueue(enc.encode(`⚠ Claude hat keinen Text geschrieben (Grund: ${message.stop_reason}).`))
       } catch (e) {
         console.error(`review: ${(e as Error).message}`)
         controller.enqueue(enc.encode(`\n\n⚠ Fehler: ${(e as Error).message}`))
