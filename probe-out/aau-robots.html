@@ -1,0 +1,37 @@
+<!-- https://www.aau.at/robots.txt 200 https://www.aau.at/robots.txt -->
+User-agent: *
+Crawl-Delay: 4
+
+Allow: *.css
+Allow: *.js
+
+Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php
+Disallow: /wp-login.php
+
+## Enfold Theme und WP
+Disallow: *avia-element-paging*
+Disallow: /?s=
+Disallow: /page/
+
+## For Events Calendar
+Disallow: *post_type=tribe_events*
+Disallow: *hide_subsequent_recurrences=*
+Disallow: *tribe-bar-date=*
+Disallow: *tribe-venue=*
+Disallow: *eventDisplay=*
+Disallow: *eventDate=*
+Disallow: *paged=*
+Disallow: *pagename=*
+Disallow: *shortcode=*
+Disallow: *ical=*
+Disallow: *outlook-ical=*
+Disallow: *related_series=*
+Disallow: *tribe_geofence=*
+Disallow: *tribe_organizer=*
+ 
+Allow: /events/*
+Allow: /event/*
+
+#Sitemap archive
+Sitemap: https://www.aau.at/sitemap_index.xml

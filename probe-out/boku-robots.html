@@ -1,0 +1,22 @@
+<!-- https://boku.ac.at/robots.txt 200 https://boku.ac.at/robots.txt -->
+User-agent: *
+
+Crawl-delay: 10
+
+Allow: /
+
+Allow: /typo3conf/ext
+Allow: /typo3temp/assets/
+
+# folders
+Disallow: /typo3/
+Disallow: /typo3conf/
+Disallow: /typo3temp/
+
+# parameters
+Disallow: /*?id=*               # non speaking URLs
+Disallow: /*cHash               # no cHash
+Disallow: /*no_cache               # no cHash
+
+Sitemap: https://boku.ac.at/sitemap.xml
+
