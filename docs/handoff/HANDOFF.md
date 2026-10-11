@@ -6,17 +6,23 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 
 - Direkt auf `main` pushen, keine PRs.
 - Texte auf Deutsch: Schweizer Hochdeutsch, kein ß, Anführungszeichen «», schlicht und konkret, keine Werbefloskeln. Alle UI-Texte stehen in `lib/site/dict.ts` (en, de-CH, fr, it, dazu Overrides für DE/AT).
-- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 118 grün). Demodaten mit `node scrapers/build.ts --sample`.
+- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 120 grün). Demodaten mit `node scrapers/build.ts --sample`.
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
 
-## Offene Aufträge des Inhabers (letzte Nachricht, noch nicht begonnen)
+## Erledigt am 11.10.2026
 
-1. **Bester Studiengang gesperrt und weiter oben.** Im Resultat (`app/views/results.tsx`, Komponente `Programmes` in `app/ui/programmes.tsx`) soll der am besten passende Studiengang wie Platz 1 der Fächer (`LockedTop`/`TopMatch`) hinter dem Kauf liegen und weiter oben stehen, direkt nach dem Fach-Platz-1. Die Freigabe läuft über das bestehende Unlock-Token, nichts am Token-Check ändern.
-2. **Landingpage auf Studiengänge ausrichten.** Neuer Kern: Die Seite sucht nicht nur das passende Fach, sondern den passenden Studiengang an einer bestimmten Hochschule (inkl. der KI-Bewertung einzelner Studiengänge, `lib/server/programme-fit.ts`). Der CTA heisst heute «Mein Fach finden» (`lib/site/dict.ts` Zeilen um 692 und 1148, `lib/site/catalogue-text.ts` um 195); Hero, Untertitel und Ablauf in `app/views/landing.tsx` entsprechend umschreiben, in allen vier Sprachen.
-3. **Datenschutz-Hinweis nur im Datenmodus.** Der Block «Dein Verlauf bleibt auf deinem Gerät … Code auf GitHub ansehen» (`nothingStored` u. a. in `lib/site/dict.ts`, dargestellt in `app/views/start.tsx`) soll nur erscheinen, wenn im Start der Modus «mit deinen Daten» (`mode: 'data'` in `lib/store.ts`) gewählt ist, vorher nicht.
-4. **Fragebogen kürzen, ohne Validität zu verlieren.** `lib/engine/questionnaire.ts`: heute 36 Interessen-Items (6 je RIASEC-Typ) + Kontrollitem, 20 Mini-IPIP-Items, 14 Schulfächer, 8 Werte. Vorschlag: Interessen auf 4 Items je Typ (24, kurze Skalen wie im Mini-RIASEC/O*NET-Short-Form-Ansatz erreichen mit 4–5 Items noch brauchbare Reliabilität; die je Typ trennschärfsten behalten, also die konkretesten Tätigkeiten), Big Five optional einklappen (fliesst im Fragebogen-Modus ohnehin mit Gewicht 0 ein, `Q_WEIGHTS` in `lib/engine/scoring.ts`), Werte und Fächer unverändert. `MIN_PER_TYPE`, `careless()` (12 gleiche Antworten in Folge, bei 24 Items auf etwa 10 senken) und die Position des Kontrollitems anpassen. Item-IDs der behaltenen Items nicht ändern, damit gespeicherte Antworten gültig bleiben. Übersetzungen in `lib/site/dict.ts` mitziehen, Tests in `test/engine.test.ts` anpassen. Hintergrund: Recherche unter `research_notes/` bzw. Bericht «Wissenschaftliche Studienwahl Diagnostik» (nicht im Repo).
-5. **Outreach-Mail an das neue Angebot anpassen.** Die Vorlage liegt im separaten Repo `moritzlauper/whatshouldistudy-outreach` (`mail.ts`, `drafts/`, `letters/`); sie soll den Studiengang-Fokus (Punkt 2) und die zwei Modi (nur Fragebogen / mit eigenen Daten) nennen.
+Die fünf Produkt- und Outreach-Aufträge sind umgesetzt:
+
+1. **Bester Studiengang:** eigene Karte direkt nach dem Fach auf Platz 1 (`TopProgramme`). Vor dem Kauf bleibt sie gesperrt; Details kommen erst nach Freigabe über `/api/programmes`. Der kostenlose Teaser schliesst den tatsächlichen besten Studiengang und das erste Fach aus, auch wenn der beste Studiengang zu einem anderen Fach gehört. Token-Prüfung und Checkout bleiben unverändert.
+2. **Studiengang-Fokus:** Hero, Ablauf, Beispielkarte und CTAs in Englisch, Deutsch, Französisch und Italienisch nennen konkrete Hochschulen, beide Modi und den freiwilligen KI-Vergleich. Die Hinweise auf die fehlenden DE/AT-Daten und pausierten Verkäufe bleiben bestehen.
+3. **Datenschutz:** Der Hinweis beim Start erscheint nur im Datenmodus.
+4. **Kürzerer Fragebogen:** 24 Interessenfragen (vier pro Typ), Kontrollitem nach Frage 12, Warnung bei zehn gleichen Antworten in Folge. Zwei Antworten je Typ bleiben das Minimum. Behaltene IDs und Übersetzungen sind stabil; entfernte Antworten zählen nicht mehr für Fortschritt oder Ergebnis. Big Five ist freiwillig eingeklappt und zählt nicht zum Kernfortschritt (47 Einträge). Schulfächer und Werte bleiben unverändert. Die Auswahl bewahrt konkrete Tätigkeiten und thematische Breite; unveränderte Reliabilität ist ohne Validierungsdaten nicht belegt.
+5. **Outreach:** `mail.ts` im separaten Repo `moritzlauper/whatshouldistudy-outreach` nennt in DE/FR/IT Studiengänge an konkreten Hochschulen und beide Modi. DE/AT-Vorlagen weisen auf die fehlenden Studiengangdaten und pausierten Verkäufe hin. Bestehende Entwürfe und Briefe wurden nicht überschrieben; keine Mails wurden versendet.
+
+Prüfungen: TypeScript, 120 App-Tests, 35 Outreach-Tests, Demodaten-Build (752 Studiengänge). Im Browser geprüft: Moduswechsel und Datenschutz, 25 Einträge im Interessen-Tab, freiwilliger Big-Five-Teil, Ergebnis ab zwei Antworten je Typ, gesperrte Studiengangkarte vor den weiteren Fächern und Link zur Kaufsektion. Lokaler Aufruf von `/api/programmes` ohne Token: HTTP 401. Ein bezahlter Checkout und der externe KI-Vergleich wurden nicht ausgeführt.
+
+Die DE/AT-Leser sind weiterhin offen und für einen separaten Durchlauf vorgesehen.
 
 ## Deutschland und Österreich: Studiengänge von den Hochschul-Websites
 

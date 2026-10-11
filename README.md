@@ -1,12 +1,14 @@
 # whatshouldistudy
 
-Find what to study from what you actually watch, read and build. The site reads
-thousands of signals from a person's YouTube, Google Takeout, Spotify, Reddit and
-GitHub, adds a short questionnaire built on established models (RIASEC interests
-with six own items per area, optional Mini-IPIP Big Five, school subjects,
-values; not yet validated in a study), matches them to 80 fields of study and then to
-real programmes in Switzerland, Germany, Austria, the US, the UK, France and,
-through research profiles and a university directory, 60+ more countries.
+Find a programme at a specific university with a short questionnaire, optionally
+supplemented by your own data. The questionnaire covers RIASEC interests (four
+custom items per area plus an attention check), school subjects and values;
+the 20 Mini-IPIP Big Five items are folded away as an optional addition. The
+custom interest scale is not yet validated in a study. Results match 80 fields
+to programmes in the available country datasets. Germany and Austria currently
+link to official programme searches; their own programme readers are pending.
+The paid report reveals the best field and programme and offers an optional AI
+comparison of programme pages with the person's profile.
 
 Four sites from one codebase: the global English site and three German-language
 country sites: `wasstudieren` for Switzerland (wasstudieren.ch), `findemeinstudium`
@@ -358,7 +360,9 @@ The privacy page describes exactly what is switched on.
 `/unlocked` exchanges the paid session for an HMAC-signed token
 (`lib/server/token.ts`, valid 12 months) stored in the browser; `/api/programmes`
 and `/api/research` require it. No database. Free tier: `/api/teaser` (counts
-plus the top 3 programmes).
+plus up to three examples, excluding the best programme and top field).
+The best programme appears directly below the top field in results; its details
+are fetched through `/api/programmes` only after unlock.
 
 Price: country sites always use their own currency (Germany/Austria EUR 17,
 Switzerland CHF 17), for both the displayed price and checkout, including

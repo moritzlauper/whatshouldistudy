@@ -17,11 +17,11 @@ export interface LikertItem {
 }
 
 /**
- * Activity items, six per Holland type, rated for liking: 1 (dislike) .. 5
+ * Activity items, four per Holland type, rated for liking: 1 (dislike) .. 5
  * (love). Short concrete activities rather than job titles, written to be
  * gender-neutral (no «-in», no stereotyped hobbies) and to cover the fields in
- * the taxonomy. Six items per scale is the shortest length at which interest
- * scales reach acceptable reliability (about α .70); three were too few.
+ * the taxonomy. This is a custom short form, not a validated scale; item
+ * selection preserves concrete activities and breadth, not measured reliability.
  * They are shown interleaved (R, I, A, S, E, C, R, …) so that no block of one
  * type invites answering on autopilot.
  */
@@ -80,12 +80,18 @@ const BY_TYPE: Record<RiasecKey, string[]> = {
 export const ATTENTION_ITEM: LikertItem = { id: 'chk', key: 'check', text: 'To show you are reading: choose 2 here' }
 export const ATTENTION_ANSWER = 2
 
-export const RIASEC_ITEMS: LikertItem[] = [0, 1, 2, 3, 4, 5].flatMap((n) =>
-  RIASEC_KEYS.map((k) => ({ id: `${k.toLowerCase()}${n + 1}`, key: k, text: BY_TYPE[k][n] })),
+// Original one-based item numbers keep saved answers and translations stable.
+const SELECTED: Record<RiasecKey, number[]> = {
+  R: [1, 2, 5, 6], I: [1, 2, 3, 6], A: [1, 2, 3, 5],
+  S: [1, 2, 3, 4], E: [1, 2, 3, 4], C: [1, 2, 4, 6],
+}
+export const ITEMS_PER_TYPE = 4
+export const RIASEC_ITEMS: LikertItem[] = Array.from({ length: ITEMS_PER_TYPE }, (_, n) => n).flatMap((n) =>
+  RIASEC_KEYS.map((k) => ({ id: `${k.toLowerCase()}${SELECTED[k][n]}`, key: k, text: BY_TYPE[k][SELECTED[k][n] - 1] })),
 )
 
 /** The interest list as shown: the attention item sits after the first half. */
-export const INTEREST_LIST: LikertItem[] = [...RIASEC_ITEMS.slice(0, 18), ATTENTION_ITEM, ...RIASEC_ITEMS.slice(18)]
+export const INTEREST_LIST: LikertItem[] = [...RIASEC_ITEMS.slice(0, 12), ATTENTION_ITEM, ...RIASEC_ITEMS.slice(12)]
 
 /**
  * Mini-IPIP (Donnellan, Oswald, Baird & Lucas, 2006): 20 items, four per Big
@@ -139,7 +145,7 @@ export function riasecCompleteness(a: QuestionnaireAnswers): number {
 }
 
 /** Answers per Holland type needed before its scale counts. Fewer would be noise, and a missing type is not «neutral». */
-export const MIN_PER_TYPE = 2
+export const MIN_PER_TYPE = Math.ceil(ITEMS_PER_TYPE / 2)
 
 /** RIASEC profile in 0..1 from the activity items, or null until every type has enough answers. */
 export function scoreRiasec(a: QuestionnaireAnswers): Riasec | null {
@@ -171,7 +177,7 @@ export function profileShape(p: Riasec): { elevation: number; differentiation: n
 
 /**
  * Signs of answering without reading: the attention item answered otherwise
- * than asked, or twelve or more identical answers in a row in the interest
+ * than asked, or ten or more identical answers in a row in the interest
  * list. Only the wording of the result changes; nobody is locked out.
  */
 export function careless(a: QuestionnaireAnswers): boolean {
@@ -188,7 +194,7 @@ export function careless(a: QuestionnaireAnswers): boolean {
     }
     run = v === last ? run + 1 : 1
     last = v
-    if (run >= 12) return true
+    if (run >= 10) return true
   }
   return false
 }
@@ -226,10 +232,10 @@ export function riasecCode(p: Riasec): string {
 }
 
 export function questionnaireProgress(a: QuestionnaireAnswers): { done: number; total: number } {
-  const total = INTEREST_LIST.length + BIG5_ITEMS.length + 14 + 8
+  // Personality is optional and separate from the core progress indicator.
+  const total = INTEREST_LIST.length + 14 + 8
   const done =
-    Object.keys(a.riasec ?? {}).length +
-    Object.keys(a.big5 ?? {}).length +
+    INTEREST_LIST.filter((i) => typeof a.riasec?.[i.id] === 'number').length +
     Object.values(a.subjects ?? {}).filter((s) => s && (s.enjoy || s.grade)).length +
     Object.keys(a.values ?? {}).length
   return { done, total }

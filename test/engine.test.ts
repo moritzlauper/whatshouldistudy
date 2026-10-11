@@ -132,14 +132,40 @@ test('questionnaire quality: no filling-in, flat profiles, careless answering, o
   const flat = score({ summaries: [], answers: flatAnswers })
   assert.equal(flat.quality?.flat, true)
   assert.equal(flat.confidence, 'low')
-  // Twelve identical answers in a row, or the attention item answered wrongly, mark the result.
+  // Ten identical answers in a row, or the attention item answered wrongly, mark the result.
   assert.equal(flat.quality?.careless, true)
   const varied = Object.fromEntries(q.RIASEC_ITEMS.map((i, n) => [i.id, (n % 5) + 1]))
   assert.equal(q.careless({ riasec: varied }), false)
   assert.equal(q.careless({ riasec: { ...varied, chk: 5 } }), true)
   assert.equal(q.careless({ riasec: { ...varied, chk: 2 } }), false)
-  assert.equal(q.RIASEC_ITEMS.length, 36)
+  assert.equal(q.RIASEC_ITEMS.length, 24)
   assert.equal(q.INTEREST_LIST.filter((i) => i.key === 'check').length, 1)
+  assert.equal(q.INTEREST_LIST[12].id, 'chk')
+  for (const key of ['R', 'I', 'A', 'S', 'E', 'C']) {
+    assert.equal(q.RIASEC_ITEMS.filter((i) => i.key === key).length, 4)
+  }
+  const run = (n: number) => ({ riasec: Object.fromEntries(q.INTEREST_LIST.slice(0, n).map((i) => [i.id, 4])) })
+  assert.equal(q.careless(run(9)), false)
+  assert.equal(q.careless(run(10)), true)
+  const interrupted = run(10)
+  delete interrupted.riasec.a1
+  assert.equal(q.careless(interrupted), false)
+})
+
+test('short questionnaire keeps retained IDs and ignores retired answers in scores and progress', async () => {
+  const q = await import('../lib/engine/questionnaire.ts')
+  const current = Object.fromEntries(q.INTEREST_LIST.map((i, n) => [i.id, i.id === 'chk' ? 2 : n % 5 + 1]))
+  const legacy = { ...current, r3: 5, r4: 5, i4: 5, i5: 5, a4: 5, a6: 5, s5: 5, s6: 5, e5: 5, e6: 5, c3: 5, c5: 5 }
+  assert.equal(q.RIASEC_ITEMS.find((i) => i.id === 'r5')?.text, 'Grow plants or look after animals')
+  assert.deepEqual(q.scoreRiasec({ riasec: legacy }), q.scoreRiasec({ riasec: current }))
+  assert.equal(q.riasecCompleteness({ riasec: legacy }), 1)
+  const progress = q.questionnaireProgress({ riasec: legacy, big5: Object.fromEntries(q.BIG5_ITEMS.map((i) => [i.id, 4])) })
+  assert.deepEqual(progress, { done: 25, total: 47 })
+  assert.deepEqual(q.questionnaireProgress({ riasec: current }), progress)
+  const minimal = Object.fromEntries(['r1', 'r2', 'i1', 'i2', 'a1', 'a2', 's1', 's2', 'e1', 'e2', 'c1', 'c2'].map((id, n) => [id, n % 5 + 1]))
+  assert.equal(q.resultsReady({ riasec: minimal }, 0), true)
+  delete minimal.c2
+  assert.equal(q.resultsReady({ riasec: minimal }, 0), false)
 })
 
 test('with the questionnaire answered, data move a field by at most a quarter', () => {

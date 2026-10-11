@@ -205,19 +205,23 @@ export async function rank(req: RankRequest): Promise<RankResult> {
 
 /** What the free tier sees: how much there is, and a few examples. */
 export async function teaser(req: RankRequest) {
-  const full = await rank({ ...req, page: 0, pageSize: 3 })
+  // Compute the actual best match with all fields before removing the paid
+  // field. Otherwise a programme from field #2 can reveal programme #1.
+  const best = await rank({ ...req, sort: 'match', page: 0, pageSize: 1 })
+  const fields = req.fields.slice(1)
+  const full = await rank({ ...req, fields, sort: 'match', page: 0, pageSize: 4 })
   const { meta } = await getMeta()
   const programmeCountries = Object.keys(COUNTRIES).filter((c) => COUNTRIES[c].programmeData)
   return {
     total: full.total,
     facets: full.facets,
-    samples: full.items,
+    samples: full.items.filter((p) => p.id !== best.items[0]?.id && !p.fields.includes(req.fields[0].id)).slice(0, 3),
     sample: full.sample,
     updated: full.updated,
     coverage: {
       programmeCountries,
       totals: meta?.totals,
-      fields: req.fields.map((f) => ({ id: f.id, name: FIELD_BY_ID[f.id]?.name, total: Object.values(meta?.counts[f.id] ?? {}).reduce((s, x) => s + x, 0) })),
+      fields: fields.map((f) => ({ id: f.id, name: FIELD_BY_ID[f.id]?.name, total: Object.values(meta?.counts[f.id] ?? {}).reduce((s, x) => s + x, 0) })),
     },
   }
 }

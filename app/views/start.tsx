@@ -119,7 +119,7 @@ export function StartView() {
         <span className="hl">{t.start.title}</span>
       </h1>
       <p className="mt-5 max-w-2xl text-lg text-muted">{t.start.lead}</p>
-      <div className="card-sm mt-6 flex max-w-3xl flex-col gap-3 bg-surface-2 p-5 sm:flex-row sm:items-center">
+      {dataMode && <div className="card-sm mt-6 flex max-w-3xl flex-col gap-3 bg-surface-2 p-5 sm:flex-row sm:items-center">
         <span className="text-3xl" aria-hidden="true">🔒</span>
         <p className="flex-1 text-sm">
           <strong>{t.trust.nothingStored}.</strong> {t.trust.startNote}{' '}
@@ -127,7 +127,7 @@ export function StartView() {
             <GitHubMark size={14} /> {t.trust.viewCode}
           </a>
         </p>
-      </div>
+      </div>}
 
       <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-2" role="radiogroup" aria-label={t.start.modeLabel}>
         {(['standard', 'data'] as const).map((m) => {

@@ -50,7 +50,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
               </p>
               <TrustStickers stored={t.trust.nothingStored} openSource={t.trust.openSource} />
             </div>
-            <h1 className="mt-7 font-display text-[2.7rem] sm:text-6xl lg:text-7xl">
+            <h1 className="mt-7 font-display text-[2.5rem] sm:text-5xl lg:text-6xl">
               <span className="block text-accent">{t.landing.h1a}</span>
               {t.landing.h1b} <span className="hl">{t.landing.h1c}</span> {t.landing.h1d}
             </h1>
@@ -83,7 +83,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
         </div>
       </section>
 
-      {/* Quiz vs footprint */}
+      {/* Choose a mode, find programmes, compare their content. */}
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="grid gap-5 md:grid-cols-3">
           {t.landing.cols.map(([title, text], i) => (
@@ -289,6 +289,11 @@ function HeroCard({ k }: { k: Kit }) {
             <div className="font-display text-5xl">RIC</div>
             <div className="text-sm text-muted">{t.landing.codeSub}</div>
           </div>
+        </div>
+        <div className="mt-6 rounded-2xl border-2 border-line bg-accent-soft p-4">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted">{t.landing.exampleProgrammeLabel}</p>
+          <p className="mt-1 font-display text-2xl">{t.landing.exampleProgramme}</p>
+          <p className="mt-1 font-semibold">EPFL · Lausanne</p>
         </div>
         <ol className="mt-6 grid gap-3">
           {t.landing.exampleRows.map(([id, score, why], i) => (

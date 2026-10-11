@@ -16,7 +16,7 @@ import { BIG5_KEYS, FIELDS, FIELD_BY_ID, RIASEC_KEYS } from '@/lib/taxonomy/fiel
 import { big5Label, emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel } from '@/lib/site/labels.ts'
 import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
-import { Programmes } from '../ui/programmes.tsx'
+import { Programmes, TopProgramme } from '../ui/programmes.tsx'
 import { StudyingControl } from '../ui/prefs-form.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { Contributions } from '../ui/contributions.tsx'
@@ -164,6 +164,8 @@ export function ResultsView() {
       )}
 
       {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop shared={isShared} />}
+      <TopProgramme results={results} prefs={prefs} topics={topics} unlocked={unlocked} shared={isShared}
+        token={isShared ? ((shared as Snapshot).token ?? null) : paid ? state.unlock!.token : null} />
 
       <section className="mt-16">
         <h2 className="font-display text-4xl">{t.results.next}</h2>

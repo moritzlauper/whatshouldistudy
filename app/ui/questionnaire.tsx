@@ -9,9 +9,9 @@ import type { SubjectKey } from '@/lib/taxonomy/fields.ts'
 import { subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import { useSite } from './site-context.tsx'
 
-const TABS = ['interests', 'personality', 'subjects', 'values'] as const
+const TABS = ['interests', 'subjects', 'values'] as const
 type Tab = (typeof TABS)[number]
-const TAB_COLOR: Record<Tab, string> = { interests: 'var(--pink)', personality: 'var(--sky)', subjects: 'var(--lime)', values: 'var(--yellow)' }
+const TAB_COLOR: Record<Tab, string> = { interests: 'var(--pink)', subjects: 'var(--lime)', values: 'var(--yellow)' }
 
 export function Questionnaire() {
   const { t } = useSite()
@@ -20,8 +20,7 @@ export function Questionnaire() {
   const a = state.answers
 
   const count: Record<Tab, [number, number]> = {
-    interests: [Object.keys(a.riasec ?? {}).length, INTEREST_LIST.length],
-    personality: [Object.keys(a.big5 ?? {}).length, BIG5_ITEMS.length],
+    interests: [INTEREST_LIST.filter((i) => typeof a.riasec?.[i.id] === 'number').length, INTEREST_LIST.length],
     subjects: [Object.values(a.subjects ?? {}).filter((s) => s?.enjoy || s?.grade).length, SUBJECT_KEYS.length],
     values: [Object.keys(a.values ?? {}).length, VALUE_KEYS.length],
   }
@@ -61,12 +60,6 @@ export function Questionnaire() {
         {tab === 'interests' && (
           <LikertList items={localise(INTEREST_LIST, t.q.riasec)} values={a.riasec ?? {}} labels={t.q.likertInterest} onChange={(id, v) => setLikert('riasec', id, v)} color={TAB_COLOR.interests} />
         )}
-        {tab === 'personality' && (
-          <>
-            <LikertList items={localise(BIG5_ITEMS, t.q.big5)} values={a.big5 ?? {}} labels={t.q.likertAccuracy} onChange={(id, v) => setLikert('big5', id, v)} color={TAB_COLOR.personality} />
-            <p className="mt-4 text-xs text-muted">{t.q.ipipNote}</p>
-          </>
-        )}
         {tab === 'subjects' && <Subjects />}
         {tab === 'values' && <Values />}
         {next && (
@@ -77,6 +70,13 @@ export function Questionnaire() {
           </div>
         )}
       </div>
+      <details className="border-t-2 border-line p-4 sm:p-7">
+        <summary className="cursor-pointer font-bold">{t.q.personalityOptional}</summary>
+        <p className="my-4 text-sm text-muted">{t.q.personalityNote}</p>
+        <p className="mb-4 font-semibold text-muted">{t.q.hints.personality}</p>
+        <LikertList items={localise(BIG5_ITEMS, t.q.big5)} values={a.big5 ?? {}} labels={t.q.likertAccuracy} onChange={(id, v) => setLikert('big5', id, v)} color="var(--sky)" />
+        <p className="mt-4 text-xs text-muted">{t.q.ipipNote}</p>
+      </details>
     </div>
   )
 }

@@ -52,8 +52,59 @@ function requestFields(results: Results) {
   return results.fields.slice(0, 6).map((f) => ({ id: f.id, score: f.score }))
 }
 
-/** Until the report is unlocked, place 1 stays hidden, also from the free teaser. */
-const teaserFields = (fields: ReturnType<typeof requestFields>, hideFirst: boolean) => (hideFirst ? fields.slice(1) : fields)
+/** Fetch the best programme only through the same paid endpoint as the list. */
+export function TopProgramme({ results, prefs, topics = [], token, unlocked, shared = false }: {
+  results: Results; prefs: Preferences; topics?: UserTopic[]; token: string | null; unlocked: boolean; shared?: boolean
+}) {
+  const { t, r } = useSite()
+  const [reply, setReply] = useState<{ key: string; data: RankResult | null; error?: boolean; locked?: boolean } | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const weights = useMemo(() => topics.length ? topicWeights(topics) : undefined, [topics])
+  const topicMap = useMemo(() => new Map(topics.map((x) => [x.key, x])), [topics])
+  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: 1 })
+  const key = JSON.stringify([body, token, unlocked, attempt])
+  useEffect(() => {
+    if (!unlocked) return
+    const controller = new AbortController()
+    fetch(withBase('/api/programmes'), {
+      method: 'POST', signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body,
+    }).then(async (res) => {
+      if (res.status === 401) return setReply({ key, data: null, locked: true })
+      if (!res.ok) throw new Error('Programme lookup failed')
+      const data = await res.json() as RankResult
+      if (!controller.signal.aborted) setReply({ key, data })
+    }).catch(() => {
+      if (!controller.signal.aborted) setReply({ key, data: null, error: true })
+    })
+    return () => controller.abort()
+  }, [body, key, token, unlocked])
+  const current = reply?.key === key ? reply : null
+  const locked = !unlocked || current?.locked
+  const best = current?.data?.items[0]
+  return (
+    <section className="mt-8" aria-label={t.programmes.topTitle}>
+      <h2 className="mb-4 font-display text-3xl">{t.programmes.topTitle}</h2>
+      {locked ? (
+        <div className="card bg-accent-soft p-6 sm:p-8">
+          <div className="text-3xl" aria-hidden="true">🔒</div>
+          <p className="mt-3 max-w-2xl text-muted">{t.programmes.topLocked}</p>
+          {shared ? <Link href={r.start} className="btn btn-primary mt-5">{t.share.own}</Link>
+            : <a href={`#${r.anchors.programmes}`} className="btn btn-primary mt-5">{t.results.lockedCta}</a>}
+        </div>
+      ) : best ? (
+        <ResultsContext.Provider value={results}><TopicsContext.Provider value={topicMap}>
+          {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
+          <ProgrammeRow p={best} />
+          <p className="mt-2 text-sm text-muted">{t.programmes.topNote}</p>
+        </TopicsContext.Provider></ResultsContext.Provider>
+      ) : <div className="card p-6 text-muted" role="status">
+        {current?.error ? <>{t.programmes.topError} <button className="btn btn-ghost btn-sm" type="button" onClick={() => setAttempt((n) => n + 1)}>{t.programmes.topRetry}</button></>
+          : current?.data ? t.programmes.topEmpty : t.programmes.loading}
+      </div>}
+    </section>
+  )
+}
 
 export function Programmes({ results, prefs, topics = [], hideFirst = true }: { results: Results; prefs: Preferences; topics?: UserTopic[]; hideFirst?: boolean }) {
   const { t, r, site, locale, intl } = useSite()
@@ -67,7 +118,7 @@ export function Programmes({ results, prefs, topics = [], hideFirst = true }: { 
   useEffect(() => setToken(unlockToken()), [])
 
   useEffect(() => {
-    fetch(withBase('/api/teaser'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: teaserFields(fields, hideFirst), prefs, topics: weights }) })
+    fetch(withBase('/api/teaser'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields, prefs, topics: weights }) })
       .then((res) => res.json())
       .then(setTeaser)
       .catch(() => setTeaser(null))
