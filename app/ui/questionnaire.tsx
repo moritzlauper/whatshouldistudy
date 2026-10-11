@@ -116,8 +116,8 @@ function LikertList({ items, values, labels, onChange, color }: { items: LikertI
       <ul className="divide-y-2 divide-soft-line">
         {items.map((it) => (
           <li key={it.id} className="flex flex-col gap-2 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-            <span className={values[it.id] ? 'text-muted' : 'font-medium'}>
-              {values[it.id] ? <span className="mr-1.5 text-good" aria-hidden="true">✓</span> : null}
+            {/* Only the colour changes once answered: a tick or bolder text would rewrap the line and shift the list. */}
+            <span className={`font-medium ${values[it.id] ? 'text-muted' : ''}`}>
               {it.text}
             </span>
             <Scale value={values[it.id]} onChange={(v) => onChange(it.id, v)} labels={labels} name={it.text} color={color} />
