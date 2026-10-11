@@ -1,1 +1,20 @@
-{}
+{
+ "fu-robots": "https://www.fu-berlin.de/robots.txt",
+ "fu-studienangebot": "https://www.fu-berlin.de/studium/studienangebot/index.html",
+ "fu-grund": "https://www.fu-berlin.de/studium/studienangebot/grundstaendige/index.html",
+ "fu-master": "https://www.fu-berlin.de/studium/studienangebot/master/index.html",
+ "hu-robots": "https://www.hu-berlin.de/robots.txt",
+ "hu-studienangebot": "https://www.hu-berlin.de/de/studium/studienangebot",
+ "hu-studienangebot2": "https://www.hu-berlin.de/de/studium/studienangebot/studienangebot",
+ "tub-robots": "https://www.tu.berlin/robots.txt",
+ "tub-studienangebot": "https://www.tu.berlin/studieren/studienangebot",
+ "tub-gesamt": "https://www.tu.berlin/studieren/studienangebot/gesamtes-studienangebot",
+ "uhh-robots": "https://www.uni-hamburg.de/robots.txt",
+ "uhh-studienangebot": "https://www.uni-hamburg.de/campuscenter/studienangebot.html",
+ "uhh-studiengaenge": "https://www.uni-hamburg.de/campuscenter/studienangebot/studiengang.html",
+ "ul-robots": "https://www.uni-leipzig.de/robots.txt",
+ "ul-studienangebot": "https://www.uni-leipzig.de/studium/studienangebot",
+ "tud-robots": "https://tu-dresden.de/robots.txt",
+ "tud-studienangebot": "https://tu-dresden.de/studium/vor-dem-studium/studienangebot",
+ "tud-sins": "https://tu-dresden.de/studium/vor-dem-studium/studienangebot/sins"
+}
