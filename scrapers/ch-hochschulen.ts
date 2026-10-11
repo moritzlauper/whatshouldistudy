@@ -34,7 +34,31 @@ export interface Listed {
   durationYears?: number
   /** The name is only a stand-in from the link; the programme's page has the real one. */
   provisional?: boolean
+  /** Where it is taught, where that is not the institution's main seat. */
+  city?: string
 }
+
+/** Cantons of the campus towns of multi-site universities. */
+const CAMPUS_CANTON: Record<string, string> = {
+  Zürich: 'ZH', Winterthur: 'ZH', Wädenswil: 'ZH', Muttenz: 'BL', Liestal: 'BL', Basel: 'BS', Olten: 'SO', Solothurn: 'SO', 'Brugg-Windisch': 'AG', Windisch: 'AG', Aarau: 'AG',
+  Luzern: 'LU', Horw: 'LU', Emmenbrücke: 'LU', Rotkreuz: 'ZG', Zug: 'ZG', Bern: 'BE', Biel: 'BE', Burgdorf: 'BE', Zollikofen: 'BE', Magglingen: 'BE',
+}
+
+// ZHAW and HSLU: the department in the link says where it is taught.
+const ZHAW_CAMPUS: Record<string, string> = { psychologie: 'Zürich', 'soziale-arbeit': 'Zürich', lsfm: 'Wädenswil', gesundheit: 'Winterthur', engineering: 'Winterthur', sml: 'Winterthur', linguistik: 'Winterthur', archbau: 'Winterthur' }
+const HSLU_CAMPUS: Record<string, string> = { informatik: 'Rotkreuz', 'technik-architektur': 'Horw', wirtschaft: 'Luzern', 'soziale-arbeit': 'Luzern', musik: 'Luzern', 'design-film-kunst': 'Emmenbrücke' }
+const campusOf = (url: string, map: Record<string, string>, re: RegExp) => map[re.exec(url)?.[1] ?? '']
+
+// FHNW: the first town its data names («FHNW Campus Muttenz, …», «Olten und/oder Muttenz»), else its school's main campus.
+const FHNW_CAMPUS: Record<string, string> = {
+  musik: 'Basel', 'gestaltung-kunst': 'Basel', 'life-sciences': 'Muttenz', 'architektur-bau-geomatik': 'Muttenz', psychologie: 'Olten', 'soziale-arbeit': 'Olten', wirtschaft: 'Olten', informatik: 'Brugg-Windisch', 'technik-umwelt': 'Brugg-Windisch', ph: 'Brugg-Windisch',
+}
+function fhnwCampus(url: string, location: string): string | undefined {
+  const named = /Brugg-Windisch|Muttenz|Olten|Basel|Dreispitz|Solothurn|Liestal|Aarau/.exec(location)?.[0]
+  if (named) return named === 'Dreispitz' ? 'Basel' : named
+  return campusOf(url, FHNW_CAMPUS, /\/de\/([a-z-]+)\//)
+}
+
 
 const decode = (s: string) =>
   s
@@ -154,7 +178,7 @@ export function zhawList(html: string, base: string, level: Level): Listed[] {
     const h3 = /<h3[^>]*>([\s\S]*?)<\/h3>/.exec(m[2])
     const name = text(h3 ? h3[1] : m[2]).replace(/^Detailinformationen zu(?:m| den)\s+/i, '').replace(/^(Bachelor|Master)(?:studiengang|studiengängen|studium)(?:\s+in)?\s+/i, '$1 ')
     if (!name || name.length > 90 || /^(mehr|weiter|zum|zur|details)/i.test(name)) continue
-    out.push({ name: titled(level, name), level, url: absolute(href, base).replace(/\/$/, ''), durationYears: level === 'bachelor' ? 3 : undefined, ects: level === 'bachelor' ? 180 : undefined })
+    out.push({ name: titled(level, name), level, url: absolute(href, base).replace(/\/$/, ''), city: campusOf(href, ZHAW_CAMPUS, /^\/de\/([a-z-]+)\//), durationYears: level === 'bachelor' ? 3 : undefined, ects: level === 'bachelor' ? 180 : undefined })
   }
   // A profile of a programme («…/master-language-and-communication/master-profil-…») is one of its specialisations.
   const all = dedupe(out)
@@ -319,7 +343,7 @@ function durationIn(s: string | undefined): number | undefined {
 
 // FHNW: the list pages carry every programme as schema.org Course data.
 export function fhnwList(html: string, base: string, level: Level): Listed[] {
-  interface Course { '@type'?: string; name?: string; url?: string; programType?: string; hasCourseInstance?: Array<{ name?: string; timeToComplete?: string }> }
+  interface Course { '@type'?: string; name?: string; url?: string; programType?: string; location?: string; hasCourseInstance?: Array<{ name?: string; timeToComplete?: string }> }
   const courses: Course[] = []
   const walk = (x: unknown) => {
     if (Array.isArray(x)) x.forEach(walk)
@@ -343,7 +367,8 @@ export function fhnwList(html: string, base: string, level: Level): Listed[] {
   const listed = ofLevel.map((c): Listed => {
     const first = c.hasCourseInstance?.[0]
     const name = (count.get(c.name!) ?? 0) > 1 && first?.name ? first.name : c.name!
-    return { name: degreeName(level, name), level, url: absolute(c.url!, base), durationYears: durationIn(first?.timeToComplete), ects: level === 'bachelor' ? 180 : undefined }
+    const campus = fhnwCampus(c.url!, typeof c.location === 'string' ? c.location : '')
+    return { name: degreeName(level, name), level, url: absolute(c.url!, base), city: campus, durationYears: durationIn(first?.timeToComplete), ects: level === 'bachelor' ? 180 : undefined }
   })
   // «…/energie-umwelttechnik-studienrichtungen/x» is a direction of the programme whose link has those words.
   const directions = listed.filter((x) => /-studienrichtungen\//.test(x.url))
@@ -374,7 +399,7 @@ export function hsluList(html: string, base: string, level: Level): Listed[] {
       focus = nameList(dir[1])
       name = name.slice(0, dir.index)
     }
-    out.push({ name, level, url, focus, durationYears: level === 'bachelor' ? 3 : undefined, ects: level === 'bachelor' ? 180 : undefined })
+    out.push({ name, level, url, focus, city: campusOf(m[1], HSLU_CAMPUS, /^\/de-ch\/([a-z-]+)\//), durationYears: level === 'bachelor' ? 3 : undefined, ects: level === 'bachelor' ? 180 : undefined })
   }
   // A link that repeats with a teaser text keeps its short name.
   return groupFocus(dedupe(out.sort((a, b) => a.name.length - b.name.length)), (n) => {
@@ -515,6 +540,9 @@ export function bfhDetail(html: string): Partial<Listed> {
   if (semesters) out.durationYears = semesters / 2
   const lang = languagesIn(lines('Unterrichtssprache')[0] ?? '')
   if (lang) out.languages = lang
+  // «Biel» or «Bern, Burgdorf»: the first place named.
+  const place = lines('Studienort')[0]?.split(/[,/]| und /)[0].trim()
+  if (place && CAMPUS_CANTON[place]) out.city = place
   return out
 }
 
@@ -746,8 +774,8 @@ export function toProgramme(x: Listed, inst: ChInstitution, fetchedAt: string): 
     name: cleanTitle(x.name),
     institution: inst.name,
     country: 'CH',
-    city: inst.city,
-    region: inst.canton,
+    city: x.city ?? inst.city,
+    region: (x.city && CAMPUS_CANTON[x.city]) || inst.canton,
     level: x.level,
     fields: fields.slice(0, 3),
     fieldConfidence: Math.round(confidence * 100) / 100,

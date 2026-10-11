@@ -170,6 +170,10 @@ test('Switzerland: the universities’ own lists, with specialisations and Eckda
   assert.deepEqual(ch.zhawDetail('<p>Im letzten Studienjahr wählen Sie eine von drei Vertiefungen (Artificial Intelligence, Cybersecurity, Software Engineering) aus.</p>').focus, ['Artificial Intelligence', 'Cybersecurity', 'Software Engineering'])
   const zhaw = ch.zhawList('<a href="/de/linguistik/studium/master-lc"><h3>Detailinformationen zum Masterstudiengang Language and Communication</h3></a><a href="/de/linguistik/studium/master-lc/master-profil-konferenzdolmetschen"><h3>Konferenzdolmetschen</h3></a>', 'https://www.zhaw.ch/', 'master')
   assert.deepEqual(zhaw.map((x) => [x.name, x.focus]), [['Master Language and Communication', ['Konferenzdolmetschen']]])
+  // Where it is taught: the ZHAW's psychology (IAP) is in Zürich, not at the main seat in Winterthur.
+  const iap = ch.zhawList('<a href="/de/psychologie/studium/bachelorstudium/psychologie"><h3>Bachelor Psychologie</h3></a>', 'https://www.zhaw.ch/', 'bachelor')[0]
+  const zhawInst = findChInstitution('ZHAW')!
+  assert.deepEqual([ch.toProgramme(iap, zhawInst, '2026-01-01')?.city, ch.toProgramme(iap, zhawInst, '2026-01-01')?.region], ['Zürich', 'ZH'])
   assert.deepEqual(ch.unibasDetail('<dl><dt>Regelstudienzeit</dt><dd>6 Semester</dd><dt>Credits</dt><dd>180</dd><dt>Sprache</dt><dd>Deutsch &amp; Englisch</dd></dl>'), { ects: 180, durationYears: 3, languages: ['de', 'en'] })
   // Philologies and other Swiss names the general classifier misses still get a field.
   const p = ch.toProgramme({ name: 'Bachelor Griechische Philologie', level: 'bachelor', url: 'https://www.uzh.ch/x' }, findChInstitution('UZH')!, '2026-01-01')
