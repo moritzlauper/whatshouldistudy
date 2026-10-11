@@ -10,6 +10,7 @@ import { score, sourceProfile } from '@/lib/engine/scoring.ts'
 import { resultsReady } from '@/lib/engine/questionnaire.ts'
 import { userTopics } from '@/lib/engine/topics.ts'
 import { SUMMARY_VERSION } from '@/lib/engine/accumulate.ts'
+import { applyCorrections } from '@/lib/engine/corrections.ts'
 import type { FieldMatch, Preferences, Results, SourceSummary } from '@/lib/engine/types.ts'
 import type { FieldStat } from '@/lib/programmes.ts'
 import { BIG5_KEYS, FIELDS, FIELD_BY_ID, RIASEC_KEYS } from '@/lib/taxonomy/fields.ts'
@@ -19,6 +20,7 @@ import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes, TopProgrammes } from '../ui/programmes.tsx'
 import { StudyingControl } from '../ui/prefs-form.tsx'
 import { ReviewPanel } from '../ui/review-panel.tsx'
+import { ImprovePanel } from '../ui/improve-panel.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { Contributions } from '../ui/contributions.tsx'
 import { useConfig } from '../ui/price.tsx'
@@ -66,7 +68,8 @@ export function ResultsView() {
   }, [])
 
   const isShared = !!shared && shared !== 'broken'
-  const summaries = isShared ? [] : (Object.values(state.summaries).filter(Boolean) as SourceSummary[])
+  // With the AI's corrections applied, if the person asked for them (paid report).
+  const summaries = isShared ? [] : applyCorrections(Object.values(state.summaries).filter(Boolean) as SourceSummary[], state.corrections?.exclude ?? [])
   const own = useMemo<Results | null>(() => {
     if (!mounted || shared === undefined || isShared) return null
     const swiss = k.site === 'ch' || (k.site === 'global' && state.prefs.countries.includes('CH'))
@@ -143,6 +146,9 @@ export function ResultsView() {
 
       <QualityNotes results={results} />
       {!isShared && <ReviewPanel results={results} answers={state.answers} prefs={prefs} summaries={summaries} />}
+      {!isShared && unlocked && (
+        <ImprovePanel results={results} raw={Object.values(state.summaries).filter(Boolean) as SourceSummary[]} token={paid ? state.unlock!.token : null} corrections={state.corrections} />
+      )}
 
       {isShared ? (
         <div className="card-sm mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent-soft p-4">

@@ -1,4 +1,5 @@
 import 'server-only'
+import { createHash } from 'node:crypto'
 import { redis } from './usage.ts'
 
 /**
@@ -10,7 +11,7 @@ import { redis } from './usage.ts'
  * server instances; without it, each instance keeps its own count.
  */
 
-export type AiPurpose = 'translate' | 'fit' | 'review' | 'facts'
+export type AiPurpose = 'translate' | 'fit' | 'review' | 'facts' | 'improve'
 
 /** Daily limits in dollars. */
 const LIMIT_USD: Record<AiPurpose | 'total', number> = {
@@ -18,7 +19,8 @@ const LIMIT_USD: Record<AiPurpose | 'total', number> = {
   facts: 0.1,
   review: 1,
   fit: 1.5,
-  total: 3,
+  improve: 2,
+  total: 5,
 }
 
 /** List prices in millionths of a dollar per token (input, output). */
@@ -62,4 +64,30 @@ export async function aiSpend(p: AiPurpose, model: string, usage: { input_tokens
     local.spend.total = (local.spend.total ?? 0) + micro
   }
   return micro
+}
+
+/**
+ * Budget per purchase (one report, CHF 9): at most this much Claude in all,
+ * for the programme ratings and the ranking improvement together. Above it
+ * the report asks people to write to us. Without the counter store nothing
+ * is counted.
+ */
+export const PURCHASE_BUDGET_MICRO_USD = 1_000_000
+const purchaseKey = (sid: string) => `wsis:fit:cost:${createHash('sha256').update(sid).digest('hex').slice(0, 32)}`
+
+export async function purchaseSpent(sid: string): Promise<number> {
+  try {
+    return Number((await redis(['GET', purchaseKey(sid)])) ?? 0)
+  } catch {
+    return 0
+  }
+}
+
+export async function purchaseAdd(sid: string, micro: number): Promise<void> {
+  try {
+    await redis(['INCRBY', purchaseKey(sid), Math.max(0, Math.round(micro))])
+    await redis(['EXPIRE', purchaseKey(sid), 400 * 86400])
+  } catch {
+    // Not counted; the next request tries again.
+  }
 }

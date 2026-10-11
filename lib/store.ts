@@ -20,6 +20,8 @@ export interface State {
   org?: string
   /** Random id of this browser, so an organisation's plan counts one student once a month. */
   student?: string
+  /** Terms the AI took out of the data part (paid report, with consent); see lib/engine/corrections.ts. */
+  corrections?: { at: string; exclude: Array<{ field: string; term: string; reason: string }>; note: string }
 }
 
 export const DEFAULT_PREFS: Preferences = {

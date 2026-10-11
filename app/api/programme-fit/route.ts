@@ -1,7 +1,6 @@
-import { createHash } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { bearer, paymentMode, verifyToken } from '@/lib/server/token.ts'
-import { redis } from '@/lib/server/usage.ts'
+import { PURCHASE_BUDGET_MICRO_USD, purchaseAdd, purchaseSpent } from '@/lib/server/ai-budget.ts'
 import { MAX_PROGRAMMES, compareProgrammes } from '@/lib/server/programme-fit.ts'
 import type { FitRequest } from '@/lib/server/programme-fit.ts'
 import type { Locale } from '@/lib/site/config.ts'
@@ -10,36 +9,11 @@ const LOCALES: Locale[] = ['en', 'de-CH', 'de-DE', 'de-AT', 'fr-CH', 'it-CH']
 
 export const maxDuration = 60
 
-/**
- * Budget per purchase: what Claude may cost for one report (CHF 9), counted
- * from the token usage of each request. Above it the report asks people to
- * write to us. Without the counter store nothing is counted.
- */
-const BUDGET_MICRO_USD = 1_000_000
-const budgetKey = (sid: string) => `wsis:fit:cost:${createHash('sha256').update(sid).digest('hex').slice(0, 32)}`
-
-async function spent(sid: string): Promise<number> {
-  try {
-    return Number((await redis(['GET', budgetKey(sid)])) ?? 0)
-  } catch {
-    return 0
-  }
-}
-
-async function addCost(sid: string, micro: number): Promise<void> {
-  try {
-    await redis(['INCRBY', budgetKey(sid), Math.max(0, Math.round(micro))])
-    await redis(['EXPIRE', budgetKey(sid), 400 * 86400])
-  } catch {
-    // Not counted; the next request tries again.
-  }
-}
-
 /** Part of the paid report: an AI comparison of a few programmes with the person's profile. */
 export async function POST(req: Request) {
   const paid = verifyToken(bearer(req))
   if (paymentMode() !== 'off' && !paid) return NextResponse.json({ error: 'Unlock required.' }, { status: 401 })
-  if (paid && (await spent(paid.sid)) >= BUDGET_MICRO_USD) return NextResponse.json({ error: 'budget' }, { status: 429 })
+  if (paid && (await purchaseSpent(paid.sid)) >= PURCHASE_BUDGET_MICRO_USD) return NextResponse.json({ error: 'budget' }, { status: 429 })
   const body = (await req.json().catch(() => null)) as Partial<FitRequest> | null
   const programmes = Array.isArray(body?.programmes)
     ? body!.programmes
@@ -61,6 +35,6 @@ export async function POST(req: Request) {
   }
   const result = await compareProgrammes({ programmes, profile, locale })
   if (!result) return NextResponse.json({ error: 'unavailable' }, { status: 503 })
-  if (paid) await addCost(paid.sid, result.costMicroUsd)
+  if (paid) await purchaseAdd(paid.sid, result.costMicroUsd)
   return NextResponse.json({ items: result.fits }, { headers: { 'Cache-Control': 'private, no-store' } })
 }
