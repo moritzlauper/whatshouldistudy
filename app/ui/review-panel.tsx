@@ -6,10 +6,10 @@ import type { Preferences, QuestionnaireAnswers, Results, SourceSummary } from '
 import { lastTop } from './programmes.tsx'
 
 /**
- * For the site owner only: sends this whole result to Claude for a critical
- * review. Shown once the review key has been given in the address
- * (…/resultat?review=KEY); the key stays in this browser and the server
- * checks it against WSIS_REVIEW_KEY. Uploaded data go as their summaries only.
+ * Sends this whole result to Claude for a critical review. Open to everyone
+ * while the site is in testing (REVIEW_PUBLIC in lib/server/review.ts); a
+ * review key given once in the address (…/resultat?review=KEY) lifts the
+ * daily limit. Uploaded data go as their summaries only.
  */
 const KEY_STORE = 'wsis:review-key'
 
@@ -49,15 +49,13 @@ export function ReviewPanel({ results, answers, prefs, summaries }: { results: R
     }
   }, [])
 
-  if (!key) return null
-
   async function run() {
     setState('loading')
     setReview(null)
     try {
       const res = await fetch(withBase('/api/review'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-review-key': key! },
+        headers: { 'Content-Type': 'application/json', ...(key ? { 'x-review-key': key } : {}) },
         body: JSON.stringify({ results: trim(results), answers, prefs, summaries: summaries.map((s) => trim(s)), topProgrammes: lastTop.current }),
       })
       const j = (await res.json().catch(() => ({}))) as { review?: string; error?: string }
@@ -73,12 +71,12 @@ export function ReviewPanel({ results, answers, prefs, summaries }: { results: R
   return (
     <section className="card-sm mt-4 border-dashed p-4 text-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="font-bold">🧪 Review (nur für dich)</p>
+        <p className="font-bold">🧪 Test: Resultat von der KI prüfen lassen</p>
         <button type="button" onClick={run} disabled={state === 'loading'} className="btn btn-ghost btn-sm">
           {state === 'loading' ? 'Claude prüft … (bis 2 Min.)' : 'Ganzes Resultat mit KI prüfen'}
         </button>
       </div>
-      <p className="mt-1 text-xs text-muted">Schickt Antworten, Zusammenfassungen der Uploads, Rangliste und Top-Studiengänge an Claude.</p>
+      <p className="mt-1 text-xs text-muted">Claude prüft, ob dein Resultat stimmig ist. Dafür schicken wir dein anonymes Profil, die Zusammenfassungen deiner Uploads (keine Verläufe), die Rangliste und die Top-Studiengänge an Anthropic. Gespeichert wird nichts.</p>
       {state === 'error' && <p className="mt-2 font-semibold text-bad">{error}</p>}
       {review && <div className="mt-3 whitespace-pre-wrap break-words rounded-xl bg-surface-2 p-3">{review}</div>}
     </section>

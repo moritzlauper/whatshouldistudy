@@ -105,28 +105,28 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
         <ResultsContext.Provider value={results}><TopicsContext.Provider value={topicMap}>
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
           {ai.state !== 'off' && (
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <p className={`max-w-2xl text-sm ${ai.state === 'loading' ? 'animate-pulse text-muted' : 'text-muted'}`} role="status">
-                🤖 {ai.state === 'loading' ? t.programmes.ai.topLoading(pool.length) : ai.state === 'done' ? t.programmes.ai.topDone(ai.fits.size) : t.programmes.ai.topFailed}
-              </p>
-              <button
-                type="button"
-                disabled={ai.state === 'loading' || left.today <= 0}
-                onClick={() => {
-                  countRefresh()
-                  setRefresh((n) => n + 1)
-                }}
-                className="btn btn-primary btn-lg"
-                title={t.programmes.ai.refreshTip(left.today, left.total)}
-              >
-                ↻ {left.today > 0 ? t.programmes.ai.refresh : t.programmes.ai.refreshNone}
-              </button>
-            </div>
+            <p className={`mb-3 max-w-2xl text-sm ${ai.state === 'loading' ? 'animate-pulse text-muted' : 'text-muted'}`} role="status">
+              🤖 {ai.state === 'loading' ? t.programmes.ai.topLoading(pool.length) : ai.state === 'done' ? t.programmes.ai.topDone(ai.fits.size) : t.programmes.ai.topFailed}
+            </p>
           )}
           <ol className="grid list-decimal gap-4 pl-6 marker:font-bold marker:text-accent">
             {best.map((p) => <li key={p.id}><ProgrammeRow p={p} ai={{ token }} /></li>)}
           </ol>
           <p className="mt-2 text-sm text-muted">{t.programmes.topNote}</p>
+          {ai.state !== 'off' && (
+            <button
+              type="button"
+              disabled={ai.state === 'loading' || left.today <= 0}
+              onClick={() => {
+                countRefresh()
+                setRefresh((n) => n + 1)
+              }}
+              className="btn btn-ghost btn-sm mt-3"
+              title={t.programmes.ai.refreshTip(left.today, left.total)}
+            >
+              ↻ {left.today > 0 ? t.programmes.ai.refresh : t.programmes.ai.refreshNone}
+            </button>
+          )}
         </TopicsContext.Provider></ResultsContext.Provider>
       ) : <div className="card p-6 text-muted" role="status">
         {current?.error ? <>{t.programmes.topError} <button className="btn btn-ghost btn-sm" type="button" onClick={() => setAttempt((n) => n + 1)}>{t.programmes.topRetry}</button></>
