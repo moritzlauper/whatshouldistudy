@@ -12,8 +12,9 @@ import { redis } from './usage.ts'
  * per connection and per day; set to false to keep it to WSIS_REVIEW_KEY.
  */
 export const REVIEW_PUBLIC = true
-const PER_IP_DAY = 5
-const ALL_DAY = 40
+// With Haiku a review costs about 0.1 Rappen, so the limits only stop abuse.
+const PER_IP_DAY = 50
+const ALL_DAY = 1000
 
 export function reviewAllowed(given: string | null): boolean {
   const key = process.env.WSIS_REVIEW_KEY
