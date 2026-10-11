@@ -102,6 +102,14 @@ html {
   overflow-x: clip;
 }
 
+/* A grid item never makes its column wider than the grid: on phones long
+   names and chip rows wrap instead of pushing cards past the screen edge. */
+@layer base {
+  .grid > * {
+    min-width: 0;
+  }
+}
+
 ::selection {
   background: var(--accent);
   color: var(--accent-ink);
