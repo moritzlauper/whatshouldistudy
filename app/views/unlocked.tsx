@@ -3,7 +3,8 @@
 import { withBase } from '@/lib/site.ts'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { update } from '@/lib/store.ts'
+import { getState, update } from '@/lib/store.ts'
+import { resultsReady } from '@/lib/engine/questionnaire.ts'
 import { measurePurchase } from '@/lib/measure.ts'
 import type { Price } from '@/lib/pricing.ts'
 import { useSite } from '../ui/site-context.tsx'
@@ -26,7 +27,9 @@ export function UnlockedView() {
         if (!j.token || !j.expiresAt) throw new Error(j.error ?? t.misc.couldNotUnlock)
         update((s) => ({ ...s, unlock: { token: j.token!, expiresAt: j.expiresAt! } }))
         if (j.price) measurePurchase({ id: sid, amount: j.price.amount, currency: j.price.currency, emailHash: j.emailHash })
-        router.replace(`${r.results}#${r.anchors.programmes}`)
+        const state = getState()
+        const ready = resultsReady(state.answers, Object.values(state.summaries).filter(Boolean).length)
+        router.replace(ready ? `${r.results}#${r.anchors.programmes}` : r.start)
       })
       .catch((e: Error) => setError(e.message))
   }, [router, r, t])

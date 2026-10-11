@@ -16,7 +16,8 @@ export async function POST(req: Request) {
   const { site, r, abs } = returnTo(req)
   const conf = SITES[site]
   const unlocked = abs(r.unlocked)
-  const cancel = abs(`${r.results}#${r.anchors.programmes}`)
+  const fromLanding = new URL(req.url).searchParams.get('from') === 'landing'
+  const cancel = abs(fromLanding ? `${r.home}#pricing` : `${r.results}#${r.anchors.programmes}`)
 
   const mode = paymentMode()
   if (mode === 'off') return NextResponse.json({ error: 'Payments are not configured on this deployment.' }, { status: 503 })

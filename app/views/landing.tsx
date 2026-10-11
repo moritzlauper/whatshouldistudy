@@ -12,6 +12,7 @@ import { emoji, fieldName, fmtNumber } from '@/lib/site/labels.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Marquee } from '../ui/marquee.tsx'
 import { Price } from '../ui/price.tsx'
+import { LandingCheckout } from '../ui/landing-checkout.tsx'
 import { Blob, Burst, Pill, Ring, Sparkle, Squiggle } from '../ui/shapes.tsx'
 import { GitHubMark, TrustStickers } from '../ui/trust.tsx'
 import { JsonLd, homeLd } from '../ui/json-ld.tsx'
@@ -193,7 +194,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
       </section>
 
       {/* Pricing */}
-      <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+      <section id="pricing" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <h2 className="max-w-3xl font-display text-4xl sm:text-5xl">{t.landing.priceTitle}</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-2">
           <div className="card p-8">
@@ -228,6 +229,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
                 </li>
               ))}
             </ul>
+            {!SALES_PAUSED[site] && <LandingCheckout />}
           </div>
         </div>
       </section>

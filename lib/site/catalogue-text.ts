@@ -30,6 +30,7 @@ const en = {
   statProgrammes: 'Programmes',
   statInstitutions: 'Institutions',
   statFields: 'Fields',
+  filters: { type: 'Institution type', allTypes: 'All institution types', allPlaces: 'All locations', reset: 'Reset filters', none: 'No programmes match these filters. Choose a different type or location, or reset the filters.' },
   search: {
     label: 'Search programmes',
     placeholder: 'Subject, university or city',
@@ -162,6 +163,7 @@ const deCH: CatalogueText = {
   statProgrammes: 'Studiengänge',
   statInstitutions: 'Hochschulen',
   statFields: 'Fächer',
+  filters: { type: 'Hochschultyp', allTypes: 'Alle Hochschultypen', allPlaces: 'Alle Orte', reset: 'Zurücksetzen', none: 'Keine Studiengänge für diese Filter. Wähle einen anderen Hochschultyp oder Ort oder setze die Filter zurück.' },
   search: {
     label: 'Studiengänge durchsuchen',
     placeholder: 'Fach, Hochschule oder Ort',
@@ -291,6 +293,7 @@ const frCH: CatalogueText = {
   statProgrammes: 'Filières',
   statInstitutions: 'Hautes écoles',
   statFields: 'Domaines',
+  filters: { type: 'Type d’établissement', allTypes: 'Tous les types', allPlaces: 'Tous les lieux', reset: 'Réinitialiser', none: 'Aucune filière ne correspond à ces filtres. Choisis un autre type ou lieu, ou réinitialise les filtres.' },
   search: {
     label: 'Rechercher une filière',
     placeholder: 'Domaine, haute école ou lieu',
@@ -400,6 +403,7 @@ const itCH: CatalogueText = {
   statProgrammes: 'Corsi',
   statInstitutions: 'Scuole universitarie',
   statFields: 'Materie',
+  filters: { type: 'Tipo di istituto', allTypes: 'Tutti i tipi', allPlaces: 'Tutti i luoghi', reset: 'Reimposta', none: 'Nessun corso corrisponde ai filtri. Scegli un altro tipo o luogo, oppure reimposta i filtri.' },
   search: {
     label: 'Cerca un corso di studio',
     placeholder: 'Materia, istituto o luogo',

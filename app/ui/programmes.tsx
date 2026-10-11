@@ -52,8 +52,8 @@ function requestFields(results: Results) {
   return results.fields.slice(0, 6).map((f) => ({ id: f.id, score: f.score }))
 }
 
-/** Fetch the best programme only through the same paid endpoint as the list. */
-export function TopProgramme({ results, prefs, topics = [], token, unlocked, shared = false }: {
+/** Fetch the top five programmes through the same paid endpoint as the full list. */
+export function TopProgrammes({ results, prefs, topics = [], token, unlocked, shared = false }: {
   results: Results; prefs: Preferences; topics?: UserTopic[]; token: string | null; unlocked: boolean; shared?: boolean
 }) {
   const { t, r } = useSite()
@@ -61,7 +61,7 @@ export function TopProgramme({ results, prefs, topics = [], token, unlocked, sha
   const [attempt, setAttempt] = useState(0)
   const weights = useMemo(() => topics.length ? topicWeights(topics) : undefined, [topics])
   const topicMap = useMemo(() => new Map(topics.map((x) => [x.key, x])), [topics])
-  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: 1 })
+  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: 5 })
   const key = JSON.stringify([body, token, unlocked, attempt])
   useEffect(() => {
     if (!unlocked) return
@@ -81,7 +81,7 @@ export function TopProgramme({ results, prefs, topics = [], token, unlocked, sha
   }, [body, key, token, unlocked])
   const current = reply?.key === key ? reply : null
   const locked = !unlocked || current?.locked
-  const best = current?.data?.items[0]
+  const best = current?.data?.items ?? []
   return (
     <section className="mt-8" aria-label={t.programmes.topTitle}>
       <h2 className="mb-4 font-display text-3xl">{t.programmes.topTitle}</h2>
@@ -92,10 +92,12 @@ export function TopProgramme({ results, prefs, topics = [], token, unlocked, sha
           {shared ? <Link href={r.start} className="btn btn-primary mt-5">{t.share.own}</Link>
             : <a href={`#${r.anchors.programmes}`} className="btn btn-primary mt-5">{t.results.lockedCta}</a>}
         </div>
-      ) : best ? (
+      ) : best.length > 0 ? (
         <ResultsContext.Provider value={results}><TopicsContext.Provider value={topicMap}>
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
-          <ProgrammeRow p={best} />
+          <ol className="grid list-decimal gap-4 pl-6 marker:font-bold marker:text-accent">
+            {best.map((p) => <li key={p.id}><ProgrammeRow p={p} /></li>)}
+          </ol>
           <p className="mt-2 text-sm text-muted">{t.programmes.topNote}</p>
         </TopicsContext.Provider></ResultsContext.Provider>
       ) : <div className="card p-6 text-muted" role="status">
