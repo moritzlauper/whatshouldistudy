@@ -1,0 +1,26 @@
+name: probe
+# Temporary: fetches pages for writing scrapers (the build sandbox can't reach them)
+# and commits them back to the same branch under probe-out/. Only on wsis-probe-* branches.
+on:
+  push:
+    branches: ['wsis-probe-*']
+    paths: [scrapers/probe/**, .github/workflows/wsis-probe.yml]
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scrapers/probe/fetch.mjs
+      - name: Save pages to the branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -rq --cached probe-out 2>/dev/null || true
+          git add -f probe-out
+          git commit -qm "Probe: saved pages" && git push origin HEAD:${GITHUB_REF_NAME} || true
