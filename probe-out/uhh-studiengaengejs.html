@@ -1,0 +1,523 @@
+<!-- https://www.uni-hamburg.de/onTEAM/admin/onteam/templates/v5/scripts/studiengaenge/studiengaenge.js 200 https://www.uni-hamburg.de/onTEAM/admin/onteam/templates/v5/scripts/studiengaenge/studiengaenge.js -->
+var lochash = "";
+var sprache = $('html').attr('lang');
+$(window).bind( 'hashchange', function(e) {
+  if (location.hash.indexOf('=') == -1)
+  {
+    $("#funktionenForm1").deserialize(charcode2str(location.hash.replace(/#/,'')));
+  }
+  else
+  {
+    $("#funktionenForm1").deserialize(location.hash.replace(/#/,''));
+  }
+  lochash = location.hash.replace(/#/,'');
+  if (location.hash.indexOf('=') == -1)
+  {
+    lochash = charcode2str(location.hash.replace(/#/,''));
+  }
+  STupdate();
+});
+$(document).ready(function(e) {
+
+  var alabel = "Tabelle nach Anfangsbuchstaben der 1. Spalte filtern";
+  var allelabel = 'abc-Filter deaktivieren';
+  if (sprache != "de")
+  {  
+    alabel = "Filter table by first letter of 1st column"
+    allelabel = 'Deactivate abc-filter';
+  }
+  $('ul.abc').attr('aria-label',alabel);
+
+  help = new Array("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z");
+  for(i in help)
+  {
+    l = help[i];
+    if($('#alphabet'+l).length > 0)
+    {
+      var alabel = 'Nach '+l+' filtern';
+      if (sprache != "de")
+      {  
+        alabel = 'Filter by '+l;
+      }
+      $('#alphabet'+l).attr('role','button').attr('aria-label',alabel).attr('aria-controls','studiengaenge');
+    }
+  }
+  $('a.abcalle').attr('aria-label',allelabel).attr('aria-controls','studiengaenge');
+
+
+
+  $('select,input').on('change',function(){
+    lochash = $('#funktionenForm1').serialize().replace(/#/,'');
+    location.hash = '#'+str2charcode($('#funktionenForm1').serialize().replace(/#/,''));
+    if (!("onhashchange" in window))
+    {
+      STupdate();
+    }
+  })
+  lochash = location.hash;
+  if (location.hash.indexOf('=') == -1)
+  {
+    if (location.hash.indexOf(',') != -1)
+    {
+      lochash = charcode2str(location.hash.replace(/#/,''));
+    }
+    else
+    {
+      lochash = '';
+    }
+  }
+  if (lochash)
+  {
+    $("#funktionenForm1").deserialize(lochash.replace(/#/,''));
+  }
+  STupdate();
+});
+
+function STupdateSort(str)
+{
+  $('#sort').val(str);
+  if ($('table.sortable thead th:nth-child('+colparams[str]+')').hasClass('sort'))
+  {
+    $('.sort-dir[value="down"]').prop("checked",true);
+  }
+  else
+  {
+    $('.sort-dir[value="up"]').prop("checked",true);
+  }
+  
+  lochash = $('#funktionenForm1').serialize().replace(/#/,'');
+  location.hash = '#'+str2charcode($('#funktionenForm1').serialize().replace(/#/,''));
+  if (!("onhashchange" in window))
+  {
+    STupdate();
+  }
+}
+
+function str2charcode(str)
+{
+  ret = "";
+  help = str.split("");
+  for (i in help)
+  {
+    if (ret)
+    {
+      ret += ",";
+    }
+    ret += help[i].charCodeAt(0)
+  }
+  return ret;
+}
+
+function charcode2str(str)
+{
+  ret = "";
+  help = str.split(",");
+  for (i in help)
+  {
+    ret += String.fromCharCode(help[i])
+  }
+  return ret;
+}
+
+function STupdate()
+{
+  parameter = new Array("","","","");
+  str = lochash.replace("#","");
+  str = decodeURIComponent((str+'').replace(/\+/g, '%20'));
+  
+  var FORM = new Array();FORM['sort']="";FORM['sort-dir']="";FORM['tsuche']="";
+  var help = str.split("&");
+  for(var i = 0; i < help.length; i++)
+  {
+    if(help[i].indexOf("sort=") == -1 && help[i].indexOf("sort-dir=") == -1 && help[i].indexOf("suche=") == -1)
+    {
+      if(parameter[0]){ parameter[0]+=",,,"; }
+      if(help[i] != help[i].split("=")[0]+"=")
+      {
+        parameter[0] += help[i].replace("=",",,");
+      }
+    }
+    FORM[help[i].split("=")[0]] = help[i].split("=")[1];
+  }
+  parameter[1] = FORM['sort'];
+  if(FORM['sort'] == "Fakultaet")
+  {
+    $('#jotable-studiengaenge').removeClass("grouped");
+    $('#jotable-studiengaenge').addClass("single");
+    $('#studiengaenge').removeClass("grouped");
+    $('#studiengaenge').addClass("single");
+  }
+  else
+  {
+    $('#jotable-studiengaenge').removeClass("single");
+    $('#jotable-studiengaenge').addClass("grouped");
+    $('#studiengaenge').removeClass("single");
+    $('#studiengaenge').addClass("grouped");
+  }
+  if(FORM['sort'] && FORM['sort-dir'])
+  {
+    parameter[1] = FORM['sort']+"-"+FORM['sort-dir'];
+  }
+  parameter[2] = FORM['tsuche'];
+  parameter[3] = FORM['index'];
+  
+  $('ul.abc a').each(function(){
+    var alabel = 'Nach '+$(this).attr('href').split('abc-')[1]+' filtern';
+    if (sprache != 'de')
+    {
+      alabel = 'Filter by '+$(this).attr('href').split('abc-')[1];
+    }
+    if (!$(this).hasClass('abcalle'))
+    {
+      $(this).attr('aria-label',alabel).removeAttr('aria-pressed');
+    }
+  });
+  $('#alphabet'+FORM['index']).addClass('an');
+  if (FORM['index'])
+  {
+    var alabel = 'Nach '+$('#alphabet'+FORM['index']).attr('href').split('abc-')[1]+' gefiltert';
+    if (sprache != 'de')
+    {
+      alabel = 'Filtered by '+$('#alphabet'+FORM['index']).attr('href').split('abc-')[1];
+    }
+    $('#alphabet'+FORM['index']).attr('aria-label','Nach '+$('#alphabet'+FORM['index']).attr('href').split('abc-')[1]+' gefiltert').attr('aria-pressed','true');
+    $('a.abcalle').removeAttr('hidden');
+  }
+  else
+  {
+    $('a.abcalle').attr('hidden',true);
+  }
+  
+  
+  str = parameter.join("&");
+  STupdateTable(str);
+  if("joTable" in $('#studiengaenge')[0])$('#studiengaenge')[0].joTable.resize()
+}
+
+function STupdateTable(str){
+  parameter = str.split("&");
+  filter(parameter[0]);
+  if (parameter[1]){
+    help = parameter[1].split("-");
+    order = help[1];
+    parameter[1] = help[0];
+    var $th = $('table.sortable thead th:nth-child('+colparams[parameter[1]]+')');
+    var $thc = $('.jotable-corner th:nth-child('+colparams[parameter[1]]+')');
+    var $tdcol = $('.jotable-col td:nth-child('+colparams[parameter[1]]+')');
+    var $thh = $('.jotable-head th:nth-child('+colparams[parameter[1]]+')');
+    var $td = $('table.sortable td:nth-child('+colparams[parameter[1]]+')');
+    var zusatzselector = '';
+    $('table.sortable td').removeClass('sort').attr('aria-sort','none');
+    if (order == "down") {
+      $('table.sortable').jssortST( 'tbody tr', eval("'td."+parameter[1]+zusatzselector+"'"), 'text','',true);
+      $th.addClass('reverse').removeClass('sort').attr('aria-sort','descending');
+      $thc.addClass('reverse').removeClass('sort').attr('aria-sort','descending');
+      $thh.addClass('reverse').removeClass('sort').attr('aria-sort','descending');
+      $tdcol.addClass('reverse').removeClass('sort').attr('aria-sort','descending');
+    }
+    else {
+      $('table.sortable').jssortST( 'tbody tr', eval("'td."+parameter[1]+zusatzselector+"'"), 'text');
+      $('#studiengaenge *').removeClass('sort').removeClass('reverse').attr('aria-sort','none');
+      $th.addClass('sort').attr('aria-sort','ascending');
+      $thc.addClass('sort').attr('aria-sort','ascending');
+      $thh.addClass('sort').attr('aria-sort','ascending');
+    }
+    $td.addClass('sort');
+    $tdcol.addClass('sort');
+  }  
+  suche('filter');
+  if (parameter[3]) {
+    indexfilter(parameter[3],'filter');
+  }  
+  hideRows();
+}
+
+function setselect (select,col)
+{
+  filter(col+',,'+select.options[select.options.selectedIndex].value)
+}
+
+function indexfilter(str,modus)
+{
+  if(str)
+  {
+    suchestr = '';
+    for(sF = 0; sF < indexFelder.length; sF++)
+    {
+      suchestr += indexFelder[sF]+',,'+str+',,,';
+    }
+    $('#studiengaenge tr').each(function(index){
+      if( abfrageStartsWith(suchestr,$(this),''))
+      {
+        if (modus != 'filter')
+        {
+          $(this).removeClass('aus');
+          $('.jotable-col table tr').eq(index).removeClass('aus');
+        }
+      }
+      else
+      {
+        $(this).addClass('aus');
+        $('.jotable-col table tr').eq(index).addClass('aus');
+      }
+    });
+  }
+  else
+  {
+    if (modus != 'filter')
+    {
+      $('#studiengaenge tr').each(function(index){$(this).removeClass('aus');$('.jotable-col table tr').eq(index).removeClass('aus');})
+    }
+  }
+}
+
+function hideRows()
+{
+  var spalte = new Array();
+  $('#studiengaenge tr').each(function(){
+    if(!$(this).hasClass('aus'))
+    {
+      $('td',this).each(function(index){
+        if(this.innerHTML != "" && this.innerHTML != " " && this.innerHTML != "&nbsp;")
+        {
+          spalte[index+1] = "ok"
+        }
+      });
+    }
+  });
+  
+  $('#studiengaenge tr td,#studiengaenge tr th').css("display","");
+  for(c in colparams)
+  {
+    if(spalte[colparams[c]] != "ok")
+    {
+//      $('#studiengaenge tr .'+c).css("display","none");
+    }
+  }
+}
+
+function filter (str)
+{
+  $('#studiengaenge tr').each(function(index){
+    if( abfrage(str,$(this),''))
+    {
+      $(this).removeClass('aus')
+      $('.jotable-col table tr').eq(index).removeClass('aus');
+    } 
+    else
+    {
+      $(this).addClass('aus')
+      $('.jotable-col table tr').eq(index).addClass('aus');
+    }
+  })
+}
+
+function suche (modus)
+{
+  var s=$('#tsuche').val();
+  s=jQuery.trim( s )
+  if (s)
+  {
+    suchestr = '';
+    for(sF = 0; sF < searchFelder.length; sF++)
+    {
+      suchestr += searchFelder[sF]+',,'+s+',,,';
+    }
+    $('#studiengaenge tr').each(function(index){
+      if( abfrage(suchestr,$(this),'1'))
+      {
+        if (modus != 'filter')
+        {
+          $(this).removeClass('aus');
+          $('.jotable-col table tr').eq(index).removeClass('aus');
+        }
+      } 
+      else
+      {
+        $(this).addClass('aus');
+        $('.jotable-col table tr').eq(index).addClass('aus');
+      }
+    })
+  }
+  else
+  {
+    if (modus != 'filter')
+    {
+      $('#studiengaenge tr').each(function(index){$(this).removeClass('aus');$('.jotable-col table tr').eq(index).removeClass('aus');})
+    }
+  }
+}
+
+function abfrage (str,tr,oder)
+{
+  if (oder)
+  {
+    var ret = false;
+  }
+  else
+  {
+    var ret = true;
+  }
+  parameterA = str.split(",,,");
+  for (var i = 0;i < parameterA.length; i++)
+  {
+    optval = parameterA[i].split(",,");
+    if(colparams[optval[0]])
+    {
+      var zusatzselector = '';
+      if (optval[0] == 'Bezeichnung')
+      {
+        zusatzselector = ' a';
+      }
+      if(tr.find('td').get() != "" && optval[1])
+      {
+        optval[1] = optval[1].replace(/\//g,"\\\/");
+        var Ergebnis = tr.find(eval("'td:nth-child("+colparams[optval[0]]+")"+zusatzselector+"'")).html().search(eval("/"+optval[1]+"/i"));
+        if(optval[0] == 'Abschluss')
+        {
+          Ergebnis = tr.find(eval("'td:nth-child("+colparams[optval[0]]+")"+zusatzselector+"'")).attr('data-abschluss').search(eval("/"+optval[1]+"/i"));
+        }
+        if (Ergebnis == -1 && !oder)
+        {
+          ret = false;
+        }
+        if (Ergebnis != -1 && oder)
+        {
+          ret = true;
+        }
+      }
+    }
+  }
+  return ret;
+}
+
+function abfrageStartsWith (str,tr,oder)
+{
+  if (oder)
+  {
+    var ret = false;
+  }
+  else
+  {
+    var ret = true;
+  }
+  parameterA = str.split(",,,");
+  for (var i = 0;i < parameterA.length; i++)
+  {
+    optval = parameterA[i].split(",,");
+    if(colparams[optval[0]])
+    {
+      var zusatzselector = '';
+      if (optval[0] == 'Bezeichnung')
+      {
+        zusatzselector = ' a';
+      }
+      if(tr.find('td').get() != "" && optval[1])
+      {
+        optval[1] = optval[1].replace(/\//g,"\\\/");
+        var Ergebnis = (tr.find(eval("'td:nth-child("+colparams[optval[0]]+")"+zusatzselector+"'")).text().toLowerCase().substring(0,1) == optval[1]);
+        if (!Ergebnis && !oder)
+        {
+          ret = false;
+        }
+        if (Ergebnis && oder)
+        {
+          ret = true;
+        }
+      }
+    }
+  }
+  return ret;
+}
+
+(function( $ ) {
+  $.fn.jssortST = function(sortRowsSelector,sortValue1,sortValue2,sortFunction,reverse) {
+    function sortFunction1(a,b) {
+      return (a.s < b.s) ? -1 : 1;
+    }
+    
+/***test***/
+//      var start = new Date();
+/***   ***/
+    var that = $(this).closest('.jotable-wrapper').find('.jotable-col table')[0];
+    return this.each(function() {
+
+
+      var sortValues = new Array();
+      var sortString;
+      var rowArray = $(this).find(sortRowsSelector).toArray();
+      var thatRowArray = $(that).find(sortRowsSelector).toArray();
+     // var rowArray = $(sortRowsSelector,this).toArray();
+      if(sortValue2 != 'funct') {
+	    var valueArray = $(this).find(sortValue1).toArray();
+      }
+      
+      for(var i = 0; i < rowArray.length; i++)
+      {
+        sortValues[i] = new Array();
+        if(sortValue2 == 'funct') {
+          sortValues[i].s = sortValue1(rowArray[i]);
+        }
+        else if(sortValue2 == 'html') {
+          sortValues[i].s = $(valueArray[i]).html().toLowerCase().replace(/\u00e4/g,'ae').replace(/\u00f6/g,'oe').replace(/\u00fc/g,'ue').replace(/\u00df/g,'ss');
+        }
+        else if(sortValue2 == 'text') {
+          sortValues[i].s = $(valueArray[i]).text().toLowerCase().replace(/\u00e4/g,'ae').replace(/\u00f6/g,'oe').replace(/\u00fc/g,'ue').replace(/\u00df/g,'ss');
+        }
+        else {
+          sortValues[i].s = sortValue2(valueArray[i]);
+        }
+        sortValues[i].s += "   "+$(rowArray[i]).find('td.Studiengang').text().toLowerCase().replace(/\u00e4/g,'ae').replace(/\u00f6/g,'oe').replace(/\u00fc/g,'ue').replace(/\u00df/g,'ss');
+        sortValues[i].r = rowArray[i];
+        sortValues[i].that = thatRowArray[i+1];
+      }
+
+      if(!sortFunction) sortFunction = sortFunction1;
+      sortValues.sort(sortFunction);
+      if(reverse)
+      {
+        sortValues.reverse();
+      }
+
+      var appendHere = $(this).find(sortRowsSelector)[0].parentNode;
+      if($(that).length>0)var appendThere = $(that).find(sortRowsSelector)[0].parentNode;
+      for(var i = 0; i < sortValues.length; i++)
+      {
+        appendHere.appendChild(sortValues[i].r)
+        if($(that).length>0) appendThere.appendChild(sortValues[i].that)
+      }
+
+/***test
+var lines=document.getElementsByTagName("tr").length-1
+      var stop = new Date();
+      Zeit=stop.getTime()-start.getTime();
+      document.getElementById("t").innerHTML=Zeit+"ms";
+      document.getElementById("z").innerHTML=lines;
+  ***/
+    });
+  };
+})( jQuery );
+
+$(document).ready(function(){
+	$('head').append('<style>	\
+	</style>')
+	$('body').append('<div id="abdeckung" style="height:'+$('body').height()+'px"></div>')
+	$('body').append('<div id="formulargruppe"><table></table></div>')
+
+	$('#abdeckung').on('click',function(){ $('#abdeckung,#formulargruppe').fadeOut( 200)});
+	$('#abdeckung').css('display','none').css('visibility','visible');
+
+})
+
+function showzuordnung(id, ids){
+	$('#formulargruppe table tr').remove();
+	$('#studiengaenge thead tr').clone().appendTo('#formulargruppe table');
+	$('#formulargruppe table tr th').removeAttr('onclick');
+	$('#studiengaenge tbody tr#idv'+id).clone().appendTo('#formulargruppe table');
+	$('#formulargruppe table tr').addClass('id');
+	jQuery.each(ids,function(index,item){
+		$('#studiengaenge tbody tr#idv'+item).clone().appendTo('#formulargruppe table');
+	})
+	$('#abdeckung,#formulargruppe').fadeIn( 200 ,function(){ } );
+}
+
