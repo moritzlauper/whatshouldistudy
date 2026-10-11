@@ -16,9 +16,9 @@ export type AiPurpose = 'translate' | 'fit' | 'review' | 'facts'
 const LIMIT_USD: Record<AiPurpose | 'total', number> = {
   translate: 0.2,
   facts: 0.1,
-  review: 0.3,
+  review: 1,
   fit: 1.5,
-  total: 2,
+  total: 3,
 }
 
 /** List prices in millionths of a dollar per token (input, output). */

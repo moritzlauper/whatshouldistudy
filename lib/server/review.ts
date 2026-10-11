@@ -1,7 +1,6 @@
 import 'server-only'
 import { createHash, timingSafeEqual } from 'node:crypto'
 import Anthropic from '@anthropic-ai/sdk'
-import { redis } from './usage.ts'
 import { aiAllowed, aiSpend } from './ai-budget.ts'
 
 /**
@@ -9,44 +8,19 @@ import { aiAllowed, aiSpend } from './ai-budget.ts'
  * uploaded data, the ranking and the top programmes) and says whether it
  * makes sense. Nothing is stored.
  *
- * REVIEW_PUBLIC: open to every visitor while the site is in testing, limited
- * per connection and per day; set to false to keep it to WSIS_REVIEW_KEY.
+ * REVIEW_PUBLIC: open to every visitor while the site is in testing, without
+ * a count per visitor (only the daily dollar budget in ./ai-budget.ts); set
+ * to false to keep it to WSIS_REVIEW_KEY.
  */
 export const REVIEW_PUBLIC = true
-// With Haiku a review costs about 0.1 Rappen, so the limits only stop abuse.
-const PER_IP_DAY = 50
-const ALL_DAY = 1000
 
+/** The owner's key (WSIS_REVIEW_KEY), compared in constant time. */
 export function reviewAllowed(given: string | null): boolean {
   const key = process.env.WSIS_REVIEW_KEY
   if (!key || !given) return false
   const a = createHash('sha256').update(key).digest()
   const b = createHash('sha256').update(given).digest()
   return timingSafeEqual(a, b)
-}
-
-const COUNT = `
-local ip = redis.call('INCR', KEYS[1])
-if ip == 1 then redis.call('EXPIRE', KEYS[1], 86400) end
-local all = redis.call('INCR', KEYS[2])
-if all == 1 then redis.call('EXPIRE', KEYS[2], 86400) end
-return {ip, all}
-`
-// Without the counter store: a rough cap per server instance.
-let local = { day: '', n: 0 }
-
-/** Whether a public review may run now for this connection. */
-export async function publicReviewAllowed(ip: string): Promise<boolean> {
-  const day = new Date().toISOString().slice(0, 10)
-  const h = createHash('sha256').update(ip).digest('hex').slice(0, 32)
-  try {
-    const [byIp, all] = (await redis(['EVAL', COUNT, 2, `wsis:review:ip:${day}:${h}`, `wsis:review:all:${day}`])) as [number, number]
-    return Number(byIp) <= PER_IP_DAY && Number(all) <= ALL_DAY
-  } catch {
-    if (local.day !== day) local = { day, n: 0 }
-    local.n++
-    return local.n <= ALL_DAY
-  }
 }
 
 const SYSTEM = `You review the output of a study-choice website for its developer, who is a psychology student and data scientist. You get one complete result: the questionnaire answers (RIASEC interest items, optional Mini-IPIP Big Five, school subjects, work values), aggregated summaries of uploaded data exports (YouTube, Google, Instagram, TikTok, Reddit and so on: counts per field and top terms, never raw history), the computed result (RIASEC profile, ranked fields with their score components, quality flags, confidence) and the top programmes with their AI ratings.
