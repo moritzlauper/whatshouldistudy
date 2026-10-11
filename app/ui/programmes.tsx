@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { studentId, unlockToken, update, useAppState } from '@/lib/store.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
 import { SALES_PAUSED, isLocal } from '@/lib/site/config.ts'
@@ -388,7 +388,7 @@ function ProgrammeDetails({ p, ai }: { p: RankedProgramme; ai?: { token: string 
   return (
     <div className="mt-4 grid gap-6 border-t-2 border-soft-line pt-4 text-sm">
       {/* 1. What the programme is. */}
-      <div>
+      {(hasAbout || !ai) && <div>
         <h5 className="font-display text-lg">{d.about}</h5>
         {hasAbout ? (
           <>
@@ -403,12 +403,18 @@ function ProgrammeDetails({ p, ai }: { p: RankedProgramme; ai?: { token: string 
               </ul>
             )}
           </>
-        ) : ai ? (
-          <AiCompare token={ai.token} items={[p]} one />
         ) : (
           <p className="mt-2 text-muted">{d.noInfo}</p>
         )}
-      </div>
+      </div>}
+
+      {/* 1b. In the paid report: Claude reads the official page and rates the fit with the profile. */}
+      {ai && (
+        <div>
+          <h5 className="font-display text-lg">🤖 {t.programmes.ai.oneTitle}</h5>
+          <AiCompare token={ai.token} items={[p]} one />
+        </div>
+      )}
 
       {/* 2. Why this programme: your topics it names, with what you looked at. */}
       {hits.length > 0 && (
@@ -441,13 +447,13 @@ function ProgrammeDetails({ p, ai }: { p: RankedProgramme; ai?: { token: string 
       )}
 
       {/* 3. What else in it fits you: only what this programme says about itself. */}
-      {fit && (!hits.length || fit.also.length > 0) && (
+      {fit && (!hits.length || fit.also.length > 0) && (!ai || fit.named.length > 0 || fit.also.length > 0) && (
         <div>
           <h5 className="font-display text-lg">{d.forYou}</h5>
           <ul className="mt-2 grid gap-1.5">
             {!hits.length && fit.named.length > 0 && <li>✓ {d.named(fit.named)}</li>}
             {fit.also.length > 0 && <li>✓ {d.also(fit.also.map((a) => d.alsoRank(fieldName(a.id, locale), a.rank)))}</li>}
-            {!hits.length && !fit.named.length && !fit.also.length && <li className="text-muted">{hasAbout || ai ? d.noOverlap(field) : d.onlyField(field)}</li>}
+            {!hits.length && !fit.named.length && !fit.also.length && <li className="text-muted">{hasAbout ? d.noOverlap(field) : d.onlyField(field)}</li>}
           </ul>
         </div>
       )}
@@ -794,6 +800,9 @@ interface AiFit {
  * list with your profile, reading their official pages. Only on request, and
  * only the profile (never data exports) leaves the browser.
  */
+/** Ratings of single programmes already made on this page view, so reopening details costs nothing. */
+const ONE_CACHE = new Map<string, AiFit[]>()
+
 function AiCompare({ token, items, one }: { token: string | null; items: RankedProgramme[]; one?: boolean }) {
   const { t, locale } = useSite()
   const results = useContext(ResultsContext)
@@ -802,6 +811,8 @@ function AiCompare({ token, items, one }: { token: string | null; items: RankedP
   const [fits, setFits] = useState<{ key: string; items: AiFit[] } | null>(null)
   const key = items.map((p) => p.id).join(',')
   const a = t.programmes.ai
+  const cacheKey = `${key}|${locale}|${results?.riasec.code ?? ''}|${results?.fields.slice(0, 5).map((f) => f.id).join(',') ?? ''}`
+  const cached = one ? ONE_CACHE.get(cacheKey) : undefined
 
   async function run() {
     setState('loading')
@@ -821,6 +832,7 @@ function AiCompare({ token, items, one }: { token: string | null; items: RankedP
       })
       if (!res.ok) throw new Error(String(res.status))
       const j = (await res.json()) as { items: AiFit[] }
+      if (one) ONE_CACHE.set(cacheKey, j.items)
       setFits({ key, items: j.items })
       setState('idle')
     } catch {
@@ -828,17 +840,36 @@ function AiCompare({ token, items, one }: { token: string | null; items: RankedP
     }
   }
 
+  // One programme, opened in the paid report: read and rate it right away, once per page view.
+  const started = useRef(false)
+  useEffect(() => {
+    if (!one || cached || started.current) return
+    started.current = true
+    void run()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [one, cached])
+
   const byId = new Map(items.map((p) => [p.id, p]))
-  const shown = fits?.key === key ? fits.items : null
+  const shown = fits?.key === key ? fits.items : (cached ?? null)
   return (
     <section className={one ? 'mt-2' : 'card mt-5 p-5 sm:p-6'}>
       {!one && <h3 className="font-display text-2xl">🤖 {a.title}</h3>}
-      {!shown && (
+      {!shown && one && (
+        state === 'error' ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-sm font-semibold text-bad">{a.error}</p>
+            <button type="button" onClick={run} className="btn btn-ghost btn-sm">{a.again}</button>
+          </div>
+        ) : (
+          <p className="animate-pulse text-sm text-muted">{a.loading}</p>
+        )
+      )}
+      {!shown && !one && (
         <>
-          <p className={`text-sm text-muted ${one ? '' : 'mt-2'}`}>{one ? a.oneText : a.text(items.length)}</p>
+          <p className="mt-2 text-sm text-muted">{a.text(items.length)}</p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button type="button" onClick={run} disabled={state === 'loading'} className="btn btn-primary btn-sm">
-              {state === 'loading' ? a.loading : one ? `🤖 ${a.oneButton}` : a.button}
+              {state === 'loading' ? a.loading : a.button}
             </button>
             <span className="text-xs text-muted">{a.consent}</span>
           </div>
@@ -880,10 +911,12 @@ function AiCompare({ token, items, one }: { token: string | null; items: RankedP
             })}
           </ol>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs text-muted">{a.note}</p>
-            <button type="button" onClick={run} disabled={state === 'loading'} className="btn btn-ghost btn-sm">
-              {state === 'loading' ? a.loading : a.again}
-            </button>
+            <p className="text-xs text-muted">{one ? `${a.note} ${a.consent}` : a.note}</p>
+            {!one && (
+              <button type="button" onClick={run} disabled={state === 'loading'} className="btn btn-ghost btn-sm">
+                {state === 'loading' ? a.loading : a.again}
+              </button>
+            )}
           </div>
         </>
       )}
