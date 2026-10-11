@@ -61,7 +61,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const [attempt, setAttempt] = useState(0)
   const weights = useMemo(() => topics.length ? topicWeights(topics) : undefined, [topics])
   const topicMap = useMemo(() => new Map(topics.map((x) => [x.key, x])), [topics])
-  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: 5 })
+  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: AI_POOL })
   const key = JSON.stringify([body, token, unlocked, attempt])
   useEffect(() => {
     if (!unlocked) return
@@ -81,7 +81,10 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   }, [body, key, token, unlocked])
   const current = reply?.key === key ? reply : null
   const locked = !unlocked || current?.locked
-  const best = current?.data?.items ?? []
+  const pool = current?.data?.items ?? []
+  const ai = useAiTop(pool, token, results, !shared && !current?.data?.sample)
+  // Until the AI is through, the order from the profile alone; then the combined one.
+  const best = (ai.state === 'done' ? [...pool].sort((x, y) => combined(y, ai.fits.get(y.id)) - combined(x, ai.fits.get(x.id))) : pool).slice(0, 5)
   return (
     <section className="mt-8" aria-label={t.programmes.topTitle}>
       <h2 className="mb-4 font-display text-3xl">{t.programmes.topTitle}</h2>
@@ -95,6 +98,11 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
       ) : best.length > 0 ? (
         <ResultsContext.Provider value={results}><TopicsContext.Provider value={topicMap}>
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
+          {ai.state !== 'off' && (
+            <p className={`mb-3 text-sm ${ai.state === 'loading' ? 'animate-pulse text-muted' : 'text-muted'}`} role="status">
+              🤖 {ai.state === 'loading' ? t.programmes.ai.topLoading(pool.length) : ai.state === 'done' ? t.programmes.ai.topDone(ai.fits.size) : t.programmes.ai.topFailed}
+            </p>
+          )}
           <ol className="grid list-decimal gap-4 pl-6 marker:font-bold marker:text-accent">
             {best.map((p) => <li key={p.id}><ProgrammeRow p={p} ai={{ token }} /></li>)}
           </ol>
@@ -555,7 +563,10 @@ function ProgrammeRow({ p, ai }: { p: RankedProgramme; ai?: { token: string | nu
   const lang = locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it'
   const hits = useTopicHits(p)
   const example = hits.flatMap((h) => h.examples)[0]
-  const fieldRank = (useContext(ResultsContext)?.fields.findIndex((f) => f.id === p.matchedField) ?? -1) + 1
+  const results = useContext(ResultsContext)
+  const fieldRank = (results?.fields.findIndex((f) => f.id === p.matchedField) ?? -1) + 1
+  // In the paid report: the AI rating, once made (top five, or details opened before).
+  const aiFit = ai ? aiCacheMap().get(aiKey(p.id, locale, results)) : undefined
   return (
     <article className="card-sm p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -594,6 +605,12 @@ function ProgrammeRow({ p, ai }: { p: RankedProgramme; ai?: { token: string | nu
           <span className="rounded-full border-2 border-line bg-accent px-2.5 py-0.5 text-sm font-extrabold text-accent-ink" title={t.programmes.row.matchTip}>
             {p.match}
           </span>
+          {aiFit && (
+            <span className="chip text-xs" title={`${aiFit.fit}/5`}>
+              🤖 {'●'.repeat(aiFit.fit)}
+              <span className="opacity-30">{'●'.repeat(5 - aiFit.fit)}</span>
+            </span>
+          )}
         </div>
       </div>
       {hits.length > 0 && (
@@ -800,40 +817,138 @@ interface AiFit {
  * list with your profile, reading their official pages. Only on request, and
  * only the profile (never data exports) leaves the browser.
  */
-/** Ratings of single programmes already made on this page view, so reopening details costs nothing. */
-const ONE_CACHE = new Map<string, AiFit[]>()
+/**
+ * AI ratings already made, per programme and profile, kept in this browser so
+ * neither reopening details nor coming back to the result asks Claude again.
+ */
+const AI_STORE = 'wsis:ai-fit:v1'
+let aiCache: Map<string, AiFit> | null = null
+function aiCacheMap(): Map<string, AiFit> {
+  if (aiCache) return aiCache
+  aiCache = new Map()
+  try {
+    const raw = typeof window !== 'undefined' ? window.localStorage.getItem(AI_STORE) : null
+    if (raw) for (const [k, v] of JSON.parse(raw) as Array<[string, AiFit]>) aiCache.set(k, v)
+  } catch {
+    // Storage blocked or broken: start empty.
+  }
+  return aiCache
+}
+function aiCacheSet(entries: Array<[string, AiFit]>) {
+  const m = aiCacheMap()
+  for (const [k, v] of entries) m.set(k, v)
+  try {
+    window.localStorage.setItem(AI_STORE, JSON.stringify([...m].slice(-200)))
+  } catch {
+    // Not kept beyond this page view; fine.
+  }
+}
+/** A rating holds for one programme, one profile and one language. */
+function aiKey(id: string, locale: string, results: Results | null): string {
+  return `${id}|${locale}|${results?.riasec.code ?? ''}|${results?.fields.slice(0, 5).map((f) => f.id).join(',') ?? ''}`
+}
 
-function AiCompare({ token, items, one }: { token: string | null; items: RankedProgramme[]; one?: boolean }) {
-  const { t, locale } = useSite()
-  const results = useContext(ResultsContext)
+type FitProfileBody = {
+  riasec?: { code: string; profile: number[] }
+  big5?: Record<string, number>
+  subjects: string[]
+  values: string[]
+  fields?: string[]
+}
+
+/** What the AI gets: the profile only, never data exports. */
+function useFitProfile(given?: Results | null): () => FitProfileBody {
+  const { locale } = useSite()
+  const context = useContext(ResultsContext)
+  const results = given ?? context
   const { answers } = useAppState()
-  const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle')
-  const [fits, setFits] = useState<{ key: string; items: AiFit[] } | null>(null)
-  const key = items.map((p) => p.id).join(',')
-  const a = t.programmes.ai
-  const cacheKey = `${key}|${locale}|${results?.riasec.code ?? ''}|${results?.fields.slice(0, 5).map((f) => f.id).join(',') ?? ''}`
-  const cached = one ? ONE_CACHE.get(cacheKey) : undefined
-
-  async function run() {
-    setState('loading')
+  return () => {
     const fromQuestionnaire = results?.big5?.from.includes('questionnaire')
-    const profile = {
+    return {
       riasec: results?.riasec.code ? { code: results.riasec.code, profile: results.riasec.profile } : undefined,
       big5: fromQuestionnaire ? results!.big5!.z : undefined,
       subjects: Object.entries(answers.subjects ?? {}).filter(([, v]) => (v?.enjoy ?? 0) >= 4).map(([k]) => subjectLabel(k as SubjectKey, locale)),
       values: Object.entries(answers.values ?? {}).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => valueLabel(k as ValueKey, locale)),
       fields: results?.fields.slice(0, 5).map((f) => fieldName(f.id, locale)),
     }
+  }
+}
+
+async function fetchFits(token: string | null, items: RankedProgramme[], profile: FitProfileBody, locale: string): Promise<AiFit[]> {
+  const res = await fetch(withBase('/api/programme-fit'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    body: JSON.stringify({ programmes: items.map((p) => ({ id: p.id, field: p.matchedField, country: p.country })), profile, locale }),
+  })
+  if (!res.ok) throw new Error(String(res.status))
+  return ((await res.json()) as { items: AiFit[] }).items
+}
+
+/**
+ * The top five in the paid report: Claude reads the official pages of the
+ * best candidates by profile and rates each; the five best by the combined
+ * score are shown. Ratings already made are taken from this browser.
+ */
+function useAiTop(pool: RankedProgramme[], token: string | null, results: Results, enabled: boolean) {
+  const { locale } = useSite()
+  const profile = useFitProfile(results)
+  const [out, setOut] = useState<{ key: string; state: 'loading' | 'done' | 'failed'; fits: Map<string, AiFit> } | null>(null)
+  const ids = pool.map((p) => p.id).join(',')
+  const key = `${ids}|${aiKey('', locale, results)}`
+  useEffect(() => {
+    if (!enabled || !pool.length) return
+    let live = true
+    const fits = new Map<string, AiFit>()
+    for (const p of pool) {
+      const f = aiCacheMap().get(aiKey(p.id, locale, results))
+      if (f) fits.set(p.id, f)
+    }
+    const missing = pool.filter((p) => !fits.has(p.id))
+    if (!missing.length) {
+      setOut({ key, state: 'done', fits })
+      return
+    }
+    setOut({ key, state: 'loading', fits })
+    const batches = Array.from({ length: Math.ceil(missing.length / AI_BATCH) }, (_, i) => missing.slice(i * AI_BATCH, (i + 1) * AI_BATCH))
+    const body = profile()
+    void Promise.allSettled(batches.map((b) => fetchFits(token, b, body, locale))).then((settled) => {
+      const got = settled.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
+      aiCacheSet(got.map((f) => [aiKey(f.id, locale, results), f]))
+      for (const f of got) fits.set(f.id, f)
+      if (live) setOut({ key, state: got.length ? 'done' : 'failed', fits: new Map(fits) })
+    })
+    return () => {
+      live = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, enabled, token])
+  const current = out?.key === key ? out : null
+  return { state: !enabled || !pool.length ? ('off' as const) : (current?.state ?? 'loading'), fits: current?.fits ?? new Map<string, AiFit>() }
+}
+
+/** Candidates the AI reads for the top five, in batches the endpoint takes at once. */
+const AI_POOL = 20
+const AI_BATCH = 5
+/** AI fit counts more than the match from the profile alone: it has read what the programme contains. */
+const combined = (p: RankedProgramme, f?: AiFit) => (f ? 0.6 * (((f.fit - 1) / 4) * 100) + 0.4 * p.match : p.match)
+
+function AiCompare({ token, items, one }: { token: string | null; items: RankedProgramme[]; one?: boolean }) {
+  const { t, locale } = useSite()
+  const results = useContext(ResultsContext)
+  const profile = useFitProfile()
+  const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle')
+  const [fits, setFits] = useState<{ key: string; items: AiFit[] } | null>(null)
+  const key = items.map((p) => p.id).join(',')
+  const a = t.programmes.ai
+  const oneCached = one ? aiCacheMap().get(aiKey(items[0].id, locale, results)) : undefined
+  const cached = oneCached ? [oneCached] : undefined
+
+  async function run() {
+    setState('loading')
     try {
-      const res = await fetch(withBase('/api/programme-fit'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ programmes: items.map((p) => ({ id: p.id, field: p.matchedField, country: p.country })), profile, locale }),
-      })
-      if (!res.ok) throw new Error(String(res.status))
-      const j = (await res.json()) as { items: AiFit[] }
-      if (one) ONE_CACHE.set(cacheKey, j.items)
-      setFits({ key, items: j.items })
+      const got = await fetchFits(token, items, profile(), locale)
+      aiCacheSet(got.map((f) => [aiKey(f.id, locale, results), f]))
+      setFits({ key, items: got })
       setState('idle')
     } catch {
       setState('error')
