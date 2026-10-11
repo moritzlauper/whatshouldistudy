@@ -412,6 +412,23 @@ ready-made text and HTML link for school websites. That link points to the
 home page; the student link of a plan unlocks reports and belongs on intranets
 and in emails, never on a public page.
 
+## Facts database (Swiss programme pages)
+
+`.github/workflows/wsis-fakten.yml` (run by hand, on main only) has Claude read
+the official page of every Swiss programme that has one (`scrapers/programme-facts.ts`,
+rules and prompt in `scrapers/lib/facts.ts`). robots.txt is respected, one request
+goes out every 1.5 seconds, and a page is read again only when its text has changed:
+the hash is kept, the text is not. Spending is capped per run (`--max-usd`).
+
+The readings go to a private Redis database (`lib/facts-store.ts`, set with
+`FACTS_REDIS_REST_URL` and `FACTS_REDIS_REST_TOKEN` in GitHub Actions and on Vercel),
+not to the public data branch: they belong to the paid comparison. The site reads
+them through `/api/facts` (paid) and ranks the list in the browser against the answers.
+The optional step «include my answers» (off by default, after consent) sends the
+interest profile and the enjoyed subjects with the 20 best matches to `/api/personal-fit`.
+
+Secrets: `ANTHROPIC_API_KEY`, `FACTS_REDIS_REST_URL`, `FACTS_REDIS_REST_TOKEN`.
+
 ## Blog
 
 Every site has a blog at `/blog`. Every other day the Swiss, German and Austrian

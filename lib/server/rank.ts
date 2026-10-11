@@ -17,6 +17,8 @@ export interface RankRequest {
   q?: string
   /** Part of a city's name, accents and case ignored. */
   city?: string
+  /** Only these programmes, by id (at most 2000). */
+  ids?: string[]
   page?: number
   pageSize?: number
   /** Your topics (lexicon keys) with 0..1 weights; no titles, nothing else. */
@@ -111,6 +113,9 @@ export function sanitizeRequest(body: unknown): RankRequest | null {
     sort: (['match', 'cost', 'earnings', 'new'] as const).includes(b.sort as never) ? (b.sort as RankRequest['sort']) : 'match',
     q: typeof b.q === 'string' ? b.q.slice(0, 80) : undefined,
     city: typeof b.city === 'string' && b.city.trim() ? b.city.trim().slice(0, 60) : undefined,
+    ids: Array.isArray(b.ids) && b.ids.length
+      ? b.ids.filter((x): x is string => typeof x === 'string' && x.length > 0 && x.length <= 40).slice(0, 2000)
+      : undefined,
     page: Math.max(0, Math.floor(Number(b.page) || 0)),
     pageSize: Math.max(1, Math.min(2000, Math.floor(Number(b.pageSize) || 40))),
   }
@@ -160,7 +165,9 @@ export async function rank(req: RankRequest): Promise<RankResult> {
 
   const levels = LEVELS_FOR[req.prefs.level]
   const q = req.q?.toLowerCase().trim()
+  const onlyIds = req.ids ? new Set(req.ids) : null
   const base = [...byId.values()].filter((p) => {
+    if (onlyIds && !onlyIds.has(p.id)) return false
     if (levels && !levels.includes(p.level)) return false
     if (req.prefs.countries.length && !req.prefs.countries.includes(p.country)) return false
     if (req.prefs.maxTuitionEur && p.fee && p.fee.eur > req.prefs.maxTuitionEur) return false

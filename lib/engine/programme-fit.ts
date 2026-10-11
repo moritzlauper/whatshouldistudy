@@ -99,3 +99,36 @@ export function toFacts(raw: unknown, allowed: ReadonlySet<string>): ProgrammeFa
     enough,
   }
 }
+
+/** Countries with readings in the facts database; the site asks only for these. */
+export const FACTS_COUNTRIES = ['CH'] as const
+
+/** Claude's comparison of one programme with the person's answers, the optional step. */
+export interface PersonalFit {
+  id: string
+  /** 1 (little in common) .. 5 (very close). */
+  fit: number
+  /** 0..100, consistent with fit. */
+  score: number
+  /** One or two short sentences in the reader's language, addressed to the person informally. */
+  reasons: string[]
+  /** The reading says too little to judge; the rating is neutral. */
+  thin: boolean
+}
+
+/** One programme from the model's answer, kept only if it is one of the programmes asked about. */
+export function toPersonalFit(raw: unknown, asked: ReadonlySet<string>): PersonalFit | null {
+  if (!raw || typeof raw !== 'object') return null
+  const x = raw as Record<string, unknown>
+  if (typeof x.id !== 'string' || !asked.has(x.id)) return null
+  // Too little on the page to judge is no reason to rank a programme low.
+  if (x.enough_info === false) return { id: x.id, fit: 3, score: 50, reasons: [], thin: true }
+  const fit = Math.max(1, Math.min(5, Math.round(Number(x.fit) || 1)))
+  const score = Number.isFinite(Number(x.score)) ? Math.max(0, Math.min(100, Math.round(Number(x.score)))) : (fit - 1) * 25 + 12
+  const reasons = (Array.isArray(x.reasons) ? x.reasons : [])
+    .filter((r): r is string => typeof r === 'string')
+    .map((r) => r.trim().slice(0, 240))
+    .filter(Boolean)
+    .slice(0, 2)
+  return { id: x.id, fit, score, reasons, thin: false }
+}

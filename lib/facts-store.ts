@@ -1,4 +1,6 @@
 import type { StoredFact } from '../scrapers/lib/facts.ts'
+import type { ProgrammeFacts } from './engine/programme-fit.ts'
+import type { Locale } from './site/config.ts'
 
 /**
  * The facts database: one Redis hash per country, a field per programme with
@@ -70,4 +72,18 @@ export async function writeFacts(cfg: StoreConfig, country: string, facts: Recor
   }
   await command(cfg, ['RENAME', tmp, factsKey(country)])
   return entries.length
+}
+
+const LANGUAGE: Record<Locale, 'de' | 'fr' | 'it' | 'en'> = {
+  en: 'en',
+  'de-CH': 'de',
+  'de-DE': 'de',
+  'de-AT': 'de',
+  'fr-CH': 'fr',
+  'it-CH': 'it',
+}
+
+/** A reading as the site shows it: the interest profile, the subjects, and the check in the reader's language. */
+export function factsForLocale(f: StoredFact, locale: Locale): ProgrammeFacts {
+  return { id: f.id, riasec: f.riasec, subjects: f.subjects, check: f.checks[LANGUAGE[locale]] || f.checks.en, enough: f.enough }
 }
