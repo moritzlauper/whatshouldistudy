@@ -60,9 +60,21 @@ export function ReviewPanel({ results, answers, prefs, summaries }: { results: R
         headers: { 'Content-Type': 'application/json', ...(key ? { 'x-review-key': key } : {}) },
         body: JSON.stringify({ results: trim(results), answers, prefs, summaries: summaries.map((s) => trim(s)), topProgrammes: lastTop.current }),
       })
-      const j = (await res.json().catch(() => ({}))) as { review?: string; error?: string }
-      if (!res.ok || !j.review) throw new Error(j.error ?? `HTTP ${res.status}`)
-      setReview(j.review)
+      if (!res.ok || !res.body) {
+        const j = (await res.json().catch(() => ({}))) as { error?: string }
+        throw new Error(j.error ?? `HTTP ${res.status}`)
+      }
+      // The answer streams in; NUL bytes are only keep-alives.
+      const reader = res.body.getReader()
+      const dec = new TextDecoder()
+      let text = ''
+      for (;;) {
+        const { done, value } = await reader.read()
+        if (done) break
+        text += dec.decode(value, { stream: true }).replace(/\u0000/g, '')
+        if (text.trim()) setReview(text)
+      }
+      if (!text.trim()) throw new Error('Keine Antwort erhalten.')
       setState('idle')
     } catch (e) {
       const err = e as Error

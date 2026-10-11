@@ -58,23 +58,41 @@ Judge whether the result makes sense and where the pipeline goes wrong. Be concr
 
 Write in German (Swiss spelling, no «ß»), in Markdown with short sections, at most about 500 words. No preamble.`
 
-/** The review as Markdown, or an error message. */
-export async function reviewResult(input: unknown): Promise<string> {
-  // One try, well inside the route's 300 s, so a slow answer ends with an error instead of hanging.
-  const client = new Anthropic({ timeout: 150_000, maxRetries: 0 })
-  const stream = client.beta.messages.stream({
-    model: 'claude-opus-5-5',
-    max_tokens: 6000,
-    thinking: { type: 'adaptive' },
-    // Medium is plenty for a review and keeps it to about a minute.
-    output_config: { effort: 'medium' },
-    // A safety decline is re-run on a fallback model instead of failing.
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    system: SYSTEM,
-    messages: [{ role: 'user', content: `Result to review (JSON):\n\n${JSON.stringify(input)}` }],
+/**
+ * The review as a text stream. Claude's words go out as they come; until the
+ * first ones (and between them), a NUL byte every few seconds keeps proxies
+ * from dropping a connection that looks idle. The client removes NULs.
+ */
+export function reviewStream(input: unknown): ReadableStream<Uint8Array> {
+  const enc = new TextEncoder()
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const beat = setInterval(() => controller.enqueue(enc.encode('\u0000')), 5000)
+      controller.enqueue(enc.encode('\u0000'))
+      try {
+        const client = new Anthropic({ timeout: 240_000, maxRetries: 0 })
+        const stream = client.beta.messages.stream({
+          model: 'claude-opus-5-5',
+          max_tokens: 6000,
+          thinking: { type: 'adaptive' },
+          // Low effort: a review of one result, not a research task; keeps it under a minute.
+          output_config: { effort: 'low' },
+          // A safety decline is re-run on a fallback model instead of failing.
+          betas: ['server-side-fallback-2026-07-01'],
+          fallbacks: 'default',
+          system: SYSTEM,
+          messages: [{ role: 'user', content: `Result to review (JSON):\n\n${JSON.stringify(input)}` }],
+        })
+        stream.on('text', (t) => controller.enqueue(enc.encode(t)))
+        const message = await stream.finalMessage()
+        if (message.stop_reason === 'refusal') controller.enqueue(enc.encode('\n\nClaude hat die Prüfung abgelehnt.'))
+      } catch (e) {
+        console.error(`review: ${(e as Error).message}`)
+        controller.enqueue(enc.encode(`\n\n⚠ Fehler: ${(e as Error).message}`))
+      } finally {
+        clearInterval(beat)
+        controller.close()
+      }
+    },
   })
-  const message = await stream.finalMessage()
-  if (message.stop_reason === 'refusal') return 'Claude hat die Prüfung abgelehnt.'
-  return message.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('\n').trim()
 }

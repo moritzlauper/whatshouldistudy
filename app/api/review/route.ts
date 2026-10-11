@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { REVIEW_PUBLIC, publicReviewAllowed, reviewAllowed, reviewResult } from '@/lib/server/review.ts'
+import { REVIEW_PUBLIC, publicReviewAllowed, reviewAllowed, reviewStream } from '@/lib/server/review.ts'
 
 export const maxDuration = 300
 
@@ -19,11 +19,7 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Invalid JSON.' }, { status: 400 })
   }
-  try {
-    const review = await reviewResult(input)
-    return NextResponse.json({ review }, { headers: { 'Cache-Control': 'private, no-store' } })
-  } catch (e) {
-    console.error(`review: ${(e as Error).message}`)
-    return NextResponse.json({ error: (e as Error).message }, { status: 502 })
-  }
+  return new Response(reviewStream(input), {
+    headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'private, no-store', 'X-Accel-Buffering': 'no' },
+  })
 }
