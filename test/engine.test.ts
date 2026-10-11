@@ -113,8 +113,43 @@ test('questionnaire shifts the ranking when there is no footprint', () => {
   const r = score({ summaries: [], answers })
   const top8 = r.fields.slice(0, 8).map((f) => f.id)
   assert.ok(top8.some((id) => ['medicine', 'nursing', 'physiotherapy', 'pharmacy', 'veterinary-medicine'].includes(id)), top8.join())
-  assert.equal(r.confidence, 'low')
+  // The questionnaire alone is the standard: half the interest items answered gives a medium-confidence result.
+  assert.equal(r.confidence, 'medium')
+  assert.equal(r.quality?.questionnaireLed, true)
   assert.equal(riasecCode(scoreRiasec(answers)!)[0], 'S')
+})
+
+test('questionnaire quality: no filling-in, flat profiles, careless answering, one gate', async () => {
+  const q = await import('../lib/engine/questionnaire.ts')
+  // A type with fewer than two answers isn't «neutral»: no profile yet.
+  assert.equal(q.scoreRiasec({ riasec: { r1: 5, r2: 5, i1: 1, i2: 1, a1: 3, a2: 3, s1: 4, s2: 4, e1: 2, e2: 2, c1: 3 } }), null)
+  assert.equal(q.resultsReady({ riasec: { r1: 5 } }, 0), false)
+  assert.equal(q.resultsReady({}, 1), true)
+  // All threes: flat, low confidence, said so; the first places are a tie.
+  const flatAnswers = { riasec: Object.fromEntries(q.RIASEC_ITEMS.map((i) => [i.id, 3])) }
+  const flat = score({ summaries: [], answers: flatAnswers })
+  assert.equal(flat.quality?.flat, true)
+  assert.equal(flat.confidence, 'low')
+  // Twelve identical answers in a row, or the attention item answered wrongly, mark the result.
+  assert.equal(flat.quality?.careless, true)
+  const varied = Object.fromEntries(q.RIASEC_ITEMS.map((i, n) => [i.id, (n % 5) + 1]))
+  assert.equal(q.careless({ riasec: varied }), false)
+  assert.equal(q.careless({ riasec: { ...varied, chk: 5 } }), true)
+  assert.equal(q.careless({ riasec: { ...varied, chk: 2 } }), false)
+  assert.equal(q.RIASEC_ITEMS.length, 36)
+  assert.equal(q.INTEREST_LIST.filter((i) => i.key === 'check').length, 1)
+})
+
+test('with the questionnaire answered, data move a field by at most a quarter', () => {
+  const riasec = Object.fromEntries(['r', 'i', 'a', 's', 'e', 'c'].flatMap((k) => [1, 2, 3, 4, 5, 6].map((n) => [`${k}${n}`, k === 's' ? 5 : k === 'i' ? 4 : 2])))
+  const base = score({ summaries: [], answers: { riasec } })
+  const summary = accumulate(engineeringPerson(), { source: 'takeout', label: 'YouTube history' })
+  const both = score({ summaries: [summary], answers: { riasec } })
+  for (const m of both.fields) {
+    const b = base.fields.find((x) => x.id === m.id)!
+    assert.ok(Math.abs(m.match - b.match) <= 0.25 + 1e-9, `${m.id} ${b.match} → ${m.match}`)
+  }
+  assert.equal(both.quality?.questionnaireLed, true)
 })
 
 test('Mini-IPIP scoring handles reverse-keyed items', () => {

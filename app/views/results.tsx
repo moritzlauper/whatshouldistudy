@@ -7,6 +7,7 @@ import { useAppState } from '@/lib/store.ts'
 import { decodeSnapshot, encodeSnapshot, sharedParam } from '@/lib/share.ts'
 import type { Snapshot } from '@/lib/share.ts'
 import { score, sourceProfile } from '@/lib/engine/scoring.ts'
+import { resultsReady } from '@/lib/engine/questionnaire.ts'
 import { userTopics } from '@/lib/engine/topics.ts'
 import { SUMMARY_VERSION } from '@/lib/engine/accumulate.ts'
 import type { FieldMatch, Preferences, Results, SourceSummary } from '@/lib/engine/types.ts'
@@ -79,7 +80,7 @@ export function ResultsView() {
   const prefs: Preferences = isShared ? { ...state.prefs, ...(shared as Snapshot).prefs } : state.prefs
   // The step from analysis to result, for ads and the usage counters: that it happened, nothing of what it says.
   useEffect(() => {
-    if (own && (summaries.length > 0 || Object.keys(state.answers.riasec ?? {}).length >= 6)) {
+    if (own && resultsReady(state.answers, summaries.length)) {
       measureResult()
       measureResultShown()
     }
@@ -100,7 +101,7 @@ export function ResultsView() {
 
   if (!mounted || !results) return <div className="animate-soft mx-auto max-w-6xl px-4 py-24 font-display text-3xl text-muted sm:px-6">{t.results.calculating}</div>
 
-  const hasInput = isShared || summaries.length > 0 || Object.keys(state.answers.riasec ?? {}).length >= 6
+  const hasInput = isShared || resultsReady(state.answers, summaries.length)
   if (!hasInput) {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
@@ -138,6 +139,8 @@ export function ResultsView() {
           )}
         </div>
       </div>
+
+      <QualityNotes results={results} />
 
       {isShared ? (
         <div className="card-sm mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent-soft p-4">
@@ -310,6 +313,39 @@ export function ResultsView() {
       {summaries.some((s) => s.source !== 'questionnaire') && <SourceInsights summaries={summaries} unlocked={unlocked} studying={state.prefs.studying} />}
 
       <Programmes results={results} prefs={prefs} topics={topics} hideFirst={!unlocked} />
+    </div>
+  )
+}
+
+/** What the result can say: notes on how the questionnaire was answered, and its limits. */
+function QualityNotes({ results }: { results: Results }) {
+  const { t } = useSite()
+  const q = results.quality
+  const tq = t.results.quality
+  const notes = [
+    q && !q.questionnaireLed && tq.explore,
+    q?.flat && tq.flat,
+    q?.careless && tq.careless,
+    q?.topTie && !q.flat && tq.topTie,
+  ].filter(Boolean) as string[]
+  return (
+    <div className="mt-6 grid gap-3">
+      {notes.map((n) => (
+        <p key={n} className="card-sm border-l-8 p-4 text-sm" style={{ borderLeftColor: 'var(--yellow)' }}>
+          {n}
+        </p>
+      ))}
+      <p className="text-sm text-muted">
+        {tq.limits}
+        {tq.counselling && (
+          <>
+            {' '}
+            <a href={tq.counselling.href} target="_blank" rel="noopener" className="font-semibold text-accent underline">
+              {tq.counselling.label} ↗
+            </a>
+          </>
+        )}
+      </p>
     </div>
   )
 }

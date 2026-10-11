@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { update, useAppState } from '@/lib/store.ts'
-import { BIG5_ITEMS, RIASEC_ITEMS } from '@/lib/engine/questionnaire.ts'
+import { BIG5_ITEMS, INTEREST_LIST } from '@/lib/engine/questionnaire.ts'
 import type { LikertItem } from '@/lib/engine/questionnaire.ts'
 import { SUBJECT_KEYS, VALUE_KEYS } from '@/lib/taxonomy/fields.ts'
 import type { SubjectKey } from '@/lib/taxonomy/fields.ts'
@@ -20,7 +20,7 @@ export function Questionnaire() {
   const a = state.answers
 
   const count: Record<Tab, [number, number]> = {
-    interests: [Object.keys(a.riasec ?? {}).length, RIASEC_ITEMS.length],
+    interests: [Object.keys(a.riasec ?? {}).length, INTEREST_LIST.length],
     personality: [Object.keys(a.big5 ?? {}).length, BIG5_ITEMS.length],
     subjects: [Object.values(a.subjects ?? {}).filter((s) => s?.enjoy || s?.grade).length, SUBJECT_KEYS.length],
     values: [Object.keys(a.values ?? {}).length, VALUE_KEYS.length],
@@ -59,7 +59,7 @@ export function Questionnaire() {
       <div className="p-4 sm:p-7">
         <p className="mb-4 font-semibold text-muted">{t.q.hints[tab]}</p>
         {tab === 'interests' && (
-          <LikertList items={localise(RIASEC_ITEMS, t.q.riasec)} values={a.riasec ?? {}} labels={t.q.likertInterest} onChange={(id, v) => setLikert('riasec', id, v)} color={TAB_COLOR.interests} />
+          <LikertList items={localise(INTEREST_LIST, t.q.riasec)} values={a.riasec ?? {}} labels={t.q.likertInterest} onChange={(id, v) => setLikert('riasec', id, v)} color={TAB_COLOR.interests} />
         )}
         {tab === 'personality' && (
           <>

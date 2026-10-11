@@ -16,27 +16,76 @@ export interface LikertItem {
   reverse?: boolean
 }
 
-/** Activity items, three per Holland type. Answer: 1 (dislike) .. 5 (love). */
-export const RIASEC_ITEMS: LikertItem[] = [
-  { id: 'r1', key: 'R', text: 'Build, fix or take apart things with your hands' },
-  { id: 'r2', key: 'R', text: 'Work with machines, tools or vehicles' },
-  { id: 'r3', key: 'R', text: 'Spend your working day outdoors or in a workshop' },
-  { id: 'i1', key: 'I', text: 'Figure out why something in nature works the way it does' },
-  { id: 'i2', key: 'I', text: 'Solve a hard maths, logic or coding problem' },
-  { id: 'i3', key: 'I', text: 'Run an experiment and analyse the results' },
-  { id: 'a1', key: 'A', text: 'Write a story, song, script or article' },
-  { id: 'a2', key: 'A', text: 'Design something that looks good: a poster, an app, a room' },
-  { id: 'a3', key: 'A', text: 'Perform: music, theatre, dance or making videos' },
-  { id: 's1', key: 'S', text: 'Teach or explain something to others' },
-  { id: 's2', key: 'S', text: 'Help someone through a difficult time' },
-  { id: 's3', key: 'S', text: "Look after people's health or wellbeing" },
-  { id: 'e1', key: 'E', text: 'Convince a group to back your idea' },
-  { id: 'e2', key: 'E', text: 'Start and run your own project or business' },
-  { id: 'e3', key: 'E', text: 'Lead a team and take responsibility for the result' },
-  { id: 'c1', key: 'C', text: 'Organise information so that everything is accurate' },
-  { id: 'c2', key: 'C', text: 'Keep track of money, budgets or numbers' },
-  { id: 'c3', key: 'C', text: 'Follow a clear procedure to get a precise result' },
-]
+/**
+ * Activity items, six per Holland type, rated for liking: 1 (dislike) .. 5
+ * (love). Short concrete activities rather than job titles, written to be
+ * gender-neutral (no «-in», no stereotyped hobbies) and to cover the fields in
+ * the taxonomy. Six items per scale is the shortest length at which interest
+ * scales reach acceptable reliability (about α .70); three were too few.
+ * They are shown interleaved (R, I, A, S, E, C, R, …) so that no block of one
+ * type invites answering on autopilot.
+ */
+const BY_TYPE: Record<RiasecKey, string[]> = {
+  R: [
+    'Build, fix or take apart things with your hands',
+    'Work with machines, tools or vehicles',
+    'Spend your working day outdoors or in a workshop',
+    'Set up and test electronics, a robot or a 3D printer',
+    'Grow plants or look after animals',
+    'Measure or build something on a construction site',
+  ],
+  I: [
+    'Figure out why something in nature works the way it does',
+    'Solve a hard maths, logic or coding problem',
+    'Run an experiment and analyse the results',
+    'Read up on a scientific question until you really understand it',
+    'Find the cause of an illness or a technical fault',
+    'Look for patterns in data',
+  ],
+  A: [
+    'Write a story, song, script or article',
+    'Design something that looks good: a poster, an app, a room',
+    'Perform: music, theatre, dance or making videos',
+    'Take photos or film and edit them',
+    'Draw, paint or make something from your own ideas',
+    'Play with language: translate, write poems, find the right word',
+  ],
+  S: [
+    'Teach or explain something to others',
+    'Help someone through a difficult time',
+    "Look after people's health or wellbeing",
+    'Organise an activity for children or young people',
+    'Listen to someone and help them find their own solution',
+    'Work with people from other cultures or backgrounds',
+  ],
+  E: [
+    'Convince a group to back your idea',
+    'Start and run your own project or business',
+    'Lead a team and take responsibility for the result',
+    'Negotiate a good deal or price',
+    'Present a plan in front of people and defend it',
+    "Stand up for someone's case, for example in court",
+  ],
+  C: [
+    'Organise information so that everything is accurate',
+    'Keep track of money, budgets or numbers',
+    'Follow a clear procedure to get a precise result',
+    'Check a document for mistakes and inconsistencies',
+    'Build a spreadsheet that keeps everything in order',
+    'Plan schedules, routes or stock so that nothing goes wrong',
+  ],
+}
+
+/** One instructed item in the middle of the list: answering it as asked shows the list is being read. */
+export const ATTENTION_ITEM: LikertItem = { id: 'chk', key: 'check', text: 'To show you are reading: choose 2 here' }
+export const ATTENTION_ANSWER = 2
+
+export const RIASEC_ITEMS: LikertItem[] = [0, 1, 2, 3, 4, 5].flatMap((n) =>
+  RIASEC_KEYS.map((k) => ({ id: `${k.toLowerCase()}${n + 1}`, key: k, text: BY_TYPE[k][n] })),
+)
+
+/** The interest list as shown: the attention item sits after the first half. */
+export const INTEREST_LIST: LikertItem[] = [...RIASEC_ITEMS.slice(0, 18), ATTENTION_ITEM, ...RIASEC_ITEMS.slice(18)]
 
 /**
  * Mini-IPIP (Donnellan, Oswald, Baird & Lucas, 2006): 20 items, four per Big
@@ -83,25 +132,70 @@ const BIG5_NORMS: Record<Big5Key, [number, number]> = {
 export const LIKERT_INTEREST = ['Dislike', 'Not really', 'Neutral', 'Like', 'Love']
 export const LIKERT_ACCURACY = ['Very inaccurate', 'Inaccurate', 'Neither', 'Accurate', 'Very accurate']
 
-/** RIASEC profile in 0..1 from the activity items, or null if too few answers. */
-/** Share of the RIASEC items answered, 0..1. */
+/** Share of the interest items answered, 0..1. */
 export function riasecCompleteness(a: QuestionnaireAnswers): number {
   if (!a.riasec) return 0
   return RIASEC_ITEMS.filter((i) => typeof a.riasec![i.id] === 'number').length / RIASEC_ITEMS.length
 }
 
+/** Answers per Holland type needed before its scale counts. Fewer would be noise, and a missing type is not «neutral». */
+export const MIN_PER_TYPE = 2
+
+/** RIASEC profile in 0..1 from the activity items, or null until every type has enough answers. */
 export function scoreRiasec(a: QuestionnaireAnswers): Riasec | null {
   if (!a.riasec) return null
   const out: number[] = []
-  let answered = 0
   for (const k of RIASEC_KEYS) {
     const vals = RIASEC_ITEMS.filter((i) => i.key === k)
       .map((i) => a.riasec![i.id])
       .filter((v): v is number => typeof v === 'number')
-    answered += vals.length
-    out.push(vals.length ? (avg(vals) - 1) / 4 : 0.5)
+    if (vals.length < MIN_PER_TYPE) return null
+    out.push((avg(vals) - 1) / 4)
   }
-  return answered >= 6 ? (out as Riasec) : null
+  return out as Riasec
+}
+
+/**
+ * Elevation (how much you like anything at all) and differentiation (how
+ * clearly some types stand out) are separate facts about a profile. A flat
+ * profile, all types within less than one answer step of three quarters of
+ * the scale, carries no clear direction: ranking 80 fields on it would only
+ * sort noise.
+ */
+export const FLAT_BELOW = 0.19
+
+export function profileShape(p: Riasec): { elevation: number; differentiation: number; flat: boolean } {
+  const differentiation = Math.max(...p) - Math.min(...p)
+  return { elevation: avg(p), differentiation, flat: differentiation < FLAT_BELOW }
+}
+
+/**
+ * Signs of answering without reading: the attention item answered otherwise
+ * than asked, or twelve or more identical answers in a row in the interest
+ * list. Only the wording of the result changes; nobody is locked out.
+ */
+export function careless(a: QuestionnaireAnswers): boolean {
+  const r = a.riasec ?? {}
+  if (typeof r[ATTENTION_ITEM.id] === 'number' && r[ATTENTION_ITEM.id] !== ATTENTION_ANSWER) return true
+  let run = 0
+  let last: number | undefined
+  for (const it of INTEREST_LIST) {
+    const v = r[it.id]
+    if (typeof v !== 'number') {
+      last = undefined
+      run = 0
+      continue
+    }
+    run = v === last ? run + 1 : 1
+    last = v
+    if (run >= 12) return true
+  }
+  return false
+}
+
+/** Whether there is enough for a result: the interest scales, or at least one data source. Used by the start and the results page alike. */
+export function resultsReady(a: QuestionnaireAnswers, sources: number): boolean {
+  return sources > 0 || scoreRiasec(a) !== null
 }
 
 /** Big Five z-scores, or null if fewer than half the items were answered. */
@@ -132,7 +226,7 @@ export function riasecCode(p: Riasec): string {
 }
 
 export function questionnaireProgress(a: QuestionnaireAnswers): { done: number; total: number } {
-  const total = RIASEC_ITEMS.length + BIG5_ITEMS.length + 14 + 8
+  const total = INTEREST_LIST.length + BIG5_ITEMS.length + 14 + 8
   const done =
     Object.keys(a.riasec ?? {}).length +
     Object.keys(a.big5 ?? {}).length +

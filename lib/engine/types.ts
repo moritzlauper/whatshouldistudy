@@ -176,6 +176,12 @@ export interface Results {
   fields: FieldMatch[]
   hidden: FieldMatch[]
   riasec: { profile: Riasec; code: string; from: string[] }
+  /**
+   * How the questionnaire was answered. A flat interest profile has no clear
+   * direction; careless marks signs of answering without reading; topTie that
+   * the first places are closer than the measurement can tell apart.
+   */
+  quality?: { flat: boolean; careless: boolean; topTie: boolean; differentiation: number; elevation: number; questionnaireLed: boolean }
   big5?: { z: Big5; from: string[]; confidence: number }
   insights: Insight[]
   timeline: Array<{ year: string; fields: Array<{ id: string; share: number }> }>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { clearAll, removeSummary, setSummary, useAppState } from '@/lib/store.ts'
+import { update, clearAll, removeSummary, setSummary, useAppState } from '@/lib/store.ts'
 import type { SourceId, SourceSummary } from '@/lib/engine/types.ts'
 import { getToken, isConfigured, startAuth } from '@/lib/sources/oauth.ts'
 import type { Provider } from '@/lib/sources/oauth.ts'
@@ -10,7 +10,7 @@ import { readExports } from '@/lib/sources/exports.ts'
 import { fetchChannels, fetchVideos } from '@/lib/sources/youtube.ts'
 import type { ChannelInfo, VideoResource } from '@/lib/sources/youtube.ts'
 import { collectGitHub } from '@/lib/sources/github.ts'
-import { questionnaireProgress } from '@/lib/engine/questionnaire.ts'
+import { questionnaireProgress, resultsReady } from '@/lib/engine/questionnaire.ts'
 import { fmtNumber } from '@/lib/site/labels.ts'
 import { Questionnaire } from '../ui/questionnaire.tsx'
 import { PrefsForm } from '../ui/prefs-form.tsx'
@@ -39,7 +39,10 @@ export function StartView() {
   const summaries = Object.values(state.summaries).filter(Boolean) as SourceSummary[]
   const signals = summaries.reduce((s, x) => s + x.dataPoints, 0)
   const q = questionnaireProgress(state.answers)
-  const ready = summaries.length > 0 || q.done >= 18
+  const ready = resultsReady(state.answers, summaries.length)
+  // Data first only when chosen, or when exports are already in.
+  const dataMode = (state.mode ?? (summaries.length ? 'data' : 'standard')) === 'data'
+  const setMode = (mode: 'standard' | 'data') => update((s) => ({ ...s, mode }))
 
   const fail = (id: string, e: unknown) => setErrors((x) => ({ ...x, [id]: t.tr((e as Error).message || t.callback.generic) }))
   const progress = (source: string) => (message: string, count?: number) => setRunning({ source, message: t.tr(message), count })
@@ -126,8 +129,30 @@ export function StartView() {
         </p>
       </div>
 
+      <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-2" role="radiogroup" aria-label={t.start.modeLabel}>
+        {(['standard', 'data'] as const).map((m) => {
+          const on = (m === 'data') === dataMode
+          return (
+            <button
+              key={m}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              onClick={() => setMode(m)}
+              className={`card-sm p-4 text-left transition ${on ? 'on-color -translate-y-0.5' : 'hover:-translate-y-0.5'}`}
+              style={on ? { background: m === 'data' ? 'var(--pink)' : 'var(--sky)' } : undefined}
+            >
+              <span className="font-display text-xl">{t.start.modes[m].title}</span>
+              <span className="mt-1 block text-sm">{t.start.modes[m].text}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {dataMode && (
+        <>
       <section id={r.anchors.sources} className="mt-14 scroll-mt-24">
-        <StepTitle n={1} color="var(--pink)" title={t.start.step1} sub={t.start.step1sub} />
+        <StepTitle n={dataMode ? 1 : 2} color="var(--pink)" title={t.start.step1} sub={t.start.step1sub} />
         <div className="mt-7 grid gap-5 md:grid-cols-2">
           <ExportCard
             title="YouTube & Google"
@@ -213,15 +238,30 @@ export function StartView() {
         />
       </section>
 
-      <section id={r.anchors.questionnaire} className="mt-20 scroll-mt-24">
-        <StepTitle n={2} color="var(--sky)" title={t.start.step2} sub={t.start.step2sub} />
+        </>
+      )}
+
+      <section id={r.anchors.questionnaire} className={`${dataMode ? 'mt-20' : 'mt-14'} scroll-mt-24`}>
+        <StepTitle n={dataMode ? 2 : 1} color="var(--sky)" title={t.start.step2} sub={dataMode ? t.start.step2subData : t.start.step2sub} />
         <div className="mt-7">
           <Questionnaire />
         </div>
       </section>
 
+      {!dataMode && (
+        <p className="card-sm mt-6 flex flex-col gap-3 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <span>
+            <span aria-hidden="true">✨ </span>
+            {t.start.dataHint}
+          </span>
+          <button type="button" onClick={() => setMode('data')} className="btn btn-ghost btn-sm shrink-0">
+            {t.start.dataHintButton}
+          </button>
+        </p>
+      )}
+
       <section id={r.anchors.prefs} className="mt-20 scroll-mt-24">
-        <StepTitle n={3} color="var(--lime)" title={t.start.step3} sub={t.start.step3sub} />
+        <StepTitle n={dataMode ? 3 : 2} color="var(--lime)" title={t.start.step3} sub={t.start.step3sub} />
         <div className="mt-7">
           <PrefsForm />
         </div>

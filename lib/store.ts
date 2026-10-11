@@ -14,6 +14,8 @@ export interface State {
   answers: QuestionnaireAnswers
   prefs: Preferences
   unlock?: { token: string; expiresAt: number }
+  /** How the start page is laid out: the questionnaire alone (standard) or data exports first. */
+  mode?: 'standard' | 'data'
   /** Student link of a school or counselling service this visitor came through. */
   org?: string
   /** Random id of this browser, so an organisation's plan counts one student once a month. */

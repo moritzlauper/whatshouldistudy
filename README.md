@@ -2,8 +2,9 @@
 
 Find what to study from what you actually watch, read and build. The site reads
 thousands of signals from a person's YouTube, Google Takeout, Spotify, Reddit and
-GitHub, adds a short validated questionnaire (RIASEC interests, Mini-IPIP Big
-Five, school subjects, values), matches them to 80 fields of study and then to
+GitHub, adds a short questionnaire built on established models (RIASEC interests
+with six own items per area, optional Mini-IPIP Big Five, school subjects,
+values; not yet validated in a study), matches them to 80 fields of study and then to
 real programmes in Switzerland, Germany, Austria, the US, the UK, France and,
 through research profiles and a university directory, 60+ more countries.
 
