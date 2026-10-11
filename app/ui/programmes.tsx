@@ -110,8 +110,8 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
               🤖 {ai.state === 'loading' ? t.programmes.ai.topLoading(pool.length) : ai.state === 'done' ? t.programmes.ai.topDone(ai.fits.size) : ai.state === 'budget' ? <BudgetNote /> : t.programmes.ai.topFailed}
             </p>
           )}
-          <ol className="grid list-decimal gap-4 pl-6 marker:font-bold marker:text-accent">
-            {best.map((p) => <li key={p.id}><ProgrammeRow p={p} ai={consent ? { token } : undefined} /></li>)}
+          <ol className="grid gap-4">
+            {best.map((p, i) => <li key={p.id}><ProgrammeRow p={p} rank={i + 1} ai={consent ? { token } : undefined} /></li>)}
           </ol>
           {pool.length > shown && (
             <button type="button" onClick={() => setShown(shown < 10 ? 10 : 20)} className="btn btn-ghost btn-sm mt-3">
@@ -578,8 +578,8 @@ function ProgrammeDetails({ p, ai }: { p: RankedProgramme; ai?: { token: string 
   )
 }
 
-/** `ai`: the report is unlocked, so a programme without a description can be checked with AI instead. */
-function ProgrammeRow({ p, ai }: { p: RankedProgramme; ai?: { token: string | null } }) {
+/** `ai`: the report is unlocked, so a programme without a description can be checked with AI instead. `rank`: its place in the top list, shown in the card. */
+function ProgrammeRow({ p, ai, rank }: { p: RankedProgramme; ai?: { token: string | null }; rank?: number }) {
   const { t, locale, intl, site } = useSite()
   const [open, setOpen] = useState(false)
   // Switzerland, Germany and Austria talk about fees per semester.
@@ -596,30 +596,33 @@ function ProgrammeRow({ p, ai }: { p: RankedProgramme; ai?: { token: string | nu
   return (
     <article className="card-sm p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h4 className="font-bold leading-snug">
-            <a href={programmeLink(p)} target="_blank" rel="noreferrer" className="hover:text-accent" title={t.programmes.row.openPage}>
-              {p.name} <span className="text-xs text-muted" aria-hidden="true">↗</span>
-            </a>
-            {p.isNew && <span className="on-color ml-2 rounded-full border-2 border-line bg-lime px-2 py-0.5 text-xs font-bold">{t.programmes.row.isNew}</span>}
-          </h4>
-          <div className="mt-0.5 text-sm text-muted">
-            {p.institutionUrl ? (
-              <a href={p.institutionUrl} target="_blank" rel="noreferrer" className="hover:text-ink">
-                {p.institution}
+        <div className="flex min-w-0 grow items-start gap-3">
+          {rank && <span aria-hidden="true" className="on-color flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-line bg-yellow font-display text-lg">{rank}</span>}
+          <div className="min-w-0">
+            <h4 className="font-bold leading-snug">
+              <a href={programmeLink(p)} target="_blank" rel="noreferrer" className="hover:text-accent" title={t.programmes.row.openPage}>
+                {p.name} <span className="text-xs text-muted" aria-hidden="true">↗</span>
               </a>
-            ) : (
-              p.institution
-            )}
-            {' · '}
-            {flag(p.country)} {[p.city, p.region].filter(Boolean).join(', ') || countryLabel(p.country, intl)}
-          </div>
-          {p.focus && p.focus.length > 0 && (
-            <div className="mt-1.5 text-xs">
-              <span className="text-muted">{t.programmes.details.focus}: </span>
-              <span className="font-semibold">{p.focus.slice(0, 3).join(' · ')}</span>
+              {p.isNew && <span className="on-color ml-2 rounded-full border-2 border-line bg-lime px-2 py-0.5 text-xs font-bold">{t.programmes.row.isNew}</span>}
+            </h4>
+            <div className="mt-0.5 text-sm text-muted">
+              {p.institutionUrl ? (
+                <a href={p.institutionUrl} target="_blank" rel="noreferrer" className="hover:text-ink">
+                  {p.institution}
+                </a>
+              ) : (
+                p.institution
+              )}
+              {' · '}
+              {flag(p.country)} {[p.city, p.region].filter(Boolean).join(', ') || countryLabel(p.country, intl)}
             </div>
-          )}
+            {p.focus && p.focus.length > 0 && (
+              <div className="mt-1.5 text-xs">
+                <span className="text-muted">{t.programmes.details.focus}: </span>
+                <span className="font-semibold">{p.focus.slice(0, 3).join(' · ')}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
