@@ -82,7 +82,9 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const current = reply?.key === key ? reply : null
   const locked = !unlocked || current?.locked
   const pool = current?.data?.items ?? []
-  const ai = useAiTop(pool, token, results, !shared && !current?.data?.sample)
+  const [refresh, setRefresh] = useState(0)
+  const ai = useAiTop(pool, token, results, !shared && !current?.data?.sample, refresh)
+  const left = refreshesLeft()
   // Until the AI is through, the order from the profile alone; then the combined one.
   const best = (ai.state === 'done' ? [...pool].sort((x, y) => combined(y, ai.fits.get(y.id)) - combined(x, ai.fits.get(x.id))) : pool).slice(0, 5)
   return (
@@ -99,9 +101,23 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
         <ResultsContext.Provider value={results}><TopicsContext.Provider value={topicMap}>
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
           {ai.state !== 'off' && (
-            <p className={`mb-3 text-sm ${ai.state === 'loading' ? 'animate-pulse text-muted' : 'text-muted'}`} role="status">
-              🤖 {ai.state === 'loading' ? t.programmes.ai.topLoading(pool.length) : ai.state === 'done' ? t.programmes.ai.topDone(ai.fits.size) : t.programmes.ai.topFailed}
-            </p>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <p className={`max-w-2xl text-sm ${ai.state === 'loading' ? 'animate-pulse text-muted' : 'text-muted'}`} role="status">
+                🤖 {ai.state === 'loading' ? t.programmes.ai.topLoading(pool.length) : ai.state === 'done' ? t.programmes.ai.topDone(ai.fits.size) : t.programmes.ai.topFailed}
+              </p>
+              <button
+                type="button"
+                disabled={ai.state === 'loading' || left.today <= 0}
+                onClick={() => {
+                  countRefresh()
+                  setRefresh((n) => n + 1)
+                }}
+                className="btn btn-primary btn-lg"
+                title={t.programmes.ai.refreshTip(left.today, left.total)}
+              >
+                ↻ {left.today > 0 ? t.programmes.ai.refresh : t.programmes.ai.refreshNone}
+              </button>
+            </div>
           )}
           <ol className="grid list-decimal gap-4 pl-6 marker:font-bold marker:text-accent">
             {best.map((p) => <li key={p.id}><ProgrammeRow p={p} ai={{ token }} /></li>)}
@@ -779,7 +795,6 @@ function Explorer({
         {data?.updated && t.programmes.dataFrom(new Date(data.updated).toLocaleDateString(intl, { dateStyle: 'medium' }))}
         {loading && data && t.programmes.updating}
       </p>
-      {data && data.items.length > 0 && <AiCompare token={token} items={data.items.slice(0, AI_COUNT)} />}
       <div className="mt-3 grid gap-4">
         {data?.items.map((p) => (
           <ProgrammeRow key={p.id} p={p} ai={{ token }} />
@@ -802,7 +817,6 @@ function Explorer({
   )
 }
 
-const AI_COUNT = 5
 
 interface AiFit {
   id: string
@@ -889,19 +903,22 @@ async function fetchFits(token: string | null, items: RankedProgramme[], profile
  * best candidates by profile and rates each; the five best by the combined
  * score are shown. Ratings already made are taken from this browser.
  */
-function useAiTop(pool: RankedProgramme[], token: string | null, results: Results, enabled: boolean) {
+function useAiTop(pool: RankedProgramme[], token: string | null, results: Results, enabled: boolean, refresh: number) {
   const { locale } = useSite()
   const profile = useFitProfile(results)
   const [out, setOut] = useState<{ key: string; state: 'loading' | 'done' | 'failed'; fits: Map<string, AiFit> } | null>(null)
   const ids = pool.map((p) => p.id).join(',')
-  const key = `${ids}|${aiKey('', locale, results)}`
+  const key = `${ids}|${aiKey('', locale, results)}|${refresh}`
   useEffect(() => {
     if (!enabled || !pool.length) return
     let live = true
     const fits = new Map<string, AiFit>()
-    for (const p of pool) {
-      const f = aiCacheMap().get(aiKey(p.id, locale, results))
-      if (f) fits.set(p.id, f)
+    // «Aktualisieren» reads every page again; otherwise ratings already made are reused.
+    if (!refresh) {
+      for (const p of pool) {
+        const f = aiCacheMap().get(aiKey(p.id, locale, results))
+        if (f) fits.set(p.id, f)
+      }
     }
     const missing = pool.filter((p) => !fits.has(p.id))
     if (!missing.length) {
@@ -924,6 +941,34 @@ function useAiTop(pool: RankedProgramme[], token: string | null, results: Result
   }, [key, enabled, token])
   const current = out?.key === key ? out : null
   return { state: !enabled || !pool.length ? ('off' as const) : (current?.state ?? 'loading'), fits: current?.fits ?? new Map<string, AiFit>() }
+}
+
+/** «Aktualisieren» is limited: 5 a day and 20 in all, counted in this browser (the server has its own cap). */
+const REFRESH_STORE = 'wsis:ai-refresh:v1'
+const REFRESH_PER_DAY = 5
+const REFRESH_IN_ALL = 20
+function readRefresh(): { day: string; today: number; total: number } {
+  const day = new Date().toISOString().slice(0, 10)
+  try {
+    const x = JSON.parse(window.localStorage.getItem(REFRESH_STORE) ?? '') as { day: string; today: number; total: number }
+    return { day, today: x.day === day ? x.today : 0, total: x.total || 0 }
+  } catch {
+    return { day, today: 0, total: 0 }
+  }
+}
+function refreshesLeft(): { today: number; total: number } {
+  if (typeof window === 'undefined') return { today: REFRESH_PER_DAY, total: REFRESH_IN_ALL }
+  const r = readRefresh()
+  const total = Math.max(0, REFRESH_IN_ALL - r.total)
+  return { today: Math.min(total, Math.max(0, REFRESH_PER_DAY - r.today)), total }
+}
+function countRefresh() {
+  const r = readRefresh()
+  try {
+    window.localStorage.setItem(REFRESH_STORE, JSON.stringify({ day: r.day, today: r.today + 1, total: r.total + 1 }))
+  } catch {
+    // Not counted beyond this page view.
+  }
 }
 
 /** Candidates the AI reads for the top five, in batches the endpoint takes at once. */
