@@ -19,7 +19,8 @@ import { TYPE_LABEL, TYPE_STYLE, admissionText, typeLabel, typeShort } from '@/l
 import type { InstType } from '@/lib/institutions.ts'
 import { withBase } from '@/lib/site.ts'
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
-import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel } from '@/lib/site/labels.ts'
+import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
+import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
 import { Price, useConfig } from './price.tsx'
 import type { Config } from './price.tsx'
 import { useSite } from './site-context.tsx'
@@ -698,6 +699,7 @@ function Explorer({
         {data?.updated && t.programmes.dataFrom(new Date(data.updated).toLocaleDateString(intl, { dateStyle: 'medium' }))}
         {loading && data && t.programmes.updating}
       </p>
+      {data && data.items.length > 0 && <AiCompare token={token} items={data.items.slice(0, AI_COUNT)} />}
       <div className="mt-3 grid gap-4">
         {data?.items.map((p) => (
           <ProgrammeRow key={p.id} p={p} />
@@ -717,6 +719,116 @@ function Explorer({
         </div>
       )}
     </div>
+  )
+}
+
+const AI_COUNT = 5
+
+interface AiFit {
+  id: string
+  fit: number
+  reasons: string[]
+  check: string
+  thin: boolean
+}
+
+/**
+ * Part of the paid report: Claude compares the first few programmes in the
+ * list with your profile, reading their official pages. Only on request, and
+ * only the profile (never data exports) leaves the browser.
+ */
+function AiCompare({ token, items }: { token: string | null; items: RankedProgramme[] }) {
+  const { t, locale } = useSite()
+  const results = useContext(ResultsContext)
+  const { answers } = useAppState()
+  const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle')
+  const [fits, setFits] = useState<{ key: string; items: AiFit[] } | null>(null)
+  const key = items.map((p) => p.id).join(',')
+  const a = t.programmes.ai
+
+  async function run() {
+    setState('loading')
+    const fromQuestionnaire = results?.big5?.from.includes('questionnaire')
+    const profile = {
+      riasec: results?.riasec.code ? { code: results.riasec.code, profile: results.riasec.profile } : undefined,
+      big5: fromQuestionnaire ? results!.big5!.z : undefined,
+      subjects: Object.entries(answers.subjects ?? {}).filter(([, v]) => (v?.enjoy ?? 0) >= 4).map(([k]) => subjectLabel(k as SubjectKey, locale)),
+      values: Object.entries(answers.values ?? {}).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => valueLabel(k as ValueKey, locale)),
+      fields: results?.fields.slice(0, 5).map((f) => fieldName(f.id, locale)),
+    }
+    try {
+      const res = await fetch(withBase('/api/programme-fit'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ programmes: items.map((p) => ({ id: p.id, field: p.matchedField, country: p.country })), profile, locale }),
+      })
+      if (!res.ok) throw new Error(String(res.status))
+      const j = (await res.json()) as { items: AiFit[] }
+      setFits({ key, items: j.items })
+      setState('idle')
+    } catch {
+      setState('error')
+    }
+  }
+
+  const byId = new Map(items.map((p) => [p.id, p]))
+  const shown = fits?.key === key ? fits.items : null
+  return (
+    <section className="card mt-5 p-5 sm:p-6">
+      <h3 className="font-display text-2xl">🤖 {a.title}</h3>
+      {!shown && (
+        <>
+          <p className="mt-2 text-sm text-muted">{a.text(items.length)}</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button type="button" onClick={run} disabled={state === 'loading'} className="btn btn-primary btn-sm">
+              {state === 'loading' ? a.loading : a.button}
+            </button>
+            <span className="text-xs text-muted">{a.consent}</span>
+          </div>
+          {state === 'error' && <p className="mt-3 text-sm font-semibold text-bad">{a.error}</p>}
+        </>
+      )}
+      {shown && (
+        <>
+          <ol className="mt-4 grid gap-4">
+            {shown.map((f) => {
+              const p = byId.get(f.id)
+              if (!p) return null
+              return (
+                <li key={f.id} className="border-t-2 border-soft-line pt-4 first:border-0 first:pt-0">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span className="font-bold">
+                      {p.name} <span className="font-normal text-muted">· {p.institution}</span>
+                    </span>
+                    <span className="chip text-xs" title={`${f.fit}/5`}>
+                      {'●'.repeat(f.fit)}
+                      <span className="opacity-30">{'●'.repeat(5 - f.fit)}</span> {a.fit(f.fit)}
+                    </span>
+                  </div>
+                  <ul className="mt-2 list-disc pl-5 text-sm">
+                    {f.reasons.map((r) => (
+                      <li key={r}>{r}</li>
+                    ))}
+                  </ul>
+                  {f.check && (
+                    <p className="mt-1 text-sm text-muted">
+                      <strong>{a.check}</strong> {f.check}
+                    </p>
+                  )}
+                  {f.thin && <p className="mt-1 text-xs text-muted">{a.thin}</p>}
+                </li>
+              )
+            })}
+          </ol>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-muted">{a.note}</p>
+            <button type="button" onClick={run} disabled={state === 'loading'} className="btn btn-ghost btn-sm">
+              {state === 'loading' ? a.loading : a.again}
+            </button>
+          </div>
+        </>
+      )}
+    </section>
   )
 }
 
