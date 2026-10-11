@@ -31,6 +31,8 @@ function trim(x: unknown, depth = 0): unknown {
 export function ReviewPanel({ results, answers, prefs, summaries }: { results: Results; answers: QuestionnaireAnswers; prefs: Preferences; summaries: SourceSummary[] }) {
   const [key, setKey] = useState<string | null>(null)
   const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle')
+  // What the person sees while waiting: sent, connected (first keep-alive), writing.
+  const [phase, setPhase] = useState('')
   const [review, setReview] = useState<string | null>(null)
   const [error, setError] = useState('')
 
@@ -52,6 +54,7 @@ export function ReviewPanel({ results, answers, prefs, summaries }: { results: R
   async function run() {
     setState('loading')
     setReview(null)
+    setPhase('Wird gesendet …')
     try {
       const res = await fetch(withBase('/api/review'), {
         method: 'POST',
@@ -65,6 +68,7 @@ export function ReviewPanel({ results, answers, prefs, summaries }: { results: R
         throw new Error(j.error ?? `HTTP ${res.status}`)
       }
       // The answer streams in; NUL bytes are only keep-alives.
+      setPhase('Verbunden, Claude liest dein Resultat …')
       const reader = res.body.getReader()
       const dec = new TextDecoder()
       let text = ''
@@ -92,6 +96,7 @@ export function ReviewPanel({ results, answers, prefs, summaries }: { results: R
         </button>
       </div>
       <p className="mt-1 text-xs text-muted">Claude prüft, ob dein Resultat stimmig ist. Dafür schicken wir dein anonymes Profil, die Zusammenfassungen deiner Uploads (keine Verläufe), die Rangliste und die Top-Studiengänge an Anthropic. Gespeichert wird nichts.</p>
+      {state === 'loading' && !review && <p className="mt-2 animate-pulse text-muted">{phase}</p>}
       {state === 'error' && <p className="mt-2 font-semibold text-bad">{error}</p>}
       {review && <div className="mt-3 whitespace-pre-wrap break-words rounded-xl bg-surface-2 p-3">{review}</div>}
     </section>

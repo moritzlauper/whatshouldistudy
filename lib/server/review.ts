@@ -70,16 +70,13 @@ export function reviewStream(input: unknown): ReadableStream<Uint8Array> {
       const beat = setInterval(() => controller.enqueue(enc.encode('\u0000')), 5000)
       controller.enqueue(enc.encode('\u0000'))
       try {
-        const client = new Anthropic({ timeout: 240_000, maxRetries: 0 })
-        const stream = client.beta.messages.stream({
-          model: 'claude-opus-5-5',
+        const client = new Anthropic({ timeout: 120_000, maxRetries: 0 })
+        const stream = client.messages.stream({
+          // The cheapest current model, like the other AI parts: fast enough
+          // that the answer arrives in well under a minute.
+          model: 'claude-haiku-5-5',
           max_tokens: 6000,
-          thinking: { type: 'adaptive' },
-          // Low effort: a review of one result, not a research task; keeps it under a minute.
-          output_config: { effort: 'low' },
-          // A safety decline is re-run on a fallback model instead of failing.
-          betas: ['server-side-fallback-2026-07-01'],
-          fallbacks: 'default',
+          output_config: { effort: 'medium' },
           system: SYSTEM,
           messages: [{ role: 'user', content: `Result to review (JSON):\n\n${JSON.stringify(input)}` }],
         })
