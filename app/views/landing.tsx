@@ -42,8 +42,8 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
         <Burst className="spin-slow absolute -right-6 top-10 hidden md:block" size={130} color="var(--yellow)" />
         <Ring className="float absolute -left-6 bottom-16 hidden md:block" size={86} color="var(--sky)" style={{ ['--r' as string]: '0deg' }} />
         <Sparkle className="float-slow absolute left-[46%] top-8 hidden lg:block" size={44} color="var(--pink)" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pb-20 pt-12 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:pt-20">
-          <div>
+        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 px-4 pb-20 pt-12 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pt-20">
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
               <p className="sticker" style={{ background: 'var(--lime)' }}>
                 <span aria-hidden="true">✦</span> {t.landing.badge}

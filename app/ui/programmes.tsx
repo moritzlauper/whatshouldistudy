@@ -198,7 +198,7 @@ function Locked({ teaser, config, results, hideFirst, onUnlocked }: { teaser: Te
   }
 
   return (
-    <div className="mt-8 grid gap-7 lg:grid-cols-[1.3fr_1fr]">
+    <div className="mt-8 grid grid-cols-1 gap-7 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
       <div>
         {teaser ? (
           <>

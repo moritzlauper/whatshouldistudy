@@ -94,7 +94,20 @@ body {
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  /* clip, not hidden: hidden still lets phones pan sideways when something sticks out. */
+  overflow-x: clip;
+}
+
+html {
+  overflow-x: clip;
+}
+
+/* A grid item never makes its column wider than the grid: on phones long
+   names and chip rows wrap instead of pushing cards past the screen edge. */
+@layer base {
+  .grid > * {
+    min-width: 0;
+  }
 }
 
 ::selection {
