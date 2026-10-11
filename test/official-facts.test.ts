@@ -19,6 +19,7 @@ test('facts from an official page: robots.txt, page text and only what the page 
     assert.equal(sameSite('https://www.ox.ac.uk/a', 'https://www.cam.ac.uk'), false);
     const text = pageText('<nav>Menü Informatik</nav><h1>Master Psychologie</h1><p>Wählen Sie eine der Vertiefungen Klinische Psychologie, Neuro&shy;psychologie oder Arbeitspsychologie.</p><p>Das Studium ist auch in Teilzeit möglich.</p><script>var x=1</script>');
     assert.ok(!text.includes('Menü') && !text.includes('var x'));
+    assert.equal(pageText('<li>Exoplan&eacute;tologie</li><li>Des &eacute;toiles &agrave; l&rsquo;Univers</li><li>Fran&#xE7;ais</li>'), 'Exoplanétologie\\nDes étoiles à l’Univers\\nFrançais');
     const f = verified({
       specialisations: ['Klinische Psychologie', 'Arbeitspsychologie', 'Sozialpsychologie'],
       free_choice: { value: true, quote: 'frei wählbar' },
@@ -28,6 +29,9 @@ test('facts from an official page: robots.txt, page text and only what the page 
       internship: { value: false, quote: '' },
       degree: 'Master of Science UZH in Psychologie',
     }, text);
+    const free = verified({ specialisations: [], free_choice: { value: true, quote: 'ein Masterstudium mit individuellem Studienprofil, ausgerichtet auf Berufszielen' }, part_time: { value: true, quote: 'nur drei Wörter' }, start_autumn: { value: false, quote: '' }, start_spring: { value: false, quote: '' }, internship: { value: false, quote: '' }, degree: '' }, 'Sie wählen ein Masterstudium mit individuellem Studienprofil, ausgerichtet auf Berufsziele.');
+    assert.equal(free.freeChoice, true);
+    assert.equal(free.partTime, false);
     // Names and quotes not on the page are dropped; a list of names rules out «no fixed specialisations».
     assert.deepEqual(f, { specialisations: ['Klinische Psychologie', 'Arbeitspsychologie'], freeChoice: false, partTime: true, start: [], internship: false, degree: undefined });
   `], { cwd: process.cwd(), encoding: 'utf8' })

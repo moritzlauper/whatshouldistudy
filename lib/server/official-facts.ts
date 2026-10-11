@@ -40,10 +40,10 @@ const SCHEMA = {
 const SYSTEM = `You read the official web page of one university degree programme and fill in a fixed form with facts the page states explicitly about this programme. Never guess, never infer from what is usual, and never use outside knowledge.
 
 - specialisations: the names of the programme's specialisations, majors, profiles, tracks or focus areas (German pages: Vertiefungen, Schwerpunkte, Profile, Majors, Studienrichtungen), copied exactly as written on the page, names only, no descriptions. Leave out minors offered to other programmes, single modules and courses, and links to other programmes. Empty if the page lists none.
-- free_choice: true only if the page says there are no fixed specialisations and students put together their own focus from the modules.
+- free_choice: true only if the page says students put together their own focus or individual profile from the modules instead of choosing one of fixed specialisations (e.g. "individuelles Studienprofil", "freie Modulwahl").
 - part_time: true only if the page says the programme can be studied part-time.
 - start_autumn / start_spring: true only if the page says the programme can be started in the autumn (Herbstsemester, September) / spring (Frühjahrssemester, February) semester.
-- internship: true only if the page says an internship or practical semester is part of the programme.
+- internship: true only if the page says an internship or practical semester is a required part of the regular programme. An optional internship, or a separate work-integrated variant of the programme, does not count.
 - degree: the exact degree title as written on the page (e.g. "Master of Science UZH in Psychologie"), or "" if the page does not name one.
 
 For every true value, quote: a short passage of 3 to 12 words copied character for character from the page that states it. For every false value, quote: "".`

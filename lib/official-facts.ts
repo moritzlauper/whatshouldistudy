@@ -62,17 +62,26 @@ export function robotsAllow(robots: string, url: string): boolean {
   return best ? best[0] : true
 }
 
+// Named entities on university pages: accents of German, French and Italian, and punctuation.
+const ENTITIES: Record<string, string> = {
+  nbsp: ' ', amp: '&', quot: '"', apos: "'", lt: '<', gt: '>', shy: '', rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“', laquo: '«', raquo: '»', ndash: '–', mdash: '—', hellip: '…', middot: '·', bull: '•',
+  ...Object.fromEntries(
+    [...'aeiouAEIOU'].flatMap((v) => [
+      [`${v}acute`, `${v}\u0301`], [`${v}grave`, `${v}\u0300`], [`${v}circ`, `${v}\u0302`], [`${v}uml`, `${v}\u0308`],
+    ]).map(([k, x]) => [k, x.normalize('NFC')]),
+  ),
+  ccedil: 'ç', Ccedil: 'Ç', szlig: 'ß', ntilde: 'ñ', oelig: 'œ', aelig: 'æ', yuml: 'ÿ',
+}
+
 /** The visible text of a page, without scripts, navigation and footer. */
 export function pageText(html: string): string {
   return html
     .replace(/<(script|style|noscript|svg|nav|header|footer|form)\b[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<\/(p|div|li|h[1-6]|tr|dd|dt|section|br)>|<br\s*\/?>/gi, '\n')
     .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;|&rsquo;/g, '’')
+    .replace(/&#x([0-9a-f]+);/gi, (_, n: string) => String.fromCodePoint(parseInt(n, 16)))
     .replace(/&#(\d+);/g, (_, n: string) => String.fromCodePoint(Number(n)))
+    .replace(/&([a-z]+);/gi, (m, name: string) => ENTITIES[name] ?? m)
     .normalize('NFC')
     .replace(/[ \t]+/g, ' ')
     .replace(/\s*\n\s*/g, '\n')
@@ -97,7 +106,16 @@ export interface Raw {
 export function verified(raw: Raw, text: string): OfficialFacts {
   const page = norm(text)
   const on = (s: string) => s.trim().length > 0 && page.includes(norm(s))
-  const yes = (c: { value: boolean; quote: string }) => c.value && c.quote.split(/\s+/).length >= 3 && on(c.quote)
+  // A quote may end in a slightly different form of the page's last word or two (Berufszielen for Berufsziele);
+  // the first words must still match the page word for word.
+  const quoted = (q: string) => {
+    const words = q.trim().split(/\s+/)
+    if (words.length < 3) return false
+    if (on(q)) return true
+    for (let n = words.length - 1; n >= Math.max(4, words.length - 2); n--) if (on(words.slice(0, n).join(' '))) return true
+    return false
+  }
+  const yes = (c: { value: boolean; quote: string }) => c.value && quoted(c.quote)
   const specialisations = [...new Set(raw.specialisations.map((s) => s.trim()))].filter((s) => s.length > 1 && s.length <= 80 && s.split(/\s+/).length <= 8 && on(s)).slice(0, 15)
   const start: OfficialFacts['start'] = []
   if (yes(raw.start_autumn)) start.push('autumn')
