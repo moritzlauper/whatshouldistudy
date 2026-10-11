@@ -93,6 +93,8 @@ test('engineering footprint ranks engineering and space fields on top', () => {
   const aero = r.fields.find((f) => f.id === 'aerospace-engineering')!
   assert.ok(aero.evidence.some((e) => e.label.endsWith('· Everyday Astronaut')))
   assert.ok((aero.persistence ?? 0) > 0.8)
+  // A large history alone is a solid result, not a rough sketch; «high» needs the questionnaire.
+  assert.equal(r.confidence, 'medium')
 })
 
 test('people footprint ranks psychology on top and keeps entertainment out', () => {

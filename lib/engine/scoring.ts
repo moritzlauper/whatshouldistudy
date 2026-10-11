@@ -494,14 +494,17 @@ export function score(input: ScoreInput): Results {
     .map((x) => ({ ...x.m, reasons: [{ k: 'hidden' } as Reason, ...x.m.reasons] }))
 
   const dataPoints = summaries.reduce((s, x) => s + x.dataPoints, 0)
-  // Confidence rests on the questionnaire: how complete and how clear it is. Data alone stay an exploration.
+  // With the questionnaire, confidence rests on how complete and how clear it is.
+  // Data alone can carry a solid result when there is plenty of it; «high» needs the questionnaire.
   const isCareless = careless(answers)
   const flat = !!shape?.flat
-  const confidence: Results['confidence'] = !questionnaireLed || flat || isCareless
-    ? 'low'
-    : riasecCompleteness(answers) >= 0.9 && hasSubjects && hasValues
-      ? 'high'
-      : 'medium'
+  const confidence: Results['confidence'] = !questionnaireLed
+    ? footprintConf >= 0.6 ? 'medium' : 'low'
+    : flat || isCareless
+      ? 'low'
+      : riasecCompleteness(answers) >= 0.9 && hasSubjects && hasValues
+        ? 'high'
+        : 'medium'
   const topTie = sorted.length > 1 && sorted[0].match - sorted[1].match < TIE
 
   return {
