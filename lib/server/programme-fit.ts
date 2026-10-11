@@ -3,50 +3,35 @@ import Anthropic from '@anthropic-ai/sdk'
 import { pageText, robotsAllow, sameSite } from '../official-facts.ts'
 import { findProgramme } from './programme.ts'
 import { aiAllowed, aiSpend } from './ai-budget.ts'
+import { redis } from './usage.ts'
+import { RIASEC_KEYS, SUBJECT_KEYS } from '../taxonomy/fields.ts'
+import { toFacts, type ProgrammeFacts } from '../engine/programme-fit.ts'
 import type { Locale } from '../site/config.ts'
 
 /**
- * The paid AI comparison: a person's profile against a few programmes they
- * picked, each read from its official page at that moment. The answer is a
- * new, personal assessment ("fits you because its neuropsychology track
- * matches your investigative profile"), not a copy of the page: nothing of the
- * page is shown, and nothing is stored or published.
+ * What Claude reads about degree programmes: the official page and the focus
+ * areas listed for each programme. No person is part of this. The comparison
+ * with someone's answers happens in their browser (lib/engine/programme-fit.ts),
+ * so nothing about the person goes to the AI. A reading is kept for a week per
+ * programme and language, so a popular programme is read once, not per visitor.
  */
 
-export interface FitProfile {
-  /** Holland code and the six values in 0..1, R I A S E C. */
-  riasec?: { code: string; profile: number[] }
-  /** Big Five z-scores, when the personality part was answered. */
-  big5?: Record<string, number>
-  /** Labels in the page's language: liked subjects, important priorities, best fields. */
-  subjects?: string[]
-  values?: string[]
-  fields?: string[]
-}
-
-export interface FitRequest {
+export interface FactsRequest {
   programmes: Array<{ id: string; field: string; country: string }>
-  profile: FitProfile
   locale: Locale
-}
-
-export interface ProgrammeFit {
-  id: string
-  /** 1 (little in common) .. 5 (very close). */
-  fit: number
-  /** 0..100, finer than `fit`, so programmes in the same field come apart. */
-  score: number
-  reasons: string[]
-  /** What to look into before deciding. */
-  check: string
-  /** The official page could not be read or says too little; the rating is a neutral 3. */
-  thin: boolean
+  /** Read the pages again instead of using what is kept. */
+  refresh?: boolean
 }
 
 export const MAX_PROGRAMMES = 5
 const UA = 'Mozilla/5.0 (compatible; wasstudieren-bot/1.0; +https://wasstudieren.ch)'
 // Per programme: enough for its structure and specialisations, not for a whole site.
 const MAX_CHARS = 7000
+const KEEP_SECONDS = 7 * 86400
+const keepKey = (id: string, locale: string) => `wsis:facts:v1:${locale}:${id}`
+/** Claude Haiku 5.5 list prices, in millionths of a dollar per token (prompts under 100K tokens). */
+const MICRO_USD_IN = 0.1
+const MICRO_USD_OUT = 0.5
 
 const LANGUAGE: Record<Locale, string> = {
   en: 'English',
@@ -66,13 +51,17 @@ const SCHEMA = {
         type: 'object',
         properties: {
           id: { type: 'string' },
-          fit: { type: 'integer' },
-          score: { type: 'integer' },
-          reasons: { type: 'array', items: { type: 'string' } },
+          riasec: {
+            type: 'object',
+            properties: Object.fromEntries(RIASEC_KEYS.map((k) => [k, { type: 'integer' }])),
+            required: [...RIASEC_KEYS],
+            additionalProperties: false,
+          },
+          subjects: { type: 'array', items: { type: 'string', enum: [...SUBJECT_KEYS] } },
           check: { type: 'string' },
           enough_info: { type: 'boolean' },
         },
-        required: ['id', 'fit', 'score', 'reasons', 'check', 'enough_info'],
+        required: ['id', 'riasec', 'subjects', 'check', 'enough_info'],
         additionalProperties: false,
       },
     },
@@ -81,19 +70,15 @@ const SCHEMA = {
   additionalProperties: false,
 }
 
-const system = (locale: Locale) => `You help a school leaver compare a few specific degree programmes with their own profile from a study-choice questionnaire.
+const system = (locale: Locale) => `You describe degree programmes for a study-choice website, so that a school leaver can compare them. For each programme you get its name, institution, level, the focus areas listed for it and the text of its official web page (or "could not be read"). You know nothing about any person, and you must not guess one.
 
-For each programme you get its name, institution, level, listed focus areas and the text of its official web page (or nothing, when the page could not be read). Rate how well that specific programme fits this person, 1 (little in common) to 5 (very close), and explain why in terms of what is particular to this programme: its specialisations, tracks, typical modules, teaching approach or practical parts, related to the person's interests, subjects, priorities and, if given, personality. Compare the programmes with each other: two programmes in the same field should differ in their rating when their content differs.
+For each programme give:
+- "riasec": six integers from 0 to 5, in the order R, I, A, S, E, C, for how strongly the programme's typical study and later work involves that kind of activity. R: practical, technical, hands-on, tools, lab or field work. I: research, analysis, theory, science, solving problems by reasoning. A: design, creative expression, language and media, music, art. S: teaching, helping, care, counselling, working with people. E: leading, persuading, starting projects, business, politics, sales. C: structured data, precision, documentation, administration, systems and rules. Judge the content, not the prestige. A programme that is clearly one thing scores high on that type and low on the others.
+- "subjects": the school subjects from this list that the programme clearly relies on, the most important first; an empty list if none is clearly needed: ${SUBJECT_KEYS.join(', ')}. Use only these keys.
+- "check": one sentence in ${LANGUAGE[locale]} on what the person should look into before deciding, for example admission requirements, the language of teaching, how much maths, or whether a track is really offered.
+- "enough_info": false when the page and the focus areas say too little about the content to judge. Then give 0 for every type and an empty list of subjects.
 
-Also give "score", 0 to 100: the same judgement on a finer scale, consistent with "fit" (1 ≈ 0–20, 2 ≈ 20–40, 3 ≈ 40–60, 4 ≈ 60–80, 5 ≈ 80–100). Use the whole range within the band; two programmes should get the same score only if you really cannot tell them apart.
-
-Rules:
-- Base every statement about a programme on its page text or listed focus areas. "enough_info" is false when the page and focus areas say too little about the programme's content to judge it; then rate it 3, never lower for lack of information, and say in "check" what to find out.
-- Write in your own words. Never copy sentences from the page; names of specialisations or modules may be mentioned.
-- 2 or 3 short reasons per programme, each one sentence, addressed to the person as «du»/«you» in the language below.
-- "check": one sentence on what the person should look into before deciding (e.g. admission, language, how much maths, whether a track is really offered).
-- The profile is a rough self-description, not a diagnosis. No statements about mental health.
-- Write in ${LANGUAGE[locale]}.`
+Rules: base every statement on the page text or the listed focus areas. Write "check" in your own words and never copy sentences from the page.`
 
 async function officialText(url: string | undefined, institutionUrl: string | undefined): Promise<string | null> {
   if (!url || !institutionUrl || !sameSite(url, institutionUrl)) return null
@@ -103,7 +88,7 @@ async function officialText(url: string | undefined, institutionUrl: string | un
       .then((r) => (r.ok ? r.text() : ''))
       .catch(() => '')
     if (!robotsAllow(robots, url)) return null
-    // Kept by Next's fetch cache for a week, so a page popular with several people is read once.
+    // Kept by Next's fetch cache for a day, so a page popular with several people is read once.
     const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'de-CH,de;q=0.9,fr;q=0.8,en;q=0.7' }, signal: AbortSignal.timeout(10_000), next: { revalidate: 86400 } })
     if (!res.ok) return null
     const text = pageText(await res.text()).slice(0, MAX_CHARS)
@@ -113,17 +98,43 @@ async function officialText(url: string | undefined, institutionUrl: string | un
   }
 }
 
-const clip = (s: unknown, n: number) => (typeof s === 'string' ? s.trim().slice(0, n) : '')
+async function readKept(id: string, locale: Locale): Promise<ProgrammeFacts | null> {
+  try {
+    const raw = await redis(['GET', keepKey(id, locale)])
+    return typeof raw === 'string' ? (JSON.parse(raw) as ProgrammeFacts) : null
+  } catch {
+    return null
+  }
+}
 
-/** Claude Haiku 5.5 list prices, in millionths of a dollar per token (prompts under 100K tokens). */
-const MICRO_USD_IN = 0.1
-const MICRO_USD_OUT = 0.5
+async function keep(f: ProgrammeFacts, locale: Locale): Promise<void> {
+  try {
+    await redis(['SET', keepKey(f.id, locale), JSON.stringify(f), 'EX', KEEP_SECONDS])
+  } catch {
+    // Not kept: the next visitor reads the page again.
+  }
+}
 
-/** The comparison and what it cost, or null when it can't be made (no key, nothing found, the model failed). */
-export async function compareProgrammes(req: FitRequest): Promise<{ fits: ProgrammeFit[]; costMicroUsd: number } | null> {
-  if (!process.env.ANTHROPIC_API_KEY || !(await aiAllowed('fit'))) return null
-  const found = (await Promise.all(req.programmes.slice(0, MAX_PROGRAMMES).map((x) => findProgramme(x.country, x.field, x.id)))).flatMap((f) => (f ? [f.p] : []))
-  if (!found.length) return null
+/** What Claude read about the programmes asked for, in their order, and what the new reading cost. */
+export async function programmeFacts(req: FactsRequest): Promise<{ items: ProgrammeFacts[]; costMicroUsd: number } | null> {
+  const wanted = req.programmes.slice(0, MAX_PROGRAMMES)
+  const known = new Map<string, ProgrammeFacts>()
+  if (!req.refresh) {
+    const kept = await Promise.all(wanted.map((x) => readKept(x.id, req.locale)))
+    kept.forEach((f, i) => {
+      if (f) known.set(wanted[i].id, f)
+    })
+  }
+  const inOrder = () => wanted.flatMap((x) => {
+    const f = known.get(x.id)
+    return f ? [f] : []
+  })
+  const missing = wanted.filter((x) => !known.has(x.id))
+  if (!missing.length) return { items: inOrder(), costMicroUsd: 0 }
+  // Without a key, or with the day's budget used up, only what is kept can be shown.
+  if (!process.env.ANTHROPIC_API_KEY || !(await aiAllowed('fit'))) return known.size ? { items: inOrder(), costMicroUsd: 0 } : null
+  const found = (await Promise.all(missing.map((x) => findProgramme(x.country, x.field, x.id)))).flatMap((f) => (f ? [f.p] : []))
+  if (!found.length) return known.size ? { items: inOrder(), costMicroUsd: 0 } : null
   const pages = await Promise.all(found.map((p) => officialText(p.url, p.institutionUrl)))
 
   const blocks = found.map((p, i) =>
@@ -140,47 +151,30 @@ export async function compareProgrammes(req: FitRequest): Promise<{ fits: Progra
       .filter(Boolean)
       .join('\n'),
   )
-  const pr = req.profile
-  const profile = [
-    pr.riasec ? `Interest profile (Holland/RIASEC, 0..1, R I A S E C): ${pr.riasec.profile.map((x) => x.toFixed(2)).join(' ')}; code ${pr.riasec.code}` : '',
-    pr.big5 ? `Big Five (z-scores): ${Object.entries(pr.big5).map(([k, v]) => `${k} ${v.toFixed(1)}`).join(', ')}` : '',
-    pr.subjects?.length ? `Liked school subjects: ${pr.subjects.join(', ')}` : '',
-    pr.values?.length ? `Important at work: ${pr.values.join(', ')}` : '',
-    pr.fields?.length ? `Best-fitting fields overall: ${pr.fields.join(', ')}` : '',
-  ]
-    .filter(Boolean)
-    .join('\n')
-
   try {
     const client = new Anthropic()
     const response = await client.messages.create({
-      // The cheapest current model: comparing a handful of pages needs no more.
+      // The cheapest current model: describing a handful of pages needs no more.
       model: 'claude-haiku-5-5',
       max_tokens: 4000,
       output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
       system: system(req.locale),
-      messages: [{ role: 'user', content: `Person's profile:\n${profile}\n\nProgrammes:\n${blocks.join('\n\n')}` }],
+      messages: [{ role: 'user', content: `Programmes:\n${blocks.join('\n\n')}` }],
     })
     await aiSpend('fit', 'claude-haiku-5-5', response.usage)
     if (response.stop_reason !== 'end_turn') throw new Error(`stopped: ${response.stop_reason}`)
-    const out = JSON.parse(response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('')) as { programmes: Array<Partial<ProgrammeFit> & { enough_info?: boolean }> }
-    const ids = new Map(found.map((p, i) => [p.id, i]))
+    const out = JSON.parse(response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('')) as { programmes?: unknown[] }
+    const allowed = new Set(found.map((p) => p.id))
+    for (const raw of out.programmes ?? []) {
+      const f = toFacts(raw, allowed)
+      if (!f) continue
+      known.set(f.id, f)
+      await keep(f, req.locale)
+    }
     const costMicroUsd = Math.ceil(response.usage.input_tokens * MICRO_USD_IN + response.usage.output_tokens * MICRO_USD_OUT)
-    const fits = out.programmes
-      .filter((x) => typeof x.id === 'string' && ids.has(x.id))
-      .map((x) => ({
-        id: x.id!,
-        // Too little to go on is no reason to rank a programme low.
-        fit: x.enough_info === false ? 3 : Math.max(1, Math.min(5, Math.round(Number(x.fit) || 1))),
-        score: x.enough_info === false ? 50 : Math.max(0, Math.min(100, Math.round(Number(x.score) || ((Number(x.fit) || 1) - 1) * 25))),
-        reasons: (Array.isArray(x.reasons) ? x.reasons : []).map((r) => clip(r, 300)).filter(Boolean).slice(0, 3),
-        check: clip(x.check, 300),
-        thin: !pages[ids.get(x.id!)!] || x.enough_info === false,
-      }))
-      .sort((a, b) => b.fit - a.fit)
-    return { fits, costMicroUsd }
+    return { items: inOrder(), costMicroUsd }
   } catch (e) {
-    console.error(`programme fit: ${(e as Error).message}`)
-    return null
+    console.error(`programme facts: ${(e as Error).message}`)
+    return known.size ? { items: inOrder(), costMicroUsd: 0 } : null
   }
 }

@@ -20,8 +20,6 @@ export interface State {
   org?: string
   /** Random id of this browser, so an organisation's plan counts one student once a month. */
   student?: string
-  /** Consent to the AI rating of programmes (profile sent to an AI): only when set. */
-  aiConsent?: { at: string }
 }
 
 export const DEFAULT_PREFS: Preferences = {

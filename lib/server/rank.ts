@@ -5,6 +5,7 @@ import type { Preferences } from '../engine/types.ts'
 import type { Level, Programme } from '../programmes.ts'
 import { FIELD_BY_ID } from '../taxonomy/fields.ts'
 import { getMeta, getShard } from './data.ts'
+import { cityMatches } from '../city-search.ts'
 
 export interface RankRequest {
   /** The person's top fields with their 0..100 match. */
@@ -14,6 +15,8 @@ export interface RankRequest {
   level?: Level | 'any'
   sort?: 'match' | 'cost' | 'earnings' | 'new'
   q?: string
+  /** Part of a city's name, accents and case ignored. */
+  city?: string
   page?: number
   pageSize?: number
   /** Your topics (lexicon keys) with 0..1 weights; no titles, nothing else. */
@@ -107,6 +110,7 @@ export function sanitizeRequest(body: unknown): RankRequest | null {
     level: typeof b.level === 'string' ? (b.level as Level | 'any') : undefined,
     sort: (['match', 'cost', 'earnings', 'new'] as const).includes(b.sort as never) ? (b.sort as RankRequest['sort']) : 'match',
     q: typeof b.q === 'string' ? b.q.slice(0, 80) : undefined,
+    city: typeof b.city === 'string' && b.city.trim() ? b.city.trim().slice(0, 60) : undefined,
     page: Math.max(0, Math.floor(Number(b.page) || 0)),
     pageSize: Math.max(1, Math.min(2000, Math.floor(Number(b.pageSize) || 40))),
   }
@@ -162,6 +166,7 @@ export async function rank(req: RankRequest): Promise<RankResult> {
     if (req.prefs.maxTuitionEur && p.fee && p.fee.eur > req.prefs.maxTuitionEur) return false
     if (req.prefs.englishOnly && !(p.languages ?? []).includes('en')) return false
     if (q && !`${p.name} ${p.institution} ${p.city ?? ''}`.toLowerCase().includes(q)) return false
+    if (req.city && !cityMatches(p.city, req.city)) return false
     return true
   })
   if (req.topics) {
