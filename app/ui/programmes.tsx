@@ -61,8 +61,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const [attempt, setAttempt] = useState(0)
   const weights = useMemo(() => topics.length ? topicWeights(topics) : undefined, [topics])
   const topicMap = useMemo(() => new Map(topics.map((x) => [x.key, x])), [topics])
-  // Spread over the fields, so the candidates the AI reads are not all from one subject.
-  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', spread: true, page: 0, pageSize: AI_POOL })
+  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: AI_POOL })
   const key = JSON.stringify([body, token, unlocked, attempt])
   useEffect(() => {
     if (!unlocked) return
