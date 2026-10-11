@@ -68,7 +68,7 @@ const hasReadings = (prefs: Preferences) => prefs.countries.length > 0 && prefs.
 export function TopProgrammes({ results, prefs, topics = [], token, unlocked, shared = false }: {
   results: Results; prefs: Preferences; topics?: UserTopic[]; token: string | null; unlocked: boolean; shared?: boolean
 }) {
-  const { t, r, locale, intl } = useSite()
+  const { t, r, locale } = useSite()
   const [reply, setReply] = useState<{ key: string; data: RankResult | null; error?: boolean; locked?: boolean } | null>(null)
   const [attempt, setAttempt] = useState(0)
   const [shown, setShown] = useState(5)
@@ -179,13 +179,6 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
       ) : best.length > 0 ? (
         <ResultsContext.Provider value={results}><TopicsContext.Provider value={topicMap}>
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
-          {readings.status !== 'off' && (
-            <p className={`mb-3 max-w-2xl text-sm ${readings.status === 'loading' ? 'animate-pulse text-muted' : 'text-muted'}`} role="status">
-              🤖 {readings.status === 'loading' ? t.programmes.ai.loading
-                : readings.status === 'done' && rated.length ? `${t.programmes.ai.basis(rated.length)}${readings.updated ? ` ${t.programmes.ai.updated(new Date(readings.updated).toLocaleDateString(intl, { dateStyle: 'medium' }))}` : ''}`
-                : t.programmes.ai.unavailable}
-            </p>
-          )}
           {rated.length > 0 && (
             <div className="mb-4">
               <OwnDataPanel on={own} status={ownStatus} onChange={(v) => { setOwn(v); if (!v) setFits(null) }} />
@@ -518,7 +511,7 @@ function ProgrammeDetails({ p, aiBlock }: { p: RankedProgramme; aiBlock?: ReactN
       {/* 1b. In the paid report: what Claude read, weighed against the profile in this browser. */}
       {aiBlock && (
         <div>
-          <h5 className="font-display text-lg">🤖 {t.programmes.ai.oneTitle}</h5>
+          <h5 className="font-display text-lg">{t.programmes.ai.oneTitle}</h5>
           {aiBlock}
         </div>
       )}
@@ -710,7 +703,7 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
           </span>
           {fact && (
             <span className="chip text-xs" title={`${dotsFor(combinedScore(p.match, score))}/5`}>
-              🤖 {'●'.repeat(dotsFor(combinedScore(p.match, score)))}
+              {'●'.repeat(dotsFor(combinedScore(p.match, score)))}
               <span className="opacity-30">{'●'.repeat(5 - dotsFor(combinedScore(p.match, score)))}</span>
             </span>
           )}

@@ -10,6 +10,11 @@ import { readFacts, storeConfig } from '../facts-store.ts'
 const TTL = 60 * 60 * 1000
 const cache = new Map<string, { at: number; facts: Record<string, StoredFact> }>()
 
+/** After a new set of readings is committed: this instance reads it again on its next request. */
+export function forgetCountry(country: string) {
+  cache.delete(country)
+}
+
 export async function countryFacts(country: string): Promise<Record<string, StoredFact> | null> {
   const cfg = storeConfig()
   if (!cfg) return null

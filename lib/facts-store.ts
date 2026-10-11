@@ -1,13 +1,13 @@
-import type { StoredFact } from '../scrapers/lib/facts.ts'
+import { CHECK_LANGUAGES, type CheckLanguage, type StoredFact } from '../scrapers/lib/facts.ts'
 import type { ProgrammeFacts } from './engine/programme-fit.ts'
 import type { Locale } from './site/config.ts'
+import { SUBJECT_KEYS } from './taxonomy/fields.ts'
 
 /**
- * The facts database: one Redis hash per country, a field per programme with
- * what Claude read about its official page (scrapers/lib/facts.ts). It lives in
- * a private database, not on the public data branch: the readings are part of
- * the paid comparison. The weekly job writes it (scrapers/programme-facts-store.ts),
- * the site reads it (lib/server/facts-db.ts).
+ * The facts database: one Redis hash per country, a field per programme with what
+ * Claude read about its official page (scrapers/lib/facts.ts). It is private: the
+ * readings belong to the paid comparison. The weekly job writes it through
+ * /api/facts/ingest, the site reads it from the same store.
  */
 
 export interface StoreConfig {
@@ -15,14 +15,21 @@ export interface StoreConfig {
   token: string
 }
 
-/** FACTS_REDIS_REST_URL and FACTS_REDIS_REST_TOKEN, the Upstash REST credentials of that database. */
+/**
+ * The Redis REST credentials: FACTS_REDIS_REST_* when set, else the private counter
+ * database the site already has (USAGE_*). The public data branch is never used.
+ */
 export function storeConfig(env: Record<string, string | undefined> = process.env): StoreConfig | null {
-  const url = env.FACTS_REDIS_REST_URL
-  const token = env.FACTS_REDIS_REST_TOKEN
-  return url && token ? { url, token } : null
+  const pairs: Array<[string | undefined, string | undefined]> = [
+    [env.FACTS_REDIS_REST_URL, env.FACTS_REDIS_REST_TOKEN],
+    [env.USAGE_KV_REST_API_URL || env.USAGE_REDIS_REST_URL, env.USAGE_KV_REST_API_TOKEN || env.USAGE_REDIS_REST_TOKEN],
+  ]
+  for (const [url, token] of pairs) if (url && token) return { url, token }
+  return null
 }
 
 export const factsKey = (country: string) => `wsis:facts:v3:${country}`
+const tmpKey = (country: string) => `${factsKey(country)}:tmp`
 
 export async function command(cfg: StoreConfig, cmd: Array<string | number>, timeoutMs = 8000): Promise<unknown> {
   const res = await fetch(cfg.url, {
@@ -55,26 +62,57 @@ export async function readFacts(cfg: StoreConfig, country: string): Promise<Reco
   return parseHash(await command(cfg, ['HGETALL', factsKey(country)]))
 }
 
-/**
- * Replaces a country's readings in one step: the new hash is filled under a
- * temporary key and renamed over the old one, so a half-written run is never seen.
- * An empty set is refused, so a failed run cannot wipe the database.
- */
-export async function writeFacts(cfg: StoreConfig, country: string, facts: Record<string, StoredFact>, batch = 50): Promise<number> {
-  const entries = Object.entries(facts)
-  if (!entries.length) throw new Error(`no readings for ${country}, the stored ones are kept`)
-  const tmp = `${factsKey(country)}:tmp`
-  await command(cfg, ['DEL', tmp])
-  for (let i = 0; i < entries.length; i += batch) {
-    const cmd: Array<string | number> = ['HSET', tmp]
-    for (const [id, f] of entries.slice(i, i + batch)) cmd.push(id, JSON.stringify(f))
-    await command(cfg, cmd)
-  }
-  await command(cfg, ['RENAME', tmp, factsKey(country)])
-  return entries.length
+/** Starts a new set of readings: they are filled under a temporary key until commitFacts renames it over the old set. */
+export async function beginFacts(cfg: StoreConfig, country: string): Promise<void> {
+  await command(cfg, ['DEL', tmpKey(country)])
 }
 
-const LANGUAGE: Record<Locale, 'de' | 'fr' | 'it' | 'en'> = {
+export async function partFacts(cfg: StoreConfig, country: string, facts: StoredFact[]): Promise<void> {
+  if (!facts.length) return
+  const cmd: Array<string | number> = ['HSET', tmpKey(country)]
+  for (const f of facts) cmd.push(f.id, JSON.stringify(f))
+  await command(cfg, cmd, 15_000)
+}
+
+/**
+ * Replaces the readings of a country in one step, so a half-written run is never
+ * seen. An empty set is refused, so a failed run cannot wipe the stored readings.
+ */
+export async function commitFacts(cfg: StoreConfig, country: string): Promise<number> {
+  const n = Number(await command(cfg, ['HLEN', tmpKey(country)]))
+  if (!n) throw new Error(`no readings for ${country}, the stored ones are kept`)
+  await command(cfg, ['RENAME', tmpKey(country), factsKey(country)])
+  return n
+}
+
+/** A reading as it may be stored: every field of the right kind and size, nothing else. Otherwise null. */
+export function validStoredFact(raw: unknown): StoredFact | null {
+  if (!raw || typeof raw !== 'object') return null
+  const x = raw as Record<string, unknown>
+  const text = (v: unknown, max: number) => (typeof v === 'string' && v.length > 0 && v.length <= max ? v : null)
+  const id = text(x.id, 40)
+  const url = text(x.url, 500)
+  const hash = typeof x.hash === 'string' && /^[0-9a-f]{64}$/.test(x.hash) ? x.hash : null
+  const at = typeof x.at === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.at) ? x.at : null
+  const riasec =
+    Array.isArray(x.riasec) && x.riasec.length === 6 && x.riasec.every((n) => Number.isInteger(n) && n >= 0 && n <= 5) ? (x.riasec as number[]) : null
+  const subjects =
+    Array.isArray(x.subjects) && x.subjects.length <= 6 && x.subjects.every((s) => typeof s === 'string' && (SUBJECT_KEYS as readonly string[]).includes(s))
+      ? (x.subjects as string[])
+      : null
+  const enough = typeof x.enough === 'boolean' ? x.enough : null
+  const given = x.checks && typeof x.checks === 'object' ? (x.checks as Record<string, unknown>) : null
+  if (!id || !url || !hash || !at || !riasec || !subjects || enough === null || !given) return null
+  const checks = {} as Record<CheckLanguage, string>
+  for (const l of CHECK_LANGUAGES) {
+    const c = given[l]
+    if (typeof c !== 'string' || c.length > 300) return null
+    checks[l] = c
+  }
+  return { id, url, hash, at, riasec, subjects, enough, checks }
+}
+
+const LANGUAGE: Record<Locale, CheckLanguage> = {
   en: 'en',
   'de-CH': 'de',
   'de-DE': 'de',

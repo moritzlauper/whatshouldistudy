@@ -9,8 +9,9 @@ name: whatshouldistudy facts
 # Runs by hand («Run workflow») on main only; a run on another branch would spend
 # money without storing anything. Add a weekly schedule once a first run is checked.
 #
-# Secrets: ANTHROPIC_API_KEY, FACTS_REDIS_REST_URL and FACTS_REDIS_REST_TOKEN (the
-# REST credentials of the facts database, the same ones the site reads).
+# Secret: ANTHROPIC_API_KEY. The readings reach the site's private store with this
+# run's GitHub Actions token (id-token), which the site checks: no database secret
+# is kept in GitHub.
 
 on:
   workflow_dispatch:
@@ -34,9 +35,11 @@ concurrency:
 
 permissions:
   contents: read
+  id-token: write
 
 env:
   DATA_BRANCH: whatshouldistudy-data
+  WSIS_SITE_URL: https://wasstudieren.ch
 
 jobs:
   read:
@@ -59,6 +62,11 @@ jobs:
       - name: Dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: The site's store answers
+        env:
+          COUNTRY: ${{ inputs.country }}
+        run: node scrapers/programme-facts-store.ts ping --country "$COUNTRY"
+
       - name: Programme data
         run: |
           git fetch -q --depth 1 origin "${DATA_BRANCH}"
@@ -68,8 +76,6 @@ jobs:
 
       - name: Readings stored so far
         env:
-          FACTS_REDIS_REST_URL: ${{ secrets.FACTS_REDIS_REST_URL }}
-          FACTS_REDIS_REST_TOKEN: ${{ secrets.FACTS_REDIS_REST_TOKEN }}
           COUNTRY: ${{ inputs.country }}
         run: node scrapers/programme-facts-store.ts pull --country "$COUNTRY" --out facts-prev/facts.json
 
@@ -85,7 +91,5 @@ jobs:
 
       - name: Store the readings
         env:
-          FACTS_REDIS_REST_URL: ${{ secrets.FACTS_REDIS_REST_URL }}
-          FACTS_REDIS_REST_TOKEN: ${{ secrets.FACTS_REDIS_REST_TOKEN }}
           COUNTRY: ${{ inputs.country }}
         run: node scrapers/programme-facts-store.ts push --country "$COUNTRY" --in facts-out/facts.json

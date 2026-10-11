@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { factsForLocale } from '../lib/facts-store.ts'
+import { factsForLocale, validStoredFact } from '../lib/facts-store.ts'
 import { toPersonalFit } from '../lib/engine/programme-fit.ts'
 import type { StoredFact } from '../scrapers/lib/facts.ts'
 
@@ -37,4 +37,19 @@ test('a reply that says too little to judge is neutral and gives no reasons', ()
 
 test('a reply without a score gets one from its fit', () => {
   assert.equal(toPersonalFit({ id: 'p1', fit: 4, reasons: [], enough_info: true }, new Set(['p1']))?.score, 87)
+})
+
+test('only a reading with every field of the right kind and size is stored', () => {
+  const ok = { id: 'p1', url: 'https://www.unibe.ch/p1', hash: 'a'.repeat(64), at: '2026-10-01', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], enough: true, checks: { de: 'Prüfen.', fr: 'Vérifier.', it: 'Verificare.', en: 'Check.' } }
+  assert.deepEqual(validStoredFact(ok), ok)
+  assert.equal(validStoredFact({ ...ok, riasec: [1, 4, 2, 3, 1, 9] }), null)
+  assert.equal(validStoredFact({ ...ok, riasec: [1, 4, 2] }), null)
+  assert.equal(validStoredFact({ ...ok, subjects: ['astrology'] }), null)
+  assert.equal(validStoredFact({ ...ok, hash: 'xyz' }), null)
+  assert.equal(validStoredFact({ ...ok, at: '01.10.2026' }), null)
+  assert.equal(validStoredFact({ ...ok, enough: 'yes' }), null)
+  assert.equal(validStoredFact({ ...ok, checks: { de: 'a', fr: 'b', it: 'c' } }), null)
+  assert.equal(validStoredFact({ ...ok, checks: { de: 'a'.repeat(301), fr: 'b', it: 'c', en: 'd' } }), null)
+  assert.equal(validStoredFact({ ...ok, id: '' }), null)
+  assert.equal(validStoredFact(null), null)
 })
