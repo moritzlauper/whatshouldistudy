@@ -261,3 +261,21 @@ test('AI corrections take a term out of a field without touching the rest', asyn
   const after = score({ summaries: [fixed] }).fields.find((f) => f.id === field)!.match
   assert.ok(after <= before)
 })
+
+test('the review payload carries no titles, channel names or links of third parties', async () => {
+  const { summaryCounts, forReview } = await import('../lib/engine/review-payload.ts')
+  const summary = accumulate(
+    [
+      { kind: 'watch', text: 'secret title about my health \n Secret Channel', label: 'Secret Channel', group: 'Secret Channel', weight: 0.3, time: T0, url: 'https://example.com/secret' } as SignalItem,
+      ...engineeringPerson(),
+    ],
+    { source: 'takeout', label: 'YouTube history' },
+  )
+  const results = score({ summaries: [summary] })
+  const json = JSON.stringify({ counts: summaryCounts([summary]), results: forReview(results) })
+  assert.ok(!json.includes('secret title'), 'title leaked')
+  assert.ok(!json.includes('Secret Channel'), 'channel leaked')
+  assert.ok(!json.includes('example.com'), 'url leaked')
+  // The counts themselves are still there.
+  assert.ok(json.includes('"items"'))
+})

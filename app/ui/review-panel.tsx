@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { withBase } from '@/lib/site.ts'
 import type { Preferences, QuestionnaireAnswers, Results, SourceSummary } from '@/lib/engine/types.ts'
-import { lastTop } from './programmes.tsx'
+import { forReview, summaryCounts } from '@/lib/engine/review-payload.ts'
 
 /**
  * Sends this whole result to Claude for a critical review. Open to everyone
@@ -27,6 +27,7 @@ function trim(x: unknown, depth = 0): unknown {
   }
   return x
 }
+import { lastTop } from './programmes.tsx'
 
 export function ReviewPanel({ results, answers, prefs, summaries }: { results: Results; answers: QuestionnaireAnswers; prefs: Preferences; summaries: SourceSummary[] }) {
   const [key, setKey] = useState<string | null>(null)
@@ -61,7 +62,7 @@ export function ReviewPanel({ results, answers, prefs, summaries }: { results: R
         // Never wait longer than the server may take.
         signal: AbortSignal.timeout(200_000),
         headers: { 'Content-Type': 'application/json', ...(key ? { 'x-review-key': key } : {}) },
-        body: JSON.stringify({ results: trim(results), answers, prefs, summaries: summaries.map((s) => trim(s)), topProgrammes: lastTop.current }),
+        body: JSON.stringify({ results: trim(forReview(results)), answers, prefs, summaries: trim(summaryCounts(summaries)), topProgrammes: lastTop.current }),
       })
       if (!res.ok || !res.body) {
         const j = (await res.json().catch(() => ({}))) as { error?: string }

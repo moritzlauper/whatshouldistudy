@@ -334,6 +334,7 @@ function QualityNotes({ results }: { results: Results }) {
   const tq = t.results.quality
   const notes = [
     q && !q.questionnaireLed && tq.explore,
+    q?.questionnaireLed && results.dataPoints > 0 && tq.lead,
     q?.flat && tq.flat,
     q?.careless && tq.careless,
     q?.topTie && !q.flat && tq.topTie,
