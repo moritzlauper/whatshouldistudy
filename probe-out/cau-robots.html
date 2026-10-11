@@ -1,0 +1,31 @@
+<!-- https://www.uni-kiel.de/robots.txt 200 https://www.uni-kiel.de/robots.txt -->
+# Mit dieser Datei koennen Suchmaschinen gebeten werden,
+# gewisse Seiten nicht in den Index aufzunehmen.
+# Per Voreinstellung ist nichts ausgeschlossen, aber nur
+# legitimen Suchmaschinen wird das Indizieren erlaubt.
+#
+# Gueltig ist immer nur der Inhalt der Datei
+# (irgendwas).uni-kiel.de/robots.txt
+#
+# Mehr Infos (auf engl.) unter: http://www.robotstxt.org/
+
+User-agent: bingbot
+User-agent: Googlebot
+User-agent: YandexBot
+User-agent: SemanticScholarBot
+User-agent: Applebot
+User-agent: Baiduspider
+User-agent: DuckDuckBot
+User-agent: PetalBot
+User-agent: facebookexternalhit
+User-agent: Twitterbot
+Disallow: /intranet
+Disallow: /de/insights
+Disallow: /en/insights
+Disallow: /anatomie/mrbs
+Disallow: /anatomie/lbs/mrbs 
+
+# Too tired of SEO racketeers.
+User-agent: *
+Disallow: /
+
