@@ -56,16 +56,18 @@ Judge whether the result makes sense and where the pipeline goes wrong. Be concr
 - Quality flags, confidence and texts: are they justified?
 - Concrete suggestions for the code or the weights, ordered by impact.
 
-Write in German (Swiss spelling, no «ß»), in Markdown with short sections. No preamble.`
+Write in German (Swiss spelling, no «ß»), in Markdown with short sections, at most about 500 words. No preamble.`
 
 /** The review as Markdown, or an error message. */
 export async function reviewResult(input: unknown): Promise<string> {
-  const client = new Anthropic()
+  // One try, well inside the route's 300 s, so a slow answer ends with an error instead of hanging.
+  const client = new Anthropic({ timeout: 150_000, maxRetries: 0 })
   const stream = client.beta.messages.stream({
     model: 'claude-opus-5-5',
-    max_tokens: 16000,
+    max_tokens: 6000,
     thinking: { type: 'adaptive' },
-    output_config: { effort: 'high' },
+    // Medium is plenty for a review and keeps it to about a minute.
+    output_config: { effort: 'medium' },
     // A safety decline is re-run on a fallback model instead of failing.
     betas: ['server-side-fallback-2026-07-01'],
     fallbacks: 'default',

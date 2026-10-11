@@ -15,14 +15,14 @@ const KEY_STORE = 'wsis:review-key'
 
 /** Long lists and strings shortened, so a large export summary stays a readable size. */
 function trim(x: unknown, depth = 0): unknown {
-  if (typeof x === 'string') return x.length > 200 ? `${x.slice(0, 200)}…` : x
-  if (Array.isArray(x)) return x.slice(0, 40).map((v) => trim(v, depth + 1))
+  if (typeof x === 'string') return x.length > 120 ? `${x.slice(0, 120)}…` : x
+  if (Array.isArray(x)) return x.slice(0, 20).map((v) => trim(v, depth + 1))
   if (x && typeof x === 'object') {
     if (depth > 6) return '…'
     const entries = Object.entries(x as Record<string, unknown>)
     // Maps keyed by term or field: keep the 60 largest.
-    const big = entries.length > 60 && entries.every(([, v]) => typeof v === 'number')
-    const kept = big ? entries.sort((a, b) => (b[1] as number) - (a[1] as number)).slice(0, 60) : entries
+    const big = entries.length > 30 && entries.every(([, v]) => typeof v === 'number')
+    const kept = big ? entries.sort((a, b) => (b[1] as number) - (a[1] as number)).slice(0, 30) : entries
     return Object.fromEntries(kept.map(([k, v]) => [k, trim(v, depth + 1)]))
   }
   return x
@@ -55,6 +55,8 @@ export function ReviewPanel({ results, answers, prefs, summaries }: { results: R
     try {
       const res = await fetch(withBase('/api/review'), {
         method: 'POST',
+        // Never wait longer than the server may take.
+        signal: AbortSignal.timeout(200_000),
         headers: { 'Content-Type': 'application/json', ...(key ? { 'x-review-key': key } : {}) },
         body: JSON.stringify({ results: trim(results), answers, prefs, summaries: summaries.map((s) => trim(s)), topProgrammes: lastTop.current }),
       })
@@ -63,7 +65,8 @@ export function ReviewPanel({ results, answers, prefs, summaries }: { results: R
       setReview(j.review)
       setState('idle')
     } catch (e) {
-      setError((e as Error).message)
+      const err = e as Error
+      setError(err.name === 'TimeoutError' ? 'Die Prüfung hat zu lange gedauert. Versuch es nochmals.' : err.message)
       setState('error')
     }
   }
@@ -73,7 +76,7 @@ export function ReviewPanel({ results, answers, prefs, summaries }: { results: R
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="font-bold">🧪 Test: Resultat von der KI prüfen lassen</p>
         <button type="button" onClick={run} disabled={state === 'loading'} className="btn btn-ghost btn-sm">
-          {state === 'loading' ? 'Claude prüft … (bis 2 Min.)' : 'Ganzes Resultat mit KI prüfen'}
+          {state === 'loading' ? 'Claude prüft … (etwa 1 Min.)' : 'Ganzes Resultat mit KI prüfen'}
         </button>
       </div>
       <p className="mt-1 text-xs text-muted">Claude prüft, ob dein Resultat stimmig ist. Dafür schicken wir dein anonymes Profil, die Zusammenfassungen deiner Uploads (keine Verläufe), die Rangliste und die Top-Studiengänge an Anthropic. Gespeichert wird nichts.</p>
