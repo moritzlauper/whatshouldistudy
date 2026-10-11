@@ -622,8 +622,9 @@ function ProgrammeRow({ p, ai }: { p: RankedProgramme; ai?: { token: string | nu
               {typeShort(type, p.country)}
             </span>
           )}
-          <span className="rounded-full border-2 border-line bg-accent px-2.5 py-0.5 text-sm font-extrabold text-accent-ink" title={t.programmes.row.matchTip}>
-            {p.match}
+          {/* Once the AI has read the programme: the combined score, which tells programmes of one field apart. */}
+          <span className="rounded-full border-2 border-line bg-accent px-2.5 py-0.5 text-sm font-extrabold text-accent-ink" title={aiFit ? t.programmes.ai.scoreTip(p.match, aiFit.score) : t.programmes.row.matchTip}>
+            {combined(p, aiFit)}
           </span>
           {aiFit && (
             <span className="chip text-xs" title={`${aiFit.fit}/5`}>
@@ -825,6 +826,8 @@ function Explorer({
 interface AiFit {
   id: string
   fit: number
+  /** 0..100, finer than `fit`. */
+  score: number
   reasons: string[]
   check: string
   thin: boolean
@@ -839,7 +842,8 @@ interface AiFit {
  * AI ratings already made, per programme and profile, kept in this browser so
  * neither reopening details nor coming back to the result asks Claude again.
  */
-const AI_STORE = 'wsis:ai-fit:v1'
+// v2: ratings carry a 0..100 score.
+const AI_STORE = 'wsis:ai-fit:v2'
 let aiCache: Map<string, AiFit> | null = null
 function aiCacheMap(): Map<string, AiFit> {
   if (aiCache) return aiCache
@@ -979,7 +983,7 @@ function countRefresh() {
 const AI_POOL = 20
 const AI_BATCH = 5
 /** AI fit counts more than the match from the profile alone: it has read what the programme contains. */
-const combined = (p: RankedProgramme, f?: AiFit) => (f ? 0.6 * (((f.fit - 1) / 4) * 100) + 0.4 * p.match : p.match)
+const combined = (p: RankedProgramme, f?: AiFit) => (f ? Math.round(0.6 * f.score + 0.4 * p.match) : p.match)
 
 function AiCompare({ token, items, one }: { token: string | null; items: RankedProgramme[]; one?: boolean }) {
   const { t, locale } = useSite()

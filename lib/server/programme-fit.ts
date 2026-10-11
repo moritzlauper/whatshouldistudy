@@ -33,6 +33,8 @@ export interface ProgrammeFit {
   id: string
   /** 1 (little in common) .. 5 (very close). */
   fit: number
+  /** 0..100, finer than `fit`, so programmes in the same field come apart. */
+  score: number
   reasons: string[]
   /** What to look into before deciding. */
   check: string
@@ -64,11 +66,12 @@ const SCHEMA = {
         properties: {
           id: { type: 'string' },
           fit: { type: 'integer' },
+          score: { type: 'integer' },
           reasons: { type: 'array', items: { type: 'string' } },
           check: { type: 'string' },
           enough_info: { type: 'boolean' },
         },
-        required: ['id', 'fit', 'reasons', 'check', 'enough_info'],
+        required: ['id', 'fit', 'score', 'reasons', 'check', 'enough_info'],
         additionalProperties: false,
       },
     },
@@ -80,6 +83,8 @@ const SCHEMA = {
 const system = (locale: Locale) => `You help a school leaver compare a few specific degree programmes with their own profile from a study-choice questionnaire.
 
 For each programme you get its name, institution, level, listed focus areas and the text of its official web page (or nothing, when the page could not be read). Rate how well that specific programme fits this person, 1 (little in common) to 5 (very close), and explain why in terms of what is particular to this programme: its specialisations, tracks, typical modules, teaching approach or practical parts, related to the person's interests, subjects, priorities and, if given, personality. Compare the programmes with each other: two programmes in the same field should differ in their rating when their content differs.
+
+Also give "score", 0 to 100: the same judgement on a finer scale, consistent with "fit" (1 ≈ 0–20, 2 ≈ 20–40, 3 ≈ 40–60, 4 ≈ 60–80, 5 ≈ 80–100). Use the whole range within the band; two programmes should get the same score only if you really cannot tell them apart.
 
 Rules:
 - Base every statement about a programme on its page text or listed focus areas. "enough_info" is false when the page and focus areas say too little about the programme's content to judge it; then rate it 3, never lower for lack of information, and say in "check" what to find out.
@@ -160,6 +165,7 @@ export async function compareProgrammes(req: FitRequest): Promise<ProgrammeFit[]
         id: x.id!,
         // Too little to go on is no reason to rank a programme low.
         fit: x.enough_info === false ? 3 : Math.max(1, Math.min(5, Math.round(Number(x.fit) || 1))),
+        score: x.enough_info === false ? 50 : Math.max(0, Math.min(100, Math.round(Number(x.score) || ((Number(x.fit) || 1) - 1) * 25))),
         reasons: (Array.isArray(x.reasons) ? x.reasons : []).map((r) => clip(r, 300)).filter(Boolean).slice(0, 3),
         check: clip(x.check, 300),
         thin: !pages[ids.get(x.id!)!] || x.enough_info === false,
