@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { update, useAppState } from '@/lib/store.ts'
 import { BIG5_ITEMS, INTEREST_LIST } from '@/lib/engine/questionnaire.ts'
 import type { LikertItem } from '@/lib/engine/questionnaire.ts'
@@ -17,6 +17,14 @@ export function Questionnaire() {
   const { t } = useSite()
   const state = useAppState()
   const [tab, setTab] = useState<Tab>('interests')
+  const card = useRef<HTMLDivElement>(null)
+  // A new part starts at its first question: on a phone the button to the next part sits far down the page.
+  // 80 px: the top of the card is hidden under the sticky header (64 px).
+  const go = (id: Tab) => {
+    setTab(id)
+    const top = card.current?.getBoundingClientRect().top
+    if (top !== undefined && top < 80) card.current!.scrollIntoView({ block: 'start' })
+  }
   const a = state.answers
 
   const count: Record<Tab, [number, number]> = {
@@ -33,7 +41,7 @@ export function Questionnaire() {
   const next = TABS[TABS.indexOf(tab) + 1]
 
   return (
-    <div className="card overflow-hidden">
+    <div ref={card} className="card scroll-mt-24 overflow-hidden">
       <div className="flex gap-2 overflow-x-auto border-b-2 border-line bg-surface-2 p-3" role="tablist">
         {TABS.map((id) => {
           const [done, total] = count[id]
@@ -43,7 +51,7 @@ export function Questionnaire() {
               key={id}
               role="tab"
               aria-selected={on}
-              onClick={() => setTab(id)}
+              onClick={() => go(id)}
               className={`shrink-0 rounded-full border-2 px-4 py-2 text-sm font-bold transition ${on ? 'on-color border-line' : 'border-transparent text-muted hover:border-line'}`}
               style={on ? { background: TAB_COLOR[id], boxShadow: '2px 2px 0 var(--shadow)' } : undefined}
             >
@@ -64,7 +72,7 @@ export function Questionnaire() {
         {tab === 'values' && <Values />}
         {next && (
           <div className="mt-7 flex justify-end">
-            <button type="button" onClick={() => setTab(next)} className="btn btn-ghost btn-sm">
+            <button type="button" onClick={() => go(next)} className="btn btn-ghost btn-sm">
               {t.q.next(t.q.tabs[next])}
             </button>
           </div>
