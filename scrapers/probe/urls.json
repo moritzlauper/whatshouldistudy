@@ -1,1 +1,21 @@
-{}
+{
+ "goe-robots": "https://www.uni-goettingen.de/robots.txt",
+ "goe-studium": "https://www.uni-goettingen.de/de/studium/1.html",
+ "goe-home": "https://www.uni-goettingen.de/",
+ "luh-robots": "https://www.uni-hannover.de/robots.txt",
+ "luh-list": "https://www.uni-hannover.de/de/studium/studienangebot/",
+ "jgu-robots": "https://www.uni-mainz.de/robots.txt",
+ "jgu-home": "https://www.uni-mainz.de/",
+ "jgu-studium-robots": "https://studium.uni-mainz.de/robots.txt",
+ "jgu-studium": "https://studium.uni-mainz.de/studienangebot/",
+ "jmu-robots": "https://www.uni-wuerzburg.de/robots.txt",
+ "jmu-list": "https://www.uni-wuerzburg.de/studium/angebot/",
+ "uma-robots": "https://www.uni-mannheim.de/robots.txt",
+ "uma-list": "https://www.uni-mannheim.de/studium/studienangebot/",
+ "ust-robots": "https://www.uni-stuttgart.de/robots.txt",
+ "ust-list": "https://www.uni-stuttgart.de/studium/studienangebot/",
+ "cau-robots": "https://www.uni-kiel.de/robots.txt",
+ "cau-home": "https://www.uni-kiel.de/de/",
+ "cau-studium-robots": "https://www.studium.uni-kiel.de/robots.txt",
+ "cau-studium": "https://www.studium.uni-kiel.de/de/studienangebot"
+}
