@@ -1,0 +1,185 @@
+<!-- https://www.aau.at/wp-content/themes/enfoldchild/js/aau_study_filter.js?ver=1.0.4 200 https://www.aau.at/wp-content/themes/enfoldchild/js/aau_study_filter.js?ver=1.0.4 -->
+jQuery(document).ready(function ($) {
+
+    $('.study-filter-form').on('change', function (e) {
+        e.preventDefault();
+        filterStudy($(this));
+    });
+
+    $('.study-filter-form').on('keydown', function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    $('.study-filter-input-field').on('keyup', function (e){
+        filterStudy($('.study-filter-form'));
+    });
+
+    $('.study-reset-button').on('click', function (e) {
+        e.preventDefault();
+        $(".filtercheckbox").prop("checked", false);
+        $(".study-filter-input-field").val('');
+        filterStudy($('.study-filter-form'));
+    });
+
+    $('.study-listtype-checkbox').on('change', function (e) {
+        e.preventDefault();
+        setView($('.study-filter-form'));
+    });
+
+    filterStudy($('.study-filter-form'));    //inital load .. happens eg on back button pressed
+    setView($('.study-filter-form'));
+    checkScreenSize();
+
+    function checkScreenSize() {
+        if ($(window).width() > 440){
+            $('*[data-fake-id="#study-filter-toggle"]').addClass("activeTitle");
+            $('#study-filter-toggle').addClass("active_tc");
+        }
+    }
+
+    function setView($form) {
+        var data = $form.serializeArray();
+        var view = "default";
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].name == "studienview") {
+                if(data[i].value){
+                    view = "list"
+                }
+            }
+        }
+        $(".studyfilterlist").removeClass("study-list-view-default");
+        $(".studyfilterlist").removeClass("study-list-view-list");
+        $(".studyfilterlist").addClass("study-list-view-" + view);
+        $(".studienlist-toggle-icons").removeClass("study-list-view-selected");
+        if(view === "default"){
+            $(".studienlist-toggle-icons-default").addClass("study-list-view-selected");
+        }
+        if(view === "list"){
+            $(".studienlist-toggle-icons-list").addClass("study-list-view-selected");
+        }
+    }
+
+
+    function filterStudy($form) {
+        var data = $form.serializeArray();
+        var dataTypes = [];
+        var dataCat = [];
+        var dataAcceptanceProcess = [];
+        var dataLang = [];
+        var dataTitle = "";
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].name == "studytype") {
+                dataTypes.push(data[i].value);
+            }
+            if (data[i].name == "studycat") {
+                dataCat.push(data[i].value);
+            }
+            if (data[i].name == "studylang") {
+                dataLang.push(data[i].value);
+            }
+            if (data[i].name == "studyacceptanceprocess") {
+                dataAcceptanceProcess.push(data[i].value);
+            }
+            if (data[i].name == "studytitle") {
+                dataTitle = data[i].value;
+            }
+        }
+        var $studyList = $form.find('.studyfilterlist div.study-filter-list-item');
+        var countHide = 0;
+        $studyList.each(function () {
+            var $li = $(this);
+            var filterValCat = $li.attr('data-filter-cat').split(",");
+            var filterValType = $li.attr('data-filter-type').split(",");
+            var filterValLang = $li.attr('data-filter-lang').split(",");
+            var filterValAcceptanceprocess = $li.attr('data-filter-acceptprocess').split(",");
+            var filterValTitle = $li.attr('data-filter-title');
+            var showCat = false;
+            var showType = false;
+            var showLang = false;
+            var showAcceptanceprocess = false;
+            var showTitle = false;
+            for (i = 0; i < dataCat.length; i++) {
+                if (filterValCat.indexOf(dataCat[i]) !== -1) {
+                    showCat = true;
+                    break;
+                }
+            }
+            for (i = 0; i < dataTypes.length; i++) {
+                if (filterValType.indexOf(dataTypes[i])  !== -1) {
+                    showType = true;
+                    break;
+                }
+            }
+
+            for (i = 0; i < dataLang.length; i++) {
+                if (filterValLang.indexOf(dataLang[i])  !== -1) {
+                    showLang = true;
+                    break;
+                }
+            }
+
+            for (i = 0; i < dataAcceptanceProcess.length; i++) {
+                if (filterValAcceptanceprocess.indexOf(dataAcceptanceProcess[i])  !== -1) {
+                    showAcceptanceprocess = true;
+                    break;
+                }
+            }
+
+            if(filterValTitle.toLowerCase().indexOf(dataTitle.toLowerCase()) !== -1){
+                showTitle = true;
+            }
+
+            showType = showType || dataTypes.length == 0;
+            showCat = showCat || dataCat.length == 0;
+            showLang = showLang || dataLang.length == 0;
+            showAcceptanceprocess = showAcceptanceprocess || dataAcceptanceProcess.length == 0;
+            showTitle = showTitle || dataTitle === "";
+
+            if (showCat && showType && showLang && showTitle && showAcceptanceprocess) {
+                $li.show();
+            } else {
+                countHide++;
+                $li.hide();
+            }
+        });
+        var $emptyListMessage = $form.find('.empty-list-message');
+        if (countHide == $studyList.length) {
+            $emptyListMessage.show();
+        } else {
+            $emptyListMessage.hide();
+        }
+
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
