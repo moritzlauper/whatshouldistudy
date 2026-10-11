@@ -17,7 +17,7 @@ import type { RankResult, RankedProgramme } from '@/lib/server/rank.ts'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
 import { TYPE_LABEL, TYPE_STYLE, admissionText, typeLabel, typeShort } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
-import { withBase } from '@/lib/site.ts'
+import { CONTACT, withBase } from '@/lib/site.ts'
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
 import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
@@ -86,14 +86,15 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const locked = !unlocked || current?.locked
   const pool = current?.data?.items ?? []
   const [refresh, setRefresh] = useState(0)
+  const [shown, setShown] = useState(5)
   const ai = useAiTop(pool, token, results, !shared && !current?.data?.sample, refresh)
   const left = refreshesLeft()
   // Until the AI is through, the order from the profile alone; then the combined one.
-  const best = (ai.state === 'done' ? [...pool].sort((x, y) => combined(y, ai.fits.get(y.id)) - combined(x, ai.fits.get(x.id))) : pool).slice(0, 5)
+  const best = (ai.state === 'done' ? [...pool].sort((x, y) => combined(y, ai.fits.get(y.id)) - combined(x, ai.fits.get(x.id))) : pool).slice(0, shown)
   lastTop.current = best.map((p) => ({ name: p.name, institution: p.institution, city: p.city, level: p.level, field: p.matchedField, match: p.match, ai: ai.fits.get(p.id) }))
   return (
     <section className="mt-8" aria-label={t.programmes.topTitle}>
-      <h2 className="mb-4 font-display text-3xl">{t.programmes.topTitle}</h2>
+      <h2 className="mb-4 font-display text-3xl">{t.programmes.topTitle.replace('5', String(Math.min(shown, Math.max(5, pool.length))))}</h2>
       {locked ? (
         <div className="card bg-accent-soft p-6 sm:p-8">
           <div className="text-3xl" aria-hidden="true">🔒</div>
@@ -106,12 +107,17 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
           {ai.state !== 'off' && (
             <p className={`mb-3 max-w-2xl text-sm ${ai.state === 'loading' ? 'animate-pulse text-muted' : 'text-muted'}`} role="status">
-              🤖 {ai.state === 'loading' ? t.programmes.ai.topLoading(pool.length) : ai.state === 'done' ? t.programmes.ai.topDone(ai.fits.size) : t.programmes.ai.topFailed}
+              🤖 {ai.state === 'loading' ? t.programmes.ai.topLoading(pool.length) : ai.state === 'done' ? t.programmes.ai.topDone(ai.fits.size) : ai.state === 'budget' ? <BudgetNote /> : t.programmes.ai.topFailed}
             </p>
           )}
           <ol className="grid list-decimal gap-4 pl-6 marker:font-bold marker:text-accent">
             {best.map((p) => <li key={p.id}><ProgrammeRow p={p} ai={{ token }} /></li>)}
           </ol>
+          {pool.length > shown && (
+            <button type="button" onClick={() => setShown(shown < 10 ? 10 : 20)} className="btn btn-ghost btn-sm mt-3">
+              ▾ {t.programmes.ai.showTop(shown < 10 ? 10 : 20)}
+            </button>
+          )}
           <p className="mt-2 text-sm text-muted">{t.programmes.topNote}</p>
           {ai.state !== 'off' && (
             <button
@@ -706,6 +712,16 @@ function Explorer({
   const [q, setQ] = useState('')
   const [page, setPage] = useState(0)
   const [data, setData] = useState<RankResult | null>(null)
+  // AI ranking of the hits on screen, on request: the first 20 are read and rated, then sorted by the combined score.
+  const results = useContext(ResultsContext)
+  const hitPool = useMemo(() => (data?.items ?? []).slice(0, AI_POOL), [data])
+  const hitIds = hitPool.map((p) => p.id).join(',')
+  // Only for the hits it was asked for: paging or filtering does not start new ratings by itself.
+  const [rankedFor, setRankedFor] = useState('')
+  const aiHits = useAiTop(hitPool, token, results!, rankedFor === hitIds && !!results, 0)
+  const shownItems = aiHits.state === 'done' && data
+    ? [...data.items].sort((x, y) => combined(y, aiHits.fits.get(y.id)) - combined(x, aiHits.fits.get(x.id)))
+    : (data?.items ?? [])
   const [loading, setLoading] = useState(false)
 
   const query = useCallback(
@@ -800,8 +816,18 @@ function Explorer({
         {data?.updated && t.programmes.dataFrom(new Date(data.updated).toLocaleDateString(intl, { dateStyle: 'medium' }))}
         {loading && data && t.programmes.updating}
       </p>
+      {data && data.items.length > 0 && results && (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => setRankedFor(hitIds)} disabled={aiHits.state === 'loading'} className="btn btn-primary btn-sm">
+            🤖 {aiHits.state === 'loading' ? t.programmes.ai.loading : t.programmes.ai.rankHits(Math.min(AI_POOL, data.items.length))}
+          </button>
+          {aiHits.state === 'done' && <span className="text-sm text-muted">{t.programmes.ai.rankedHits}</span>}
+          {aiHits.state === 'failed' && <span className="text-sm font-semibold text-bad">{t.programmes.ai.error}</span>}
+          {aiHits.state === 'budget' && <span className="text-sm"><BudgetNote /></span>}
+        </div>
+      )}
       <div className="mt-3 grid gap-4">
-        {data?.items.map((p) => (
+        {shownItems.map((p) => (
           <ProgrammeRow key={p.id} p={p} ai={{ token }} />
         ))}
       </div>
@@ -914,7 +940,7 @@ async function fetchFits(token: string | null, items: RankedProgramme[], profile
 function useAiTop(pool: RankedProgramme[], token: string | null, results: Results, enabled: boolean, refresh: number) {
   const { locale } = useSite()
   const profile = useFitProfile(results)
-  const [out, setOut] = useState<{ key: string; state: 'loading' | 'done' | 'failed'; fits: Map<string, AiFit> } | null>(null)
+  const [out, setOut] = useState<{ key: string; state: 'loading' | 'done' | 'failed' | 'budget'; fits: Map<string, AiFit> } | null>(null)
   const ids = pool.map((p) => p.id).join(',')
   const key = `${ids}|${aiKey('', locale, results)}|${refresh}`
   useEffect(() => {
@@ -940,7 +966,9 @@ function useAiTop(pool: RankedProgramme[], token: string | null, results: Result
       const got = settled.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
       aiCacheSet(got.map((f) => [aiKey(f.id, locale, results), f]))
       for (const f of got) fits.set(f.id, f)
-      if (live) setOut({ key, state: got.length ? 'done' : 'failed', fits: new Map(fits) })
+      // 429: this purchase has used up its AI budget.
+      const budget = settled.some((r) => r.status === 'rejected' && (r.reason as Error).message === '429')
+      if (live) setOut({ key, state: budget && !got.length ? 'budget' : fits.size ? 'done' : 'failed', fits: new Map(fits) })
     })
     return () => {
       live = false
@@ -949,6 +977,19 @@ function useAiTop(pool: RankedProgramme[], token: string | null, results: Result
   }, [key, enabled, token])
   const current = out?.key === key ? out : null
   return { state: !enabled || !pool.length ? ('off' as const) : (current?.state ?? 'loading'), fits: current?.fits ?? new Map<string, AiFit>() }
+}
+
+/** The AI budget of this purchase is used up: write to us for more. */
+function BudgetNote() {
+  const { t } = useSite()
+  return (
+    <>
+      {t.programmes.ai.budget}{' '}
+      <a href={`mailto:${CONTACT}?subject=${encodeURIComponent(t.programmes.ai.budgetSubject)}`} className="font-semibold text-accent underline">
+        {CONTACT}
+      </a>
+    </>
+  )
 }
 
 /** «Aktualisieren» is limited: 5 a day and 20 in all, counted in this browser (the server has its own cap). */

@@ -114,8 +114,12 @@ async function officialText(url: string | undefined, institutionUrl: string | un
 
 const clip = (s: unknown, n: number) => (typeof s === 'string' ? s.trim().slice(0, n) : '')
 
-/** The comparison, or null when it can't be made (no key, nothing found, the model failed). */
-export async function compareProgrammes(req: FitRequest): Promise<ProgrammeFit[] | null> {
+/** Claude Haiku 5.5 list prices, in millionths of a dollar per token (prompts under 100K tokens). */
+const MICRO_USD_IN = 0.1
+const MICRO_USD_OUT = 0.5
+
+/** The comparison and what it cost, or null when it can't be made (no key, nothing found, the model failed). */
+export async function compareProgrammes(req: FitRequest): Promise<{ fits: ProgrammeFit[]; costMicroUsd: number } | null> {
   if (!process.env.ANTHROPIC_API_KEY) return null
   const found = (await Promise.all(req.programmes.slice(0, MAX_PROGRAMMES).map((x) => findProgramme(x.country, x.field, x.id)))).flatMap((f) => (f ? [f.p] : []))
   if (!found.length) return null
@@ -159,7 +163,8 @@ export async function compareProgrammes(req: FitRequest): Promise<ProgrammeFit[]
     if (response.stop_reason !== 'end_turn') throw new Error(`stopped: ${response.stop_reason}`)
     const out = JSON.parse(response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('')) as { programmes: Array<Partial<ProgrammeFit> & { enough_info?: boolean }> }
     const ids = new Map(found.map((p, i) => [p.id, i]))
-    return out.programmes
+    const costMicroUsd = Math.ceil(response.usage.input_tokens * MICRO_USD_IN + response.usage.output_tokens * MICRO_USD_OUT)
+    const fits = out.programmes
       .filter((x) => typeof x.id === 'string' && ids.has(x.id))
       .map((x) => ({
         id: x.id!,
@@ -171,6 +176,7 @@ export async function compareProgrammes(req: FitRequest): Promise<ProgrammeFit[]
         thin: !pages[ids.get(x.id!)!] || x.enough_info === false,
       }))
       .sort((a, b) => b.fit - a.fit)
+    return { fits, costMicroUsd }
   } catch (e) {
     console.error(`programme fit: ${(e as Error).message}`)
     return null

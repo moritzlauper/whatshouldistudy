@@ -11,28 +11,27 @@ const LOCALES: Locale[] = ['en', 'de-CH', 'de-DE', 'de-AT', 'fr-CH', 'it-CH']
 export const maxDuration = 60
 
 /**
- * Cost guard per purchase, above what the page itself asks for: the top five
- * take four requests, each «Aktualisieren» four more (at most 5 a day, 20 in
- * all), each opened programme one.
+ * Budget per purchase: what Claude may cost for one report (CHF 9), counted
+ * from the token usage of each request. Above it the report asks people to
+ * write to us. Without the counter store nothing is counted.
  */
-const PER_DAY = 40
-const IN_ALL = 150
-const COUNT = `
-local day = redis.call('INCR', KEYS[1])
-if day == 1 then redis.call('EXPIRE', KEYS[1], 86400) end
-local all = redis.call('INCR', KEYS[2])
-if all == 1 then redis.call('EXPIRE', KEYS[2], 31622400) end
-return {day, all}
-`
+const BUDGET_MICRO_USD = 1_000_000
+const budgetKey = (sid: string) => `wsis:fit:cost:${createHash('sha256').update(sid).digest('hex').slice(0, 32)}`
 
-/** True when this purchase has used up its AI requests. Without the counter store, nothing is limited. */
-async function overLimit(sid: string): Promise<boolean> {
-  const h = createHash('sha256').update(sid).digest('hex').slice(0, 32)
+async function spent(sid: string): Promise<number> {
   try {
-    const [day, all] = (await redis(['EVAL', COUNT, 2, `wsis:fit:day:${h}`, `wsis:fit:all:${h}`])) as [number, number]
-    return Number(day) > PER_DAY || Number(all) > IN_ALL
+    return Number((await redis(['GET', budgetKey(sid)])) ?? 0)
   } catch {
-    return false
+    return 0
+  }
+}
+
+async function addCost(sid: string, micro: number): Promise<void> {
+  try {
+    await redis(['INCRBY', budgetKey(sid), Math.max(0, Math.round(micro))])
+    await redis(['EXPIRE', budgetKey(sid), 400 * 86400])
+  } catch {
+    // Not counted; the next request tries again.
   }
 }
 
@@ -40,7 +39,7 @@ async function overLimit(sid: string): Promise<boolean> {
 export async function POST(req: Request) {
   const paid = verifyToken(bearer(req))
   if (paymentMode() !== 'off' && !paid) return NextResponse.json({ error: 'Unlock required.' }, { status: 401 })
-  if (paid && (await overLimit(paid.sid))) return NextResponse.json({ error: 'limit' }, { status: 429 })
+  if (paid && (await spent(paid.sid)) >= BUDGET_MICRO_USD) return NextResponse.json({ error: 'budget' }, { status: 429 })
   const body = (await req.json().catch(() => null)) as Partial<FitRequest> | null
   const programmes = Array.isArray(body?.programmes)
     ? body!.programmes
@@ -62,5 +61,6 @@ export async function POST(req: Request) {
   }
   const result = await compareProgrammes({ programmes, profile, locale })
   if (!result) return NextResponse.json({ error: 'unavailable' }, { status: 503 })
-  return NextResponse.json({ items: result }, { headers: { 'Cache-Control': 'private, no-store' } })
+  if (paid) await addCost(paid.sid, result.costMicroUsd)
+  return NextResponse.json({ items: result.fits }, { headers: { 'Cache-Control': 'private, no-store' } })
 }
