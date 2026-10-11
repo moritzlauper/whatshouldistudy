@@ -123,12 +123,13 @@ export function StudyingControl() {
   const fields = [...FIELDS].sort((a, b) => fieldName(a.id, locale).localeCompare(fieldName(b.id, locale), locale))
   const year = new Date().getFullYear()
   return (
-    <div className="flex flex-wrap gap-2">
+    // Stacked: side by side, a long field name got cut off on phones.
+    <div className="grid gap-2">
       <select
         aria-label={t.prefs.studying}
         value={studying?.field ?? ''}
         onChange={(e) => set(e.target.value ? { field: e.target.value, since: studying?.since } : undefined)}
-        className="input min-w-0 flex-1"
+        className="input w-full"
       >
         <option value="">{t.prefs.notStudying}</option>
         {fields.map((f) => (
@@ -142,7 +143,7 @@ export function StudyingControl() {
           aria-label={t.prefs.since}
           value={studying.since ?? ''}
           onChange={(e) => set({ field: studying.field, since: e.target.value ? Number(e.target.value) : undefined })}
-          className="input w-auto"
+          className="input w-full"
         >
           <option value="">{t.prefs.sinceUnknown}</option>
           {Array.from({ length: 13 }, (_, i) => year - i).map((y) => (
