@@ -40,7 +40,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
       <JsonLd data={homeLd(site, t.landing.faq)} />
       {/* Hero */}
       <section className="dots relative overflow-hidden border-b-2 border-line">
-        <a href="#pricing" className="absolute -right-6 top-10 z-10 hidden text-on-color focus-visible:outline-2 focus-visible:outline-accent md:block">
+        <a href="#pricing" className="absolute right-4 top-10 z-10 hidden text-on-color focus-visible:outline-2 focus-visible:outline-accent md:block">
           <Burst className="spin-slow" size={130} color="var(--yellow)" />
           {!SALES_PAUSED[site] && (
             <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-center">
