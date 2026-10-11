@@ -83,6 +83,33 @@ export async function purchaseSpent(sid: string): Promise<number> {
   }
 }
 
+const RUNS = `
+local day = redis.call('INCR', KEYS[1])
+if day == 1 then redis.call('EXPIRE', KEYS[1], 86400) end
+local all = redis.call('INCR', KEYS[2])
+if all == 1 then redis.call('EXPIRE', KEYS[2], 34560000) end
+if day > tonumber(ARGV[1]) or all > tonumber(ARGV[2]) then
+  redis.call('DECR', KEYS[1])
+  redis.call('DECR', KEYS[2])
+  return 0
+end
+return 1
+`
+
+/**
+ * Counts one run of a limited feature for a purchase (e.g. «Ranking mit KI
+ * verbessern»: 5 a day, 20 in all). False when the limit is reached; a run
+ * over the limit is not counted. Without the counter store: allowed.
+ */
+export async function purchaseRun(sid: string, feature: string, perDay: number, inAll: number): Promise<boolean> {
+  const h = createHash('sha256').update(sid).digest('hex').slice(0, 32)
+  try {
+    return Number(await redis(['EVAL', RUNS, 2, `wsis:${feature}:day:${day()}:${h}`, `wsis:${feature}:all:${h}`, perDay, inAll])) === 1
+  } catch {
+    return true
+  }
+}
+
 export async function purchaseAdd(sid: string, micro: number): Promise<void> {
   try {
     await redis(['INCRBY', purchaseKey(sid), Math.max(0, Math.round(micro))])

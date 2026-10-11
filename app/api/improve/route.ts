@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { bearer, paymentMode, verifyToken } from '@/lib/server/token.ts'
-import { PURCHASE_BUDGET_MICRO_USD, purchaseAdd, purchaseSpent } from '@/lib/server/ai-budget.ts'
+import { PURCHASE_BUDGET_MICRO_USD, purchaseAdd, purchaseRun, purchaseSpent } from '@/lib/server/ai-budget.ts'
 import { improveStream } from '@/lib/server/improve.ts'
 import type { ImproveInput } from '@/lib/server/improve.ts'
 
@@ -24,6 +24,8 @@ export async function POST(req: Request) {
       })).filter((f) => f.field && f.terms.length)
     : []
   if (!fields.length) return NextResponse.json({ error: 'Nothing to check.' }, { status: 400 })
+  // 5 runs a day, 20 in all per purchase.
+  if (paid && !(await purchaseRun(paid.sid, 'improve', 5, 20))) return NextResponse.json({ error: 'runs' }, { status: 429 })
   const stream = improveStream({ fields }, req.signal, paid ? (micro) => purchaseAdd(paid.sid, micro) : undefined)
   return new Response(stream, { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'private, no-store', 'X-Accel-Buffering': 'no' } })
 }

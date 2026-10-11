@@ -17,6 +17,28 @@ import { useSite } from './site-context.tsx'
  */
 type Exclusion = { field: string; term: string; reason: string }
 
+/** 5 runs a day, 20 in all, counted here for the display; the server counts per purchase as well. */
+const RUNS_STORE = 'wsis:improve-runs:v1'
+const PER_DAY = 5
+const IN_ALL = 20
+function runs(): { day: string; today: number; total: number } {
+  const day = new Date().toISOString().slice(0, 10)
+  try {
+    const x = JSON.parse(window.localStorage.getItem(RUNS_STORE) ?? '') as { day: string; today: number; total: number }
+    return { day, today: x.day === day ? x.today : 0, total: x.total || 0 }
+  } catch {
+    return { day, today: 0, total: 0 }
+  }
+}
+function countRun() {
+  const r = runs()
+  try {
+    window.localStorage.setItem(RUNS_STORE, JSON.stringify({ day: r.day, today: r.today + 1, total: r.total + 1 }))
+  } catch {
+    // Not counted beyond this page view.
+  }
+}
+
 export function ImprovePanel({ results, raw, token, corrections }: {
   results: Results
   /** The summaries as read, without earlier corrections. */
@@ -31,14 +53,22 @@ export function ImprovePanel({ results, raw, token, corrections }: {
   const [dropped, setDropped] = useState<Set<string>>(new Set())
   const [preview, setPreview] = useState(false)
   const [consent, setConsent] = useState(false)
-  const [state, setState] = useState<'idle' | 'loading' | 'error' | 'budget'>('idle')
+  const [state, setState] = useState<'idle' | 'loading' | 'error' | 'budget' | 'runs'>('idle')
+  // Example titles help Claude but say more about a person; off unless chosen.
+  const [examples, setExamples] = useState(false)
+  const used = typeof window === 'undefined' ? { today: 0, total: 0 } : runs()
+  const left = Math.max(0, Math.min(PER_DAY - used.today, IN_ALL - used.total))
   const [error, setError] = useState('')
   const [lastNone, setLastNone] = useState(false)
 
   if (!raw.length) return null
   const k = (field: string, term: string) => `${field}\u0001${term}`
   const payload = candidates
-    .map((c) => ({ field: c.field, name: fieldName(c.field, locale), terms: c.terms.filter((x) => !dropped.has(k(c.field, x.term))) }))
+    .map((c) => ({
+      field: c.field,
+      name: fieldName(c.field, locale),
+      terms: c.terms.filter((x) => !dropped.has(k(c.field, x.term))).map((x) => (examples ? x : { term: x.term, n: x.n })),
+    }))
     .filter((c) => c.terms.length)
 
   async function run() {
@@ -51,7 +81,11 @@ export function ImprovePanel({ results, raw, token, corrections }: {
         body: JSON.stringify({ fields: payload }),
         signal: AbortSignal.timeout(200_000),
       })
-      if (res.status === 429) return setState('budget')
+      if (res.status === 429) {
+        const j = (await res.json().catch(() => ({}))) as { error?: string }
+        return setState(j.error === 'runs' ? 'runs' : 'budget')
+      }
+      countRun()
       if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`)
       // NUL bytes keep the connection alive; the answer is the JSON after them.
       const text = (await res.text()).replace(/\u0000/g, '').trim()
@@ -141,9 +175,17 @@ export function ImprovePanel({ results, raw, token, corrections }: {
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5" />
             <span>{tx.consent}</span>
           </label>
-          <button type="button" onClick={run} disabled={!consent || state === 'loading'} className="btn btn-primary btn-sm mt-3">
-            {state === 'loading' ? tx.running : done.length ? `🤖 ${tx.again}` : `🤖 ${tx.run}`}
-          </button>
+          <label className="mt-2 flex max-w-3xl items-start gap-2 text-xs">
+            <input type="checkbox" checked={examples} onChange={(e) => setExamples(e.target.checked)} className="mt-0.5" />
+            <span>{tx.examples}</span>
+          </label>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <button type="button" onClick={run} disabled={!consent || state === 'loading' || left <= 0} className="btn btn-primary btn-sm">
+              {state === 'loading' ? tx.running : done.length ? `🤖 ${tx.again}` : `🤖 ${tx.run}`}
+            </button>
+            <span className="text-xs text-muted">{tx.left(left, Math.max(0, IN_ALL - used.total))}</span>
+          </div>
+          {state === 'runs' && <p className="mt-2 font-semibold">{tx.runsUsed}</p>}
           {state === 'error' && <p className="mt-2 font-semibold text-bad">{error}</p>}
           {state === 'budget' && (
             <p className="mt-2">
