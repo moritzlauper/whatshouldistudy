@@ -65,8 +65,8 @@ const hasReadings = (prefs: Preferences) => prefs.countries.length > 0 && prefs.
  * The top programmes. Every programme with a reading is ranked, not only the best
  * matches of the questionnaire, so a good fit is not left out for lack of a place.
  */
-export function TopProgrammes({ results, prefs, topics = [], token, unlocked, shared = false }: {
-  results: Results; prefs: Preferences; topics?: UserTopic[]; token: string | null; unlocked: boolean; shared?: boolean
+export function TopProgrammes({ results, prefs, topics = [], token, unlocked, shared = false, own: ownShared, onOwnChange }: {
+  results: Results; prefs: Preferences; topics?: UserTopic[]; token: string | null; unlocked: boolean; shared?: boolean; own?: boolean; onOwnChange?: (on: boolean) => void
 }) {
   const { t, r, locale } = useSite()
   const [reply, setReply] = useState<{ key: string; data: RankResult | null; error?: boolean; locked?: boolean } | null>(null)
@@ -107,8 +107,10 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
     () => pool.filter((p) => scoreOf(p.id) !== undefined).sort((x, y) => combinedScore(y.match, scoreOf(y.id)) - combinedScore(x.match, scoreOf(x.id))),
     [pool, scoreOf],
   )
-  // The optional step: Claude compares the best of them with the answers here. Off unless switched on.
-  const [own, setOwn] = useState(false)
+  // The optional step: Claude compares the best of them with the answers here. Off unless switched on; the page's switch, when given, decides for every list.
+  const [ownHere, setOwnHere] = useState(false)
+  const own = ownShared ?? ownHere
+  const setOwn = onOwnChange ?? setOwnHere
   const personalPool = rated.slice(0, PERSONAL_POOL)
   const ownKey = JSON.stringify([personalPool.map((p) => p.id), locale])
   const [fits, setFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; budget?: boolean } | null>(null)
@@ -200,7 +202,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   )
 }
 
-export function Programmes({ results, prefs, topics = [], hideFirst = true, shared = false }: { results: Results; prefs: Preferences; topics?: UserTopic[]; hideFirst?: boolean; shared?: boolean }) {
+export function Programmes({ results, prefs, topics = [], hideFirst = true, shared = false, own, onOwnChange }: { results: Results; prefs: Preferences; topics?: UserTopic[]; hideFirst?: boolean; shared?: boolean; own?: boolean; onOwnChange?: (on: boolean) => void }) {
   const { t, r, site, locale, intl } = useSite()
   const [token, setToken] = useState<string | null>(null)
   const [teaser, setTeaser] = useState<Teaser | null>(null)
@@ -239,7 +241,7 @@ export function Programmes({ results, prefs, topics = [], hideFirst = true, shar
         {teaser?.sample && <p className="on-color mt-5 rounded-2xl border-2 border-line bg-yellow px-4 py-3 text-sm font-semibold">⚠ {t.programmes.demo}</p>}
 
         {token || config?.payments === 'off' ? (
-          <Explorer token={token} fields={fields} prefs={prefs} topics={weights} onInvalid={() => setToken(null)} shared={shared} />
+          <Explorer token={token} fields={fields} prefs={prefs} topics={weights} onInvalid={() => setToken(null)} shared={shared} own={own} onOwnChange={onOwnChange} />
         ) : (
           <Locked teaser={teaser} config={config} hideFirst={hideFirst} onUnlocked={setToken} />
         )}
@@ -767,6 +769,8 @@ function Explorer({
   topics,
   onInvalid,
   shared,
+  own: ownShared,
+  onOwnChange,
 }: {
   token: string | null
   fields: Array<{ id: string; score: number }>
@@ -774,6 +778,8 @@ function Explorer({
   topics?: Record<string, number>
   onInvalid: () => void
   shared?: boolean
+  own?: boolean
+  onOwnChange?: (on: boolean) => void
 }) {
   const { t, locale, intl, conf, site } = useSite()
   const [country, setCountry] = useState('')
@@ -788,8 +794,10 @@ function Explorer({
   // The readings are shown in the rows; the order is the one the filters ask for.
   const readings = useReadings(token, !shared && hasReadings(prefs))
   const { fits, scoreOf } = useFitScores(readings.byId, profile)
-  // The optional step «Mit KI suchen»: the shown results with a reading, compared with the answers, as in the top list.
-  const [own, setOwn] = useState(false)
+  // The optional step «Mit KI sortieren» in the list: the shown results with a reading, compared with the answers. The page's switch, when given, decides.
+  const [ownHere, setOwnHere] = useState(false)
+  const own = ownShared ?? ownHere
+  const setOwn = onOwnChange ?? setOwnHere
   const ownPool = useMemo(() => (data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined).slice(0, PERSONAL_POOL), [data, scoreOf])
   const ownKey = JSON.stringify([ownPool.map((p) => p.id), locale])
   const [ownFits, setOwnFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; budget?: boolean } | null>(null)
