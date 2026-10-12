@@ -9,8 +9,6 @@ export const CONTENT_MAX = 2000
 export const CONTENT_BATCH = 10
 /** Requests in flight at once. */
 export const CONTENT_PARALLEL = 4
-/** Share of the sampled titles that must be classified before a result replaces the earlier one. */
-export const CONTENT_MIN_SHARE = 0.8
 
 /** Only user-supplied export titles. No API metadata, URLs, account IDs or dates. */
 export interface ContentItem {

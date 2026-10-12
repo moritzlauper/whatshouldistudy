@@ -66,7 +66,11 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
       const top = orderByNumber(now.items, computedAfter, orderedFieldIds(afterFields)).slice(0, COMPARE_TOP)
       // All requests go out together; each one holds PERSONAL_POOL programmes, the most one request may carry.
       const chunks = Array.from({ length: Math.ceil(top.length / PERSONAL_POOL) }, (_, i) => top.slice(i * PERSONAL_POOL, (i + 1) * PERSONAL_POOL))
-      const answers: PersonalFit[] = (await Promise.all(chunks.map((c) => askPersonal(c, profile, locale, token, computedAfter, fresh)))).flat()
+      // A chunk that fails is asked once more, unless the limit ended it; the other chunks still count.
+      const settled = await Promise.allSettled(chunks.map((c) => askPersonal(c, profile, locale, token, computedAfter, fresh).catch((e: Error) => (limitOf(e) ? Promise.reject(e) : askPersonal(c, profile, locale, token, computedAfter, true)))))
+      const answers: PersonalFit[] = settled.flatMap((s) => (s.status === 'fulfilled' ? s.value : []))
+      const failure = settled.find((s): s is PromiseRejectedResult => s.status === 'rejected')
+      if (!answers.length && failure) throw failure.reason
       if (controller.signal.aborted) return
       const rated = new Map(answers.map((f): [string, PersonalFit] => [f.id, f]))
       const shownAfter = (p: RankedProgramme) => shownScore(p.match, afterFits.scoreOf(p.id), afterFits.hasScores, rated.get(p.id))

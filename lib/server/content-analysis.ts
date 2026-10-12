@@ -35,11 +35,18 @@ export async function analyseContent(items: ContentItem[], locale: string): Prom
       messages: [{ role: 'user', content: JSON.stringify({ locale, fields: FIELDS.map((f) => ({ id: f.id, name: f.name })), items }) }],
     })
     costMicroUsd += await aiSpend('fit', MODEL, response.usage)
-    if (response.stop_reason !== 'end_turn') return { items: [], costMicroUsd }
+    if (response.stop_reason !== 'end_turn') {
+      console.error('content analysis group incomplete', { requested: items.length, stop: response.stop_reason })
+      return { items: [], costMicroUsd }
+    }
     const raw = JSON.parse(response.content.flatMap((x) => x.type === 'text' ? [x.text] : []).join(''))
-    return { items: contentVerdicts(raw.items, new Set(items.map((x) => x.id))), costMicroUsd }
-  } catch {
-    // SDK errors may contain submitted titles. Keep the failure generic.
+    const verdicts = contentVerdicts(raw.items, new Set(items.map((x) => x.id)))
+    // Counts only: titles, reasons and SDK messages stay out of the log.
+    console.info('content analysis group', { requested: items.length, answered: verdicts.length })
+    return { items: verdicts, costMicroUsd }
+  } catch (error) {
+    // SDK errors may contain submitted titles, so only the kind and the status are logged.
+    console.error('content analysis group failed', { kind: error instanceof Error ? error.name : 'unknown', status: (error as { status?: number }).status ?? null })
     return { items: [], costMicroUsd }
   }
 }

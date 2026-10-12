@@ -35,6 +35,13 @@ test('semantic subjects reach field ranking, evidence and programme fit without 
   assert.equal(items[0].meaning, undefined, 'the original remains available')
 })
 
+test('below the maximum, the maximum takes every eligible title', () => {
+  const items = Array.from({ length: 30 }, (_, i) => watch(`Titel ${i} über Soziologie`, `Kanal ${i % 3}`, i % 12))
+  const plan = contentPlan(items, Date.now(), CONTENT_MAX)
+  assert.equal(plan.items.length, plan.eligible)
+  assert.equal(plan.items.length, 33, 'the 30 titles and the three channel records')
+})
+
 test('the maximum classifies up to 2000 titles; their four-digit ids reach the server, the default stays at 240', () => {
   const items = Array.from({ length: 2100 }, (_, i) => watch(`Titel ${i} über Soziologie`, `Kanal ${i % 120}`, i % 12))
   const plan = contentPlan(items, Date.now(), CONTENT_MAX)

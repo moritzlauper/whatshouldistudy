@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { CONTENT_MAX, CONTENT_MIN_SHARE, classifyInBatches, contentVerdicts, type ContentItem, type ContentVerdict } from '@/lib/engine/content-analysis.ts'
+import { CONTENT_MAX, classifyInBatches, contentVerdicts, type ContentItem, type ContentVerdict } from '@/lib/engine/content-analysis.ts'
 import { prepareContentAnalysis } from '@/lib/sources/exports.ts'
 import { withBase } from '@/lib/site.ts'
 import { getState, loadContentInput, update, useAppState } from '@/lib/store.ts'
@@ -97,10 +97,18 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
         onProgress: setDone,
       })
       if (task.signal.aborted || getState().summaries.takeout !== base) return
-      if (result.limited) throw new Error('limit')
-      // Titles of a group that failed for good are left out; the result replaces the earlier one only when most titles were classified.
-      if (result.verdicts.length < CONTENT_MIN_SHARE * plan.items.length) throw new Error('failed')
+      const classified = result.verdicts.length
+      // Nothing classified: there is no new result, and the earlier one stays.
+      if (!classified) throw new Error(result.limited ? 'limit' : 'failed')
+      // Fewer titles than the result in use: that result stays, and the message says why.
+      if (ai && classified < Number(ai.summary.stats.aiClassified ?? ai.summary.stats.aiItems ?? 0)) {
+        setError(a.keptEarlier(classified, plan.items.length))
+        setWide(false)
+        return
+      }
       const summary = plan.apply(result.verdicts)
+      // A budget that ended the run early is stored with the result, so the note survives a reload.
+      summary.stats.aiLimited = result.limited ? 1 : 0
       if (task.signal.aborted) return
       update((s) => s.summaries.takeout !== base ? s : {
         ...s, contentAnalysis: { baseCollectedAt: base.collectedAt, summary, enabled: true, compare: { status: 'pending' } },
@@ -123,11 +131,13 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
     {ai && !wide ? <div className="space-y-2">
       <p>{ai.enabled ? a.active : a.off}</p>
       <p className="text-muted">{a.sample(Number(ai.summary.stats.aiItems ?? 0), Number(ai.summary.stats.aiEligible ?? 0))} {a.contextNote}</p>
-      {Number(ai.summary.stats.aiClassified ?? ai.summary.stats.aiItems ?? 0) < Number(ai.summary.stats.aiItems ?? 0) && <p>{a.partial(Number(ai.summary.stats.aiClassified ?? 0), Number(ai.summary.stats.aiItems ?? 0))}</p>}
+      {Number(ai.summary.stats.aiLimited ?? 0) > 0
+        ? <p>{a.limitPartial(Number(ai.summary.stats.aiClassified ?? 0), Number(ai.summary.stats.aiItems ?? 0))}</p>
+        : Number(ai.summary.stats.aiClassified ?? ai.summary.stats.aiItems ?? 0) < Number(ai.summary.stats.aiItems ?? 0) && <p>{a.partial(Number(ai.summary.stats.aiClassified ?? 0), Number(ai.summary.stats.aiItems ?? 0))}</p>}
       {comparison && <ContentAnalysisChanges comparison={comparison} />}
       {programmes && <ProgrammeChanges input={programmes} token={token} />}
       <div className="flex flex-wrap gap-2">
-        {canExpand && <button type="button" className="btn btn-ghost btn-sm max-w-full whitespace-normal text-left" disabled={status !== 'idle'} onClick={() => void expand()}>{a.more}</button>}
+        {canExpand && <button type="button" className="btn btn-ghost btn-sm max-w-full whitespace-normal text-left" disabled={status !== 'idle'} onClick={() => void expand()}>{a.more(Math.min(CONTENT_MAX, Number(ai.summary.stats.aiEligible ?? 0)))}</button>}
         <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => update((s) => ({ ...s, contentAnalysis: s.contentAnalysis ? { ...s.contentAnalysis, enabled: !s.contentAnalysis.enabled } : undefined }))}>{ai.enabled ? a.disable : a.enable}</button>
         <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => update((s) => ({ ...s, contentAnalysis: undefined }))}>{a.remove}</button>
       </div>
