@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { textTopics } from '../lib/engine/classifier.ts'
-import { combinedScore, localFit, orderByNumber, selectedPersonalFit, toPersonalFit, validatedTopics, type ProgrammeFacts } from '../lib/engine/programme-fit.ts'
+import { combinedScore, localFit, orderByNumber, aiPersonalFit, toPersonalFit, validatedTopics, type ProgrammeFacts } from '../lib/engine/programme-fit.ts'
 import { exactBatch } from '../lib/ai-batch.ts'
 import { pageText } from '../lib/official-facts.ts'
 import { completeSentence, FACTS_VERSION, normaliseFact } from '../scrapers/lib/facts.ts'
@@ -38,11 +38,14 @@ test('unread programmes get neutral content in mixed ranking and remain in the l
   assert.deepEqual(orderByNumber(items, () => undefined), items)
 })
 
-test('personal AI output cannot alter scores or introduce an unsupported reason', () => {
+test('the personal AI rating moves the computed score by at most 30 points and keeps at most three sentences', () => {
   const canonical = { id: 'cs', fit: 4, score: 72, reasons: ['Needs subjects you enjoy: Maths', 'Fits your topics: python'], thin: false }
-  assert.deepEqual(selectedPersonalFit({ id: 'cs', fit: 1, score: 0, reasons: ['Invented interest'], reason_ids: [1, 1] }, canonical), { ...canonical, reasons: [canonical.reasons[1]] })
-  assert.throws(() => selectedPersonalFit({ id: 'cs', reason_ids: [2] }, canonical))
-  assert.throws(() => selectedPersonalFit({ id: 'other', reason_ids: [] }, canonical))
+  assert.equal(aiPersonalFit({ id: 'cs', score: 0, reasons: [] }, canonical).score, 42)
+  assert.equal(aiPersonalFit({ id: 'cs', score: 99, reasons: [] }, canonical).score, 99)
+  assert.deepEqual(aiPersonalFit({ id: 'cs', score: 80, reasons: ['Eins.', '  Zwei.  ', '', 'Drei.', 'Vier.'] }, canonical).reasons, ['Eins.', 'Zwei.', 'Drei.'])
+  assert.deepEqual(aiPersonalFit({ id: 'cs', score: 80, reasons: [] }, canonical).reasons, canonical.reasons)
+  assert.equal(aiPersonalFit({ id: 'cs', score: 99, reasons: ['x'] }, { ...canonical, score: 50, thin: true, reasons: [] }).score, 50)
+  assert.throws(() => aiPersonalFit({ id: 'other', score: 50, reasons: [] }, canonical))
   assert.equal(toPersonalFit({ id: 'cs', score: 99, fit: 1, enough_info: true }, new Set(['cs']))?.fit, 5)
   assert.equal(toPersonalFit({ id: 'cs', score: 99 }, new Set(['cs'])), null)
 })

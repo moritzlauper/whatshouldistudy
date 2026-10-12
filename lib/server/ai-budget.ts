@@ -20,8 +20,8 @@ export type AiPurpose = 'translate' | 'fit'
 /** Daily limits in dollars. */
 const LIMIT_USD: Record<AiPurpose | 'total', number> = {
   translate: 0.2,
-  fit: 3,
-  total: 4,
+  fit: 10,
+  total: 12,
 }
 
 /** List prices in millionths of a dollar per token (input, output). */

@@ -21,7 +21,7 @@ import { CONTACT, withBase } from '@/lib/site.ts'
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
 import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import { FACTS_COUNTRIES, blendedScore, orderByNumber, orderedFieldIds, programmeFieldMatch, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
-import { AiBlock, OwnDataPanel, PERSONAL_POOL, combinedScore, dotsFor, useFitScores, useReadings, type PersonalStatus } from './readings.tsx'
+import { AiBlock, OwnDataPanel, PERSONAL_POOL, combinedScore, dotsFor, useFitScores, useReadings, type OwnStatus, type PersonalStatus } from './readings.tsx'
 import { officialPageOf } from '@/lib/official-pages.ts'
 import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
 import { Price, useConfig } from './price.tsx'
@@ -63,6 +63,9 @@ const hasReadings = (prefs: Preferences) => prefs.countries.length > 0 && prefs.
 
 /** Results per page of the list. The server pages the other sorts by the same size. */
 const PAGE_SIZE = 40
+
+/** The limit that answered the comparison, if one did. */
+const limitOf = (e: Error): 'budget' | 'daily' | undefined => (e.message === 'budget' || e.message === 'daily' ? e.message : undefined)
 
 /**
  * Every programme the request asks for, in the server's order. The server answers at most 2000 at a time;
@@ -107,7 +110,7 @@ function askPersonal(programmes: RankedProgramme[], profile: LocalProfile, local
     headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body,
   }).then(async (res) => {
-    if (res.status === 429) throw new Error('budget')
+    if (res.status === 429) throw new Error(((await res.json().catch(() => ({}))) as { error?: string }).error === 'daily' ? 'daily' : 'budget')
     if (!res.ok) throw new Error(String(res.status))
     return ((await res.json()) as { fits: PersonalFit[] }).fits
   })
@@ -120,8 +123,8 @@ function askPersonal(programmes: RankedProgramme[], profile: LocalProfile, local
  * The top programmes. Every programme with a reading is ranked, not only the best
  * matches of the questionnaire, so a good fit is not left out for lack of a place.
  */
-export function TopProgrammes({ results, prefs, topics = [], token, unlocked, shared = false, own: ownShared, onOwnChange }: {
-  results: Results; prefs: Preferences; topics?: UserTopic[]; token: string | null; unlocked: boolean; shared?: boolean; own?: boolean; onOwnChange?: (on: boolean) => void
+export function TopProgrammes({ results, prefs, topics = [], token, unlocked, shared = false, own: ownShared, onOwnChange, onStatus }: {
+  results: Results; prefs: Preferences; topics?: UserTopic[]; token: string | null; unlocked: boolean; shared?: boolean; own?: boolean; onOwnChange?: (on: boolean) => void; onStatus?: (status: OwnStatus) => void
 }) {
   const { t, r, locale } = useSite()
   const [reply, setReply] = useState<{ key: string; data: RankResult | null; error?: boolean; locked?: boolean } | null>(null)
@@ -161,7 +164,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const own = ownShared ?? ownHere
   const setOwn = onOwnChange ?? setOwnHere
   const ownKey = JSON.stringify([personalPool.map((p) => p.id), locale, profile, token])
-  const [fits, setFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; budget?: boolean } | null>(null)
+  const [fits, setFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; limit?: 'budget' | 'daily' } | null>(null)
   useEffect(() => {
     if (!own || !personalPool.length || !profile) return
     let alive = true
@@ -170,14 +173,18 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
         if (alive) setFits({ key: ownKey, map: new Map(list.map((f) => [f.id, f])) })
       })
       .catch((e: Error) => {
-        if (alive) setFits({ key: ownKey, map: null, budget: e.message === 'budget' })
+        if (alive) setFits({ key: ownKey, map: null, limit: limitOf(e) })
       })
     return () => {
       alive = false
     }
   }, [own, ownKey, token])
   const personalMap = own && fits?.key === ownKey ? fits.map : null
-  const ownStatus: 'loading' | 'failed' | 'budget' | 'ready' = !own ? 'ready' : !fits || fits.key !== ownKey ? 'loading' : fits.budget ? 'budget' : fits.map ? 'ready' : 'failed'
+  const ownStatus: 'loading' | 'failed' | 'budget' | 'daily' | 'ready' = !own ? 'ready' : !fits || fits.key !== ownKey ? 'loading' : fits.limit === 'budget' ? 'budget' : fits.limit === 'daily' ? 'daily' : fits.map ? 'ready' : 'failed'
+  // Reported up, so that the switch above the results shows the same status as this list.
+  useEffect(() => {
+    onStatus?.(ownStatus)
+  }, [ownStatus, onStatus])
   const personalStatus = (id: string): PersonalStatus => {
     if (!own) return 'off'
     if (!fits || fits.key !== ownKey) return 'loading'
@@ -839,7 +846,7 @@ function Explorer({
   // The optional step compares the best of the results with a reading, in the order the top list uses.
   const ownPool = useMemo(() => orderByNumber((data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined), scoreOf, fieldOrder).slice(0, PERSONAL_POOL), [data, scoreOf, fieldOrder])
   const ownKey = JSON.stringify([ownPool.map((p) => p.id), locale, profile, token])
-  const [ownFits, setOwnFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; budget?: boolean } | null>(null)
+  const [ownFits, setOwnFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; limit?: 'budget' | 'daily' } | null>(null)
   useEffect(() => {
     if (!own || !ownPool.length || !profile) return
     let alive = true
@@ -848,14 +855,14 @@ function Explorer({
         if (alive) setOwnFits({ key: ownKey, map: new Map(list.map((f) => [f.id, f])) })
       })
       .catch((e: Error) => {
-        if (alive) setOwnFits({ key: ownKey, map: null, budget: e.message === 'budget' })
+        if (alive) setOwnFits({ key: ownKey, map: null, limit: limitOf(e) })
       })
     return () => {
       alive = false
     }
   }, [own, ownKey, token])
   const ownMap = own && ownFits?.key === ownKey ? ownFits.map : null
-  const ownStatus: 'loading' | 'failed' | 'budget' | 'ready' = !own ? 'ready' : !ownFits || ownFits.key !== ownKey ? 'loading' : ownFits.budget ? 'budget' : ownFits.map ? 'ready' : 'failed'
+  const ownStatus: 'loading' | 'failed' | 'budget' | 'daily' | 'ready' = !own ? 'ready' : !ownFits || ownFits.key !== ownKey ? 'loading' : ownFits.limit === 'budget' ? 'budget' : ownFits.limit === 'daily' ? 'daily' : ownFits.map ? 'ready' : 'failed'
   const personalStatusOf = (id: string): PersonalStatus => {
     if (!own) return 'off'
     if (!ownFits || ownFits.key !== ownKey) return 'loading'

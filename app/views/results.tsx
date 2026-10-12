@@ -17,7 +17,7 @@ import { big5Label, emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, group
 import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes, TopProgrammes } from '../ui/programmes.tsx'
-import { OwnDataPanel } from '../ui/readings.tsx'
+import { OwnDataPanel, type OwnStatus } from '../ui/readings.tsx'
 import { StudyingControl } from '../ui/prefs-form.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { Contributions } from '../ui/contributions.tsx'
@@ -41,6 +41,8 @@ export function ResultsView() {
   const [shared, setShared] = useState<Snapshot | null | 'broken' | undefined>(undefined)
   // «Mit KI sortieren» at the top decides for the top list and the list below it at once.
   const [aiSort, setAiSort] = useState(false)
+  // What the comparison of the top list reports, so the switch above can say when a limit answered.
+  const [aiStatus, setAiStatus] = useState<OwnStatus>('ready')
   const [sharedPaid, setSharedPaid] = useState(false)
   useEffect(() => {
     const read = () => {
@@ -145,7 +147,7 @@ export function ResultsView() {
 
       {unlocked && !isShared && (
         <div className="mt-6">
-          <OwnDataPanel on={aiSort} status="ready" onChange={setAiSort} hint={t.programmes.ai.own.askAllHint} />
+          <OwnDataPanel on={aiSort} status={aiStatus} onChange={setAiSort} hint={t.programmes.ai.own.askAllHint} />
         </div>
       )}
 
@@ -174,7 +176,7 @@ export function ResultsView() {
 
       {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop shared={isShared} score={first.score} />}
       <TopProgrammes results={results} prefs={prefs} topics={topics} unlocked={unlocked} shared={isShared}
-        token={isShared ? ((shared as Snapshot).token ?? null) : paid ? state.unlock!.token : null} own={aiSort} onOwnChange={setAiSort} />
+        token={isShared ? ((shared as Snapshot).token ?? null) : paid ? state.unlock!.token : null} own={aiSort} onOwnChange={setAiSort} onStatus={setAiStatus} />
       {/* Browsing the programmes sits right under the top list: the main thing on this page. */}
       <Programmes results={results} prefs={prefs} topics={topics} hideFirst={!unlocked} shared={isShared} own={aiSort} onOwnChange={setAiSort} />
 

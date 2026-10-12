@@ -237,8 +237,23 @@ export function toPersonalFit(raw: unknown, asked: ReadonlySet<string>): Persona
 
 export const fitBand = (score: number) => score >= 80 ? 5 : score >= 60 ? 4 : score >= 40 ? 3 : score >= 20 ? 2 : 1
 
-/** The model can select verified reasons, never invent prose or change the computed number. */
-export function selectedPersonalFit(raw: Record<string, unknown>, canonical: PersonalFit): PersonalFit {
-  if (raw.id !== canonical.id || !Array.isArray(raw.reason_ids) || raw.reason_ids.some((i) => !Number.isInteger(i) || i < 0 || i >= canonical.reasons.length)) throw new Error('Unknown programme or reason ID')
-  return { ...canonical, reasons: [...new Set(raw.reason_ids as number[])].slice(0, 2).map((i) => canonical.reasons[i]) }
+/** How far the personal comparison may move the computed score, in points either way. */
+export const PERSONAL_SWING = 30
+
+/**
+ * Claude's own rating of one programme: its score kept within PERSONAL_SWING of the computed number, and at most three of its
+ * sentences (trimmed, 320 characters each). Without sentences the computed connections stand. Thin readings stay neutral.
+ */
+export function aiPersonalFit(raw: Record<string, unknown>, canonical: PersonalFit): PersonalFit {
+  if (raw.id !== canonical.id || typeof raw.score !== 'number' || !Number.isFinite(raw.score)) throw new Error('Unknown programme or score')
+  if (canonical.thin) return canonical
+  const low = Math.max(0, canonical.score - PERSONAL_SWING)
+  const high = Math.min(100, canonical.score + PERSONAL_SWING)
+  const score = Math.round(Math.max(low, Math.min(high, raw.score)))
+  const sentences = (Array.isArray(raw.reasons) ? raw.reasons : [])
+    .filter((r): r is string => typeof r === 'string')
+    .map((r) => r.trim().slice(0, 320))
+    .filter(Boolean)
+    .slice(0, 3)
+  return { id: canonical.id, fit: fitBand(score), score, reasons: sentences.length ? sentences : canonical.reasons, thin: false }
 }

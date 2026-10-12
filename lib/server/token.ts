@@ -16,6 +16,9 @@ export interface TokenPayload {
 
 const VALIDITY_DAYS = 365
 
+/** When the unlock token was issued: its expiry minus the validity. */
+export const issuedAt = (p: TokenPayload): number => p.exp - VALIDITY_DAYS * 864e5
+
 function secret(): string | null {
   if (process.env.WSIS_TOKEN_SECRET) return process.env.WSIS_TOKEN_SECRET
   // Without real payments a forged token gains nothing, so a fixed key is fine.
