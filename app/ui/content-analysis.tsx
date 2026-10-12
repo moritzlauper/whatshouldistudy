@@ -7,6 +7,7 @@ import { prepareContentAnalysis } from '@/lib/sources/exports.ts'
 import { withBase } from '@/lib/site.ts'
 import { getState, loadContentInput, update, useAppState } from '@/lib/store.ts'
 import { useSite } from './site-context.tsx'
+import { ProgrammeChanges, type ProgrammeChangesInput } from './programme-changes.tsx'
 import { fieldName } from '@/lib/site/labels.ts'
 import type { FieldMatch } from '@/lib/engine/types.ts'
 
@@ -14,7 +15,7 @@ type Prepared = ReturnType<typeof prepareContentAnalysis>
 type Comparison = { before: FieldMatch[]; after: FieldMatch[] }
 
 /** Prepare the existing local import; only the explicit consent button sends it. */
-export function ContentAnalysisPanel({ token, comparison }: { token: string | null; comparison?: Comparison }) {
+export function ContentAnalysisPanel({ token, comparison, programmes }: { token: string | null; comparison?: Comparison; programmes?: ProgrammeChangesInput }) {
   const { t, r, locale } = useSite()
   const a = t.contentAi
   const state = useAppState()
@@ -97,7 +98,7 @@ export function ContentAnalysisPanel({ token, comparison }: { token: string | nu
       const summary = plan.apply(verdicts)
       if (task.signal.aborted) return
       update((s) => s.summaries.takeout !== base ? s : {
-        ...s, contentAnalysis: { baseCollectedAt: base.collectedAt, summary, enabled: true },
+        ...s, contentAnalysis: { baseCollectedAt: base.collectedAt, summary, enabled: true, compare: { status: 'pending' } },
       })
       setWide(false)
     } catch (e) {
@@ -114,6 +115,7 @@ export function ContentAnalysisPanel({ token, comparison }: { token: string | nu
       <p>{ai.enabled ? a.active : a.off}</p>
       <p className="text-muted">{a.sample(Number(ai.summary.stats.aiItems ?? 0), Number(ai.summary.stats.aiEligible ?? 0))} {a.contextNote}</p>
       {comparison && <ContentAnalysisChanges comparison={comparison} />}
+      {programmes && <ProgrammeChanges input={programmes} token={token} />}
       <div className="flex flex-wrap gap-2">
         {canExpand && <button type="button" className="btn btn-ghost btn-sm max-w-full whitespace-normal text-left" disabled={status !== 'idle'} onClick={() => void expand()}>{a.more}</button>}
         <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => update((s) => ({ ...s, contentAnalysis: s.contentAnalysis ? { ...s.contentAnalysis, enabled: !s.contentAnalysis.enabled } : undefined }))}>{ai.enabled ? a.disable : a.enable}</button>

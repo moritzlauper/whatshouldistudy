@@ -75,9 +75,16 @@ export function ResultsView() {
     const current = score({ ...input, summaries })
     const ai = state.contentAnalysis
     if (!ai || ai.baseCollectedAt !== state.summaries.takeout?.collectedAt) return { current }
-    const original = ai.enabled ? score({ ...input, summaries: Object.values(state.summaries).filter((s): s is SourceSummary => !!s) }) : current
-    const enhanced = ai.enabled ? current : score({ ...input, summaries: effectiveSummaries({ ...state, contentAnalysis: { ...ai, enabled: true } }) })
-    return { current, comparison: { before: original.fields, after: enhanced.fields } }
+    const rawSummaries = Object.values(state.summaries).filter((s): s is SourceSummary => !!s)
+    const withAnalysis = ai.enabled ? summaries : effectiveSummaries({ ...state, contentAnalysis: { ...ai, enabled: true } })
+    const original = ai.enabled ? score({ ...input, summaries: rawSummaries }) : current
+    const enhanced = ai.enabled ? current : score({ ...input, summaries: withAnalysis })
+    // The programmes before and after the analysis, each with the topics its side gave.
+    const programmes = {
+      before: { results: original, topics: userTopics(rawSummaries, state.prefs.studying) },
+      after: { results: enhanced, topics: userTopics(withAnalysis, state.prefs.studying) },
+    }
+    return { current, comparison: { before: original.fields, after: enhanced.fields }, programmes }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, state, stats, shared])
   const own = calculated?.current ?? null
@@ -151,7 +158,7 @@ export function ResultsView() {
 
       {unlocked && !isShared && (
         <div className="mt-6">
-          <ContentAnalysisPanel token={paid ? state.unlock!.token : null} comparison={calculated?.comparison} />
+          <ContentAnalysisPanel token={paid ? state.unlock!.token : null} comparison={calculated?.comparison} programmes={calculated?.programmes && { ...calculated.programmes, prefs, unlocked }} />
         </div>
       )}
 

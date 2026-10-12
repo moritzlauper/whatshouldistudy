@@ -10,6 +10,23 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
 
+## Vergleich der 50 besten Studiengänge nach der Inhaltsanalyse (12.10.2026)
+
+- Nach dem Lauf «Verlauf mit KI verstehen» vergleicht Claude automatisch die 50 besten Studiengänge mit den neuen Angaben. Das geht in drei Anfragen an `/api/personal-fit` (20, 20 und 10 Programme); die Grenze von 20 pro Anfrage bleibt bestehen.
+- Die Einwilligung der Analyse nennt den Vergleich. Ältere Analysen starten ihn nur mit einem Klick auf «Die 50 besten Studiengänge mit deinen Angaben vergleichen».
+- Der Vergleich liegt im Browser (`contentAnalysis.compare`), nicht auf dem Server. «Vergleich wiederholen» umgeht den Zwischenspeicher für gleiche Anfragen, sonst käme dieselbe Antwort zurück.
+- Die Tabelle zeigt Platz und Punkte vorher und jetzt, die Begründungen darunter. Die Zahl jetzt ist Claudes Zahl, wo Claude bewertet hat; sonst die Zahl ohne KI.
+- Die Hauptliste bleibt beim Vergleich mit Klick für 20 Programme. Sie übernimmt die Ergebnisse dieses automatischen Vergleichs nicht.
+- Kosten: rund 1 bis 2 Cent je Lauf. Das Budget pro Bericht (ab 1. November 1 $) und das Tageslimit gelten wie bisher.
+
+Prüfungen: TypeScript grün; neue Tests in `test/programme-changes.test.ts`. Im Browser geprüft mit Mock-Antworten für Lesungen, Programmliste und KI: Erfolg mit drei Anfragen und Wiederholung, Fehler mit HTTP 503. Nicht geprüft: echte KI-Antworten und das echte Budget.
+
+## Bis zu 2000 Einträge einordnen (12.10.2026)
+
+- Nach dem Standardlauf mit 240 Einträgen bietet «Verlauf mit KI verstehen» die Option «Maximum» an: bis zu 2000 Einträge, in Gruppen zu je 40 nacheinander. Das Ergebnis ersetzt das bisherige; die ersten 240 werden dabei erneut gesendet.
+- Die Anfrage-Prüfung lässt vierstellige IDs zu, weil bis 2000 Einträge nummeriert werden. Der Tab muss offen bleiben, bis alle 50 Anfragen durch sind.
+- Kosten für 2000 Einträge: rund 0,10 $ mit Haiku 5.5, gemessen an den Anfragegrössen des Codes.
+
 ## Allgemeine Wörter und eine Zahl je Studiengang (12.10.2026)
 
 - Auf Wunsch des Inhabers zählen Wörter wie «society», «Gesellschaft», «sociedad», «società» und «société» (dazu «gesellschaftlich») nicht als Thema. Sie bestimmen weder die Sortierung der Studiengänge, noch erscheinen sie als Begründung oder in der Themenliste. Die Fachzuordnung bleibt unverändert; die Wörter zählen dort weiter als Belege.

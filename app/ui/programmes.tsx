@@ -51,7 +51,7 @@ const DE_DATIVE: Record<string, string> = {
 
 
 /** The fields we look up programmes for: your top six, with their scores. */
-function requestFields(results: Results) {
+export function requestFields(results: Results) {
   return results.fields.slice(0, 6).map((f) => ({ id: f.id, score: f.score }))
 }
 
@@ -59,19 +59,19 @@ function requestFields(results: Results) {
  * The readings cover Swiss programmes: they are used only when every country asked
  * for has them. Otherwise the lists stay in the order of the questionnaire.
  */
-const hasReadings = (prefs: Preferences) => prefs.countries.length > 0 && prefs.countries.every((c) => (FACTS_COUNTRIES as readonly string[]).includes(c))
+export const hasReadings = (prefs: Preferences) => prefs.countries.length > 0 && prefs.countries.every((c) => (FACTS_COUNTRIES as readonly string[]).includes(c))
 
 /** Results per page of the list. The server pages the other sorts by the same size. */
 const PAGE_SIZE = 40
 
 /** The limit that answered the comparison, if one did. */
-const limitOf = (e: Error): 'budget' | 'daily' | undefined => (e.message === 'budget' || e.message === 'daily' ? e.message : undefined)
+export const limitOf = (e: Error): 'budget' | 'daily' | undefined => (e.message === 'budget' || e.message === 'daily' ? e.message : undefined)
 
 /**
  * Every programme the request asks for, in the server's order. The server answers at most 2000 at a time;
  * 'locked' when it refuses the token.
  */
-async function allProgrammes(request: object, token: string | null, signal?: AbortSignal): Promise<RankResult | 'locked'> {
+export async function allProgrammes(request: object, token: string | null, signal?: AbortSignal): Promise<RankResult | 'locked'> {
   const items: RankedProgramme[] = []
   let first: RankResult | null = null
   for (let page = 0; ; page++) {
@@ -96,13 +96,15 @@ async function allProgrammes(request: object, token: string | null, signal?: Abo
  * between them; a failed ask is not kept, so the next one asks again.
  */
 const personalAsks = new Map<string, Promise<PersonalFit[]>>()
-function askPersonal(programmes: RankedProgramme[], profile: LocalProfile, locale: string, token: string | null, computed: (p: RankedProgramme) => number): Promise<PersonalFit[]> {
+export function askPersonal(programmes: RankedProgramme[], profile: LocalProfile, locale: string, token: string | null, computed: (p: RankedProgramme) => number, fresh = false): Promise<PersonalFit[]> {
   const body = JSON.stringify({
     programmes: programmes.map((p) => ({ id: p.id, field: p.matchedField, country: p.country, computed: Math.round(computed(p)) })),
     profile: { riasec: profile.riasec, subjects: Object.entries(profile.enjoy).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => k), topics: profile.topics ?? {} },
     locale,
   })
   const key = `${token ?? ''}|${body}`
+  // A repeated comparison asks again; the same list and profile would otherwise return the earlier answer.
+  if (fresh) personalAsks.delete(key)
   const hit = personalAsks.get(key)
   if (hit) return hit
   const ask = fetch(withBase('/api/personal-fit'), {
@@ -968,7 +970,7 @@ function Explorer({
 
 
 /** The person's side of the comparison: interest profile, the subjects they enjoy, and the topics they gave weight (lexicon keys). */
-function useLocalProfile(given?: Results | null, topics?: Record<string, number>): LocalProfile | null {
+export function useLocalProfile(given?: Results | null, topics?: Record<string, number>): LocalProfile | null {
   const context = useContext(ResultsContext)
   const results = given ?? context
   const { answers } = useAppState()

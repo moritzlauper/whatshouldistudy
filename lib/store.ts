@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from 'react'
 import type { Preferences, QuestionnaireAnswers, SourceId, SourceSummary } from './engine/types.ts'
+import type { ProgrammeCompare } from './engine/programme-changes.ts'
 import { readContentInput, saveContentInput } from './content-store.ts'
 import type { ContentAnalysisInput } from './sources/exports.ts'
 
@@ -16,7 +17,7 @@ export interface State {
   /** Identifies the current YouTube import in this site's local IndexedDB record. */
   contentImportId?: string
   /** Optional semantic summary; the original stays available when switched off. */
-  contentAnalysis?: { baseCollectedAt: string; summary: SourceSummary; enabled: boolean }
+  contentAnalysis?: { baseCollectedAt: string; summary: SourceSummary; enabled: boolean; compare?: ProgrammeCompare }
   summaries: Partial<Record<SourceId, SourceSummary>>
   answers: QuestionnaireAnswers
   prefs: Preferences
