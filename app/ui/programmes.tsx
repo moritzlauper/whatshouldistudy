@@ -20,7 +20,7 @@ import type { InstType } from '@/lib/institutions.ts'
 import { CONTACT, withBase } from '@/lib/site.ts'
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
 import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
-import { FACTS_COUNTRIES, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
+import { FACTS_COUNTRIES, blendedScore, orderByNumber, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
 import { AiBlock, OwnDataPanel, PERSONAL_POOL, combinedScore, dotsFor, useFitScores, useReadings, type PersonalStatus } from './readings.tsx'
 import { officialPageOf } from '@/lib/official-pages.ts'
 import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
@@ -61,6 +61,61 @@ function requestFields(results: Results) {
  */
 const hasReadings = (prefs: Preferences) => prefs.countries.length > 0 && prefs.countries.every((c) => (FACTS_COUNTRIES as readonly string[]).includes(c))
 
+/** Results per page of the list. The server pages the other sorts by the same size. */
+const PAGE_SIZE = 40
+
+/**
+ * Every programme the request asks for, in the server's order. The server answers at most 2000 at a time;
+ * 'locked' when it refuses the token.
+ */
+async function allProgrammes(request: object, token: string | null, signal?: AbortSignal): Promise<RankResult | 'locked'> {
+  const items: RankedProgramme[] = []
+  let first: RankResult | null = null
+  for (let page = 0; page < 10; page++) {
+    const res = await fetch(withBase('/api/programmes'), {
+      method: 'POST',
+      signal,
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ ...request, page, pageSize: 2000 }),
+    })
+    if (res.status === 401) return 'locked'
+    if (!res.ok) throw new Error('Programme lookup failed')
+    const data = (await res.json()) as RankResult
+    if (!first) first = data
+    items.push(...data.items)
+    if (!data.items.length || items.length >= data.total) break
+  }
+  return { ...(first as RankResult), items }
+}
+
+/**
+ * The optional step's comparison. Both lists ask for the same programmes, so the answer is shared
+ * between them; a failed ask is not kept, so the next one asks again.
+ */
+const personalAsks = new Map<string, Promise<PersonalFit[]>>()
+function askPersonal(programmes: RankedProgramme[], profile: LocalProfile, locale: string, token: string | null): Promise<PersonalFit[]> {
+  const body = JSON.stringify({
+    programmes: programmes.map((p) => ({ id: p.id, field: p.matchedField, country: p.country })),
+    profile: { riasec: profile.riasec, subjects: Object.entries(profile.enjoy).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => k), topics: profile.topics ?? {} },
+    locale,
+  })
+  const key = `${token ?? ''}|${body}`
+  const hit = personalAsks.get(key)
+  if (hit) return hit
+  const ask = fetch(withBase('/api/personal-fit'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    body,
+  }).then(async (res) => {
+    if (res.status === 429) throw new Error('budget')
+    if (!res.ok) throw new Error(String(res.status))
+    return ((await res.json()) as { fits: PersonalFit[] }).fits
+  })
+  personalAsks.set(key, ask)
+  ask.catch(() => personalAsks.delete(key))
+  return ask
+}
+
 /**
  * The top programmes. Every programme with a reading is ranked, not only the best
  * matches of the questionnaire, so a good fit is not left out for lack of a place.
@@ -77,64 +132,48 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   // Not on a shared link (its profile is someone else's).
   const readings = useReadings(token, unlocked && !shared && hasReadings(prefs))
   const profile = useLocalProfile(results, weights)
-  // The best matches of the questionnaire, as before; the readings only re-order them.
-  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: 20 })
+  // Every match, not only the twenty best of the questionnaire: a reading can move any programme to the top, so the list asks for all.
+  const request = useMemo(() => ({ fields: requestFields(results), prefs, topics: weights, sort: 'match' as const }), [results, prefs, weights])
+  const body = JSON.stringify(request)
   const key = JSON.stringify([body, token, unlocked, attempt])
   // The list waits for the readings, so that it is asked for once, with them.
   const ready = readings.status !== 'loading'
   useEffect(() => {
     if (!unlocked || !ready) return
     const controller = new AbortController()
-    fetch(withBase('/api/programmes'), {
-      method: 'POST', signal: controller.signal,
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body,
-    }).then(async (res) => {
-      if (res.status === 401) return setReply({ key, data: null, locked: true })
-      if (!res.ok) throw new Error('Programme lookup failed')
-      const data = await res.json() as RankResult
-      if (!controller.signal.aborted) setReply({ key, data })
+    allProgrammes(request, token, controller.signal).then((data) => {
+      if (!controller.signal.aborted) setReply(data === 'locked' ? { key, data: null, locked: true } : { key, data })
     }).catch(() => {
       if (!controller.signal.aborted) setReply({ key, data: null, error: true })
     })
     return () => controller.abort()
-  }, [body, key, token, unlocked, ready])
+  }, [request, key, token, unlocked, ready])
   const current = reply?.key === key ? reply : null
   const locked = !unlocked || current?.locked
   const pool = current?.data?.items ?? []
   const { fits: local, scoreOf } = useFitScores(readings.byId, profile)
-  // Every programme with a reading, best first by the reading and the match.
-  const rated = useMemo(
-    () => pool.filter((p) => scoreOf(p.id) !== undefined).sort((x, y) => combinedScore(y.match, scoreOf(y.id)) - combinedScore(x.match, scoreOf(x.id))),
-    [pool, scoreOf],
-  )
+  // Every programme with a reading; the optional step compares the best of them, best first by the reading and the match.
+  const rated = useMemo(() => pool.filter((p) => scoreOf(p.id) !== undefined), [pool, scoreOf])
+  const personalPool = useMemo(() => orderByNumber(rated, scoreOf).slice(0, PERSONAL_POOL), [rated, scoreOf])
   // The optional step: Claude compares the best of them with the answers here. Off unless switched on; the page's switch, when given, decides for every list.
   const [ownHere, setOwnHere] = useState(false)
   const own = ownShared ?? ownHere
   const setOwn = onOwnChange ?? setOwnHere
-  const personalPool = rated.slice(0, PERSONAL_POOL)
   const ownKey = JSON.stringify([personalPool.map((p) => p.id), locale])
   const [fits, setFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; budget?: boolean } | null>(null)
   useEffect(() => {
     if (!own || !personalPool.length || !profile) return
-    const controller = new AbortController()
-    fetch(withBase('/api/personal-fit'), {
-      method: 'POST', signal: controller.signal,
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({
-        programmes: personalPool.map((p) => ({ id: p.id, field: p.matchedField, country: p.country })),
-        profile: { riasec: profile.riasec, subjects: Object.entries(profile.enjoy).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => k), topics: profile.topics ?? {} },
-        locale,
-      }),
-    }).then(async (res) => {
-      if (res.status === 429) throw new Error('budget')
-      if (!res.ok) throw new Error(String(res.status))
-      return (await res.json()) as { fits: PersonalFit[] }
-    }).then(({ fits: list }) => {
-      if (!controller.signal.aborted) setFits({ key: ownKey, map: new Map(list.map((f) => [f.id, f])) })
-    }).catch((e: Error) => {
-      if (!controller.signal.aborted) setFits({ key: ownKey, map: null, budget: e.message === 'budget' })
-    })
-    return () => controller.abort()
+    let alive = true
+    askPersonal(personalPool, profile, locale, token)
+      .then((list) => {
+        if (alive) setFits({ key: ownKey, map: new Map(list.map((f) => [f.id, f])) })
+      })
+      .catch((e: Error) => {
+        if (alive) setFits({ key: ownKey, map: null, budget: e.message === 'budget' })
+      })
+    return () => {
+      alive = false
+    }
   }, [own, ownKey, token])
   const personalMap = own && fits?.key === ownKey ? fits.map : null
   const ownStatus: 'loading' | 'failed' | 'budget' | 'ready' = !own ? 'ready' : !fits || fits.key !== ownKey ? 'loading' : fits.budget ? 'budget' : fits.map ? 'ready' : 'failed'
@@ -145,22 +184,11 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
     if (fits.map.has(id)) return 'rated'
     return personalPool.some((p) => p.id === id) ? 'missing' : 'outside'
   }
+  // The order both lists show, over all results: each by its number, the reading and the answers where there are, else the match.
   const ranked = useMemo(() => {
-    if (!rated.length) return pool.map((p) => ({ p, score: undefined as number | undefined, personal: undefined as PersonalFit | undefined }))
-    if (personalMap) {
-      return personalPool
-        .map((p) => {
-          const s = scoreOf(p.id)!
-          const f = personalMap.get(p.id)
-          return { p, score: f ? Math.round((s + f.score) / 2) : s, personal: f }
-        })
-        .sort((a, b) => combinedScore(b.p.match, b.score) - combinedScore(a.p.match, a.score))
-    }
-    // Every match stays in the list: those with a reading by the reading and the match, the others by the match.
-    return [...pool]
-      .map((p) => ({ p, score: scoreOf(p.id), personal: undefined as PersonalFit | undefined }))
-      .sort((a, b) => combinedScore(b.p.match, b.score) - combinedScore(a.p.match, a.score))
-  }, [pool, rated, personalPool, personalMap, scoreOf])
+    const numberOf = (id: string) => blendedScore(scoreOf(id), personalMap?.get(id))
+    return orderByNumber(pool, numberOf).map((p) => ({ p, score: numberOf(p.id), personal: personalMap?.get(p.id) }))
+  }, [pool, scoreOf, personalMap])
   const best = ranked.slice(0, shown)
   return (
     <section className="mt-8" aria-label={t.programmes.topTitle}>
@@ -798,30 +826,23 @@ function Explorer({
   const [ownHere, setOwnHere] = useState(false)
   const own = ownShared ?? ownHere
   const setOwn = onOwnChange ?? setOwnHere
-  const ownPool = useMemo(() => (data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined).slice(0, PERSONAL_POOL), [data, scoreOf])
+  // The optional step compares the best of the results with a reading, in the order the top list uses.
+  const ownPool = useMemo(() => orderByNumber((data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined), scoreOf).slice(0, PERSONAL_POOL), [data, scoreOf])
   const ownKey = JSON.stringify([ownPool.map((p) => p.id), locale])
   const [ownFits, setOwnFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; budget?: boolean } | null>(null)
   useEffect(() => {
     if (!own || !ownPool.length || !profile) return
-    const controller = new AbortController()
-    fetch(withBase('/api/personal-fit'), {
-      method: 'POST', signal: controller.signal,
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({
-        programmes: ownPool.map((p) => ({ id: p.id, field: p.matchedField, country: p.country })),
-        profile: { riasec: profile.riasec, subjects: Object.entries(profile.enjoy).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => k), topics: profile.topics ?? {} },
-        locale,
-      }),
-    }).then(async (res) => {
-      if (res.status === 429) throw new Error('budget')
-      if (!res.ok) throw new Error(String(res.status))
-      return (await res.json()) as { fits: PersonalFit[] }
-    }).then(({ fits: list }) => {
-      if (!controller.signal.aborted) setOwnFits({ key: ownKey, map: new Map(list.map((f) => [f.id, f])) })
-    }).catch((e: Error) => {
-      if (!controller.signal.aborted) setOwnFits({ key: ownKey, map: null, budget: e.message === 'budget' })
-    })
-    return () => controller.abort()
+    let alive = true
+    askPersonal(ownPool, profile, locale, token)
+      .then((list) => {
+        if (alive) setOwnFits({ key: ownKey, map: new Map(list.map((f) => [f.id, f])) })
+      })
+      .catch((e: Error) => {
+        if (alive) setOwnFits({ key: ownKey, map: null, budget: e.message === 'budget' })
+      })
+    return () => {
+      alive = false
+    }
   }, [own, ownKey, token])
   const ownMap = own && ownFits?.key === ownKey ? ownFits.map : null
   const ownStatus: 'loading' | 'failed' | 'budget' | 'ready' = !own ? 'ready' : !ownFits || ownFits.key !== ownKey ? 'loading' : ownFits.budget ? 'budget' : ownFits.map ? 'ready' : 'failed'
@@ -833,24 +854,32 @@ function Explorer({
     return ownPool.some((p) => p.id === id) ? 'missing' : 'outside'
   }
   // The number the list shows: the reading, averaged with the answers when the optional step is on.
-  const shownScore = (id: string): number | undefined => {
-    const local = scoreOf(id)
-    const personal = ownMap?.get(id)
-    return personal && local !== undefined ? Math.round((local + personal.score) / 2) : local
-  }
-  // The list shows the number it is ordered by: within the page, the best by the reading and the match come first.
-  const shownItems = useMemo(() => {
+  const shownScore = (id: string): number | undefined => blendedScore(scoreOf(id), ownMap?.get(id))
+  // Sorted by the match, every result is fetched at once and ordered together, so this list agrees with the top list; it is paged here.
+  const byMatch = sort === 'match'
+  const serverPage = byMatch ? 0 : page
+  const ordered = useMemo(() => {
     const items = data?.items ?? []
-    return sort === 'match' ? [...items].sort((a, b) => combinedScore(b.match, shownScore(b.id)) - combinedScore(a.match, shownScore(a.id))) : items
-  }, [data, sort, scoreOf, ownMap])
+    return byMatch ? orderByNumber(items, shownScore) : items
+  }, [data, byMatch, scoreOf, ownMap])
+  const pageItems = byMatch ? ordered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE) : ordered
   const [loading, setLoading] = useState(false)
 
   const query = useCallback(
     async (extra: Record<string, unknown> = {}) => {
+      const base = { fields, prefs, topics, country: country || undefined, level, sort, q: q || undefined, city: city || undefined }
+      if (byMatch) {
+        const all = await allProgrammes({ ...base, ...extra }, token)
+        if (all === 'locked') {
+          onInvalid()
+          return null
+        }
+        return all
+      }
       const res = await fetch(withBase('/api/programmes'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ fields, prefs, topics, country: country || undefined, level, sort, q: q || undefined, city: city || undefined, page, ...extra }),
+        body: JSON.stringify({ ...base, page: serverPage, ...extra }),
       })
       if (res.status === 401) {
         onInvalid()
@@ -858,7 +887,7 @@ function Explorer({
       }
       return (await res.json()) as RankResult
     },
-    [token, fields, prefs, topics, country, level, sort, q, city, page, onInvalid],
+    [token, fields, prefs, topics, country, level, sort, q, city, byMatch, serverPage, onInvalid],
   )
 
   useEffect(() => {
@@ -892,7 +921,7 @@ function Explorer({
     URL.revokeObjectURL(a.href)
   }
 
-  const pages = data ? Math.ceil(data.total / data.pageSize) : 0
+  const pages = byMatch ? Math.ceil(ordered.length / PAGE_SIZE) : data ? Math.ceil(data.total / data.pageSize) : 0
   return (
     <div className="mt-8">
       <div className="card-sm flex flex-wrap items-center gap-2 p-3">
@@ -945,9 +974,9 @@ function Explorer({
       {readings.status === 'done' && (
         <div className="mt-3">
           <OwnDataPanel search on={own} status={ownStatus} onChange={(v) => { setOwn(v); if (!v) setOwnFits(null) }} />
-          {shownItems.length > 0 && (
+          {ordered.length > 0 && (
             <p className="mt-2 text-sm text-muted">
-              {t.programmes.ai.listBasis(shownItems.filter((p) => scoreOf(p.id) !== undefined).length, shownItems.length)}
+              {t.programmes.ai.listBasis(ordered.filter((p) => scoreOf(p.id) !== undefined).length, ordered.length)}
               {own && ` ${t.programmes.ai.listBasisOn}`}
             </p>
           )}
@@ -959,7 +988,7 @@ function Explorer({
         {loading && data && t.programmes.updating}
       </p>
       <div className="mt-3 grid gap-4">
-        {shownItems.map((p) => (
+        {pageItems.map((p) => (
           <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={shownScore(p.id)} personal={ownMap?.get(p.id)} personalStatus={personalStatusOf(p.id)} />
         ))}
       </div>

@@ -65,8 +65,8 @@ export function useReadings(token: string | null, enabled: boolean) {
   return { status, byId, updated: current?.reading?.updated ?? '' }
 }
 
-/** The order the lists use: the reading's score counts 80 %, the match from the questionnaire 20 %. */
-export const combinedScore = (match: number, score?: number) => (score === undefined ? match : Math.round(0.8 * score + 0.2 * match))
+/** The order the lists use: the reading's score counts 80 %, the match from the questionnaire 20 % (lib/engine/programme-fit.ts). */
+export { combinedScore } from '@/lib/engine/programme-fit.ts'
 export const dotsFor = (n: number) => (n >= 80 ? 5 : n >= 60 ? 4 : n >= 40 ? 3 : n >= 20 ? 2 : 1)
 
 /**

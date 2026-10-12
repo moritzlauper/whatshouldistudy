@@ -131,6 +131,19 @@ export function calibrated(raw: number, spread: FitSpread | null): number {
   return Math.round(50 + 35 * Math.tanh(Math.atanh(15 / 35) * z))
 }
 
+/** The number a programme is listed by: with a reading, the reading and the match 80 : 20; without one, the match. */
+export const combinedScore = (match: number, score?: number) => (score === undefined ? match : Math.round(0.8 * score + 0.2 * match))
+
+/** The reading, averaged with the answers when the optional step has rated the programme. */
+export function blendedScore(local: number | undefined, personal?: { score: number }): number | undefined {
+  return personal && local !== undefined ? Math.round((local + personal.score) / 2) : local
+}
+
+/** The programmes in the order both lists show: by their number, best first. Equal numbers keep the order they came in. */
+export function orderByNumber<T extends { id: string; match: number }>(items: readonly T[], numberOf: (id: string) => number | undefined): T[] {
+  return [...items].sort((a, b) => combinedScore(b.match, numberOf(b.id)) - combinedScore(a.match, numberOf(a.id)))
+}
+
 /** Keeps what the model returned that we can use: known ids and keys, values in range, one short sentence. */
 export function toFacts(raw: unknown, allowed: ReadonlySet<string>): ProgrammeFacts | null {
   if (!raw || typeof raw !== 'object') return null
