@@ -19,13 +19,49 @@ const OFFICIAL_PAGES: OfficialPage[] = [
     host: 'unibe.ch',
     level: 'master',
     name: /soziolog|sociolog/i,
-    url: 'https://www.soz.unibe.ch/studium/studienprogramme/master_soziologie/index_ger.htm',
+    url: 'https://www.wiso.unibe.ch/studies/study_programs/master_s_in_sociology/index_eng.html',
   },
   {
     host: 'unine.ch',
     level: 'master',
     name: /soziolog|sociolog/i,
     url: 'https://www.unine.ch/socio/formation/sociologie-master',
+  },
+  {
+    host: 'usi.ch',
+    level: 'bachelor',
+    name: /^Bachelor Philosophie$/,
+    url: 'https://www.usi.ch/it/formazione/bachelor/filosofia',
+  },
+  {
+    host: 'usi.ch',
+    level: 'master',
+    name: /^Master Philosophie$/,
+    url: 'https://www.usi.ch/en/education/master/philosophy',
+  },
+  {
+    host: 'unine.ch',
+    level: 'master',
+    name: /^Master Philosophie$/,
+    url: 'https://www.unine.ch/unine/home/formation/masters/lettres-et-sciences-humaines/master_flsh/philosophie/philosophy.html',
+  },
+  {
+    host: 'usi.ch',
+    level: 'bachelor',
+    name: /^Bachelor Italienische Sprach- und Literaturwissenschaften$/,
+    url: 'https://www.usi.ch/bllci',
+  },
+  {
+    host: 'unidistance.ch',
+    level: 'bachelor',
+    name: /^Bachelor Historische und Kulturwissenschaften \(fächerübergreifend\)$/,
+    url: 'https://unidistance.ch/en/studies/bachelor/bachelor-in-history',
+  },
+  {
+    host: 'unidistance.ch',
+    level: 'master',
+    name: /^Master Historische und Kulturwissenschaften \(fächerübergreifend\)$/,
+    url: 'https://unidistance.ch/en/history/master',
   },
 ]
 
