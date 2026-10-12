@@ -366,6 +366,8 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <p>Pour YouTube, Spotify et Reddit, tu t’authentifies directement auprès du service. Le jeton de lecture reste dans la mémoire de session de l’onglet et disparaît lorsque tu le fermes. Ton navigateur récupère les données auprès du service. Les exports de Google Takeout, Spotify, Instagram et TikTok sont lus et décompressés sur ton appareil. Nous ne recevons ni ces fichiers ni les jetons.</p>
         <h2>Recherche de formations</h2>
         <p>Pour rechercher des formations, ton navigateur transmet les identifiants et scores de tes domaines principaux, jusqu’à 80 thèmes pondérés et tes filtres de recherche. Il ne transmet ni titres consultés, ni recherches, ni chaînes, ni noms permettant de t’identifier. Nous ne conservons pas cette requête.</p>
+        <h2>{k.t.contentAi.title}</h2>
+        <p>{k.t.contentAi.consent}</p>
         <h2>Évaluation des formations par l’IA</h2>
         <p>Régulièrement, Claude lit les pages publiques des formations suisses et note à quel point chacune touche aux types d’intérêts et quelles matières scolaires elle demande. Seule la page d’une formation part chez Anthropic (États-Unis), sans profil, sans nom ni compte. Nous conservons les résultats dans notre propre base de données ; ils ne contiennent rien sur toi. Le classement se calcule dans ton navigateur, à partir de tes réponses. L’option « Trier avec l’IA » est désactivée par défaut. Si tu l’actives, Claude reçoit en plus ton profil d’intérêts, tes thèmes avec leur pondération et les matières que tu aimes, avec les résultats des 20 meilleures correspondances. Nous te demandons d’abord ton accord, et tu peux le retirer à tout moment.</p>
         <h2>Paiements et hébergement</h2>
@@ -409,6 +411,8 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <p>Per YouTube, Spotify e Reddit accedi direttamente al servizio. Il token di sola lettura resta nella memoria di sessione della scheda e scompare quando la chiudi. Il browser recupera i dati dal servizio. Gli export di Google Takeout, Spotify, Instagram e TikTok vengono letti e decompressi sul tuo dispositivo. Non riceviamo i file né i token.</p>
         <h2>Ricerca dei corsi</h2>
         <p>Per cercare i corsi, il browser invia gli identificativi e i punteggi delle tue aree principali, fino a 80 temi con il relativo peso e i filtri di ricerca. Non invia titoli consultati, ricerche, canali o nomi che possano identificarti. Non conserviamo la richiesta.</p>
+        <h2>{k.t.contentAi.title}</h2>
+        <p>{k.t.contentAi.consent}</p>
         <h2>Valutazione dei corsi con l’IA</h2>
         <p>Regolarmente Claude legge le pagine pubbliche dei corsi svizzeri e annota quanto ciascuno tocca i tipi di interesse e quali materie scolastiche richiede. Verso Anthropic (USA) va soltanto la pagina di un corso: nessun profilo, nessun nome, nessun account. I risultati li conserviamo in una nostra banca dati; non contengono nulla su di te. La classifica viene calcolata nel tuo browser, a partire dalle tue risposte. L’opzione «Ordina con l’IA» è disattivata di default. Se la attivi, Claude riceve anche il tuo profilo di interessi, i tuoi temi con il loro peso e le materie che ti piacciono, insieme ai risultati dei 20 migliori abbinamenti. Ti chiediamo prima il consenso, che puoi ritirare in qualsiasi momento.</p>
         <h2>Pagamenti e hosting</h2>
@@ -481,6 +485,9 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
           </li>
           <li>
             <strong>Hosting:</strong> Die Website läuft bei Vercel. Wie bei jeder Website fallen dort technische Protokolle an (IP-Adresse, Zeitpunkt, aufgerufene Seite), die Vercel kurz aufbewahrt. Aus deiner IP-Adresse leiten wir nur das Land ab, um den Preis in deiner Währung zu zeigen.
+          </li>
+          <li>
+            <strong>{k.t.contentAi.title}:</strong> {k.t.contentAi.consent}
           </li>
           <li>
             <strong>KI-Einordnung der Studiengänge:</strong> Claude liest regelmässig die öffentlichen Seiten der Schweizer Studiengänge und hält fest, wie stark sie die Interessentypen berühren und welche Schulfächer sie brauchen. An Anthropic (USA) geht dabei nur die Seite eines Studiengangs, kein Profil, kein Name, kein Konto. Die Ergebnisse speichern wir in einer eigenen Datenbank; sie enthalten nichts über dich. Die Rangliste rechnet dein Browser mit deinen Angaben. Die Option «Mit KI sortieren» ist standardmässig aus. Wenn du sie einschaltest, bekommt Claude zusätzlich dein Interessenprofil, deine Themen mit ihrer Gewichtung und deine Lieblingsfächer zusammen mit den Ergebnissen der 20 besten Treffer. Dafür holen wir vorher deine Einwilligung ein, und du kannst sie jederzeit zurückziehen.
@@ -589,6 +596,9 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         </li>
         <li>
           <strong>Hosting:</strong> the site runs on Vercel, which keeps short-lived technical logs (IP address, time, page). We use your IP address only to infer your country and show the price in your currency.
+        </li>
+        <li>
+          <strong>{k.t.contentAi.title}:</strong> {k.t.contentAi.consent}
         </li>
         <li>
           <strong>AI classification of programmes:</strong> Claude regularly reads the public pages of the Swiss programmes and notes how strongly each involves the interest types and which school subjects it needs. Only a programme’s page goes to Anthropic (USA), no profile, no name, no account. We keep the results in our own database; they contain nothing about you. The ranking is computed in your browser against your answers. The option “Sort with AI” is off by default. If you switch it on, Claude also receives your interest profile, your topics with their weights and the subjects you enjoy, together with the results for the 20 best matches. We ask for your consent first, and you can withdraw it at any time.

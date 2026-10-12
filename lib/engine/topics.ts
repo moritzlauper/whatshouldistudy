@@ -33,7 +33,7 @@ export function userTopics(summaries: SourceSummary[], studying?: Studying, limi
     const eff = new Map<string, number>()
     let total = 0
     for (const [key, t] of Object.entries(s.topics)) {
-      const studied = !!studying && topicFields(key).includes(studying.field)
+      const studied = !!studying && (key === studying.field || topicFields(key).includes(studying.field))
       const cap = studied ? studiedCap(activeYears.length ? activeYears : Object.keys(t.y).map(Number), (y) => t.y[y] ?? 0, since) : Infinity
       let v = 0
       for (const [y, x] of Object.entries(t.y)) {

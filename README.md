@@ -66,16 +66,20 @@ cached for a day.
 Their sitemaps are separate files of at most 40,000 addresses,
 `/sitemaps/<site>-<country>-<n>.xml`, listed in robots.txt.
 
-**Open source, history stays on the device.** The code is public under the MIT licence
+**Open source, local analysis by default.** The code is public under the MIT licence
 (`LICENSE`), and the site says so on the landing page, the start page, in the
 footer and in the privacy policy, with a link here
 (`NEXT_PUBLIC_SOURCE_URL`, default this repository on GitHub). There are no user accounts. Optional usage statistics store only aggregate
 counters, as described below.
 
-**Privacy model:** the analysis runs entirely in the browser. OAuth tokens stay
+**Privacy model:** the default analysis runs in the browser. OAuth tokens stay
 in the tab, exports are unpacked on the device, raw history is discarded after
 analysis. Programme requests send field ids, scores, topics and filters to the server.
 Optional import statistics send only a recognised source category.
+The separate, explicit AI content step previews a bounded sample of titles and
+channel context from a user-selected Takeout export, then sends it through our
+server to Anthropic. API-fetched YouTube metadata never enters this sample.
+We do not store or log these requests; only the resulting summary stays locally.
 
 ## Licence and paywall
 
@@ -183,6 +187,34 @@ sparkle logo; only name and language differ. Tokens and components (`.card`, `.b
 The taxonomy (`lib/taxonomy/fields.ts`) gives every field a RIASEC profile, Big
 Five tilts, subject demands, what it offers, careers, and codes for the data
 sources (CIP for the US, CAH for the UK, ISCED-F, OpenAlex subfields).
+
+### Optional semantic content analysis
+
+The unlocked result has a separate «Understand my viewing with AI» control.
+Select the Takeout ZIP or watch-history and subscription files, review the
+sample, then explicitly agree to send it. Existing summaries cannot recover
+unrecognised raw titles, so an earlier import must be read again.
+
+`contentPlan` selects at most 240 distinct records, including up to 60
+subscriptions and 60 recurring channels, with recent videos spread across
+channels. Each includes only its title, channel name and up to four example
+titles. Account identifiers, URLs, dates, watch counts, searches, comments,
+music-listening entries and API metadata are excluded from the request.
+`/api/content-analysis` requires the existing unlock and consent flag, processes
+40 records per batch, and charges the existing AI and purchase budgets.
+Claude interprets the content against the known subject taxonomy, can abstain,
+and must not infer political beliefs or other sensitive traits of the viewer.
+
+Each direct reading replaces the keyword classification of that title. A
+recurring channel subject provides half-strength context to other videos in
+that channel, explicitly marked as such in the evidence; it cannot override
+an individually reviewed video. A virtual channel record never adds activity.
+Repetition, dates, subscriptions and the usual questionnaire weighting remain
+in the local scoring. Semantic subjects also reach programme-content matching.
+This is a sample-based interpretation, not a transcript analysis or validated
+measure of study suitability. The original summary remains available; disabling
+or deleting the AI summary restores it. Failed or cancelled batches do not
+replace a previous result.
 
 ## Data sources and their setup
 

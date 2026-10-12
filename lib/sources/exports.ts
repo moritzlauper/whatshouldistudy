@@ -1,5 +1,6 @@
 import { Unzip, UnzipInflate } from 'fflate'
 import { accumulate } from '../engine/accumulate.ts'
+import { contentPlan, type ContentVerdict } from '../engine/content-analysis.ts'
 import { STUDY_INTENT, isStudyInfo, truncate } from '../engine/text.ts'
 import type { SignalItem, SourceSummary } from '../engine/types.ts'
 import { videoSignal } from './youtube.ts'
@@ -32,6 +33,8 @@ import type { SocialCollected } from './social-exports.ts'
  */
 
 export interface ExportResult {
+  /** Explicit export-only AI step; the original titles never include API enrichment. */
+  contentAnalysis: () => { items: ReturnType<typeof contentPlan>['items']; eligible: number; apply: (verdicts: ContentVerdict[]) => SourceSummary }
   summaries: SourceSummary[]
   /** Channel ids seen in the watch history, most watched first, for API enrichment. */
   topChannelIds: string[]
@@ -671,6 +674,13 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>, video
   ]
   return {
     summaries,
+    contentAnalysis: () => {
+      const plan = contentPlan([...c.watch, ...subscriptions])
+      return { items: plan.items, eligible: plan.eligible, apply: (verdicts) => accumulate(
+        [...plan.apply(verdicts), ...c.music, ...c.youtubeSearch, ...c.comments],
+        { source: 'takeout', label: 'Google Takeout', stats: { ...summaries.find((s) => s.source === 'takeout')?.stats, aiItems: plan.items.length, aiEligible: plan.eligible } },
+      ) }
+    },
     topChannelIds,
     recentVideoIds,
     recognised: c.recognised,

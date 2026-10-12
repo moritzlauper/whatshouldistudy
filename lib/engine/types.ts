@@ -14,6 +14,10 @@ export type SourceId =
 
 /** One thing a person did or chose: a liked video, a subscribed channel, a saved podcast. */
 export interface SignalItem {
+  /** Optional semantic reading of this export item, applied only after consent. */
+  meaning?: { fields: Record<string, number>; reason: string }
+  /** Weaker channel context for a title not individually read by AI. */
+  contextMeaning?: { fields: Record<string, number>; reason: string }
   kind: string
   /** Text to classify (title, tags, description excerpt). */
   text: string
@@ -51,7 +55,7 @@ export interface FieldEvidence {
   items: number
   /** Distinct months (YYYY-MM) with evidence. */
   months: string[]
-  top: Array<{ label: string; kind: string; w: number; url?: string }>
+  top: Array<{ label: string; kind: string; w: number; url?: string; interpretation?: string; interpretationFromChannel?: boolean }>
   terms: Record<string, number>
 }
 
@@ -143,7 +147,7 @@ export interface FieldMatch {
   /** Interest strength before squashing (log-lift, shrunk); for debugging and ranking. */
   interest?: number
   reasons: Reason[]
-  evidence: Array<{ label: string; kind: string; source: SourceId; url?: string }>
+  evidence: Array<{ label: string; kind: string; source: SourceId; url?: string; interpretation?: string; interpretationFromChannel?: boolean }>
   terms: string[]
   persistence?: number
   sources: SourceId[]

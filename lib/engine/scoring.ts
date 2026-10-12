@@ -416,7 +416,7 @@ export function score(input: ScoreInput): Results {
         if (isStudyInfo(t.label, t.kind)) continue
         // Comments are chatter, often years old: not shown as evidence.
         if (t.kind === 'comment') continue
-        evidence.push({ label: t.label, kind: t.kind, source: s.source, url: t.url, w: t.w * (KIND_WEIGHT[t.kind] ?? 1) })
+        evidence.push({ label: t.label, kind: t.kind, source: s.source, url: t.url, ...(t.interpretation ? { interpretation: t.interpretation, interpretationFromChannel: t.interpretationFromChannel } : {}), w: t.w * (KIND_WEIGHT[t.kind] ?? 1) })
       }
       for (const [t, n] of Object.entries(ev.terms)) if (!t.includes('…')) terms.set(t, (terms.get(t) ?? 0) + n)
     }

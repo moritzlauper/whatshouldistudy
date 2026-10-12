@@ -65,7 +65,7 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
   const fieldItems = new Uint32Array(FIELD_COUNT)
   const fieldMonths: Array<Set<string>> = FIELDS.map(() => new Set())
   // `key` keeps one entry per channel (or label); it isn't stored.
-  const fieldTop: Array<Array<{ label: string; kind: string; w: number; url?: string; key: string }>> = FIELDS.map(() => [])
+  const fieldTop: Array<Array<{ label: string; kind: string; w: number; url?: string; key: string; interpretation?: string; interpretationFromChannel?: boolean }>> = FIELDS.map(() => [])
   const fieldTerms: Array<Map<string, number>> = FIELDS.map(() => new Map())
   const timeline: Record<string, Float64Array> = {}
   const topicMap = new Map<string, Topic>()
@@ -108,16 +108,19 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
       if (study.ex.length < 4 && !study.ex.includes(ex)) study.ex.push(ex)
       continue
     }
-    const vec = fieldVector(c)
-    const g = it.group ? groupVec.get(it.group) : undefined
+    const vec = it.meaning ? Float32Array.from(FIELDS.map((f) => it.meaning!.fields[f.id] ?? 0)) : fieldVector(c)
+    if (!it.meaning && it.contextMeaning) for (let i = 0; i < FIELD_COUNT; i++) {
+      vec[i] = Math.min(1, vec[i] + .5 * (it.contextMeaning.fields[FIELDS[i].id] ?? 0))
+    }
+    const g = !it.meaning && it.group ? groupVec.get(it.group) : undefined
     if (g) for (let i = 0; i < FIELD_COUNT; i++) vec[i] = Math.min(1, vec[i] + 0.5 * g[i])
-    if (it.boost) {
+    if (it.boost && !it.meaning) {
       for (const [id, b] of Object.entries(it.boost)) {
         const i = FIELD_INDEX[id]
         if (i !== undefined) vec[i] = Math.min(1, vec[i] + b)
       }
     }
-    if (it.fieldHints) {
+    if (it.fieldHints && !it.meaning) {
       for (const id of it.fieldHints) {
         const i = FIELD_INDEX[id]
         if (i !== undefined) vec[i] = Math.max(vec[i], 0.9)
@@ -144,11 +147,15 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
     for (let i = 0; i < FIELD_COUNT; i++) vmax = Math.max(vmax, vec[i])
     const stale = !!it.time && Date.now() - it.time > EVIDENCE_MAX_AGE
     if (!stale) {
-      for (const t of topics(c)) {
+      const foundTopics = it.meaning
+        ? FIELDS.filter((f) => (it.meaning!.fields[f.id] ?? 0) >= STRONG).map((f) => ({ key: f.id, word: f.name }))
+        : [...topics(c), ...FIELDS.filter((f) => .5 * (it.contextMeaning?.fields[f.id] ?? 0) >= STRONG).map((f) => ({ key: f.id, word: f.name }))]
+      for (const t of foundTopics) {
         let e = topicMap.get(t.key)
         if (!e) topicMap.set(t.key, (e = { w: t.word, n: 0, y: {}, ex: [] }))
         e.n += 1
-        e.y[year || '0'] = (e.y[year || '0'] ?? 0) + w
+        const strength = it.meaning?.fields[t.key] ?? (it.contextMeaning?.fields[t.key] !== undefined ? .5 * it.contextMeaning.fields[t.key] : 1)
+        e.y[year || '0'] = (e.y[year || '0'] ?? 0) + w * strength
         const ex = e.ex.length < 2 ? exampleOf(it) : ''
         if (ex && !e.ex.includes(ex)) e.ex.push(ex)
       }
@@ -158,7 +165,7 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
       if (s <= 0.05) continue
       fieldScore[i] += w * s
       if (year) (timeline[year] ??= new Float64Array(FIELD_COUNT))[i] += w * s
-      if (s < STRONG) continue
+      if (s + 1e-7 < STRONG) continue
       fieldItems[i] += 1
       if (month) fieldMonths[i].add(month)
       const top = fieldTop[i]
@@ -169,13 +176,15 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
         // title shows what it was about, the channel name alone doesn't.
         const key = it.group ?? it.label
         const existing = top.find((t) => t.key === key)
+        const fromChannel = !it.meaning && !!it.contextMeaning?.fields[FIELDS[i].id]
+        const interpretation = it.meaning?.reason ?? (fromChannel ? it.contextMeaning?.reason : undefined)
         if (existing) {
-          if (ew > existing.w) Object.assign(existing, { label: exampleOf(it), w: ew, url: it.url })
-        } else top.push({ label: exampleOf(it), kind: it.kind, w: ew, url: it.url, key })
+          if (ew > existing.w) Object.assign(existing, { label: exampleOf(it), kind: it.kind, w: ew, url: it.url, interpretation, interpretationFromChannel: fromChannel })
+        } else top.push({ label: exampleOf(it), kind: it.kind, w: ew, url: it.url, key, ...(interpretation ? { interpretation, interpretationFromChannel: fromChannel } : {}) })
         top.sort((a, b) => b.w - a.w)
         if (top.length > EVIDENCE_PER_FIELD) top.length = EVIDENCE_PER_FIELD
       }
-      if (!stale) for (const t of termsForField(c, i)) fieldTerms[i].set(t, (fieldTerms[i].get(t) ?? 0) + 1)
+      if (!stale && !it.meaning) for (const t of termsForField(c, i)) fieldTerms[i].set(t, (fieldTerms[i].get(t) ?? 0) + 1)
     }
   }
 

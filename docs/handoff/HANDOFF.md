@@ -6,9 +6,20 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 
 - Direkt auf `main` pushen, keine PRs.
 - Texte auf Deutsch: Schweizer Hochdeutsch, kein ß, Anführungszeichen «», schlicht und konkret, keine Werbefloskeln. Alle UI-Texte stehen in `lib/site/dict.ts` (en, de-CH, fr, it, dazu Overrides für DE/AT).
-- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 188 grün). Demodaten mit `node scrapers/build.ts --sample`.
+- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 198 grün). Demodaten mit `node scrapers/build.ts --sample`.
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
+
+## Freiwillige KI-Inhaltsanalyse von YouTube-Exporten
+
+Der Wörterabgleich erkennt den öffentlichen Beispieltitel «Stop stanning politicians» ohne Metadaten nicht. Die KI-Auswertung von Studiengängen konnte solche verlorenen Inhaltssignale bisher nicht nachholen.
+
+- Im freigeschalteten Ergebnis gibt es jetzt «Verlauf mit KI verstehen»: Takeout-ZIP oder Verlauf und Abos nochmals lokal auswählen, Stichprobe prüfen und ausdrücklich an Claude senden. Einwilligung für den Studiengangvergleich gilt nicht automatisch für Titel. Daten aus der YouTube-Schnittstelle werden nicht übernommen.
+- Bis zu 240 unterschiedliche Einträge, darunter höchstens 60 Abos und 60 Kanalkontexte. Kanalbeispiele geben schwächere Hinweise für nicht einzeln gelesene Videos; sie zählen nicht als zusätzliche Aktivität. Geprüfte Einzeltitel haben Vorrang. Abos, Wiederholungen, Alter und Fragebogen behalten ihre Gewichtung. Erkannte Fachthemen erreichen auch den Studiengangvergleich.
+- Original und KI-Zusammenfassung bleiben lokal getrennt. Ausschalten stellt die ursprüngliche Auswertung wieder her; erneuter Import oder Löschen der Quelle verwirft den alten KI-Zusatz. Fehlgeschlagene, abgebrochene oder überholte Anfragen ersetzen das Ergebnis nicht. Beispieltitel zeigen die KI-Einordnung und unterscheiden Kanalkontext.
+- Neue Route `/api/content-analysis` mit bestehender Token-Prüfung, ausdrücklichem Consent-Flag, validierten IDs und vollständigen Batches, Request-Grenze und bestehendem KI-/Kaufbudget. Keine Speicherung oder Protokollierung der Titel auf unserem Server. Datenschutzhinweise in allen Sprachen angepasst. Keine politischen Überzeugungen oder anderen sensiblen Eigenschaften der Person werden beauftragt.
+
+Prüfungen: 198 Tests, TypeScript und Produktionsbuild mit `next build --webpack`. Lokale Regressionen für übersehene politische Titel, Rangliste und Themenübernahme, Kanalkontext ohne doppelte Aufrufe, Abos, unbekannte Inhalte, Ausschalten, neue Importe, API-Datentrennung, initiale Oberfläche ohne Datenversand und nicht freigeschaltete Anfragen. Echter Anthropic-Aufruf mit vollständig erfundenem Physiktitel: Fach Physik erkannt; erfundener Kanal ohne Kontext blieb unzugeordnet. Der automatische Freigabecheck blockierte den Live-Aufruf mit dem vom Nutzer genannten Titel; dieser wurde nur lokal mit einem Testurteil geprüft. Keine persönlichen Exporte oder Geheimnisse wurden ausgegeben oder committed.
 
 ## Korrektur: Fachbezug vor allgemeinen Ähnlichkeiten
 

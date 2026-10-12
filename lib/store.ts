@@ -10,6 +10,8 @@ import type { Preferences, QuestionnaireAnswers, SourceId, SourceSummary } from 
  */
 
 export interface State {
+  /** Optional semantic summary; the original stays available when switched off. */
+  contentAnalysis?: { baseCollectedAt: string; summary: SourceSummary; enabled: boolean }
   summaries: Partial<Record<SourceId, SourceSummary>>
   answers: QuestionnaireAnswers
   prefs: Preferences
@@ -83,14 +85,20 @@ export function update(fn: (s: State) => State): void {
 }
 
 export function setSummary(s: SourceSummary): void {
-  update((st) => ({ ...st, summaries: { ...st.summaries, [s.source]: s } }))
+  update((st) => ({ ...st, summaries: { ...st.summaries, [s.source]: s }, ...(s.source === 'takeout' ? { contentAnalysis: undefined } : {}) }))
+}
+
+export function effectiveSummaries(state: State): SourceSummary[] {
+  const ai = state.contentAnalysis
+  return (Object.values(state.summaries).filter(Boolean) as SourceSummary[]).map((s) =>
+    s.source === 'takeout' && ai?.enabled && ai.baseCollectedAt === s.collectedAt ? ai.summary : s)
 }
 
 export function removeSummary(id: SourceId): void {
   update((st) => {
     const summaries = { ...st.summaries }
     delete summaries[id]
-    return { ...st, summaries }
+    return { ...st, summaries, ...(id === 'takeout' ? { contentAnalysis: undefined } : {}) }
   })
 }
 

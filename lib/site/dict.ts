@@ -40,7 +40,59 @@ export const HOW_DE = {
   ],
 }
 
+const CONTENT_AI = {
+  en: {
+    channel: 'Channel context', channelEvidence: 'AI channel context', contextNote: 'Recurring subjects in the channel examples provide weaker hints for videos outside the sample. They are shown as channel context, not as a reading of those videos.',
+    title: 'Understand my viewing with AI', lead: 'Claude can recognise subjects that a keyword match misses. This changes your field ranking and the topics used to compare programmes.',
+    file: 'Choose YouTube export locally', help: 'Choose your Takeout ZIP or watch-history and subscription files together. Older imports need to be read again because we discard the raw history.',
+    reading: 'Reading the file on your device…', empty: 'No suitable watched videos or subscriptions were found in this file.',
+    sample: (n: number, total: number) => `${n} of ${total} distinct titles, subscriptions and channel contexts selected. Recent entries and different channels are sampled; this does not cover every video.`,
+    preview: 'Review the titles and channel context', consent: 'If you continue, these titles, channel names and example titles go through our server to Claude by Anthropic (USA). They can reveal personal interests. We do not store the request. The export file, dates, account identifiers and data fetched through the YouTube API are not sent. Claude classifies subjects, not your political beliefs. Its reading of titles can be wrong; it does not watch the videos.',
+    agree: 'Send these titles to Claude and include the result', cancel: 'Cancel', loading: (n: number, total: number) => `Claude has classified ${n} of ${total} entries…`,
+    failed: 'The content analysis could not be completed. Your previous result is still in use.', limit: 'The AI budget is used up. Your previous result is still in use.',
+    active: 'AI content analysis is included. Frequency, age and subscriptions retain their weights; the questionnaire remains the basis when completed.',
+    off: 'The original analysis is in use. The AI summary is saved only in this browser.', disable: 'Use the original analysis', enable: 'Use the saved AI analysis', remove: 'Delete AI analysis', evidence: 'AI interpretation',
+  },
+  de: {
+    channel: 'Kanalkontext', channelEvidence: 'KI-Kanalkontext', contextNote: 'Wiederkehrende Themen in den Kanalbeispielen liefern schwächere Hinweise für Videos ausserhalb der Stichprobe. Sie sind als Kanalkontext gekennzeichnet, nicht als Einordnung dieser einzelnen Videos.',
+    title: 'Verlauf mit KI verstehen', lead: 'Claude kann Themen erkennen, die der Wörterabgleich übersieht. Das verändert deine Fächerrangliste und die Themen für den Studiengangvergleich.',
+    file: 'YouTube-Export lokal auswählen', help: 'Wähle dein Takeout-ZIP oder die Dateien mit Verlauf und Abos zusammen. Ältere Importe musst du nochmals einlesen, weil der Rohverlauf verworfen wird.',
+    reading: 'Die Datei wird auf deinem Gerät gelesen…', empty: 'Diese Datei enthält keine geeigneten angeschauten Videos oder Abos.',
+    sample: (n: number, total: number) => `${n} von ${total} verschiedenen Titeln, Abos und Kanalkontexten ausgewählt. Die Stichprobe berücksichtigt aktuelle Einträge und verschiedene Kanäle; sie deckt nicht jedes Video ab.`,
+    preview: 'Titel und Kanalkontext prüfen', consent: 'Wenn du fortfährst, gehen diese Titel, Kanalnamen und Beispieltitel über unseren Server an Claude von Anthropic (USA). Sie können persönliche Interessen offenlegen. Wir speichern die Anfrage nicht. Die Exportdatei, Zeitangaben, Kontokennungen und Daten aus der YouTube-Schnittstelle werden nicht gesendet. Claude ordnet Themen ein, nicht deine politische Haltung. Die Einordnung kann falsch sein; Claude schaut die Videos nicht an.',
+    agree: 'Diese Titel an Claude senden und Ergebnis einbeziehen', cancel: 'Abbrechen', loading: (n: number, total: number) => `Claude hat ${n} von ${total} Einträgen eingeordnet…`,
+    failed: 'Die Inhaltsanalyse konnte nicht abgeschlossen werden. Dein bisheriges Ergebnis bleibt bestehen.', limit: 'Das KI-Budget ist aufgebraucht. Dein bisheriges Ergebnis bleibt bestehen.',
+    active: 'Die KI-Inhaltsanalyse ist einbezogen. Häufigkeit, Alter und Abos behalten ihre Gewichtung; ein ausgefüllter Interessenfragebogen bleibt die Grundlage.',
+    off: 'Die ursprüngliche Analyse wird verwendet. Die KI-Zusammenfassung ist nur in diesem Browser gespeichert.', disable: 'Ursprüngliche Analyse verwenden', enable: 'Gespeicherte KI-Analyse verwenden', remove: 'KI-Analyse löschen', evidence: 'KI-Einordnung',
+  },
+  fr: {
+    channel: 'Contexte de la chaîne', channelEvidence: 'Contexte de chaîne par l’IA', contextNote: 'Les sujets récurrents des exemples donnent des indices plus faibles pour les vidéos hors échantillon. Ils sont signalés comme contexte de chaîne, pas comme analyse de ces vidéos.',
+    title: 'Comprendre mon historique avec l’IA', lead: 'Claude peut reconnaître les sujets ignorés par les mots-clés. Cela modifie ton classement des domaines et les thèmes utilisés pour comparer les formations.',
+    file: 'Choisir un export YouTube localement', help: 'Choisis le ZIP Takeout ou les fichiers d’historique et d’abonnements ensemble. Il faut relire les anciens imports, car l’historique brut est écarté.',
+    reading: 'Lecture du fichier sur ton appareil…', empty: 'Ce fichier ne contient aucune vidéo regardée ni aucun abonnement utilisable.',
+    sample: (n: number, total: number) => `${n} titres, abonnements et contextes de chaînes distincts sur ${total} sélectionnés. L’échantillon privilégie les entrées récentes et différentes chaînes ; il ne couvre pas chaque vidéo.`,
+    preview: 'Vérifier les titres et le contexte des chaînes', consent: 'En continuant, ces titres, noms de chaînes et exemples passent par notre serveur vers Claude d’Anthropic (USA). Ils peuvent révéler des intérêts personnels. Nous ne conservons pas la requête. Le fichier, les dates, les identifiants de compte et les données de l’API YouTube ne sont pas envoyés. Claude classe les sujets, pas tes convictions politiques. Il peut se tromper et ne regarde pas les vidéos.',
+    agree: 'Envoyer ces titres à Claude et inclure le résultat', cancel: 'Annuler', loading: (n: number, total: number) => `Claude a classé ${n} entrées sur ${total}…`,
+    failed: 'L’analyse n’a pas pu être terminée. Ton résultat précédent reste utilisé.', limit: 'Le budget IA est épuisé. Ton résultat précédent reste utilisé.',
+    active: 'L’analyse IA est incluse. Fréquence, ancienneté et abonnements gardent leur poids ; le questionnaire rempli reste la base.',
+    off: 'L’analyse initiale est utilisée. Le résumé IA reste seulement dans ce navigateur.', disable: 'Utiliser l’analyse initiale', enable: 'Utiliser l’analyse IA enregistrée', remove: 'Supprimer l’analyse IA', evidence: 'Interprétation IA',
+  },
+  it: {
+    channel: 'Contesto del canale', channelEvidence: 'Contesto del canale IA', contextNote: 'I temi ricorrenti negli esempi danno indicazioni più deboli per i video fuori dal campione. Sono indicati come contesto del canale, non come analisi di quei video.',
+    title: 'Capire la cronologia con l’IA', lead: 'Claude può riconoscere temi ignorati dalle parole chiave. Questo modifica la classifica delle discipline e i temi usati per confrontare i corsi.',
+    file: 'Scegli un export YouTube locale', help: 'Scegli lo ZIP Takeout oppure i file della cronologia e delle iscrizioni insieme. Gli import precedenti vanno riletti, perché la cronologia originale viene scartata.',
+    reading: 'Lettura del file sul dispositivo…', empty: 'Questo file non contiene video guardati o iscrizioni utilizzabili.',
+    sample: (n: number, total: number) => `Selezionati ${n} titoli, iscrizioni e contesti di canali distinti su ${total}. Il campione privilegia voci recenti e canali diversi; non copre ogni video.`,
+    preview: 'Controlla titoli e contesto dei canali', consent: 'Continuando, questi titoli, nomi di canali ed esempi passano attraverso il nostro server a Claude di Anthropic (USA). Possono rivelare interessi personali. Non conserviamo la richiesta. Il file, le date, gli identificativi dell’account e i dati dell’API YouTube non vengono inviati. Claude classifica i temi, non le tue convinzioni politiche. Può sbagliare e non guarda i video.',
+    agree: 'Invia questi titoli a Claude e includi il risultato', cancel: 'Annulla', loading: (n: number, total: number) => `Claude ha classificato ${n} voci su ${total}…`,
+    failed: 'L’analisi non è stata completata. Resta in uso il risultato precedente.', limit: 'Il budget IA è esaurito. Resta in uso il risultato precedente.',
+    active: 'L’analisi IA è inclusa. Frequenza, età e iscrizioni mantengono il loro peso; il questionario compilato resta la base.',
+    off: 'È in uso l’analisi originale. Il riepilogo IA è salvato solo in questo browser.', disable: 'Usa l’analisi originale', enable: 'Usa l’analisi IA salvata', remove: 'Elimina analisi IA', evidence: 'Interpretazione IA',
+  },
+}
+
 const en = {
+  contentAi: CONTENT_AI.en,
   /** Coverage notice displayed before buying a report or a school plan. */
   reportScope: '',
   /** Shown instead of the buy buttons where SALES_PAUSED. */
@@ -54,7 +106,7 @@ const en = {
     sources: 'Programme data sources',
     privacy: 'Privacy',
     terms: 'Terms',
-    local: 'Analysis runs in your browser. We never see your history.',
+    local: 'Local analysis by default. AI receives selected data only with your consent.',
     otherSites: 'Also for',
     siteNames: { global: 'International', ch: 'Switzerland', de: 'Germany', at: 'Austria' } as Record<string, string>,
     imprint: 'Imprint',
@@ -101,7 +153,7 @@ const en = {
     ] as LandingSource[],
     privacyTitle: 'Your data stays yours.',
     privacyBody:
-      'The analysis runs in your browser. Sign-ins are read-only and their tokens never touch our server. Files you drop are unpacked on your device. What’s kept is a summary, in your browser, deleted with one click. To find programmes we only send your top fields and filters.',
+      'The analysis runs in your browser. Sign-ins are read-only and their tokens never touch our server. Files you drop are unpacked on your device. What’s kept is a summary, in your browser, deleted with one click. To find programmes we only send your top fields and filters. Optional AI analysis sends selected titles or profile details to Claude only after your explicit consent.',
     privacyPoints: ['We store nothing: no database, no account, no email', 'No ad tracking from your history, ever', 'Read-only access you can revoke anytime', 'Raw history is thrown away after the analysis', 'Every step of the model is documented'],
     priceTitle: 'Free result. Full report when you’re ready.',
     free: 'Free',
@@ -112,7 +164,7 @@ const en = {
     fullList: ['Your #1 field and best matching programme', 'Every matching programme, ranked for you; optional AI comparison', 'The tuition fee for your citizenship', 'Graduate earnings, debt and admission rates where published', 'Research-strong universities in 60+ countries', 'Filters, search, CSV export, new programmes flagged'],
     faqTitle: 'Questions',
     faq: [
-      ['Do you store my YouTube history?', 'No. The analysis runs in your browser. Your history goes straight from Google to your device, gets turned into a summary and the raw data is thrown away. Our server never sees it.'],
+      ['Do you store my YouTube history?', 'No. The analysis runs in your browser. Your history goes straight from Google to your device, gets turned into a summary and the raw data is thrown away. Only if you explicitly activate AI content analysis are selected export titles and channel names sent through our server to Claude (Anthropic). We do not store that request.'],
       ['Is this a real psychological test?', 'It builds on established science, but it is not a validated test. The interest questions follow Holland’s RIASEC model, the basis of most career guidance, with four activities per area; the items are our own and haven’t been validated in a study yet. The optional personality part is the Mini-IPIP, a published 20-item Big Five scale, in our own translation. The analysis of your data is our own model. The how-it-works page explains every step and its limits.'],
       ['Which countries do you cover?', 'Programme by programme: the United States, the United Kingdom, France and Switzerland, from official data. For 60+ other countries we show the universities strongest in your fields by research output, plus every university in the country.'],
       ['What does the full report add?', 'Your #1 field with all the evidence, and every matching programme in the countries you pick, with the fee that applies to you, graduate earnings where published, admission rates and links to apply. One payment, valid 12 months, data refreshed weekly.'],
@@ -329,7 +381,7 @@ const en = {
     and: ' and ',
   },
   insights: {
-    datapoints: { title: 'Signals analysed', detail: (s: number) => `From ${s} source${s === 1 ? '' : 's'}, entirely in your browser.` },
+    datapoints: { title: 'Signals analysed', detail: (s: number) => `From ${s} source${s === 1 ? '' : 's'}, with summaries kept in your browser.` },
     learning: {
       title: 'Learning share',
       detail: (share: number): string =>
@@ -526,9 +578,9 @@ const en = {
   },
   trust: {
     openSource: 'Open source',
-    nothingStored: 'Your history stays on your device',
+    nothingStored: 'You choose what is sent to AI',
     viewCode: 'See the code on GitHub',
-    startNote: 'Your data is read here in your browser and none of it reaches us. To look up programmes we only send the names of your fields, and we don’t keep those either. The site is open source, so anyone can check.',
+    startNote: 'Your files are read in your browser. Programme search uses fields, weighted topics and filters. Optional AI steps explain which data goes to Claude and ask for your consent first. The source code is public.',
     point: 'Open source: every line of code is public',
     footer: 'Open source (MIT) on GitHub',
   },
@@ -741,6 +793,7 @@ const IT_MESSAGES: Array<[RegExp, string]> = [
 ]
 
 const deCH: Dict = {
+  contentAi: CONTENT_AI.de,
   reportScope: '',
   salesPaused: 'Den vollen Report verkaufen wir hier im Moment nicht. Dein Resultat mit den passenden Fächern bleibt gratis.',
   salesPausedOrgs: 'Schul-Abos verkaufen wir hier im Moment nicht. Der Test mit den passenden Fächern bleibt für Ihre Schülerinnen und Schüler gratis, bestehende Abos laufen weiter.',
@@ -751,7 +804,7 @@ const deCH: Dict = {
     sources: 'Woher die Studiengänge kommen',
     privacy: 'Datenschutz',
     terms: 'AGB',
-    local: 'Die Analyse läuft in deinem Browser. Wir sehen deinen Verlauf nie.',
+    local: 'Standardmässig lokal. Die KI erhält ausgewählte Daten nur mit deiner Einwilligung.',
     otherSites: 'Auch für',
     siteNames: { global: 'International', ch: 'Schweiz', de: 'Deutschland', at: 'Österreich' },
     imprint: 'Impressum',
@@ -798,7 +851,7 @@ const deCH: Dict = {
     ],
     privacyTitle: 'Deine Daten bleiben deine.',
     privacyBody:
-      'Die Analyse läuft in deinem Browser. Anmeldungen sind nur lesend, die Schlüssel landen nie auf unserem Server. Dateien, die du reinziehst, werden auf deinem Gerät entpackt. Übrig bleibt eine Zusammenfassung in deinem Browser, mit einem Klick gelöscht. Für die Studiengänge schicken wir nur deine Top-Fächer und Filter.',
+      'Die Analyse läuft in deinem Browser. Anmeldungen sind nur lesend, die Schlüssel landen nie auf unserem Server. Dateien, die du reinziehst, werden auf deinem Gerät entpackt. Übrig bleibt eine Zusammenfassung in deinem Browser, mit einem Klick gelöscht. Für die Studiengänge schicken wir nur deine Top-Fächer und Filter. Freiwillige KI-Analysen senden ausgewählte Titel oder Profilangaben erst nach deiner ausdrücklichen Einwilligung an Claude.',
     privacyPoints: ['Wir speichern nichts: keine Datenbank, kein Konto, keine E-Mail', 'Dein Verlauf fliesst nie in Werbung', 'Nur Lesezugriff, jederzeit widerrufbar', 'Der Rohverlauf wird nach der Analyse verworfen', 'Jeder Schritt des Modells ist offengelegt'],
     priceTitle: 'Resultat gratis. Den vollen Report, wenn du so weit bist.',
     free: 'Gratis',
@@ -809,7 +862,7 @@ const deCH: Dict = {
     fullList: ['Dein bestes Fach und dein bester Studiengang', 'Jeder passende Studiengang, für dich sortiert; freiwilliger KI-Vergleich', 'Studiengebühren und Zulassung (Matura, BM, Passerelle)', 'Uni, ETH, FH und PH im Vergleich', 'Auch Ausland: Frankreich, UK, USA und 60 weitere Länder', 'Filter, Suche, CSV-Export, neue Studiengänge markiert'],
     faqTitle: 'Fragen',
     faq: [
-      ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
+      ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Nur wenn du die KI-Inhaltsanalyse ausdrücklich aktivierst, gehen ausgewählte Exporttitel und Kanalnamen über unseren Server an Claude (Anthropic). Wir speichern diese Anfrage nicht.'],
       ['Ist das ein richtiger psychologischer Test?', 'Er baut auf gesicherter Forschung auf, ist aber kein geprüfter Test. Die Interessenfragen folgen dem RIASEC-Modell von Holland, auf dem die meiste Berufs- und Studienberatung aufbaut, mit vier Tätigkeiten pro Bereich. Die Fragen sind unsere eigenen und noch nicht in einer Studie geprüft. Der freiwillige Teil zur Persönlichkeit ist der Mini-IPIP, eine veröffentlichte Big-Five-Skala mit 20 Fragen, in eigener Übersetzung. Die Analyse deiner Daten ist unser eigenes Modell. Auf «So funktioniert’s» steht jeder Schritt, auch was es nicht kann.'],
       ['Welche Hochschulen sind drin?', 'Alle akkreditierten Schweizer Hochschulen: die zehn kantonalen Universitäten, ETH und EPFL, die Fachhochschulen und die Pädagogischen Hochschulen. Grundlage sind die Zahlen des Bundesamts für Statistik. Fürs Ausland kommen Frankreich, UK und die USA Studiengang für Studiengang dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
       ['Was bringt der volle Report?', 'Deinen Platz 1 mit allen Belegen und jeden passenden Studiengang mit Gebühren, Zulassung und Link, sortiert nach deinem Profil. Einmal bezahlen, 12 Monate gültig, die Daten werden wöchentlich aktualisiert.'],
@@ -1084,7 +1137,7 @@ const deCH: Dict = {
     and: ' und ',
   },
   insights: {
-    datapoints: { title: 'Ausgewertete Signale', detail: (s: number) => `Aus ${s} ${s === 1 ? 'Quelle' : 'Quellen'}, komplett in deinem Browser.` },
+    datapoints: { title: 'Ausgewertete Signale', detail: (s: number) => `Aus ${s} ${s === 1 ? 'Quelle' : 'Quellen'}, mit Zusammenfassungen in deinem Browser.` },
     learning: {
       title: 'Lern-Anteil',
       detail: (share: number) =>
@@ -1281,9 +1334,9 @@ const deCH: Dict = {
   },
   trust: {
     openSource: 'Open Source',
-    nothingStored: 'Dein Verlauf bleibt auf deinem Gerät',
+    nothingStored: 'Du bestimmst, was an die KI geht',
     viewCode: 'Code auf GitHub ansehen',
-    startNote: 'Deine Daten werden hier in deinem Browser gelesen, nichts davon kommt bei uns an. Für die Suche nach Studiengängen schicken wir nur die Namen deiner Fächer, und auch die behalten wir nicht. Die Seite ist Open Source, jede:r kann das nachprüfen.',
+    startNote: 'Deine Dateien werden im Browser gelesen. Die Studiengangsuche nutzt Fächer, gewichtete Themen und Filter. Die freiwilligen KI-Schritte erklären vorab, welche Angaben an Claude gehen, und fragen nach deiner Einwilligung. Der Quellcode ist öffentlich.',
     point: 'Open Source: jede Zeile Code ist öffentlich',
     footer: 'Open Source (MIT) auf GitHub',
   },
@@ -1420,7 +1473,7 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
       `Finde deinen Weg zu einem passenden Studiengang: mit einem kurzen Fragebogen oder zusätzlich deinen eigenen Daten. Du erhältst passende Fächer aus ${n} Studienfeldern. Für Studiengänge in Deutschland verlinken wir pro Fach auf die Studiensuche der Bundesagentur für Arbeit. Der kostenpflichtige Report ergänzt dein bestes Fach mit Belegen und passende Studiengänge in den abgedeckten Auslandsländern.`,
     fullList: ['Dein bestes Fach, mit allen Belegen', 'Deine Fächer, für dich sortiert, je mit Link zur Studiensuche der Bundesagentur für Arbeit', 'Passende Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studiengänge markiert'],
     faq: [
-      ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
+      ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Nur wenn du die KI-Inhaltsanalyse ausdrücklich aktivierst, gehen ausgewählte Exporttitel und Kanalnamen über unseren Server an Claude (Anthropic). Wir speichern diese Anfrage nicht.'],
       ['Ist das ein richtiger psychologischer Test?', 'Er baut auf gesicherter Forschung auf, ist aber kein geprüfter Test. Die Interessenfragen folgen dem RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, mit vier Tätigkeiten pro Bereich. Die Fragen sind unsere eigenen und noch nicht in einer Studie geprüft. Der freiwillige Teil zur Persönlichkeit ist der Mini-IPIP, eine veröffentlichte Big-Five-Skala mit 20 Fragen, in eigener Übersetzung. Die Analyse deiner Daten ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
       ['Welche Hochschulen sind drin?', 'Für Deutschland zeigen wir die Fächer, die Hochschultypen und die Kosten; die einzelnen Studiengänge führt die Studiensuche der Bundesagentur für Arbeit, auf die wir pro Fach verlinken. Ihre Daten haben keine offene Lizenz, deshalb übernehmen wir sie nicht. Studiengang für Studiengang kommen die Schweiz, Frankreich, UK, die Niederlande, Norwegen, Finnland, Australien, Südkorea und die USA dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
       ['Was bringt der volle Report?', 'Dein bestes Fach mit allen Belegen, deine Fächer mit Link zur Studiensuche der Bundesagentur für Arbeit und die passenden Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Einzelne Studiengänge in Deutschland und Österreich sind nicht enthalten. Wenn du nur diese Länder auswählst, erhältst du die Fächerauswertung und Links zu den offiziellen Suchportalen, aber keine einzelnen Studiengänge.'],
@@ -1462,7 +1515,7 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
       `Finde deinen Weg zu einem passenden Studiengang: mit einem kurzen Fragebogen oder zusätzlich deinen eigenen Daten. Du erhältst passende Fächer aus ${n} Studienfeldern. Für Studiengänge in Österreich verlinken wir pro Fach auf studienwahl.at. Der kostenpflichtige Report ergänzt dein bestes Fach mit Belegen und passende Studiengänge in den abgedeckten Auslandsländern.`,
     fullList: ['Dein bestes Fach, mit allen Belegen', 'Deine Fächer, für dich sortiert, je mit Link zu studienwahl.at', 'Passende Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studien markiert'],
     faq: [
-      ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Unser Server sieht sie nie.'],
+      ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Dein Verlauf geht direkt von Google auf dein Gerät, wird zu einer Zusammenfassung verdichtet, und die Rohdaten fliegen raus. Nur wenn du die KI-Inhaltsanalyse ausdrücklich aktivierst, gehen ausgewählte Exporttitel und Kanalnamen über unseren Server an Claude (Anthropic). Wir speichern diese Anfrage nicht.'],
       ['Ist das ein richtiger psychologischer Test?', 'Er baut auf gesicherter Forschung auf, ist aber kein geprüfter Test. Die Interessenfragen folgen dem RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, mit vier Tätigkeiten pro Bereich. Die Fragen sind unsere eigenen und noch nicht in einer Studie geprüft. Der freiwillige Teil zur Persönlichkeit ist der Mini-IPIP, eine veröffentlichte Big-Five-Skala mit 20 Fragen, in eigener Übersetzung. Die Analyse deiner Daten ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
       ['Welche Hochschulen sind drin?', 'Für Österreich zeigen wir die Fächer, die Hochschultypen und die Kosten; die einzelnen Studien führt studienwahl.at, das Studienportal des Wissenschaftsministeriums, auf das wir pro Fach verlinken. Seine Daten haben keine offene Lizenz, deshalb übernehmen wir sie nicht. Studiengang für Studiengang kommen die Schweiz, Frankreich, UK, die Niederlande, Norwegen, Finnland, Australien, Südkorea und die USA dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
       ['Was bringt der volle Report?', 'Dein bestes Fach mit allen Belegen, deine Fächer mit Link zu studienwahl.at und die passenden Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Einzelne Studiengänge in Österreich und Deutschland sind nicht enthalten. Wenn du nur diese Länder auswählst, erhältst du die Fächerauswertung und Links zu den offiziellen Suchportalen, aber keine einzelnen Studiengänge.'],
@@ -1499,6 +1552,7 @@ const deDE = mergeDeep(regionalizeDeep(deCH, 'de-DE'), regionalizeDeep(DE_OVERRI
 const deAT = mergeDeep(regionalizeDeep(deCH, 'de-AT'), regionalizeDeep(AT_OVERRIDES, 'de-AT'))
 
 const frCH = mergeDeep(en, {
+  contentAi: CONTENT_AI.fr,
   consent: {
     ask: 'Pouvons-nous mesurer quelles publicités amènent des visiteurs ici ? Google Analytics et Google Ads utilisent pour cela des cookies. Ton historique, tes réponses et ton résultat n’y entrent jamais.',
     info: 'Nous mesurons avec Google Analytics et Google Ads quelles publicités amènent des visiteurs ici. Ton historique, tes réponses et ton résultat n’y entrent jamais.',
@@ -1512,7 +1566,7 @@ const frCH = mergeDeep(en, {
   footer: {
     about: 'Un bref questionnaire sur les intérêts et la personnalité, plus ton parcours numérique (facultatif), mis en relation avec des domaines d’études et des formations réelles.',
     allFields: 'Tous les domaines', sources: 'Sources des formations', privacy: 'Confidentialité', terms: 'Conditions',
-    local: 'L’analyse se fait dans ton navigateur. Nous ne voyons jamais ton historique.', otherSites: 'Aussi disponible pour',
+    local: 'Analyse locale par défaut. L’IA reçoit des données choisies seulement avec ton accord.', otherSites: 'Aussi disponible pour',
     siteNames: { global: 'International', ch: 'Suisse', de: 'Allemagne', at: 'Autriche' }, imprint: 'Mentions légales',
   },
   landing: {
@@ -1540,14 +1594,14 @@ const frCH = mergeDeep(en, {
       { id: 'spotify', glyph: '🎧', name: 'Spotify', how: 'À demander à Spotify, prend quelques jours', what: 'Podcasts, épisodes enregistrés et livres audio montrent ce que tu veux comprendre. La musique compte peu.', n: '200–20 000 signaux', color: 'surface-2', badge: 'optional' },
     ],
     privacyTitle: 'Tes données restent chez toi.', priceTitle: 'Résultat gratuit. Rapport complet quand tu le souhaites.',
-    privacyBody: 'L’analyse se déroule dans ton navigateur. Les connexions sont en lecture seule et les jetons ne passent pas par notre serveur. Les fichiers sont décompressés sur ton appareil. Seul un résumé reste dans ton navigateur, supprimable en un clic. Pour rechercher les formations, nous envoyons uniquement tes domaines principaux et tes filtres.',
+    privacyBody: 'L’analyse se déroule dans ton navigateur. Les connexions sont en lecture seule et les jetons ne passent pas par notre serveur. Les fichiers sont décompressés sur ton appareil. Seul un résumé reste dans ton navigateur, supprimable en un clic. Pour rechercher les formations, nous envoyons uniquement tes domaines principaux et tes filtres. Les analyses IA facultatives envoient des titres ou éléments du profil à Claude seulement avec ton accord explicite.',
     privacyPoints: ['Aucune base de données, aucun compte ni e-mail enregistré', 'Pas de cookies de suivi', 'Accès en lecture seule, révocable à tout moment', 'Les fichiers bruts sont écartés après l’analyse', 'Le fonctionnement du modèle est documenté'],
     free: 'Gratuit', full: 'Rapport complet', oneTime: 'paiement unique · 12 mois', faqTitle: 'Questions', next: 'Prochain projet de la même équipe : trouver le métier qui te correspond.',
     buyNote: 'Achète maintenant, puis remplis le questionnaire ou ajoute tes données.',
     freeList: ['Tes domaines dès la deuxième place, avec les éléments à l’appui', 'Des correspondances inattendues', 'Profil RIASEC et Big Five', 'Évolution de tes intérêts au fil du temps', 'Nombre et lieu des formations correspondantes'],
     fullList: ['Ton premier domaine et ta meilleure filière', 'Toutes les filières classées pour toi, avec comparaison facultative par IA', 'Frais et conditions d’admission', 'Salaires et données d’admission lorsqu’elles sont publiées', 'Universités de référence dans plus de 60 pays', 'Filtres, recherche, export CSV et nouveautés signalées'],
     faq: [
-      ['Enregistrez-vous mon historique YouTube ?', 'Non. L’analyse se déroule dans ton navigateur. Ton historique va directement de Google à ton appareil, est résumé puis supprimé. Notre serveur ne le reçoit jamais.'],
+      ['Enregistrez-vous mon historique YouTube ?', 'Non. L’analyse se déroule dans ton navigateur. Ton historique va directement de Google à ton appareil, est résumé puis supprimé. Seulement avec ton accord pour l’analyse IA, des titres et noms de chaînes choisis passent par notre serveur vers Claude (Anthropic). Nous ne conservons pas cette requête.'],
       ['Est-ce un test psychologique ?', 'Il repose sur une recherche solide, mais ce n’est pas un test validé. Les questions d’intérêts suivent le modèle RIASEC de Holland, avec quatre activités par domaine ; ce sont nos propres questions, pas encore validées par une étude. La partie personnalité, facultative, est le Mini-IPIP, une échelle Big Five publiée de 20 questions, dans notre propre traduction. L’analyse de tes données est notre propre modèle ; la page « Comment ça marche » en décrit les étapes et les limites.'],
       ['Quelles hautes écoles suisses sont répertoriées ?', 'Les universités cantonales, l’ETH Zurich, l’EPFL, les hautes écoles spécialisées et les hautes écoles pédagogiques, à partir des données de l’Office fédéral de la statistique.'],
       ['Que contient le rapport complet ?', 'Ton domaine principal et les formations correspondantes, avec les frais, les conditions publiées et des liens vers les établissements. Le paiement est valable 12 mois et les données sont actualisées chaque semaine.'],
@@ -1736,7 +1790,7 @@ const frCH = mergeDeep(en, {
     studying: (since?: number) => since ? `Tu étudies déjà ce domaine depuis ${since}. Les recherches liées à tes cours comptent donc peu.` : 'Tu étudies déjà ce domaine. Les recherches liées aux cours comptent donc peu.', and: ' et ',
   },
   insights: {
-    datapoints: { title: 'Signaux analysés', detail: (s: number) => `${s} source${s === 1 ? '' : 's'}, analysées entièrement dans ton navigateur.` },
+    datapoints: { title: 'Signaux analysés', detail: (s: number) => `${s} source${s === 1 ? '' : 's'}, avec des résumés conservés dans ton navigateur.` },
     learning: { title: 'Part consacrée à l’apprentissage', detail: (share: number) => share > 45 ? 'Une grande partie de tes contenus cherche à comprendre des sujets. C’est utile pour des études universitaires.' : share > 25 ? 'Tes contenus mêlent apprentissage et divertissement.' : 'Tes contenus sont surtout du divertissement. Le questionnaire compte donc davantage.' },
     breadth: { title: 'Style de curiosité', value: { explorer: 'Explorateur', specialist: 'Spécialiste', focused: 'Explorateur ciblé' } as Record<string, string>, detail: (style: string, areas: number, spread: boolean) => style === 'explorer' ? `Tu suis ${areas} domaines différents. Les cursus interdisciplinaires méritent ton attention.` : style === 'specialist' ? 'Tes intérêts se concentrent sur quelques domaines. Une formation spécialisée pourrait te convenir.' : `Tu approfondis quelques domaines et en explores ${areas} au total.${spread ? ' Tes trois premiers résultats appartiennent à des familles différentes.' : ''}` },
     consistency: { title: 'Régularité', value: { long: 'À long terme', recurring: 'Récurrent', recent: 'Récent' } as Record<string, string>, detail: { long: 'Tes principaux intérêts reviennent chaque mois, pas seulement par phases.', recurring: 'Tes principaux intérêts reviennent régulièrement.', recent: 'Tes principaux intérêts sont récents. Vois s’ils durent.' } as Record<string, string> },
@@ -1750,7 +1804,7 @@ const frCH = mergeDeep(en, {
   earnings: { ch: 'Salaire médian en Suisse, un an après le diplôme', chShort: 'Salaire médian en Suisse', uhMaster: 'Master universitaire', fhBachelor: 'Bachelor HES', teaching: 'Diplôme d’enseignement HEP', chSource: (year?: string) => `Office fédéral de la statistique, enquête auprès des diplômés${year ? `, année de diplôme ${year}` : ''}, brut, plein temps`, us: 'Salaire médian aux États-Unis, un an après le Bachelor', usSource: 'College Scorecard, ministère américain de l’Éducation' },
   sourceNames: { youtube: 'Abonnements et mentions J’aime YouTube', takeout: 'Historique YouTube', 'google-search': 'Activité Google', spotify: 'Spotify', 'spotify-export': 'Spotify (fichier)', instagram: 'Instagram', tiktok: 'TikTok', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Questionnaire' } as Record<string, string>,
   stats: { subscriptions: 'abonnements', likedVideos: 'vidéos aimées', musicLikes: 'titres aimés', playlists: 'playlists', playlistItems: 'titres en playlist', uploads: 'vidéos publiées', watchedVideos: 'vidéos regardées', musicPlays: 'écoutes musicales', youtubeSearches: 'recherches YouTube', googleSearches: 'recherches Google', comments: 'commentaires', channels: 'chaînes', plays: 'écoutes', podcastEpisodes: 'épisodes de podcast', artists: 'artistes', repositories: 'dépôts', ownRepositories: 'tes dépôts', starred: 'favoris', topLanguage: 'langage principal', communities: 'communautés', saved: 'enregistrés', upvoted: 'votes positifs', posts: 'publications', topArtists: 'artistes préférés', followedArtists: 'artistes suivis', topTracks: 'titres préférés', recentPlays: 'écoutes récentes', savedPodcasts: 'podcasts enregistrés', savedEpisodes: 'épisodes enregistrés', audiobooks: 'livres audio', pagesVisited: 'pages visitées', mapsSearches: 'recherches Maps', apps: 'applications', books: 'livres', articles: 'articles', topics: 'thèmes', following: 'comptes suivis', likes: 'mentions J’aime', savedPosts: 'publications enregistrées', searches: 'recherches', profileSearches: 'recherches de profils', seen: 'publications vues', entries: 'éléments' } as Record<string, string>,
-  trust: { openSource: 'Open source', nothingStored: 'Ton historique reste sur ton appareil', viewCode: 'Voir le code sur GitHub', footer: 'Open source (MIT) sur GitHub', point: 'Open source : chaque ligne de code est publique', startNote: 'Tes fichiers sont analysés dans ton navigateur et ne nous sont pas transmis. Pour rechercher des formations, seuls les identifiants de tes domaines sont envoyés. Le code source est public.' },
+  trust: { openSource: 'Open source', nothingStored: 'Tu choisis les données envoyées à l’IA', viewCode: 'Voir le code sur GitHub', footer: 'Open source (MIT) sur GitHub', point: 'Open source : chaque ligne de code est publique', startNote: 'Tes fichiers sont lus dans ton navigateur. La recherche utilise les domaines, thèmes pondérés et filtres. Les étapes IA facultatives expliquent les données envoyées à Claude et demandent ton accord. Le code est public.' },
   tr: (s: string): string => FR_MESSAGES.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), s),
   meta: {
     title: `${CH_FR_IT_NAME} : Qu’étudier ?`, description: 'Trouve les domaines d’études qui te correspondent à partir de tes activités numériques et d’un bref questionnaire. Tes données restent dans ton navigateur.',
@@ -1767,6 +1821,7 @@ const frCH = mergeDeep(en, {
 } satisfies DeepPartial<Dict>)
 
 const itCH = mergeDeep(en, {
+  contentAi: CONTENT_AI.it,
   consent: {
     ask: 'Possiamo misurare quali annunci portano visitatori qui? Google Analytics e Google Ads usano dei cookie per farlo. La tua cronologia, le tue risposte e il tuo risultato non vi entrano mai.',
     info: 'Con Google Analytics e Google Ads misuriamo quali annunci portano visitatori qui. La tua cronologia, le tue risposte e il tuo risultato non vi entrano mai.',
@@ -1780,7 +1835,7 @@ const itCH = mergeDeep(en, {
   footer: {
     about: 'Un breve questionario su interessi e personalità, più le tue attività digitali (facoltative), messo a confronto con aree di studio e corsi reali.',
     allFields: 'Tutte le aree di studio', sources: 'Fonti dei corsi', privacy: 'Informativa sulla privacy', terms: 'Condizioni',
-    local: 'L’analisi avviene nel tuo browser. Non vediamo mai la tua cronologia.', otherSites: 'Disponibile anche per',
+    local: 'Analisi locale di default. L’IA riceve dati selezionati solo con il tuo consenso.', otherSites: 'Disponibile anche per',
     siteNames: { global: 'Internazionale', ch: 'Svizzera', de: 'Germania', at: 'Austria' }, imprint: 'Note legali',
   },
   landing: {
@@ -1809,12 +1864,12 @@ const itCH = mergeDeep(en, {
     ],
     priceTitle: 'Risultato gratis. Report completo quando vuoi.', free: 'Gratis', full: 'Report completo', oneTime: 'una tantum · 12 mesi',
     buyNote: 'Acquista ora, poi compila il questionario o aggiungi i tuoi dati.',
-    privacyBody: 'L’analisi avviene nel browser. Gli accessi sono in sola lettura e i token non passano dal nostro server. I file vengono decompressi sul tuo dispositivo. Nel browser resta solo un riepilogo, eliminabile con un clic. Per cercare i corsi inviamo solo le aree principali e i filtri.',
+    privacyBody: 'L’analisi avviene nel browser. Gli accessi sono in sola lettura e i token non passano dal nostro server. I file vengono decompressi sul tuo dispositivo. Nel browser resta solo un riepilogo, eliminabile con un clic. Per cercare i corsi inviamo solo le aree principali e i filtri. Le analisi IA facoltative inviano titoli o dati del profilo a Claude solo con il tuo consenso esplicito.',
     privacyPoints: ['Nessun database, account o indirizzo e-mail salvato', 'Nessun cookie di tracciamento', 'Accesso in sola lettura, revocabile in qualsiasi momento', 'I file originali vengono eliminati dopo l’analisi', 'Il funzionamento del modello è documentato'],
     freeList: ['Le tue aree dalla seconda posizione in poi, con le prove', 'Corrispondenze inaspettate', 'Profilo RIASEC e Big Five', 'Come sono cambiati i tuoi interessi nel tempo', 'Numero e sede dei corsi compatibili'],
     fullList: ['La tua prima area e il corso più adatto', 'Tutti i corsi ordinati per te, con confronto facoltativo tramite IA', 'Tasse e requisiti di ammissione', 'Stipendi e dati di ammissione quando disponibili', 'Università di riferimento in oltre 60 Paesi', 'Filtri, ricerca, export CSV e nuovi corsi segnalati'],
     faq: [
-      ['Salvate la cronologia di YouTube?', 'No. L’analisi avviene nel browser. La cronologia passa direttamente da Google al tuo dispositivo, viene riassunta e poi eliminata. Non arriva mai al nostro server.'],
+      ['Salvate la cronologia di YouTube?', 'No. L’analisi avviene nel browser. La cronologia passa direttamente da Google al tuo dispositivo, viene riassunta e poi eliminata. Solo con il tuo consenso per l’analisi IA, titoli e nomi di canali selezionati passano dal nostro server a Claude (Anthropic). Non conserviamo la richiesta.'],
       ['È un test psicologico?', 'Si basa su una ricerca solida, ma non è un test validato. Le domande sugli interessi seguono il modello RIASEC di Holland, con quattro attività per area; sono domande nostre, non ancora validate da uno studio. La parte facoltativa sulla personalità è il Mini-IPIP, una scala Big Five pubblicata di 20 domande, in una nostra traduzione. L’analisi dei tuoi dati è un nostro modello; la pagina «Come funziona» ne spiega passaggi e limiti.'],
       ['Quali scuole universitarie svizzere sono incluse?', 'Le università cantonali, il Politecnico federale di Zurigo, l’EPFL, le scuole universitarie professionali e le alte scuole pedagogiche, sulla base dei dati dell’Ufficio federale di statistica.'],
       ['Cosa aggiunge il report completo?', 'La tua area principale e i corsi compatibili, con tasse, requisiti pubblicati e link agli istituti. Il pagamento vale 12 mesi e i dati vengono aggiornati ogni settimana.'],
@@ -2001,7 +2056,7 @@ const itCH = mergeDeep(en, {
     studying: (since?: number) => since ? `Studi già quest’area dal ${since}. Le ricerche legate ai corsi contano poco.` : 'Studi già quest’area. Le ricerche legate ai corsi contano poco.', and: ' e ',
   },
   insights: {
-    datapoints: { title: 'Segnali analizzati', detail: (s: number) => `${s} fonti, analizzate interamente nel tuo browser.` },
+    datapoints: { title: 'Segnali analizzati', detail: (s: number) => `${s} fonti, con riepiloghi conservati nel browser.` },
     learning: { title: 'Quota di apprendimento', detail: (share: number) => share > 45 ? 'Gran parte dei contenuti che consulti serve a capire argomenti. È un buon segnale per lo studio.' : share > 25 ? 'I tuoi contenuti alternano apprendimento e intrattenimento.' : 'I tuoi contenuti sono soprattutto intrattenimento. Per questo il questionario conta di più.' },
     breadth: { title: 'Stile di curiosità', value: { explorer: 'Esploratore', specialist: 'Specialista', focused: 'Esploratore mirato' } as Record<string, string>, detail: (style: string, areas: number, spread: boolean) => style === 'explorer' ? `Segui ${areas} aree diverse. Potrebbero interessarti corsi interdisciplinari.` : style === 'specialist' ? 'I tuoi interessi si concentrano in poche aree. Un corso specialistico potrebbe fare per te.' : `Approfondisci alcune aree e ne esplori ${areas} in tutto.${spread ? ' Le prime tre appartengono a gruppi diversi.' : ''}` },
     consistency: { title: 'Costanza', value: { long: 'A lungo termine', recurring: 'Ricorrente', recent: 'Recente' } as Record<string, string>, detail: { long: 'I tuoi interessi principali ricompaiono ogni mese, non solo in alcuni periodi.', recurring: 'I tuoi interessi principali ritornano regolarmente.', recent: 'I tuoi interessi principali sono recenti. Vale la pena vedere se durano.' } as Record<string, string> },
@@ -2015,7 +2070,7 @@ const itCH = mergeDeep(en, {
   earnings: { ch: 'Stipendio mediano in Svizzera, un anno dopo la laurea', chShort: 'Stipendio mediano in Svizzera', uhMaster: 'Master universitario', fhBachelor: 'Bachelor SUP', teaching: 'Diploma di insegnamento ASP', chSource: (year?: string) => `Ufficio federale di statistica, indagine sui diplomati${year ? `, anno di diploma ${year}` : ''}, lordo, tempo pieno`, us: 'Stipendio mediano negli Stati Uniti un anno dopo il Bachelor', usSource: 'College Scorecard, Dipartimento dell’istruzione degli Stati Uniti' },
   sourceNames: { youtube: 'Iscrizioni e Mi piace di YouTube', takeout: 'Cronologia YouTube', 'google-search': 'Attività Google', spotify: 'Spotify', 'spotify-export': 'Spotify (file)', instagram: 'Instagram', tiktok: 'TikTok', reddit: 'Reddit', github: 'GitHub', questionnaire: 'Questionario' } as Record<string, string>,
   stats: { subscriptions: 'iscrizioni', likedVideos: 'video apprezzati', musicLikes: 'brani apprezzati', playlists: 'playlist', playlistItems: 'brani nelle playlist', uploads: 'video caricati', watchedVideos: 'video guardati', musicPlays: 'ascolti musicali', youtubeSearches: 'ricerche YouTube', googleSearches: 'ricerche Google', comments: 'commenti', channels: 'canali', plays: 'ascolti', podcastEpisodes: 'episodi di podcast', artists: 'artisti', repositories: 'repository', ownRepositories: 'tuoi repository', starred: 'preferiti', topLanguage: 'linguaggio principale', communities: 'comunità', saved: 'salvati', upvoted: 'voti positivi', posts: 'post', topArtists: 'artisti preferiti', followedArtists: 'artisti seguiti', topTracks: 'brani preferiti', recentPlays: 'ascolti recenti', savedPodcasts: 'podcast salvati', savedEpisodes: 'episodi salvati', audiobooks: 'audiolibri', pagesVisited: 'pagine visitate', mapsSearches: 'ricerche su Maps', apps: 'app', books: 'libri', articles: 'articoli', topics: 'temi', following: 'account seguiti', likes: 'Mi piace', savedPosts: 'post salvati', searches: 'ricerche', profileSearches: 'ricerche di profili', seen: 'post visti', entries: 'elementi' } as Record<string, string>,
-  trust: { openSource: 'Open source', nothingStored: 'La cronologia resta sul tuo dispositivo', viewCode: 'Vedi il codice su GitHub', footer: 'Open source (MIT) su GitHub', point: 'Open source: ogni riga di codice è pubblica', startNote: 'I file vengono analizzati nel browser e non ci vengono inviati. Per cercare i corsi inviamo soltanto gli identificativi delle tue aree. Il codice sorgente è pubblico.' },
+  trust: { openSource: 'Open source', nothingStored: 'Scegli tu cosa inviare all’IA', viewCode: 'Vedi il codice su GitHub', footer: 'Open source (MIT) su GitHub', point: 'Open source: ogni riga di codice è pubblica', startNote: 'I file vengono letti nel browser. La ricerca usa discipline, temi ponderati e filtri. I passaggi IA facoltativi spiegano i dati inviati a Claude e chiedono il consenso. Il codice è pubblico.' },
   tr: (s: string): string => IT_MESSAGES.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), s),
   meta: {
     title: `${CH_FR_IT_NAME}: cosa dovrei studiare?`, description: 'Scopri le aree di studio adatte a te grazie alle tue attività digitali e a un breve questionario. I tuoi dati restano nel browser.',

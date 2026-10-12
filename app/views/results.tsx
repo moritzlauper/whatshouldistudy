@@ -3,7 +3,7 @@
 import { withBase } from '@/lib/site.ts'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { useAppState } from '@/lib/store.ts'
+import { effectiveSummaries, useAppState } from '@/lib/store.ts'
 import { decodeSnapshot, encodeSnapshot, sharedParam } from '@/lib/share.ts'
 import type { Snapshot } from '@/lib/share.ts'
 import { score, sourceProfile } from '@/lib/engine/scoring.ts'
@@ -18,6 +18,7 @@ import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes, TopProgrammes } from '../ui/programmes.tsx'
 import { OwnDataPanel, type OwnStatus } from '../ui/readings.tsx'
+import { ContentAnalysisPanel } from '../ui/content-analysis.tsx'
 import { StudyingControl } from '../ui/prefs-form.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { Contributions } from '../ui/contributions.tsx'
@@ -70,7 +71,7 @@ export function ResultsView() {
   }, [])
 
   const isShared = !!shared && shared !== 'broken'
-  const summaries = isShared ? [] : (Object.values(state.summaries).filter(Boolean) as SourceSummary[])
+  const summaries = isShared ? [] : effectiveSummaries(state)
   const own = useMemo<Results | null>(() => {
     if (!mounted || shared === undefined || isShared) return null
     const swiss = k.site === 'ch' || (k.site === 'global' && state.prefs.countries.includes('CH'))
@@ -148,6 +149,7 @@ export function ResultsView() {
       {unlocked && !isShared && (
         <div className="mt-6">
           <OwnDataPanel on={aiSort} status={aiStatus} onChange={setAiSort} hint={t.programmes.ai.own.askAllHint} />
+          <ContentAnalysisPanel token={paid ? state.unlock!.token : null} />
         </div>
       )}
 
@@ -402,6 +404,7 @@ function Evidence({ m, n }: { m: FieldMatch; n: number }) {
         {m.evidence.slice(0, n).map((e) => (
           <li key={e.label} className="break-words" title={t.sourceNames[e.source] ?? e.source}>
             <span className="text-muted">{t.results.kinds[e.kind] ?? e.kind}:</span> {e.label}
+            {e.interpretation && <p className="mt-1 text-muted">{e.interpretationFromChannel ? t.contentAi.channelEvidence : t.contentAi.evidence}: {e.interpretation}</p>}
           </li>
         ))}
       </ul>
