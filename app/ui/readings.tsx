@@ -165,7 +165,8 @@ export function BudgetNote() {
   )
 }
 
-const OWN_STORE = 'wsis:own-data:v1'
+// v2: the consent names the topics and Claude as the recipient, so agreements to the earlier text are asked again.
+const OWN_STORE = 'wsis:own-data:v2'
 
 /** Whether the person agreed before in this browser; nothing else about the agreement is kept. */
 function agreedBefore(): boolean {
