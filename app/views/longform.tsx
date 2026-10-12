@@ -119,7 +119,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
         <h2>3. Tes réponses complètent l’analyse</h2>
         <ul>
           <li><strong>Intérêts :</strong> le modèle RIASEC de John Holland décrit six types d’intérêts. Le questionnaire et les thèmes de ton historique contribuent à ton profil.</li>
-          <li><strong>Personnalité :</strong> le Mini-IPIP de Donnellan et ses collègues (2006) contient 20 questions issues de l’International Personality Item Pool. Cette partie facultative ne modifie pas le classement des domaines en mode questionnaire ; elle ajoute un profil de personnalité et peut contribuer à la comparaison facultative par IA.</li>
+          <li><strong>Personnalité :</strong> le Mini-IPIP de Donnellan et ses collègues (2006) contient 20 questions issues de l’International Personality Item Pool. Les 20 réponses sont requises pour consulter ton résultat. Cette partie ne modifie pas le classement des domaines en mode questionnaire ; elle ajoute un profil de personnalité et peut contribuer à la comparaison facultative par IA.</li>
           <li><strong>Matières et priorités :</strong> tes matières préférées, tes points forts et ce que tu recherches dans un métier sont comparés aux contenus des domaines.</li>
         </ul>
         <h2>4. Ce que le résultat ne dit pas</h2>
@@ -153,7 +153,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
         <h2>3. Le tue risposte completano l’analisi</h2>
         <ul>
           <li><strong>Interessi:</strong> il modello RIASEC di John Holland descrive sei tipi di interesse. Al profilo contribuiscono il questionario e i temi della tua cronologia.</li>
-          <li><strong>Personalità:</strong> il Mini-IPIP di Donnellan e colleghi (2006) contiene 20 domande tratte dall’International Personality Item Pool. Questa parte facoltativa non cambia la classifica delle aree in modalità questionario; aggiunge un profilo di personalità e può contribuire al confronto facoltativo tramite IA.</li>
+          <li><strong>Personalità:</strong> il Mini-IPIP di Donnellan e colleghi (2006) contiene 20 domande tratte dall’International Personality Item Pool. Tutte le 20 risposte sono obbligatorie per vedere il risultato. Questa parte non cambia la classifica delle aree in modalità questionario; aggiunge un profilo di personalità e può contribuire al confronto facoltativo tramite IA.</li>
           <li><strong>Materie e priorità:</strong> confrontiamo le materie che ti piacciono, i tuoi punti di forza e ciò che cerchi in un lavoro con i contenuti delle aree.</li>
         </ul>
         <h2>4. Cosa non indica il risultato</h2>
@@ -323,7 +323,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
           <strong>Interests (RIASEC):</strong> John Holland’s six interest types (Realistic, Investigative, Artistic, Social, Enterprising, Conventional) underpin most career guidance. Every field has a RIASEC profile; yours comes from 24 activity questions and from the fields you engage with. Congruence between the two is one of the best-replicated predictors of satisfaction and persistence in a major.
         </li>
         <li>
-          <strong>Personality (Big Five):</strong> the Mini-IPIP (Donnellan et al., 2006), a validated 20-item public-domain scale. This optional part does not change the field ranking in questionnaire mode. It adds a personality profile to the result and can inform the optional AI comparison. Without the questionnaire, music taste gives a weak estimate, clearly labelled as such.
+          <strong>Personality (Big Five):</strong> the Mini-IPIP (Donnellan et al., 2006), a validated 20-item public-domain scale. All 20 responses are required to view your result. This part does not change the field ranking in questionnaire mode. It adds a personality profile to the result and can inform the optional AI comparison. Without the questionnaire, music taste gives a weak estimate, clearly labelled as such.
         </li>
         <li>
           <strong>School subjects and values:</strong> what you enjoy and are good at, and what you want from work (salary, security, creativity, helping, impact), compared with what each field draws on and offers. For salary, US graduate earnings data is mixed in.
@@ -367,6 +367,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <h2>Recherche de formations</h2>
         <p>Pour rechercher des formations, ton navigateur transmet les identifiants et scores de tes domaines principaux, jusqu’à 80 thèmes pondérés et tes filtres de recherche. Il ne transmet ni titres consultés, ni recherches, ni chaînes, ni noms permettant de t’identifier. Nous ne conservons pas cette requête.</p>
         <h2>{k.t.contentAi.title}</h2>
+        <p>{k.t.contentAi.localNote}</p>
         <p>{k.t.contentAi.consent}</p>
         <h2>Évaluation des formations par l’IA</h2>
         <p>Régulièrement, Claude lit les pages publiques des formations suisses et note à quel point chacune touche aux types d’intérêts et quelles matières scolaires elle demande. Seule la page d’une formation part chez Anthropic (États-Unis), sans profil, sans nom ni compte. Nous conservons les résultats dans notre propre base de données ; ils ne contiennent rien sur toi. Le classement se calcule dans ton navigateur, à partir de tes réponses. L’option « Trier avec l’IA » est désactivée par défaut. Si tu l’actives, Claude reçoit en plus ton profil d’intérêts, tes thèmes avec leur pondération et les matières que tu aimes, avec les résultats des 20 meilleures correspondances. Nous te demandons d’abord ton accord, et tu peux le retirer à tout moment.</p>
@@ -412,6 +413,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <h2>Ricerca dei corsi</h2>
         <p>Per cercare i corsi, il browser invia gli identificativi e i punteggi delle tue aree principali, fino a 80 temi con il relativo peso e i filtri di ricerca. Non invia titoli consultati, ricerche, canali o nomi che possano identificarti. Non conserviamo la richiesta.</p>
         <h2>{k.t.contentAi.title}</h2>
+        <p>{k.t.contentAi.localNote}</p>
         <p>{k.t.contentAi.consent}</p>
         <h2>Valutazione dei corsi con l’IA</h2>
         <p>Regolarmente Claude legge le pagine pubbliche dei corsi svizzeri e annota quanto ciascuno tocca i tipi di interesse e quali materie scolastiche richiede. Verso Anthropic (USA) va soltanto la pagina di un corso: nessun profilo, nessun nome, nessun account. I risultati li conserviamo in una nostra banca dati; non contengono nulla su di te. La classifica viene calcolata nel tuo browser, a partire dalle tue risposte. L’opzione «Ordina con l’IA» è disattivata di default. Se la attivi, Claude riceve anche il tuo profilo di interessi, i tuoi temi con il loro peso e le materie che ti piacciono, insieme ai risultati dei 20 migliori abbinamenti. Ti chiediamo prima il consenso, che puoi ritirare in qualsiasi momento.</p>
@@ -454,7 +456,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
 
         <h2>Was wir speichern: nichts</h2>
         <p>
-          Bei uns gibt es keine Datenbank, kein Konto und keine Kopie deiner Daten. Was die Analyse behält, eine Zusammenfassung, liegt nur im Speicher deines Browsers. Ein Klick auf «Alle meine Daten löschen» entfernt es. Zwei Dinge liegen nicht bei uns: Der Hoster Vercel führt kurz technische Protokolle, und wenn du bezahlst, speichert Stripe die Zahlung.
+          Bei uns gibt es keine Datenbank, kein Konto und keine Kopie deiner Daten. Zusammenfassungen und eingelesene YouTube-Exporte liegen nur im Speicher deines Browsers. Ein Klick auf «Alle meine Daten löschen» entfernt es. Zwei Dinge liegen nicht bei uns: Der Hoster Vercel führt kurz technische Protokolle, und wenn du bezahlst, speichert Stripe die Zahlung.
           {GOOGLE_TAG && ' Dazu bekommt Google Messdaten zu unserer Werbung, wie unten unter «Cookies und Messung» beschrieben.'}
         </p>
 
@@ -487,7 +489,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
             <strong>Hosting:</strong> Die Website läuft bei Vercel. Wie bei jeder Website fallen dort technische Protokolle an (IP-Adresse, Zeitpunkt, aufgerufene Seite), die Vercel kurz aufbewahrt. Aus deiner IP-Adresse leiten wir nur das Land ab, um den Preis in deiner Währung zu zeigen.
           </li>
           <li>
-            <strong>{k.t.contentAi.title}:</strong> {k.t.contentAi.consent}
+            <strong>{k.t.contentAi.title}:</strong> {k.t.contentAi.localNote} {k.t.contentAi.consent}
           </li>
           <li>
             <strong>KI-Einordnung der Studiengänge:</strong> Claude liest regelmässig die öffentlichen Seiten der Schweizer Studiengänge und hält fest, wie stark sie die Interessentypen berühren und welche Schulfächer sie brauchen. An Anthropic (USA) geht dabei nur die Seite eines Studiengangs, kein Profil, kein Name, kein Konto. Die Ergebnisse speichern wir in einer eigenen Datenbank; sie enthalten nichts über dich. Die Rangliste rechnet dein Browser mit deinen Angaben. Die Option «Mit KI sortieren» ist standardmässig aus. Wenn du sie einschaltest, bekommt Claude zusätzlich dein Interessenprofil, deine Themen mit ihrer Gewichtung und deine Lieblingsfächer zusammen mit den Ergebnissen der 20 besten Treffer. Dafür holen wir vorher deine Einwilligung ein, und du kannst sie jederzeit zurückziehen.
@@ -565,7 +567,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
     <Page title="Privacy" lead="Your history never reaches us, the analysis runs in your browser, and what it keeps stays there. All of the code is open source.">
       <h2>What we store: nothing</h2>
       <p>
-        There is no database, no account and no copy of your data on our side. What the analysis keeps, a summary, lives only in your browser’s storage, and «Delete all my data» removes it. Two things are outside our hands: our host Vercel keeps short-lived technical logs, and if you pay, Stripe stores the payment.
+        There is no database, no account and no copy of your data on our side. Summaries and parsed YouTube exports live only in your browser’s storage, and «Delete all my data» removes it. Two things are outside our hands: our host Vercel keeps short-lived technical logs, and if you pay, Stripe stores the payment.
         {GOOGLE_TAG && ' Google also receives measurement data about our ads, as described under «Cookies and measurement» below.'}
       </p>
 
@@ -598,7 +600,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
           <strong>Hosting:</strong> the site runs on Vercel, which keeps short-lived technical logs (IP address, time, page). We use your IP address only to infer your country and show the price in your currency.
         </li>
         <li>
-          <strong>{k.t.contentAi.title}:</strong> {k.t.contentAi.consent}
+          <strong>{k.t.contentAi.title}:</strong> {k.t.contentAi.localNote} {k.t.contentAi.consent}
         </li>
         <li>
           <strong>AI classification of programmes:</strong> Claude regularly reads the public pages of the Swiss programmes and notes how strongly each involves the interest types and which school subjects it needs. Only a programme’s page goes to Anthropic (USA), no profile, no name, no account. We keep the results in our own database; they contain nothing about you. The ranking is computed in your browser against your answers. The option “Sort with AI” is off by default. If you switch it on, Claude also receives your interest profile, your topics with their weights and the subjects you enjoy, together with the results for the 20 best matches. We ask for your consent first, and you can withdraw it at any time.

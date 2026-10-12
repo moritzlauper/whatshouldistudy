@@ -5,7 +5,7 @@ import type { QuestionnaireAnswers } from './types.ts'
 /**
  * The questionnaire fills in what no digital footprint shows: how someone
  * describes themselves, which school subjects they like and are good at, and
- * what they want from a career. Every part is optional.
+ * what they want from a career. All personality items are required for a result.
  */
 
 export interface LikertItem {
@@ -199,9 +199,17 @@ export function careless(a: QuestionnaireAnswers): boolean {
   return false
 }
 
-/** Whether there is enough for a result: the interest scales, or at least one data source. Used by the start and the results page alike. */
+/** Count only valid responses to the twenty current personality items. */
+export function big5Answered(a: QuestionnaireAnswers): number {
+  return BIG5_ITEMS.filter((i) => {
+    const value = a.big5?.[i.id]
+    return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 5
+  }).length
+}
+
+/** A complete personality questionnaire plus interest scales or a data source. Shared by start and results. */
 export function resultsReady(a: QuestionnaireAnswers, sources: number): boolean {
-  return sources > 0 || scoreRiasec(a) !== null
+  return big5Answered(a) === BIG5_ITEMS.length && (sources > 0 || scoreRiasec(a) !== null)
 }
 
 /** Big Five z-scores, or null if fewer than half the items were answered. */
@@ -232,10 +240,10 @@ export function riasecCode(p: Riasec): string {
 }
 
 export function questionnaireProgress(a: QuestionnaireAnswers): { done: number; total: number } {
-  // Personality is optional and separate from the core progress indicator.
-  const total = INTEREST_LIST.length + 14 + 8
+  const total = INTEREST_LIST.length + BIG5_ITEMS.length + 14 + 8
   const done =
     INTEREST_LIST.filter((i) => typeof a.riasec?.[i.id] === 'number').length +
+    big5Answered(a) +
     Object.values(a.subjects ?? {}).filter((s) => s && (s.enjoy || s.grade)).length +
     Object.keys(a.values ?? {}).length
   return { done, total }

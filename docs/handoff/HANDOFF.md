@@ -6,9 +6,26 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 
 - Direkt auf `main` pushen, keine PRs.
 - Texte auf Deutsch: Schweizer Hochdeutsch, kein ß, Anführungszeichen «», schlicht und konkret, keine Werbefloskeln. Alle UI-Texte stehen in `lib/site/dict.ts` (en, de-CH, fr, it, dazu Overrides für DE/AT).
-- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 212 grün). Demodaten mit `node scrapers/build.ts --sample`.
+- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 218 grün). Demodaten mit `node scrapers/build.ts --sample`.
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
+
+## Persönlichkeit als Pflichtteil (12.10.2026)
+
+- Auf Wunsch des Inhabers sind alle 20 Mini-IPIP-Antworten für das eigene Resultat erforderlich, auch im Datenmodus. Die gemeinsame Freigabeprüfung gilt auf Start-, Ergebnis- und Checkout-Rückkehrseiten. Geteilte Resultate bleiben lesbar.
+- Persönlichkeit ist der zweite reguläre Fragebogen-Tab nach den Interessen. Die 20 Antworten zählen im Gesamtfortschritt mit (67 Einträge). Fehlende Antworten werden auf der Start- und Ergebnisseite angezeigt, auch auf kleinen Bildschirmen. Vorhandene Antworten bleiben erhalten.
+- Texte in DE/EN/FR/IT und README nachgeführt. Die Berechnung und Gewichtung der Persönlichkeit wurde nicht geändert.
+
+Prüfungen: 218 Tests und TypeScript erfolgreich. Gerenderte Oberfläche in allen vier Sprachen geprüft: vier Tabs, 20 Persönlichkeitsfragen und kein eingeklappter freiwilliger Teil. Neue Regressionen prüfen fehlende und ungültige Antworten sowie die Freigabe mit und ohne Import.
+
+## KI-Verlauf: vorhandenen Import verwenden und Wirkung zeigen (12.10.2026)
+
+- Der normale Import speichert eingelesene YouTube-Exportdaten lokal in IndexedDB, getrennt pro Website. Der KI-Bereich bereitet daraus die Stichprobe vor und fragt vor dem Senden ausdrücklich nach. Der zweite Datei-Upload entfällt, auch nach Neuladen oder Checkout-Rückkehr. Ohne Browser-Speicher bleibt eine Kopie für den laufenden Besuch verfügbar.
+- Löschen der Quelle oder aller Daten entfernt auch die Importdaten; ein neuer Import ersetzt sie. Abbruch, neue Importe und gelöschte Quellen verhindern weitere Batches und die Übernahme alter Antworten. Original- und KI-Zusammenfassung bleiben getrennt. Alte KI-Ergebnisse funktionieren weiterhin; bei alten Importen ohne Originaltitel ist einmaliges Einlesen auf der Startseite nötig.
+- «Was die KI verändert hat» vergleicht Platz und Punkte der ersten zehn Fächer mit und ohne KI, unter denselben übrigen Eingaben. Eine unveränderte Reihenfolge wird ausdrücklich benannt. Stichprobengrösse, Fachgewichtung, Paywall und KI-Budget bleiben unverändert. Der Vergleich lässt sich aus bereits vorhandenen KI-Zusammenfassungen lokal berechnen.
+- Hinweise zur lokalen Speicherung auf Start-, Datenschutz- und Landingseiten in DE/EN/FR/IT und README angepasst. Keine persönlichen Daten oder echten KI-Anfragen für die Tests verwendet.
+
+Prüfungen: 217 Tests, TypeScript und Produktionsbuild mit `next build --webpack`. Fünf Prüfungen mit nativer IndexedDB im Browser bestätigen Wiederherstellung nach einem neuen Modulaufruf, Trennung der Websites, Ersetzung und Löschung.
 
 ## Sozialwissenschaften: gezielte Lexikonkorrekturen am 12.10.2026
 

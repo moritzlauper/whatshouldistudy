@@ -2,14 +2,19 @@
 
 import { useSyncExternalStore } from 'react'
 import type { Preferences, QuestionnaireAnswers, SourceId, SourceSummary } from './engine/types.ts'
+import { readContentInput, saveContentInput } from './content-store.ts'
+import type { ContentAnalysisInput } from './sources/exports.ts'
 
 /**
- * Everything the analysis keeps lives in this browser's localStorage: the
+ * Summaries and settings live in this browser's localStorage: the
  * per-source summaries (aggregates, never raw history), questionnaire answers,
- * preferences and the unlock token. "Delete my data" wipes it.
+ * preferences and the unlock token. Parsed YouTube exports for the optional
+ * AI step live separately in IndexedDB. "Delete my data" wipes both.
  */
 
 export interface State {
+  /** Identifies the current YouTube import in this site's local IndexedDB record. */
+  contentImportId?: string
   /** Optional semantic summary; the original stays available when switched off. */
   contentAnalysis?: { baseCollectedAt: string; summary: SourceSummary; enabled: boolean }
   summaries: Partial<Record<SourceId, SourceSummary>>
@@ -84,8 +89,15 @@ export function update(fn: (s: State) => State): void {
   for (const l of listeners) l()
 }
 
-export function setSummary(s: SourceSummary): void {
-  update((st) => ({ ...st, summaries: { ...st.summaries, [s.source]: s }, ...(s.source === 'takeout' ? { contentAnalysis: undefined } : {}) }))
+export function setSummary(s: SourceSummary, contentInput?: ContentAnalysisInput): Promise<void> {
+  const contentImportId = s.source === 'takeout' && contentInput ? crypto.randomUUID() : undefined
+  const saved = s.source === 'takeout' ? saveContentInput(KEY, contentImportId && contentInput ? { id: contentImportId, input: contentInput } : null) : Promise.resolve()
+  update((st) => ({ ...st, summaries: { ...st.summaries, [s.source]: s }, ...(s.source === 'takeout' ? { contentAnalysis: undefined, contentImportId } : {}) }))
+  return saved
+}
+
+export function loadContentInput(state: State): Promise<ContentAnalysisInput | null> {
+  return state.summaries.takeout && state.contentImportId ? readContentInput(KEY, state.contentImportId) : Promise.resolve(null)
 }
 
 export function effectiveSummaries(state: State): SourceSummary[] {
@@ -95,14 +107,16 @@ export function effectiveSummaries(state: State): SourceSummary[] {
 }
 
 export function removeSummary(id: SourceId): void {
+  if (id === 'takeout') void saveContentInput(KEY, null)
   update((st) => {
     const summaries = { ...st.summaries }
     delete summaries[id]
-    return { ...st, summaries, ...(id === 'takeout' ? { contentAnalysis: undefined } : {}) }
+    return { ...st, summaries, ...(id === 'takeout' ? { contentAnalysis: undefined, contentImportId: undefined } : {}) }
   })
 }
 
 export function clearAll(): void {
+  void saveContentInput(KEY, null)
   current = EMPTY
   try {
     window.localStorage.removeItem(KEY)

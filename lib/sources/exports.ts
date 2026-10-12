@@ -33,6 +33,8 @@ import type { SocialCollected } from './social-exports.ts'
  */
 
 export interface ExportResult {
+  /** Parsed YouTube export data kept locally for the optional AI step. No API enrichment. */
+  contentInput?: ContentAnalysisInput
   /** Explicit export-only AI step; the original titles never include API enrichment. */
   contentAnalysis: () => { items: ReturnType<typeof contentPlan>['items']; eligible: number; apply: (verdicts: ContentVerdict[]) => SourceSummary }
   summaries: SourceSummary[]
@@ -48,6 +50,20 @@ export interface ExportResult {
   recentVideoIds: string[]
   /** Re-runs the analysis with channel and video details fetched from the YouTube API. */
   rebuild: (channels?: Map<string, ChannelInfo>, videos?: Map<string, VideoResource>) => ExportResult
+}
+
+export interface ContentAnalysisInput {
+  items: SignalItem[]
+  otherItems: SignalItem[]
+  stats: SourceSummary['stats']
+}
+
+export function prepareContentAnalysis(input: ContentAnalysisInput) {
+  const plan = contentPlan(input.items)
+  return { items: plan.items, eligible: plan.eligible, apply: (verdicts: ContentVerdict[]) => accumulate(
+    [...plan.apply(verdicts), ...input.otherItems],
+    { source: 'takeout', label: 'Google Takeout', stats: { ...input.stats, aiItems: plan.items.length, aiEligible: plan.eligible } },
+  ) }
 }
 
 const videoId = (url?: string) => /[?&]v=([\w-]{6,})/.exec(url ?? '')?.[1]
@@ -672,15 +688,15 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>, video
         .filter((x): x is string => !!x),
     ),
   ]
+  const contentInput: ContentAnalysisInput = {
+    items: [...c.watch, ...subscriptions],
+    otherItems: [...c.music, ...c.youtubeSearch, ...c.comments],
+    stats: summaries.find((s) => s.source === 'takeout')?.stats ?? {},
+  }
   return {
     summaries,
-    contentAnalysis: () => {
-      const plan = contentPlan([...c.watch, ...subscriptions])
-      return { items: plan.items, eligible: plan.eligible, apply: (verdicts) => accumulate(
-        [...plan.apply(verdicts), ...c.music, ...c.youtubeSearch, ...c.comments],
-        { source: 'takeout', label: 'Google Takeout', stats: { ...summaries.find((s) => s.source === 'takeout')?.stats, aiItems: plan.items.length, aiEligible: plan.eligible } },
-      ) }
-    },
+    contentInput: contentInput.items.length ? contentInput : undefined,
+    contentAnalysis: () => prepareContentAnalysis(contentInput),
     topChannelIds,
     recentVideoIds,
     recognised: c.recognised,

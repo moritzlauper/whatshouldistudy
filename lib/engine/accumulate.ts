@@ -6,7 +6,8 @@ import type { FieldEvidence, MusicProfile, SignalItem, SourceId, SourceSummary, 
 /**
  * Turns the raw items of one source into a SourceSummary: per field, how much
  * weight it collected, from how many items, in which months, and the most
- * telling examples. Only this summary is kept; the raw items are dropped.
+ * telling examples. YouTube export inputs may separately be kept in the browser
+ * for the optional semantic analysis; other raw inputs are dropped.
  *
  * - Channel context: an item inherits half of its channel's (group's) profile,
  *   so a physics channel's vaguely titled videos still count towards physics.

@@ -3,7 +3,9 @@
 Find a programme at a specific university with a short questionnaire, optionally
 supplemented by your own data. The questionnaire covers RIASEC interests (four
 custom items per area plus an attention check), school subjects and values;
-the 20 Mini-IPIP Big Five items are folded away as an optional addition. The
+all 20 Mini-IPIP Big Five items are required to view a result, including when
+data is imported. Personality is a regular questionnaire step and counts towards
+the overall progress (67 entries). The
 custom interest scale is not yet validated in a study. Results match 80 fields
 to programmes in the available country datasets. Germany and Austria currently
 link to official programme searches; their own programme readers are pending.
@@ -73,13 +75,14 @@ footer and in the privacy policy, with a link here
 counters, as described below.
 
 **Privacy model:** the default analysis runs in the browser. OAuth tokens stay
-in the tab, exports are unpacked on the device, raw history is discarded after
-analysis. Programme requests send field ids, scores, topics and filters to the server.
+in the tab and exports are unpacked on the device. Parsed YouTube export data
+stays in local IndexedDB for the optional AI step; other raw imports are discarded
+after analysis. Removing the YouTube source or deleting all data clears that record. Programme requests send field ids, scores, topics and filters to the server.
 Optional import statistics send only a recognised source category.
 The separate, explicit AI content step previews a bounded sample of titles and
 channel context from a user-selected Takeout export, then sends it through our
 server to Anthropic. API-fetched YouTube metadata never enters this sample.
-We do not store or log these requests; only the resulting summary stays locally.
+We do not store or log these requests. The original and AI summaries stay locally.
 
 ## Licence and paywall
 
@@ -191,9 +194,14 @@ sources (CIP for the US, CAH for the UK, ISCED-F, OpenAlex subfields).
 ### Optional semantic content analysis
 
 The unlocked result has a separate «Understand my viewing with AI» control.
-Select the Takeout ZIP or watch-history and subscription files, review the
-sample, then explicitly agree to send it. Existing summaries cannot recover
-unrecognised raw titles, so an earlier import must be read again.
+It prepares the existing YouTube import locally, including after a reload or
+checkout return. Review the sample, then explicitly agree to send it; there is
+no separate file picker. Parsed export signals are saved in IndexedDB, separately
+for each site, and replaced or deleted with the source. If browser storage is
+unavailable, the import remains usable in memory for the current visit. Imports
+from older versions only have summaries and need one import through the start
+page. Existing AI summaries remain usable without it. A local before/after table
+shows the top ten field ranks and points, including when the order is unchanged.
 
 `contentPlan` selects at most 240 distinct records, including up to 60
 subscriptions and 60 recurring channels, with recent videos spread across

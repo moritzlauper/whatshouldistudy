@@ -10,7 +10,7 @@ import { readExports } from '@/lib/sources/exports.ts'
 import { fetchChannels, fetchVideos } from '@/lib/sources/youtube.ts'
 import type { ChannelInfo, VideoResource } from '@/lib/sources/youtube.ts'
 import { collectGitHub } from '@/lib/sources/github.ts'
-import { questionnaireProgress, resultsReady } from '@/lib/engine/questionnaire.ts'
+import { BIG5_ITEMS, big5Answered, questionnaireProgress, resultsReady } from '@/lib/engine/questionnaire.ts'
 import { fmtNumber } from '@/lib/site/labels.ts'
 import { Questionnaire } from '../ui/questionnaire.tsx'
 import { PrefsForm } from '../ui/prefs-form.tsx'
@@ -39,6 +39,7 @@ export function StartView() {
   const summaries = Object.values(state.summaries).filter(Boolean) as SourceSummary[]
   const signals = summaries.reduce((s, x) => s + x.dataPoints, 0)
   const q = questionnaireProgress(state.answers)
+  const personalityRemaining = BIG5_ITEMS.length - big5Answered(state.answers)
   const ready = resultsReady(state.answers, summaries.length)
   // Data first only when chosen, or when exports are already in.
   const dataMode = (state.mode ?? (summaries.length ? 'data' : 'standard')) === 'data'
@@ -87,7 +88,7 @@ export function StartView() {
         throw new Error((result.takeoutProducts ? t.start.emptyTakeout(result.takeoutProducts.filter((x) => x !== '?').join(', ')) : t.start.noHistory) + skipped)
       }
       for (const s of result.summaries) {
-        setSummary(s)
+        await setSummary(s, s.source === 'takeout' ? result.contentInput : undefined)
         measureImport(s.source)
       }
       setNotes((n) => ({ ...n, [card]: result.recognised.map(t.tr) }))
@@ -122,7 +123,7 @@ export function StartView() {
       {dataMode && <div className="card-sm mt-6 flex max-w-3xl flex-col gap-3 bg-surface-2 p-5 sm:flex-row sm:items-center">
         <span className="text-3xl" aria-hidden="true">🔒</span>
         <p className="flex-1 text-sm">
-          <strong>{t.trust.nothingStored}.</strong> {t.trust.startNote}{' '}
+          <strong>{t.trust.nothingStored}.</strong> {t.trust.startNote} {t.contentAi.localNote}{' '}
           <a href={SOURCE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-bold text-accent underline">
             <GitHubMark size={14} /> {t.trust.viewCode}
           </a>
@@ -295,7 +296,7 @@ export function StartView() {
               {t.start.seeResult}
             </Link>
           ) : (
-            <span className="hidden rounded-full border-2 border-dashed border-soft-line px-5 py-2.5 text-sm text-muted sm:inline-block">{t.start.needMore}</span>
+            <span className="max-w-xs text-right text-xs text-muted sm:text-sm">{personalityRemaining ? t.start.needPersonality(personalityRemaining) : t.start.needMore}</span>
           )}
         </div>
       </div>

@@ -123,7 +123,7 @@ test('content endpoint requires the existing paid unlock before calling an AI pr
   assert.equal(result.status, 0, result.stderr || result.stdout)
 })
 
-test('the content control renders an import step without starting a request or assuming programme consent', () => {
+test('the content control has no second uploader and does not assume programme consent', () => {
   const result = spawnSync(process.execPath, ['--input-type=module', '-e', `
     import assert from 'node:assert/strict';
     import { registerHooks } from 'node:module';
@@ -132,7 +132,7 @@ test('the content control renders an import step without starting a request or a
     import ts from 'typescript';
     const root = pathToFileURL(process.cwd() + '/');
     registerHooks({
-      resolve(s, c, next) { return next(s.startsWith('@/') ? new URL(s.slice(2), root).href : s, c); },
+      resolve(s, c, next) { return next(s === 'next/link' ? 'next/link.js' : s.startsWith('@/') ? new URL(s.slice(2), root).href : s, c); },
       load(url, c, next) {
         if (url.endsWith('.tsx')) return { format: 'module', shortCircuit: true,
           source: ts.transpileModule(readFileSync(new URL(url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 } }).outputText };
@@ -145,9 +145,15 @@ test('the content control renders an import step without starting a request or a
     const { SiteProvider } = await import('./app/ui/site-context.tsx');
     const { ContentAnalysisPanel } = await import('./app/ui/content-analysis.tsx');
     const html = renderToStaticMarkup(React.createElement(SiteProvider, { site: 'ch', base: '', locale: 'de-CH' }, React.createElement(ContentAnalysisPanel, { token: null })));
-    assert.ok(html.includes('YouTube-Export lokal auswählen'));
-    assert.ok(html.includes('type="file"'));
+    assert.ok(html.includes('Zum Datenimport'));
+    assert.ok(!html.includes('type="file"'));
     assert.ok(!html.includes('Diese Titel an Claude senden'));
   `], { cwd: process.cwd(), encoding: 'utf8' })
+  assert.equal(result.status, 0, result.stderr || result.stdout)
+})
+
+
+test('existing imports are previewed locally, sent only on consent, and stale replies are ignored', () => {
+  const result = spawnSync(process.execPath, ['test/helpers/content-analysis.mjs'], { cwd: process.cwd(), encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr || result.stdout)
 })
