@@ -141,6 +141,7 @@ const en = {
   metaDescLink: (inC: string, n: string, i: string) => `${n} degree programmes at ${i} universities and colleges ${inC}, by field and institution, with admission and costs. Updated every week.`,
   fieldMetaDescLink: (f: string, inC: string, n: string, i: string, levels: string) => `${n} ${f} programmes ${inC} at ${i} universities and colleges (${levels}), by institution, with admission and costs.`,
   listSub: (n: string) => `All ${n} programmes with their exact title. Each has its own page with degree, language, duration, admission and links.`,
+  specialisations: (names: string) => `Specialisations: ${names}`,
   fieldCtaTitle: (f: string) => `Is ${f} right for you?`,
 }
 
@@ -273,6 +274,7 @@ const deCH: CatalogueText = {
   metaDescLink: (inC, n, i) => `${n} Studiengänge an ${i} Hochschulen ${inC}, nach Fach und Hochschule, mit Zulassung und Kosten. Jede Woche aktualisiert.`,
   fieldMetaDescLink: (f, inC, n, i, levels) => `${f} ${inC}: ${n} Studiengänge an ${i} Hochschulen (${levels}), nach Hochschule, mit Zulassung und Kosten.`,
   listSub: (n) => `Alle ${n} Studiengänge mit genauem Titel. Jeder hat eine eigene Seite mit Abschluss, Sprache, Dauer, Zulassung und Links.`,
+  specialisations: (names) => `Vertiefungen: ${names}`,
   fieldCtaTitle: (f) => `Passt ${f} zu dir?`,
 }
 
@@ -386,6 +388,7 @@ const frCH: CatalogueText = {
   sourceNote: (date) => `État au ${date}. Le classement par domaine est le nôtre. Vérifie les informations auprès de la haute école avant de postuler.`,
   moreInstitutions: (n) => `et ${n} autres hautes écoles : utilise la recherche ci-dessus.`,
   listSub: (n) => `Les ${n} filières avec leur titre exact. Chacune a sa page avec le diplôme, la langue, la durée, l’admission et les liens.`,
+  specialisations: (names) => `Spécialisations : ${names}`,
   fieldCtaTitle: (f) => `${f}, est-ce fait pour toi?`,
 }
 
@@ -496,6 +499,7 @@ const itCH: CatalogueText = {
   sourceNote: (date) => `Aggiornato al ${date}. L’assegnazione alle aree è nostra. Verifica i dettagli con l’istituto prima di candidarti.`,
   moreInstitutions: (n) => `e altre ${n} scuole universitarie: usa la ricerca qui sopra.`,
   listSub: (n) => `Tutti i ${n} corsi con il titolo esatto. Ognuno ha la sua pagina con titolo di studio, lingua, durata, ammissione e link.`,
+  specialisations: (names) => `Specializzazioni: ${names}`,
   fieldCtaTitle: (f) => `${f} fa per te?`,
 }
 

@@ -17,6 +17,8 @@ import { JsonLd, fieldLd } from '../ui/json-ld.tsx'
 import { CATALOGUE_COUNTRIES, LEVEL_ORDER, LINK_ONLY, hasProgrammePages, programmeSlug } from '@/lib/catalogue.ts'
 import { toCatalogueEntry } from '@/lib/programmes.ts'
 import type { CatalogueEntry, Programme } from '@/lib/programmes.ts'
+import { specialisationNames } from '@/lib/facts-store.ts'
+import { countryFacts } from '@/lib/server/facts-db.ts'
 import { CatalogueRow } from '../ui/catalogue-row.tsx'
 import { FieldProgrammes } from '../ui/field-programmes.tsx'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
@@ -107,6 +109,14 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
           .map(toCatalogueEntry)
           .sort((a, b) => Number(b.fields[0] === id) - Number(a.fields[0] === id) || LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level) || a.name.localeCompare(b.name, intl))
       : []
+  // The specialisation names the official pages give, for the programmes listed here, where the source may be shown. Only
+  // the names are taken from a reading: the rest of it belongs to the paid comparison, so it never reaches this page.
+  const names = new Map<string, Record<string, string[]>>()
+  const shownIn = [...new Set([country, ...sampleByCountry.keys()])].filter((cc): cc is string => !!cc && !LINK_ONLY[cc])
+  await Promise.all(shownIn.map(async (cc) => names.set(cc, specialisationNames(await countryFacts(cc)))))
+  // The list this page sends to the browser gets the names of its own programmes only, not those of the whole country.
+  const countryNames = country ? names.get(country) ?? {} : {}
+  const ownNames = Object.fromEntries(ownProgrammes.filter((p) => countryNames[p.id]).map((p): [string, string[]] => [p.id, countryNames[p.id]]))
 
   return (
     <div className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
@@ -169,7 +179,7 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
           <h2 className="font-display text-2xl">{t.fields.whereLocal(name)}</h2>
           <p className="mt-1 text-sm text-muted">{ownProgrammes.length ? catalogueText(locale).listSub(fmtNumber(ownProgrammes.length, intl)) : t.fields.whereLocalSub}</p>
           {ownProgrammes.length > 0 ? (
-            <FieldProgrammes programmes={ownProgrammes} country={country!} />
+            <FieldProgrammes programmes={ownProgrammes} country={country!} specialisations={ownNames} />
           ) : (
           <div className="mt-4 flex flex-wrap gap-2">
             {[...chInstitutions.values()]
@@ -203,7 +213,7 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
                 </h3>
                 <ul>
                   {(sampleByCountry.get(cc) ?? []).map((p) => (
-                    <CatalogueRow key={p.id} p={p} country={cc} locale={locale} showInstitution fieldHref={(x) => r.countryField(cc, x)} href={programmeHref(cc, p)} />
+                    <CatalogueRow key={p.id} p={p} country={cc} locale={locale} showInstitution fieldHref={(x) => r.countryField(cc, x)} href={programmeHref(cc, p)} specialisations={names.get(cc)?.[p.id]} />
                   ))}
                 </ul>
                 <Link href={r.countryField(cc, id)} className="mt-2 inline-block text-sm font-bold text-accent hover:underline">

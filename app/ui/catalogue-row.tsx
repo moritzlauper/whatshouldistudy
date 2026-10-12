@@ -76,6 +76,7 @@ export function CatalogueRow({
   href,
   showInstitution = false,
   showLevel = true,
+  specialisations,
 }: {
   p: CatalogueEntry
   country: string
@@ -86,12 +87,15 @@ export function CatalogueRow({
   href?: string
   showInstitution?: boolean
   showLevel?: boolean
+  /** The names of its specialisations, as its official page gives them. */
+  specialisations?: string[]
 }) {
   const ct = catalogueText(locale)
   const d = ct.detail
   const years = p.durationYears ? ct.years(new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(p.durationYears)) : null
   const languages = p.languages?.length ? p.languages.map((l) => languageName(l, locale)).join(', ') : null
   const summary = [showLevel ? levelLabel(p.level, locale) : null, showInstitution ? p.institution : null, p.city, languages, years].filter(Boolean)
+  const specialisationLine = specialisations?.length ? ct.specialisations(specialisations.join(' · ')) : null
   if (href)
     return (
       <li className="border-b border-line/15 last:border-0">
@@ -99,6 +103,7 @@ export function CatalogueRow({
           <span className="min-w-0 flex-1">
             <span className="font-bold group-hover:text-accent">{p.name}</span>
             <span className="block text-xs text-muted">{summary.join(' · ')}</span>
+            {specialisationLine && <span className="block text-xs text-muted">{specialisationLine}</span>}
           </span>
           <span className="shrink-0 text-sm font-bold text-accent transition-transform group-hover:translate-x-0.5" aria-hidden="true">
             →
@@ -114,6 +119,7 @@ export function CatalogueRow({
           <span className="min-w-0 flex-1">
             <span className="font-bold group-open:text-accent">{p.name}</span>
             <span className="block text-xs text-muted">{summary.join(' · ')}</span>
+            {specialisationLine && <span className="block text-xs text-muted">{specialisationLine}</span>}
           </span>
           <span className="shrink-0 text-xs font-bold text-accent transition-transform group-open:rotate-180" aria-hidden="true">
             ▾

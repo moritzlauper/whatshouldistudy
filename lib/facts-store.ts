@@ -179,3 +179,16 @@ export function factsForLocale(f: StoredFact, locale: Locale): ProgrammeFacts {
     enough: f.enough,
   }
 }
+
+/**
+ * The names of the specialisations each official page gives, by programme id, for the public field pages. Only the
+ * names leave the store: the interest profile, the checks and the distinctive sentences stay in the paid reading.
+ */
+export function specialisationNames(facts: Record<string, StoredFact> | null): Record<string, string[]> {
+  const out: Record<string, string[]> = {}
+  for (const [id, f] of Object.entries(facts ?? {})) {
+    const names = (f.specialisations ?? []).map((s) => s.name)
+    if (names.length) out[id] = names
+  }
+  return out
+}

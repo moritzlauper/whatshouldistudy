@@ -11,7 +11,7 @@ import { CatalogueRow } from './catalogue-row.tsx'
 import { useSite } from './site-context.tsx'
 
 /** Filter the public field catalogue without changing its programme order. */
-export function FieldProgrammes({ programmes, country }: { programmes: CatalogueEntry[]; country: string }) {
+export function FieldProgrammes({ programmes, country, specialisations = {} }: { programmes: CatalogueEntry[]; country: string; specialisations?: Record<string, string[]> }) {
   const { locale, intl, r } = useSite()
   const ct = catalogueText(locale)
   const [type, setType] = useState('')
@@ -55,7 +55,7 @@ export function FieldProgrammes({ programmes, country }: { programmes: Catalogue
               <span className="font-display text-lg leading-tight">{institution}</span>
               {institutionType && <span className="chip on-color text-xs" style={{ background: TYPE_STYLE[institutionType].color }}>{typeLabel(institutionType, country, language)}</span>}
             </h3>
-            <ul>{items.map((p) => <CatalogueRow key={p.id} p={p} country={country} locale={locale} fieldHref={(id) => r.countryField(country, id)} href={hasProgrammePages(country) ? r.programme(country, p.fields[0], programmeSlug(p)) : undefined} />)}</ul>
+            <ul>{items.map((p) => <CatalogueRow key={p.id} p={p} country={country} locale={locale} fieldHref={(id) => r.countryField(country, id)} href={hasProgrammePages(country) ? r.programme(country, p.fields[0], programmeSlug(p)) : undefined} specialisations={specialisations[p.id]} />)}</ul>
           </div>
         })}
       </div>
