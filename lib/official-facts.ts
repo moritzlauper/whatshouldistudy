@@ -75,8 +75,10 @@ const ENTITIES: Record<string, string> = {
 
 /** The visible text of a page, without scripts, navigation and footer. */
 export function pageText(html: string): string {
-  return html
-    .replace(/<(script|style|noscript|svg|nav|header|footer|form)\b[\s\S]*?<\/\1>/gi, ' ')
+  return visibleHtml(html.replace(/<(script|style|noscript|svg)\b[\s\S]*?<\/\1>/gi, ' '))
+    // ASP.NET sites (including HSLU) wrap their entire content in a form.
+    .replace(/<(script|style|noscript|svg|nav|header|footer|button|select|textarea)\b[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<input\b[^>]*>/gi, ' ')
     .replace(/<\/(p|div|li|h[1-6]|tr|dd|dt|section|br)>|<br\s*\/?>/gi, '\n')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&#x([0-9a-f]+);/gi, (_, n: string) => String.fromCodePoint(parseInt(n, 16)))
@@ -86,6 +88,29 @@ export function pageText(html: string): string {
     .replace(/[ \t]+/g, ' ')
     .replace(/\s*\n\s*/g, '\n')
     .trim()
+}
+
+/** Drop hidden subtrees, retaining visible siblings and form contents. */
+function visibleHtml(html: string): string {
+  const stack: Array<{ tag: string; hidden: boolean }> = []
+  const parts = html.split(/(<[^>]*>)/g)
+  const voids = /^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/
+  return parts.map((part) => {
+    const close = /^<\/([a-z][\w:-]*)/i.exec(part)
+    if (close) {
+      const index = stack.map((x) => x.tag).lastIndexOf(close[1].toLowerCase())
+      const hidden = stack.at(-1)?.hidden
+      if (index >= 0) stack.splice(index)
+      return hidden ? '' : part
+    }
+    const open = /^<([a-z][\w:-]*)\b/i.exec(part)
+    const hidden = !!stack.at(-1)?.hidden
+    if (!open) return hidden ? '' : part
+    const tag = open[1].toLowerCase()
+    const ownHidden = hidden || /\shidden(?:\s|=|>)/i.test(part) || /aria-hidden\s*=\s*["']?true/i.test(part) || /style\s*=\s*["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden)/i.test(part)
+    if (!voids.test(tag) && !/\/\s*>$/.test(part)) stack.push({ tag, hidden: ownHidden })
+    return ownHidden ? '' : part
+  }).join('')
 }
 
 const norm = (s: string) => s.normalize('NFC').toLowerCase().replace(/[\s ]+/g, ' ').replace(/[’']/g, "'").trim()

@@ -12,15 +12,16 @@
  * institution, level and field (dedupeSwiss in build.ts).
  */
 import { join } from 'node:path'
+import { fetchSite } from './lib/site-fetch.ts'
+import { pageText } from '../lib/official-facts.ts'
 import { CH_ADMISSION, findChInstitution } from '../lib/ch-institutions.ts'
 import type { ChInstitution } from '../lib/ch-institutions.ts'
 import { programmeId } from '../lib/programmes.ts'
 import type { Level, Programme } from '../lib/programmes.ts'
-import { OUT, cleanTitle, fieldsForTitle, isMain, log, sleep, writeJson } from './lib/common.ts'
+import { OUT, cleanTitle, fieldsForTitle, isMain, log, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
 
-const UA = 'Mozilla/5.0 (compatible; wasstudieren-bot/1.0; +https://wasstudieren.ch)'
-const PAUSE = 1500
+// Reader identity and pacing live in site-fetch.ts.
 
 /** A programme as a list page names it, before its own page is read. */
 export interface Listed {
@@ -28,6 +29,7 @@ export interface Listed {
   level: Level
   url: string
   languages?: string[]
+  mode?: Programme['mode']
   /** Specialisations, majors or profiles, by name. */
   focus?: string[]
   ects?: number
@@ -45,7 +47,7 @@ const CAMPUS_CANTON: Record<string, string> = {
 }
 
 // ZHAW and HSLU: the department in the link says where it is taught.
-const ZHAW_CAMPUS: Record<string, string> = { psychologie: 'Zürich', 'soziale-arbeit': 'Zürich', lsfm: 'Wädenswil', gesundheit: 'Winterthur', engineering: 'Winterthur', sml: 'Winterthur', linguistik: 'Winterthur', archbau: 'Winterthur' }
+const ZHAW_CAMPUS: Record<string, string> = { psychologie: 'Zürich', 'soziale-arbeit': 'Zürich', sozialearbeit: 'Zürich', lsfm: 'Wädenswil', gesundheit: 'Winterthur', engineering: 'Winterthur', sml: 'Winterthur', linguistik: 'Winterthur', archbau: 'Winterthur' }
 const HSLU_CAMPUS: Record<string, string> = { informatik: 'Rotkreuz', 'technik-architektur': 'Horw', wirtschaft: 'Luzern', 'soziale-arbeit': 'Luzern', musik: 'Luzern', 'design-film-kunst': 'Emmenbrücke' }
 const campusOf = (url: string, map: Record<string, string>, re: RegExp) => map[re.exec(url)?.[1] ?? '']
 
@@ -465,7 +467,16 @@ export function unifrDetail(html: string): Partial<Listed> {
   const facts = new Map([...html.matchAll(/<h4>([^<]+)<\/h4>\s*<div[^>]*>([\s\S]*?)<\/div>/g)].map((m) => [text(m[1]), text(m[2])]))
   const out: Partial<Listed> = {}
   const structure = facts.get('Studienstruktur') ?? ''
-  const ects = [...structure.matchAll(/(\d+)\s*ECTS/g)].reduce((sum, m) => sum + Number(m[1]), 0)
+  // Alternative study structures are not cumulative (150+30 OR 120+60 = 180).
+  const firstVariant = structure.split(/\boder\b|\bor\b|\bou\b/i)[0]
+  const credits = [...firstVariant.matchAll(/(\d+)\s*ECTS/g)]
+  let ects = Number(credits[0]?.[1]) || 0
+  // Add explicit components only; a repeated total or «davon 30 ECTS» is not extra credit.
+  for (let i = 1; i < credits.length; i++) {
+    const between = firstVariant.slice(credits[i - 1].index! + credits[i - 1][0].length, credits[i].index)
+    if (!between.includes('+')) break
+    ects += Number(credits[i][1])
+  }
   if (ects) out.ects = ects
   const semesters = Number(/(\d+)\s*Semester/.exec(structure)?.[1])
   if (semesters) out.durationYears = semesters / 2
@@ -518,12 +529,35 @@ export function unibeList(html: string, base: string, level: Level): Listed[] {
 // BFH and its art school HKB: the sitemap lists every programme page; each page has a fact sheet («Steckbrief»).
 export function bfhList(xml: string, _base: string, level: Level): Listed[] {
   const out: Listed[] = []
-  for (const m of xml.matchAll(/<loc>(https:\/\/www\.(?:hkb\.)?bfh\.ch\/de\/studium\/(bachelor|master)\/([a-z0-9-]+)\/)<\/loc>/g)) {
+  for (const m of xml.matchAll(/(?:<loc>|href=")(https:\/\/www\.(?:hkb\.)?bfh\.ch\/de\/studium\/(bachelor|master)\/([a-z0-9-]+)\/)(?:<\/loc>|"(?:\s|>))/g)) {
     if (m[2] !== level) continue
     const slug = m[3].replace(/-/g, ' ')
     out.push({ name: titled(level, slug[0].toUpperCase() + slug.slice(1)), level, url: m[1], provisional: true })
   }
   return dedupe(out)
+}
+
+/** The public search used by BFH's offer pages; follow every page and reject incomplete results. */
+export async function bfhOffers(url: string, request = fetchSite): Promise<string | null> {
+  const pages: string[] = []
+  const seen = new Set<string>()
+  let offset = 0
+  let total: number | undefined
+  try {
+    do {
+      const res = await request(url, 30_000, { method: 'POST', headers: { 'Content-Type': 'application/json; charset=utf-8', Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify({ searchText: '', filters: [], offset }) })
+      if (res.status !== 200) return null
+      const out = JSON.parse(res.text) as { count: number; totalCount: number; resultsGridHtml: string }
+      // Follow the returned count; do not publish a repeated first page as a full list.
+      if (!Number.isInteger(out.count) || out.count <= 0 || !Number.isInteger(out.totalCount) || out.totalCount > 1000 || out.totalCount <= offset || typeof out.resultsGridHtml !== 'string' || !out.resultsGridHtml.trim() || seen.has(out.resultsGridHtml)) throw new Error('Incomplete search response')
+      if (total !== undefined && total !== out.totalCount) throw new Error('Search total changed')
+      total = out.totalCount
+      seen.add(out.resultsGridHtml)
+      pages.push(out.resultsGridHtml)
+      offset += out.count
+    } while (offset < total)
+    return pages.join('\n')
+  } catch { log('BFH: incomplete search results; previous data will be retained'); return null }
 }
 
 export function bfhDetail(html: string): Partial<Listed> {
@@ -556,13 +590,13 @@ export function dedupe(xs: Listed[]): Listed[] {
 
 interface Source {
   institution: string
-  lists: Array<{ url: string; level: Level; read: (html: string, base: string, level: Level) => Listed[] }>
+  lists: Array<{ url: string; level: Level; read: (html: string, base: string, level: Level) => Listed[]; load?: (url: string) => Promise<string | null> }>
   detail?: (html: string) => Partial<Listed>
   /** Only these levels get their own page read. */
   detailLevels?: Level[]
 }
 
-const SOURCES: Source[] = [
+export const SOURCES: Source[] = [
   {
     institution: 'ETH Zürich',
     lists: [
@@ -651,15 +685,16 @@ const SOURCES: Source[] = [
   },
   {
     institution: 'Berner Fachhochschule',
-    // One sitemap holds both levels.
+    // The public search is smaller and more reliable than the 2.6 MB sitemap.
     lists: [
-      { url: 'https://www.bfh.ch/sitemaps/sitemap-de.xml', level: 'bachelor', read: bfhList },
-      { url: 'https://www.bfh.ch/sitemaps/sitemap-de.xml', level: 'master', read: bfhList },
+      { url: 'https://www.bfh.ch/de/studium/bachelor-studiengaenge/main/searchFilter/', level: 'bachelor', read: bfhList, load: bfhOffers },
+      { url: 'https://www.bfh.ch/de/studium/master-studiengaenge/main/searchFilter/', level: 'master', read: bfhList, load: bfhOffers },
     ],
     detail: bfhDetail,
   },
   {
     institution: 'Fachhochschule Nordwestschweiz',
+    detail: studyFacts,
     lists: [
       { url: 'https://www.fhnw.ch/de/studium/angebot/studiengaenge?degree_program_type=ba&degree_program_type=bsc', level: 'bachelor', read: fhnwList },
       { url: 'https://www.fhnw.ch/de/studium/angebot/studiengaenge?degree_program_type=ma&degree_program_type=msc', level: 'master', read: fhnwList },
@@ -667,6 +702,7 @@ const SOURCES: Source[] = [
   },
   {
     institution: 'Hochschule Luzern',
+    detail: studyFacts,
     lists: [
       { url: 'https://www.hslu.ch/de-ch/hochschule-luzern/studium/bachelor/', level: 'bachelor', read: hsluList },
       { url: 'https://www.hslu.ch/de-ch/hochschule-luzern/studium/master/', level: 'master', read: hsluList },
@@ -779,11 +815,11 @@ export function toProgramme(x: Listed, inst: ChInstitution, fetchedAt: string): 
     level: x.level,
     fields: fields.slice(0, 3),
     fieldConfidence: Math.round(confidence * 100) / 100,
-    languages: x.languages ?? inst.languages,
+    languages: x.languages,
     durationYears: x.durationYears,
     ects: x.ects,
     focus: x.focus?.length ? x.focus : undefined,
-    mode: 'full-time',
+    mode: x.mode,
     url: x.url,
     institutionUrl: inst.url,
     institutionType: inst.type,
@@ -799,33 +835,45 @@ export function toProgramme(x: Listed, inst: ChInstitution, fetchedAt: string): 
 
 // Lists may be large (the BFH sitemap is 2.6 MB and slow), so they get longer than a programme page.
 async function page(url: string, timeout = 30_000): Promise<string | null> {
-  try {
-    const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'de-CH,de;q=0.9,en;q=0.5' }, signal: AbortSignal.timeout(timeout) })
-    if (!res.ok) {
-      log(`  HTTP ${res.status} ${url}`)
-      return null
-    }
-    return await res.text()
-  } catch (e) {
-    log(`  ${(e as Error).message} ${url}`)
-    return null
-  } finally {
-    await sleep(PAUSE)
-  }
+  const res = await fetchSite(url, timeout)
+  if (res.status !== 200) { log(`  HTTP ${res.status} ${url}`); return null }
+  return res.text
+}
+
+/** Only labelled facts of this programme; no institution-wide language or mode guesses. */
+export function studyFacts(html: string): Partial<Listed> {
+  const content = pageText(html)
+  const out: Partial<Listed> = {}
+  const full = /\bVollzeit(?:studium)?\b|\bfull[ -]time\b|\btemps plein\b/i.test(content)
+  const part = /\bTeilzeit(?:studium)?\b|\bpart[ -]time\b|\btemps partiel\b/i.test(content)
+  if (full || part) out.mode = full && part ? 'both' : full ? 'full-time' : 'part-time'
+  const language = /(?:Unterrichtssprache[n]?|Studien(?:sprache[n]?|sprachen)|Teaching languages?|Language of instruction)[:\s]+([^\n]{1,180})/i.exec(content)?.[1]
+  if (language) out.languages = languagesIn(language)
+  const credit = /(?:ECTS(?:[ -]Credits|[ -]Punkte)?|Credits)[:\s]+(\d{2,3})\b|\b(\d{2,3})\s*ECTS/i.exec(content)
+  if (credit) out.ects = Number(credit[1] ?? credit[2])
+  const duration = /(?:Studiendauer|Dauer|Duration)[:\s]+(\d+)(?:\s*[–-]\s*\d+)?\s*(Semester|Jahre?|years?)/i.exec(content)
+  if (duration) out.durationYears = Number(duration[1]) / (/Semester/i.test(duration[2]) ? 2 : 1)
+  return out
 }
 
 async function main() {
   const fetchedAt = new Date().toISOString()
   const programmes: Programme[] = []
+  const notes: string[] = []
   for (const src of SOURCES) {
     const inst = findChInstitution(src.institution)
     if (!inst) throw new Error(`unknown institution ${src.institution}`)
     const listed: Listed[] = []
     const fetched = new Map<string, string | null>()
     for (const l of src.lists) {
-      if (!fetched.has(l.url)) fetched.set(l.url, await page(l.url, 120_000))
+      if (!fetched.has(l.url)) fetched.set(l.url, l.load ? await l.load(l.url) : await page(l.url, 120_000))
       const html = fetched.get(l.url)
       const found = html ? l.read(html, l.url, l.level) : []
+      if (!found.length) {
+        const warning = `${inst.name}: empty ${l.level} list; the build retains this group from the previous data`
+        notes.push(warning)
+        log(warning)
+      }
       log(`${inst.name}: ${found.length} ${l.level} programmes listed`)
       listed.push(...found)
     }
@@ -834,10 +882,11 @@ async function main() {
       for (const [i, x] of listed.entries()) {
         if (src.detailLevels && !src.detailLevels.includes(x.level)) continue
         const html = await page(x.url)
-        // What the list already knows (e.g. profiles) wins over what a page's text yields.
+        // Programme-page facts override list defaults; retain named focus areas from both.
         if (!html) continue
-        const found = read(html)
-        const merged = { ...Object.fromEntries(Object.entries(found).filter(([, v]) => v !== undefined)), ...Object.fromEntries(Object.entries(x).filter(([, v]) => v !== undefined)) } as Listed
+        const found = { ...studyFacts(html), ...Object.fromEntries(Object.entries(read(html)).filter(([, v]) => v !== undefined)) }
+        const merged = { ...x, ...Object.fromEntries(Object.entries(found).filter(([, v]) => v !== undefined)) } as Listed
+        merged.focus = [...new Set([...(x.focus ?? []), ...(found.focus ?? [])])]
         if (x.provisional && found.name) merged.name = degreeName(x.level, found.name)
         delete merged.provisional
         listed[i] = merged
@@ -853,7 +902,7 @@ async function main() {
   }
   log(`Swiss universities: ${programmes.length} programmes`)
   if (programmes.length < 600) throw new Error(`only ${programmes.length} programmes, a site may have changed`)
-  const out: ScrapeOutput = { source: 'ch-hochschulen', fetchedAt, programmes }
+  const out: ScrapeOutput = { source: 'ch-hochschulen', fetchedAt, programmes, ...(notes.length ? { notes } : {}) }
   writeJson(join(OUT, 'ch-hochschulen.json'), out)
 }
 

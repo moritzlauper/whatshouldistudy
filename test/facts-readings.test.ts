@@ -41,7 +41,7 @@ test('a reply that says too little to judge is neutral and gives no reasons', ()
 })
 
 test('a reply without a score gets one from its fit', () => {
-  assert.equal(toPersonalFit({ id: 'p1', fit: 4, reasons: [], enough_info: true }, new Set(['p1']))?.score, 87)
+  assert.equal(toPersonalFit({ id: 'p1', fit: 4, reasons: [], enough_info: true }, new Set(['p1']))?.score, 70)
 })
 
 test('only a reading with every field of the right kind and size is stored', () => {

@@ -113,7 +113,7 @@ export function validStoredFact(raw: unknown): StoredFact | null {
     if (typeof c !== 'string' || c.length > 300) return null
     checks[l] = c
   }
-  return { id, url, hash, at, riasec, subjects, topics, specialisations, distinctive, enough, checks }
+  return { ...(Number.isInteger(x.version) && Number(x.version) > 0 ? { version: Number(x.version) } : {}), id, url, hash, at, riasec, subjects, topics, specialisations, distinctive, enough, checks }
 }
 
 /** A list that may be absent (then it counts as empty); when given, at most `max` items, all of which pass `ok`. */

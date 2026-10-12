@@ -417,8 +417,11 @@ and in emails, never on a public page.
 `.github/workflows/wsis-fakten.yml` (run by hand, on main only) has Claude read
 the official page of every Swiss programme that has one (`scrapers/programme-facts.ts`,
 rules and prompt in `scrapers/lib/facts.ts`). robots.txt is respected, one request
-goes out every 1.5 seconds, and a page is read again only when its text has changed:
-the hash is kept, the text is not. Spending is capped per run (`--max-usd`).
+goes out every 1.5 seconds, including robots and redirects. A reading is refreshed
+when the page text or the reader version changes: the hash and version are kept,
+the page text is not. Named specialisations and distinctive statements require
+literal source evidence; incomplete or duplicate response batches are retried
+once and otherwise retain previous readings. Spending is capped per run (`--max-usd`).
 
 The readings are never published. The job writes them to the site's private
 database (`lib/facts-store.ts`: `FACTS_REDIS_REST_*`, or the counter database
@@ -427,8 +430,18 @@ is with its GitHub Actions token (`lib/actions-oidc.ts`: this repository, main, 
 workflow); the site refuses everything else. No database secret is kept in GitHub.
 The site reads the readings through `/api/facts` (paid) and ranks the list in the
 browser against the answers. The optional step «include my answers» (off by default,
-after consent) sends the interest profile and the enjoyed subjects with the 20 best
-matches to `/api/personal-fit`.
+after consent) sends the interest profile, weighted lexical topics and favourite
+school subjects with the 20 best matches to `/api/personal-fit`. The server
+computes the numbers by fixed rules on the same calibrated scale as the browser.
+Claude selects up to two precomputed, supported reasons per programme; it cannot
+change the numbers or invent interests. Lexical topics are mapped to the field IDs
+used in stored readings. Missing readings have neutral content (50) in a list
+with readings; a list without readings retains the questionnaire scores.
+
+BFH offers are read through the official public search with all result pages,
+instead of the slow sitemap. Empty or sharply shrinking university/level groups
+retain their previous catalogue entries while other universities refresh.
+Programme languages and study modes remain unknown unless their source states them.
 
 Secret: `ANTHROPIC_API_KEY` (GitHub Actions).
 

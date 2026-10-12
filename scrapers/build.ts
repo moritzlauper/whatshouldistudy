@@ -20,6 +20,7 @@ import type { CatalogueShard, DataMeta, FieldStat, Level, Programme, ProgrammeSh
 import { FIELDS } from '../lib/taxonomy/fields.ts'
 import { FIXTURES, OUT, ROOT, fetchRetry, log, readJson, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
+import { preserveInstitutions } from './lib/completeness.ts'
 import { parseSchools } from './us-scorecard.ts'
 import type { RawSchool } from './us-scorecard.ts'
 import { parseRecords } from './fr-parcoursup.ts'
@@ -187,7 +188,8 @@ function readOutputs(): Inputs {
     const o = readJson<ScrapeOutput>(join(OUT, `${id}.json`))
     if (o) {
       outputs.push(o)
-      status.set(id, { ok: o.programmes.length > 0, count: o.programmes.length, fetchedAt: o.fetchedAt })
+      const warning = id === 'ch-hochschulen' ? o.notes?.join('; ') : undefined
+      status.set(id, { ok: o.programmes.length > 0 && !warning, count: o.programmes.length, fetchedAt: o.fetchedAt, ...(warning ? { error: warning } : {}) })
     } else status.set(id, { ok: false, count: 0, error: 'scraper did not produce output' })
   }
   const r = readJson<{ fetchedAt: string; institutions: number; byField: Inputs['research'] }>(join(OUT, 'global-openalex.json'))
@@ -273,6 +275,20 @@ function carryOver(inputs: Inputs, dir: string) {
   const prevMeta = readJson<DataMeta>(join(dir, 'meta.json'))
   for (const id of PROGRAMME_SOURCES) {
     const fresh = inputs.outputs.find((o) => o.source === id && o.programmes.length)
+    if (fresh && id === 'ch-hochschulen' && existsSync(join(dir, 'programmes'))) {
+      const old = new Map<string, Programme>()
+      for (const file of readdirSync(join(dir, 'programmes')).filter((f) => f.endsWith('.json'))) {
+        const shard = readJson<ProgrammeShard>(join(dir, 'programmes', file))
+        for (const p of shard?.programmes ?? []) if (p.source === id) old.set(p.id, p)
+      }
+      const checked = preserveInstitutions(fresh.programmes, [...old.values()])
+      fresh.programmes = checked.programmes
+      if (checked.kept.length) {
+        const error = `kept previous university groups: ${checked.kept.join(', ')}`
+        inputs.status.set(id, { ...inputs.status.get(id), ok: false, count: fresh.programmes.length, error })
+        log(`Completeness: ${error}`)
+      }
+    }
     const prevCount = prevMeta?.sources.find((s) => s.id === id)?.count ?? 0
     // A source that suddenly shrinks by half is more likely broken than real.
     if (fresh && fresh.programmes.length >= prevCount * 0.5) continue

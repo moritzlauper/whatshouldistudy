@@ -1,10 +1,10 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { batches, costMicroUsd, hashText, isUnchanged, mergeFacts, normaliseFact, type PageMember, type StoredFact } from '../scrapers/lib/facts.ts'
+import { FACTS_VERSION, batches, costMicroUsd, hashText, isUnchanged, mergeFacts, normaliseFact, type PageMember, type StoredFact } from '../scrapers/lib/facts.ts'
 import { parseHash, storeConfig } from '../lib/facts-store.ts'
 
 const old: StoredFact = {
-  id: 'a', url: 'https://www.unibe.ch/a', hash: 'h1', at: '2026-01-01', riasec: [0, 5, 0, 0, 0, 0], subjects: ['math'], topics: ['sociology'], specialisations: [], distinctive: [], enough: true,
+  version: FACTS_VERSION, id: 'a', url: 'https://www.unibe.ch/a', hash: 'h1', at: '2026-01-01', riasec: [0, 5, 0, 0, 0, 0], subjects: ['math'], topics: ['sociology'], specialisations: [], distinctive: [], enough: true,
   checks: { de: 'Alt.', fr: 'Ancien.', it: 'Vecchio.', en: 'Old.' },
 }
 
@@ -12,6 +12,7 @@ test('a page counts as unchanged only with the same address and the same hash', 
   assert.equal(isUnchanged(old, 'https://www.unibe.ch/a', 'h1'), true)
   assert.equal(isUnchanged(old, 'https://www.unibe.ch/a', 'h2'), false)
   assert.equal(isUnchanged(old, 'https://www.unibe.ch/b', 'h1'), false)
+  assert.equal(isUnchanged({ ...old, version: undefined }, 'https://www.unibe.ch/a', 'h1'), false)
   assert.equal(isUnchanged(undefined, 'https://www.unibe.ch/a', 'h1'), false)
   assert.equal(hashText('x'), hashText('x'))
   assert.notEqual(hashText('x'), hashText('y'))
@@ -27,10 +28,10 @@ test('a run keeps the readings of the programmes it did not read and replaces th
 })
 
 test('only ids of the page that was sent are accepted, with known subjects and clamped scores', () => {
-  const sent = new Map<string, PageMember>([['p1', { url: 'https://x.ch/p1', hash: 'h' }]])
+  const sent = new Map<string, PageMember>([['p1', { url: 'https://x.ch/p1', hash: 'h', text: 'Studium mit Vertiefungen Data Analytics und Religion und Gesellschaft. Partner A. Zwei. Drei. Vier.' }]])
   const f = normaliseFact({
-    id: 'p1', riasec: { R: 9, I: -2, A: 'x', S: 3, E: 2.4, C: 1 }, subjects: ['math', 'astrology', 'math'], enough_info: true,
-    checks: { de: ' Prüfen Sie «Zulassung». ', fr: 'Vérifier.', it: 'Verificare.', en: 'Check.'.repeat(100) },
+    id: 'p1', content_quote: 'Vertiefungen Data Analytics', checks_quote: 'Vertiefungen Data Analytics', riasec: { R: 9, I: -2, A: 'x', S: 3, E: 2.4, C: 1 }, subjects: ['math', 'astrology', 'math'], enough_info: true,
+    checks: { de: ' Prüfen Sie «Zulassung». ', fr: 'Vérifier.', it: 'Verificare.', en: 'Check. '.repeat(100) },
   }, sent, '2026-03-01')
   assert.ok(f)
   assert.deepEqual(f.riasec, [5, 0, 0, 3, 2, 1])
@@ -41,8 +42,8 @@ test('only ids of the page that was sent are accepted, with known subjects and c
 })
 
 test('a page that says too little keeps no scores, subjects or checks', () => {
-  const sent = new Map<string, PageMember>([['p1', { url: 'https://x.ch/p1', hash: 'h' }]])
-  const f = normaliseFact({ id: 'p1', riasec: { R: 5 }, subjects: ['math'], checks: { de: 'x', fr: 'x', it: 'x', en: 'x' }, enough_info: false }, sent, '2026-03-01')
+  const sent = new Map<string, PageMember>([['p1', { url: 'https://x.ch/p1', hash: 'h', text: 'Studium mit Vertiefungen Data Analytics und Religion und Gesellschaft. Partner A. Zwei. Drei. Vier.' }]])
+  const f = normaliseFact({ id: 'p1', content_quote: 'Vertiefungen Data Analytics', checks_quote: 'Vertiefungen Data Analytics', riasec: { R: 5 }, subjects: ['math'], checks: { de: 'x', fr: 'x', it: 'x', en: 'x' }, enough_info: false }, sent, '2026-03-01')
   assert.ok(f)
   assert.equal(f.enough, false)
   assert.deepEqual(f.riasec, [0, 0, 0, 0, 0, 0])
@@ -66,17 +67,17 @@ test('the store is read from the private database settings only, and a hash keep
 })
 
 test('specialisations keep the page’s names and known topics, and distinctive sentences are short and at most three', () => {
-  const sent = new Map<string, PageMember>([['p1', { url: 'https://x.ch/p1', hash: 'h' }]])
+  const sent = new Map<string, PageMember>([['p1', { url: 'https://x.ch/p1', hash: 'h', text: 'Studium mit Vertiefungen Data Analytics und Religion und Gesellschaft. Partner A. Zwei. Drei. Vier.' }]])
   const f = normaliseFact({
-    id: 'p1', riasec: { R: 1 }, subjects: [], topics: ['statistics-data-science', 'astrology'], enough_info: true,
+    id: 'p1', content_quote: 'Vertiefungen Data Analytics', checks_quote: 'Vertiefungen Data Analytics', riasec: { R: 1 }, subjects: [], topics: ['statistics-data-science', 'astrology'], enough_info: true,
     checks: { de: 'a', fr: 'b', it: 'c', en: 'd' },
     specialisations: [
-      { name: ' Data Analytics ', topics: ['statistics-data-science', 'astrology'] },
+      { name: ' Data Analytics ', topics: ['statistics-data-science', 'astrology'], quote: 'Vertiefungen Data Analytics' },
       { name: '', topics: ['sociology'] },
       { name: 'Data Analytics', topics: [] },
-      { name: 'Religion und Gesellschaft', topics: ['religious-studies', 'sociology', 'philosophy', 'history'] },
+      { name: 'Religion und Gesellschaft', topics: ['religious-studies', 'sociology', 'philosophy', 'history'], quote: 'Religion und Gesellschaft' },
     ],
-    distinctive: ['Partner A.', '', 'Partner A.', 'Zwei.', 'Drei.', 'Vier.'],
+    distinctive: ['Partner A.', '', 'Partner A.', 'Zwei.', 'Drei.', 'Vier.'].map((statement) => ({ statement, quote: 'Partner A. Zwei. Drei. Vier.' })),
   }, sent, '2026-03-01')
   assert.ok(f)
   assert.deepEqual(f.topics, ['statistics-data-science'])
@@ -85,5 +86,5 @@ test('specialisations keep the page’s names and known topics, and distinctive 
     { name: 'Religion und Gesellschaft', topics: ['religious-studies', 'sociology', 'philosophy'] },
   ])
   assert.deepEqual(f.distinctive, ['Partner A.', 'Zwei.', 'Drei.'])
-  assert.deepEqual(normaliseFact({ id: 'p1', riasec: {}, specialisations: [{ name: 'Data', topics: [] }], distinctive: ['x'], enough_info: false }, sent, '2026-03-01')?.specialisations, [])
+  assert.deepEqual(normaliseFact({ id: 'p1', content_quote: 'Vertiefungen Data Analytics', checks_quote: 'Vertiefungen Data Analytics', riasec: {}, specialisations: [{ name: 'Data', topics: [] }], distinctive: ['x'], enough_info: false }, sent, '2026-03-01')?.specialisations, [])
 })

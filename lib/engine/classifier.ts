@@ -168,6 +168,7 @@ const FALSE_FRIENDS =
  * entertainment only.
  */
 const MEDIA_LOOKUP = /\b(imdb|rotten\s+tomatoes|letterboxd|netflix|disney\+|staffel\s+\d+|season\s+\d+|episode\s+\d+|folge\s+\d+|ganze\s+folge|full\s+episode|stream\s+deutsch|serien?stream|bs\.to)\b/i
+const MEDIA_STUDY = /\b(tutorial|explain\w*|erklär\w*|erklar\w*|algorithm\w*|machine learning|cinematograph\w*|film editing|schnitttechnik|analyse|analysis|recommendation systems?|empfehlungssystem\w*)\b/i
 const MEDIA_ONLY: Classification = { raw: new Float32Array(FIELD_COUNT), learning: 0, entertainment: 2, matched: [] }
 
 const cache = new Map<string, Classification>()
@@ -179,7 +180,7 @@ export function classify(text: string, opts: { splitCamel?: boolean } = {}): Cla
   const hit = cache.get(key)
   if (hit) return hit
 
-  if (MEDIA_LOOKUP.test(text)) return MEDIA_ONLY
+  if (MEDIA_LOOKUP.test(text) && !MEDIA_STUDY.test(text)) return MEDIA_ONLY
   const lx = lexicon()
   const norm = normalize(text.replace(BRANDS, ' ').replace(FALSE_FRIENDS, ' '), opts)
   const toks = tokens(norm)

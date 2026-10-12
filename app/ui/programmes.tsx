@@ -71,7 +71,7 @@ const PAGE_SIZE = 40
 async function allProgrammes(request: object, token: string | null, signal?: AbortSignal): Promise<RankResult | 'locked'> {
   const items: RankedProgramme[] = []
   let first: RankResult | null = null
-  for (let page = 0; page < 10; page++) {
+  for (let page = 0; ; page++) {
     const res = await fetch(withBase('/api/programmes'), {
       method: 'POST',
       signal,
@@ -151,7 +151,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const current = reply?.key === key ? reply : null
   const locked = !unlocked || current?.locked
   const pool = current?.data?.items ?? []
-  const { fits: local, scoreOf } = useFitScores(readings.byId, profile)
+  const { fits: local, scoreOf, hasScores } = useFitScores(readings.byId, profile)
   // Every programme with a reading; the optional step compares the best of them, best first by the reading and the match.
   const rated = useMemo(() => pool.filter((p) => scoreOf(p.id) !== undefined), [pool, scoreOf])
   const personalPool = useMemo(() => orderByNumber(rated, scoreOf).slice(0, PERSONAL_POOL), [rated, scoreOf])
@@ -159,7 +159,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const [ownHere, setOwnHere] = useState(false)
   const own = ownShared ?? ownHere
   const setOwn = onOwnChange ?? setOwnHere
-  const ownKey = JSON.stringify([personalPool.map((p) => p.id), locale])
+  const ownKey = JSON.stringify([personalPool.map((p) => p.id), locale, profile, token])
   const [fits, setFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; budget?: boolean } | null>(null)
   useEffect(() => {
     if (!own || !personalPool.length || !profile) return
@@ -186,9 +186,9 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   }
   // The order both lists show, over all results: each by its number, the reading and the answers where there are, else the match.
   const ranked = useMemo(() => {
-    const numberOf = (id: string) => blendedScore(scoreOf(id), personalMap?.get(id))
+    const numberOf = (id: string) => blendedScore(scoreOf(id), personalMap?.get(id)) ?? (hasScores ? 50 : undefined)
     return orderByNumber(pool, numberOf).map((p) => ({ p, score: numberOf(p.id), personal: personalMap?.get(p.id) }))
-  }, [pool, scoreOf, personalMap])
+  }, [pool, scoreOf, personalMap, hasScores])
   const best = ranked.slice(0, shown)
   return (
     <section className="mt-8" aria-label={t.programmes.topTitle}>
@@ -722,7 +722,7 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
             </span>
           )}
           {/* With a reading: the combined score, which tells programmes of one field apart. */}
-          <span className="rounded-full border-2 border-line bg-accent px-2.5 py-0.5 text-sm font-extrabold text-accent-ink" title={fact && score !== undefined ? t.programmes.ai.scoreTip(p.match, score) : t.programmes.row.matchTip}>
+          <span className="rounded-full border-2 border-line bg-accent px-2.5 py-0.5 text-sm font-extrabold text-accent-ink" title={score !== undefined ? fact?.enough ? t.programmes.ai.scoreTip(p.match, score) : t.programmes.ai.scoreUnknown : t.programmes.row.matchTip}>
             {combinedScore(p.match, score)}
           </span>
           {fact && (
@@ -821,14 +821,14 @@ function Explorer({
   const profile = useLocalProfile(results, topics)
   // The readings are shown in the rows; the order is the one the filters ask for.
   const readings = useReadings(token, !shared && hasReadings(prefs))
-  const { fits, scoreOf } = useFitScores(readings.byId, profile)
+  const { fits, scoreOf, hasScores } = useFitScores(readings.byId, profile)
   // The optional step «Mit KI sortieren» in the list: the shown results with a reading, compared with the answers. The page's switch, when given, decides.
   const [ownHere, setOwnHere] = useState(false)
   const own = ownShared ?? ownHere
   const setOwn = onOwnChange ?? setOwnHere
   // The optional step compares the best of the results with a reading, in the order the top list uses.
   const ownPool = useMemo(() => orderByNumber((data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined), scoreOf).slice(0, PERSONAL_POOL), [data, scoreOf])
-  const ownKey = JSON.stringify([ownPool.map((p) => p.id), locale])
+  const ownKey = JSON.stringify([ownPool.map((p) => p.id), locale, profile, token])
   const [ownFits, setOwnFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; budget?: boolean } | null>(null)
   useEffect(() => {
     if (!own || !ownPool.length || !profile) return
@@ -854,7 +854,7 @@ function Explorer({
     return ownPool.some((p) => p.id === id) ? 'missing' : 'outside'
   }
   // The number the list shows: the reading, averaged with the answers when the optional step is on.
-  const shownScore = (id: string): number | undefined => blendedScore(scoreOf(id), ownMap?.get(id))
+  const shownScore = (id: string): number | undefined => blendedScore(scoreOf(id), ownMap?.get(id)) ?? (hasScores ? 50 : undefined)
   // Sorted by the match, every result is fetched at once and ordered together, so this list agrees with the top list; it is paged here.
   const byMatch = sort === 'match'
   const serverPage = byMatch ? 0 : page
@@ -896,6 +896,9 @@ function Explorer({
     const timer = setTimeout(() => {
       query().then((d) => {
         if (!cancelled && d) setData(d)
+      }).catch(() => {
+        if (!cancelled) setData(null)
+      }).finally(() => {
         if (!cancelled) setLoading(false)
       })
     }, 200)
@@ -906,12 +909,13 @@ function Explorer({
   }, [query])
 
   async function exportCsv() {
-    const all = await query({ page: 0, pageSize: 2000 })
-    if (!all) return
+    const all = await allProgrammes({ fields, prefs, topics, country: country || undefined, level, sort, q: q || undefined, city: city || undefined }, token)
+    if (all === 'locked') { onInvalid(); return }
     const cols = ['match', 'name', 'institution', 'country', 'city', 'level', 'field', 'tuition_per_year', 'currency', 'earnings', 'admission_rate', 'url']
     const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
-    const rows = all.items.map((p) =>
-      [p.match, p.name, p.institution, p.country, p.city, p.level, fieldName(p.matchedField, locale), p.fee?.amount, p.fee?.currency, p.earnings?.median, p.admissionRate, p.url ?? p.institutionUrl].map(esc).join(','),
+    const exportItems = byMatch ? orderByNumber(all.items, shownScore) : all.items
+    const rows = exportItems.map((p) =>
+      [combinedScore(p.match, shownScore(p.id)), p.name, p.institution, p.country, p.city, p.level, fieldName(p.matchedField, locale), p.fee?.amount, p.fee?.currency, p.earnings?.median, p.admissionRate, p.url ?? p.institutionUrl].map(esc).join(','),
     )
     const blob = new Blob([[cols.join(','), ...rows].join('\n')], { type: 'text/csv' })
     const a = document.createElement('a')

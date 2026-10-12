@@ -1,4 +1,4 @@
-# Übergabe (Stand 11.10.2026)
+# Übergabe (Stand 12.10.2026)
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
@@ -9,6 +9,18 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 - Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 120 grün). Demodaten mit `node scrapers/build.ts --sample`.
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
+
+## Präzisionskorrekturen am 12.10.2026
+
+- Themenabgleich: Nutzerbegriffe wie `python`, `machine learning` und `p:algorithm` werden in der API akzeptiert und mit den Fach-IDs der Lesungen abgeglichen. Vertiefungsbegründungen brauchen einen konkreten Themenbezug.
+- Punkte im freiwilligen Vergleich werden reproduzierbar berechnet und auf derselben Skala wie die lokalen Punkte geeicht. Claude wählt höchstens zwei bereits belegbare Begründungen aus; frei erfundene Interessen oder Modell-Punktwerte werden nicht übernommen. Hinweise und Einwilligung sind in allen Sprachen angepasst.
+- Fehlende Lesungen zählen in Listen mit Lesungen neutral (50). Top-Liste, Suche und CSV verwenden dieselben Zahlen. Die Paging-Grenze von 20 000 entfällt; Änderungen von Profil oder Token lösen einen neuen persönlichen Vergleich aus. Lesungs-Caches sind an den Token gebunden.
+- Quellenleser: HSLU-Formularinhalt bleibt erhalten; Skripte, versteckte Inhalte und Eingabefelder entfallen. BFH liest die offizielle öffentliche Suche mit `filters` und `offset`, prüft alle Seiten und verwirft wiederholte oder unvollständige Antworten. Live: 37 Bachelor- und 51 Masterangebote. Ausfälle oder starke Rückgänge einzelner Hochschul-/Stufengruppen bewahren deren vorherige Daten.
+- Fribourg: ECTS werden innerhalb einer regulären Variante addiert, nicht über Alternativen oder wiederholte Teilangaben. ZHAW Soziale Arbeit ist Zürich zugeordnet. Unbelegte Sprache, Dauer und Studienform werden nicht mehr vom Institutionsstandort abgeleitet; Detailseiten haben Vorrang vor Listenvorgaben.
+- Faktenleser Version 4: Inhalt, Vertiefungen, Besonderheiten und Abklärungen brauchen Quellenbelege. Vertiefungen werden als vollständige Namen nahe einer ausdrücklichen Vertiefungsangabe geprüft. Zu lange Texte enden an Satzgrenzen. Jeder Batch muss alle eigenen IDs genau einmal enthalten; ein begrenzter Wiederholungsversuch, explizites Ausgabenlimit und mehr Antworttokens verhindern stille Lücken. Eine neue Leserversion erzwingt die erneute Prüfung unveränderter Seiten. Alte Lesungen bleiben bei Fehlern erhalten und werden erst durch einen neuen Faktenlauf ersetzt.
+- Gemeinsamer Leser beachtet robots.txt vor Seiten, Sitemaps und Weiterleitungen, begrenzt Weiterleitungen auf dieselbe Institution und hält 1.5 Sekunden Abstand ein. Die Seitensuche nutzt Sitemap-Adressen aus robots.txt und berücksichtigt Fakultäts-Subdomains. Die ZHdK-Zuordnung «Composition and Theory» zeigt auf die Übersicht des Profils statt nur auf Sound Design. Technische Netflix-Erklärungen werden als Lernthemen erkannt.
+
+Prüfungen: 183 Tests, TypeScript, Produktionsbuild mit `next build --webpack`, Demodaten-Build (752 Programme). Zwei echte Faktenläufe mit fünf öffentlichen Programmseiten lieferten vollständige Antworten; zwei persönliche KI-Vergleiche mit demselben synthetischen Profil lieferten identische Punkte und nur erlaubte Begründungen. Alle Angebotslisten wurden live geprüft; die instabile BFH-Sitemap wurde durch den vollständigen Suchabruf ersetzt. Turbopack kann in dieser lokalen Umgebung keinen Port für die CSS-Verarbeitung öffnen; Webpack baut erfolgreich. Keine persönlichen Exporte oder API-Schlüssel wurden ausgegeben oder eingecheckt.
 
 ## Erledigt am 11.10.2026
 

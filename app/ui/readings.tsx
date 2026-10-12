@@ -2,10 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { CONTACT, withBase } from '@/lib/site.ts'
-import { riasecLabel, subjectLabel } from '@/lib/site/labels.ts'
+import { fitReasonText } from '@/lib/engine/fit-reason.ts'
 import { FACTS_COUNTRIES, calibrated, fitSpread, localFit, type FitReason, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
-import { topicLabel } from '@/lib/engine/classifier.ts'
-import type { SubjectKey } from '@/lib/taxonomy/fields.ts'
 import { useSite } from './site-context.tsx'
 
 /**
@@ -31,7 +29,7 @@ const cache = new Map<string, Promise<Reading | null>>()
 
 /** One request per locale and visit; a failed request is not kept, so the next try asks again. */
 function loadReadings(locale: string, token: string | null): Promise<Reading | null> {
-  const key = `${FACTS_COUNTRIES.join(',')}|${locale}`
+  const key = `${FACTS_COUNTRIES.join(',')}|${locale}|${token ?? ''}`
   const hit = cache.get(key)
   if (hit) return hit
   const request = fetch(withBase(`/api/facts?countries=${FACTS_COUNTRIES.join(',')}&locale=${encodeURIComponent(locale)}`), {
@@ -48,18 +46,18 @@ function loadReadings(locale: string, token: string | null): Promise<Reading | n
 
 export function useReadings(token: string | null, enabled: boolean) {
   const { locale } = useSite()
-  const [got, setGot] = useState<{ locale: string; reading: Reading | null } | null>(null)
+  const [got, setGot] = useState<{ locale: string; token: string | null; reading: Reading | null } | null>(null)
   useEffect(() => {
     if (!enabled) return
     let alive = true
     loadReadings(locale, token).then((reading) => {
-      if (alive) setGot({ locale, reading })
+      if (alive) setGot({ locale, token, reading })
     })
     return () => {
       alive = false
     }
   }, [enabled, locale, token])
-  const current = enabled && got?.locale === locale ? got : null
+  const current = enabled && got?.locale === locale && got.token === token ? got : null
   const byId = useMemo(() => new Map((current?.reading?.items ?? []).map((f) => [f.id, f])), [current])
   const status: ReadingsStatus = !enabled ? 'off' : !current ? 'loading' : current.reading ? 'done' : 'failed'
   return { status, byId, updated: current?.reading?.updated ?? '' }
@@ -83,22 +81,13 @@ export function useFitScores(byId: Map<string, ProgrammeFacts>, profile: LocalPr
       const fit = fits.get(id)
       return f?.enough && fit ? calibrated(fit.score, spread) : undefined
     }
-    return { fits, scoreOf }
+    const hasScores = !!profile && [...byId.values()].some((f) => f.enough)
+    return { fits, scoreOf, hasScores }
   }, [byId, profile])
 }
 
 const reasonKey = (r: FitReason) =>
   r.kind === 'riasec' ? `i-${r.types.join('')}` : r.kind === 'topics' ? `t-${r.keys.join('')}` : r.kind === 'specialisations' ? `v-${r.names.join('')}` : `s-${r.subjects.join('')}`
-
-type ReasonTexts = { reasonRiasec: (names: string) => string; reasonSubjects: (names: string) => string; reasonTopics: (names: string) => string; reasonSpecialisations: (names: string) => string }
-
-/** A reason in the page's language: the specialisations, topics, interest types or subjects it names. */
-function fitReasonText(r: FitReason, locale: Parameters<typeof riasecLabel>[1], a: ReasonTexts): string {
-  if (r.kind === 'specialisations') return a.reasonSpecialisations(r.names.join(' · '))
-  if (r.kind === 'topics') return a.reasonTopics(r.keys.map((k) => topicLabel(k)).join(' · '))
-  if (r.kind === 'riasec') return a.reasonRiasec(r.types.map((k) => riasecLabel(k, locale).name).join(' · '))
-  return a.reasonSubjects(r.subjects.map((s) => subjectLabel(s as SubjectKey, locale)).join(' · '))
-}
 
 /** Under a programme's details: what Claude read, how it fits the answers here, and, when the optional step is on, Claude's own comparison. */
 export function AiBlock({ fact, fit, personal, personalStatus }: { fact: ProgrammeFacts; fit?: LocalFit; personal?: PersonalFit; personalStatus: PersonalStatus }) {

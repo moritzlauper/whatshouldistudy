@@ -200,7 +200,7 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
       level,
       fields,
       fieldConfidence: confidence,
-      languages: institution.languages,
+      // The BFS table does not state teaching languages, mode or duration.
       tuition: !fee ? undefined : {
         currency: 'CHF',
         domestic: fee,
@@ -209,8 +209,6 @@ export function parseRows(rows: Array<Record<string, string>>, fetchedAt: string
         estimated: true,
         note: 'Semestergebühren × 2, Stand 2025/26',
       },
-      durationYears: level === 'bachelor' ? 3 : 2,
-      mode: 'full-time',
       institutionUrl: institution.url,
       capacity: shared ? undefined : students,
       public: institution.type !== 'fh' || !['ffhs', 'kalaidos'].includes(institution.id),

@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { robotsAllow } from '../lib/official-facts.ts'
+import { sameSite } from '../lib/official-facts.ts'
+import { fetchSite } from './lib/site-fetch.ts'
 import { headingsOf, namesProgramme, NOT_A_PROGRAMME, sitemapLocs, STUDY_PATH } from '../lib/page-match.ts'
 
 /**
@@ -35,33 +36,17 @@ function loadRows(dir: string): Row[] {
 }
 
 const hostOf = (u: string) => new URL(u).hostname.replace(/^www\./, '')
-const lastRequest = new Map<string, number>()
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-/** One request to a domain at a time, PAUSE apart. A failed request counts as a missing page. */
-async function fetchPaced(host: string, url: string): Promise<{ status: number; text: string }> {
-  const wait = (lastRequest.get(host) ?? 0) + PAUSE - Date.now()
-  if (wait > 0) await sleep(wait)
-  lastRequest.set(host, Date.now())
-  try {
-    const res = await fetch(url, {
-      headers: { 'User-Agent': UA, 'Accept-Language': 'de-CH,de;q=0.9,fr;q=0.8,it;q=0.7,en;q=0.6' },
-      redirect: 'follow',
-      signal: AbortSignal.timeout(20000),
-    })
-    return { status: res.status, text: res.status === 200 ? await res.text() : '' }
-  } catch {
-    return { status: 0, text: '' }
-  }
-}
+const fetchPaced = (_host: string, url: string) => fetchSite(url, 20_000)
 
 /** The pages listed in the domain's sitemap; a sitemap index is followed, up to ten of its sitemaps. */
 async function sitemapPages(host: string): Promise<string[]> {
-  for (const root of [`https://${host}/sitemap.xml`, `https://www.${host}/sitemap.xml`, `https://${host}/sitemap_index.xml`]) {
+  const robots = await fetchPaced(host, `https://${host}/robots.txt`)
+  const declared = [...robots.text.matchAll(/^Sitemap:\s*(https?:\/\/\S+)/gim)].map((m) => m[1]).filter((u) => sameSite(u, `https://${host}`))
+  for (const root of [...new Set([...declared, `https://${host}/sitemap.xml`, `https://www.${host}/sitemap.xml`, `https://${host}/sitemap_index.xml`])]) {
     const r = await fetchPaced(host, root)
     if (r.status !== 200) continue
     const locs = sitemapLocs(r.text)
-    const children = locs.filter((u) => /\.xml$/i.test(u))
+    const children = /<sitemapindex\b/i.test(r.text) ? locs.filter((u) => sameSite(u, root)) : []
     if (children.length && children.length === locs.length) {
       const pages: string[] = []
       for (const child of children.slice(0, 10)) {
@@ -78,7 +63,7 @@ async function sitemapPages(host: string): Promise<string[]> {
 function isStudyPage(url: string, host: string): boolean {
   try {
     const path = decodeURIComponent(new URL(url).pathname)
-    return hostOf(url) === host && STUDY_PATH.test(path) && !NOT_A_PROGRAMME.test(path)
+    return sameSite(url, `https://${host}`) && STUDY_PATH.test(path) && !NOT_A_PROGRAMME.test(path)
   } catch {
     return false
   }
@@ -112,14 +97,11 @@ async function studyPages(host: string, max: number): Promise<string[]> {
 }
 
 async function scanHost(host: string, programmes: Row[], max: number): Promise<number> {
-  const robots = await fetchPaced(host, `https://${host}/robots.txt`)
-  const robotsText = robots.status === 200 ? robots.text : ''
   const pages = await studyPages(host, max)
   console.log(`${host}: ${pages.length} study pages in the sitemap, for ${programmes.length} programmes`)
   let found = 0
   const shown = new Map<string, number>()
   for (const url of pages) {
-    if (!robotsAllow(robotsText, url)) continue
     const r = await fetchPaced(host, url)
     if (r.status !== 200) continue
     const { title, heading } = headingsOf(r.text)

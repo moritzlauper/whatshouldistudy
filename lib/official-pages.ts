@@ -121,7 +121,7 @@ const OFFICIAL_PAGES: OfficialPage[] = [
     host: 'zhdk.ch',
     level: 'master',
     name: /^Master Composition and Theory$/,
-    url: 'https://www.zhdk.ch/studium/musik/sounddesign',
+    url: 'https://www.zhdk.ch/studium/musik/11773/komposition-theorie-11762',
   },
   {
     host: 'phtg.ch',

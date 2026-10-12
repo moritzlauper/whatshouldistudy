@@ -13,10 +13,12 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import Anthropic from '@anthropic-ai/sdk'
+import { exactBatch } from '../lib/ai-batch.ts'
 import { pageText, robotsAllow, sameSite } from '../lib/official-facts.ts'
 import { officialPageOf } from '../lib/official-pages.ts'
 import { FACTS_SCHEMA, FACTS_SYSTEM, batches, costMicroUsd, hashText, isUnchanged, mergeFacts, normaliseFact, type PageMember, type StoredFact } from './lib/facts.ts'
-import { log, sleep } from './lib/common.ts'
+import { log } from './lib/common.ts'
+import { fetchSite } from './lib/site-fetch.ts'
 
 interface Row {
   id: string
@@ -31,8 +33,6 @@ interface Row {
   languages?: string[]
 }
 
-const UA = 'Mozilla/5.0 (compatible; wasstudieren-bot/1.0; +https://wasstudieren.ch)'
-const PAUSE = 1500
 const MAX_CHARS = 7000
 const MIN_CHARS = 200
 const MODEL = 'claude-haiku-5-5'
@@ -59,24 +59,7 @@ const isHomepage = (url: string): boolean => {
   }
 }
 
-let lastRequest = 0
-
-/** One request at a time, PAUSE milliseconds apart, as robots.txt and the other scrapers expect. */
-async function get(url: string): Promise<{ status: number; text: string }> {
-  const wait = lastRequest + PAUSE - Date.now()
-  if (wait > 0) await sleep(wait)
-  lastRequest = Date.now()
-  try {
-    const res = await fetch(url, {
-      headers: { 'User-Agent': UA, 'Accept-Language': 'de-CH,de;q=0.9,fr;q=0.8,it;q=0.7,en;q=0.6' },
-      signal: AbortSignal.timeout(15_000),
-    })
-    return { status: res.status, text: res.ok ? await res.text() : '' }
-  } catch (e) {
-    log(`request failed: ${url} (${(e as Error).message})`)
-    return { status: 0, text: '' }
-  }
-}
+const get = (url: string) => fetchSite(url, 15_000)
 
 function block(r: Row, text: string): string {
   return [
@@ -133,7 +116,7 @@ async function main() {
     const origin = new URL(url).origin
     if (!robots.has(origin)) {
       const res = await get(`${origin}/robots.txt`)
-      robots.set(origin, res.status === 200 ? res.text : '')
+      robots.set(origin, res.status === 200 ? res.text : res.status === 404 ? '' : 'User-agent: *\nDisallow: /')
     }
     if (!robotsAllow(robots.get(origin) ?? '', url)) {
       stats.refused += members.length
@@ -151,11 +134,11 @@ async function main() {
     const hash = hashText(text)
     for (const { r } of members) {
       if (!reread && isUnchanged(previous[r.id], url, hash)) stats.unchanged++
-      else toRead.push({ r, text, page: { url, hash } })
+      else toRead.push({ r, text, page: { url, hash, text } })
     }
   }
 
-  const client = new Anthropic()
+  const client = new Anthropic({ maxRetries: 0, timeout: 45_000 })
   const fresh: StoredFact[] = []
   const at = new Date().toISOString().slice(0, 10)
   for (const group of batches(toRead, 5)) {
@@ -164,27 +147,31 @@ async function main() {
       break
     }
     const sent = new Map(group.map((x) => [x.r.id, x.page]))
-    try {
-      const response = await client.messages.create({
-        model: MODEL,
-        max_tokens: 8000,
-        output_config: { effort: 'low', format: { type: 'json_schema', schema: FACTS_SCHEMA } },
-        system: FACTS_SYSTEM,
-        messages: [{ role: 'user', content: `Programmes:\n${group.map((x) => block(x.r, x.text)).join('\n\n')}` }],
-      })
-      stats.calls++
-      stats.spendMicro += costMicroUsd(response.usage)
-      if (response.stop_reason !== 'end_turn') throw new Error(`stopped: ${response.stop_reason}`)
-      const out = JSON.parse(response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('')) as { programmes?: unknown[] }
-      for (const raw of out.programmes ?? []) {
-        const f = normaliseFact(raw, sent, at)
-        if (f) {
-          fresh.push(f)
-          stats.fresh++
-        }
+    const input = `Programmes:\n${group.map((x) => block(x.r, x.text)).join('\n\n')}`
+    // Reserve a conservative upper bound before each attempt, including retries.
+    const reserveMicro = (FACTS_SYSTEM.length + input.length) * 2 + 16000 * 5
+    for (let attempt = 0; attempt < 2; attempt++) {
+      if (stats.spendMicro + reserveMicro > maxUsd * 1_000_000) break
+      try {
+        const response = await client.messages.create({
+          model: MODEL,
+          max_tokens: 16000,
+          output_config: { effort: 'low', format: { type: 'json_schema', schema: FACTS_SCHEMA } },
+          system: FACTS_SYSTEM,
+          messages: [{ role: 'user', content: input }],
+        })
+        stats.calls++
+        stats.spendMicro += costMicroUsd(response.usage)
+        if (response.stop_reason !== 'end_turn') throw new Error(`stopped: ${response.stop_reason}`)
+        const out = JSON.parse(response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('')) as { programmes?: unknown[] }
+        const read = exactBatch(out.programmes, new Set(sent.keys())).map((raw) => normaliseFact(raw, sent, at))
+        if (read.some((f) => !f)) throw new Error('Invalid fact in batch')
+        fresh.push(...read as StoredFact[])
+        stats.fresh += read.length
+        break
+      } catch (e) {
+        log(`model call failed for ${group.length} programmes: ${(e as Error).message}`)
       }
-    } catch (e) {
-      log(`model call failed for ${group.length} programmes: ${(e as Error).message}`)
     }
   }
 
