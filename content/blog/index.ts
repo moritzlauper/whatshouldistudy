@@ -8,5 +8,6 @@ import p4 from './2026-10-08-global-applying-to-uk-from-abroad-15-october-13-jan
 import p5 from './2026-10-09-at-lehramt-aufnahmeverfahren-oesterreich-modul-a-b-c.json' with { type: 'json' }
 import p6 from './2026-10-09-ch-was-kostet-ein-studium-in-der-schweiz-studiengebuehren.json' with { type: 'json' }
 import p7 from './2026-10-09-de-bafoeg-studienstart-2026-27-wohnkostenpauschale-2027.json' with { type: 'json' }
+import p8 from './2026-10-12-global-dutch-tuition-non-eu-students-2027-budget.json' with { type: 'json' }
 
-export const POSTS = [p0, p1, p2, p3, p4, p5, p6, p7] as Post[]
+export const POSTS = [p0, p1, p2, p3, p4, p5, p6, p7, p8] as Post[]
