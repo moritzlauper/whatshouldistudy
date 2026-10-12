@@ -10,6 +10,16 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
 
+## Sozialwissenschaften: gezielte Lexikonkorrekturen am 12.10.2026
+
+Auf «entscheide du» zum vorangegangenen Engine-Test wurden die belegten Lexikonlücken mit Regressionen geschlossen. Zusätzliche Interessenfragen und eine pauschale 70-Punkte-Grenze wurden nicht eingeführt: Der kürzlich gekürzte Fragebogen und die Punkteskala brauchen dafür eine eigene Prüfung.
+
+- Politik erkennt unter anderem Abstimmungen, Volksinitiativen, Koalitionen, Wahlkämpfe, Misstrauensvoten, EU-Erweiterung und Ständerat sowie passende englische, französische und italienische Begriffe. Geschichte erkennt gebeugte Wendungen zum Römischen Reich, Kalten Krieg und Dreissigjährigen Krieg, Hanse, Middle Ages und ausdrücklich benannten Mauerbau 1961.
+- Ethnologie erkennt Himba, Inuit, Aborigines, Māori und Dogon, Bräuche, ethnografische Methoden und Wendungen zu Ursprungsmythen. Alleinstehendes «Rome», «Mauerbau», «Feldforschung» oder «myths» wird nicht pauschal einem Fach zugeschlagen. Māori-Rugbytitel, Instrumenten-/Terminabstimmung und ausdrücklich benannte Unternehmenskoalitionen liefern keine Ethnologie-/Politikbelege. Ein Religionsbezug wird weiterhin als solcher erkannt.
+- Der Matcher unterstützt Sterne nur bei einzelnen Tokens. Das wirkungslose `social norm*` wurde durch Singular und Plural ersetzt; die Einschränkung steht jetzt in der Lexikon-Dokumentation. Importversion 6 weist bei älteren Zusammenfassungen auf erneutes Einlesen hin. Basisraten, Gewichtung, Fragebogen und Paywall sind unverändert.
+
+Prüfungen: `test/social-sciences.test.ts` mit 14 Regressionen und 48 erfundenen Titeln in `test/fixtures/social-sciences.ts`. Im selben Set stieg die richtige Top-1-Zuordnung bei Geschichte von 2/12 auf 12/12, Politik von 0/12 auf 12/12, Ethnologie von 2/12 auf 12/12 und Soziologie von 11/12 auf 12/12. Pro Fach 30 reproduzierbar gezogene Verläufe mit je 60 Einträgen: jeweils das erwartete Fach auf Platz 1. Bei 15 % Soziologie neben 85 % Politik bleibt Politik in allen 30 Läufen vorne. Gegenproben prüfen andere Wortbedeutungen, Fachbelege, Themenübernahme und Studiengangnamen. Das ist ein gezielter synthetischer Regressionstest, keine Validierung mit echten Nutzerdaten.
+
 ## Freiwillige KI-Inhaltsanalyse von YouTube-Exporten
 
 Der Wörterabgleich erkennt den öffentlichen Beispieltitel «Stop stanning politicians» ohne Metadaten nicht. Die KI-Auswertung von Studiengängen konnte solche verlorenen Inhaltssignale bisher nicht nachholen.
