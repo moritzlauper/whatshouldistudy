@@ -1,0 +1,61 @@
+name: whatshouldistudy find pages
+
+# Looks for the official page of the programmes that the data names without a link.
+# For each institution's domain the sitemap is read; a study page whose title names
+# the programme is printed as a candidate. Nothing is stored: a person checks the
+# candidates before they are listed in lib/official-pages.ts. By hand, on main only.
+
+on:
+  workflow_dispatch:
+    inputs:
+      hosts:
+        description: 'Comma-separated domains to search; empty for all institutions without links'
+        required: false
+        default: ''
+      max_pages:
+        description: 'Study pages to read per domain at most'
+        required: false
+        default: '250'
+
+concurrency:
+  group: wsis-seiten
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  DATA_BRANCH: whatshouldistudy-data
+
+jobs:
+  find:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Programme data
+        run: |
+          git fetch -q --depth 1 origin "${DATA_BRANCH}"
+          mkdir -p data-in
+          git archive FETCH_HEAD | tar -x -C data-in
+
+      - name: Find the pages
+        env:
+          HOSTS: ${{ inputs.hosts }}
+          MAX_PAGES: ${{ inputs.max_pages }}
+        run: node scrapers/discover-programme-pages.ts --data data-in --country CH --hosts "$HOSTS" --max "$MAX_PAGES"
