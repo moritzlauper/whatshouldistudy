@@ -1,6 +1,6 @@
 import 'server-only'
 import { COUNTRIES, feeFor } from '../countries.ts'
-import { textTopics } from '../engine/classifier.ts'
+import { isGenericTopic, textTopics } from '../engine/classifier.ts'
 import { orderByNumber, orderedFieldIds } from '../engine/programme-fit.ts'
 import type { Preferences } from '../engine/types.ts'
 import type { Level, Programme } from '../programmes.ts'
@@ -103,7 +103,7 @@ export function sanitizeRequest(body: unknown): RankRequest | null {
   if (b.topics && typeof b.topics === 'object') {
     for (const [k, v] of Object.entries(b.topics as Record<string, unknown>).slice(0, 100)) {
       const n = Number(v)
-      if (k.length <= 60 && Number.isFinite(n) && n > 0) topics[k] = Math.min(1, n)
+      if (k.length <= 60 && !isGenericTopic(k) && Number.isFinite(n) && n > 0) topics[k] = Math.min(1, n)
     }
   }
   return {

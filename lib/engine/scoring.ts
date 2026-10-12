@@ -3,6 +3,7 @@ import type { Big5, Field, Riasec, RiasecKey, SubjectKey } from '../taxonomy/fie
 import { musicBig5 } from './music.ts'
 import { careless, profileShape, riasecCode, riasecCompleteness, scoreBig5, scoreRiasec } from './questionnaire.ts'
 import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, SourceId, SourceSummary, Studying } from './types.ts'
+import { isGenericTopic } from './classifier.ts'
 import { isStudyInfo } from './text.ts'
 
 /**
@@ -418,7 +419,8 @@ export function score(input: ScoreInput): Results {
         if (t.kind === 'comment') continue
         evidence.push({ label: t.label, kind: t.kind, source: s.source, url: t.url, ...(t.interpretation ? { interpretation: t.interpretation, interpretationFromChannel: t.interpretationFromChannel } : {}), w: t.w * (KIND_WEIGHT[t.kind] ?? 1) })
       }
-      for (const [t, n] of Object.entries(ev.terms)) if (!t.includes('…')) terms.set(t, (terms.get(t) ?? 0) + n)
+      // Generic words («society») count as evidence, but are not shown as terms.
+      for (const [t, n] of Object.entries(ev.terms)) if (!t.includes('…') && !isGenericTopic(t)) terms.set(t, (terms.get(t) ?? 0) + n)
     }
     if (studying?.field === f.id) reasons.push({ k: 'studying', since: studying.since })
     if (comp.interest !== undefined && comp.interest > 0.55 && items > 0) {
@@ -643,8 +645,8 @@ export function sourceProfile(s: SourceSummary, studying?: Studying): SourceProf
     .slice(0, 3)
   const termCounts = new Map<string, number>()
   for (const ev of Object.values(s.fields)) {
-    // Older versions stored word stems («sociolog…»); they read badly.
-    for (const [t, n] of Object.entries(ev.terms)) if (!t.includes('…')) termCounts.set(t, (termCounts.get(t) ?? 0) + n)
+    // Older versions stored word stems («sociolog…»); they read badly. Generic words («society») are no topic.
+    for (const [t, n] of Object.entries(ev.terms)) if (!t.includes('…') && !isGenericTopic(t)) termCounts.set(t, (termCounts.get(t) ?? 0) + n)
   }
   // Examples: what was watched, searched or liked first, a subscription only if that's all there is.
   const examplesFor = (id: string) =>

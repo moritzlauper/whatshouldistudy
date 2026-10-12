@@ -10,6 +10,15 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
 
+## Allgemeine Wörter und eine Zahl je Studiengang (12.10.2026)
+
+- Auf Wunsch des Inhabers zählen Wörter wie «society», «Gesellschaft», «sociedad», «società» und «société» (dazu «gesellschaftlich») nicht als Thema. Sie bestimmen weder die Sortierung der Studiengänge, noch erscheinen sie als Begründung oder in der Themenliste. Die Fachzuordnung bleibt unverändert; die Wörter zählen dort weiter als Belege.
+- Die Liste ist bewusst kurz. Eine Gewichtsschwelle im Lexikon hätte auch «Armut», «Recycling» oder «Bitcoin» ausgeschlossen. Weitere breite Begriffe wie «Identität» oder «gender» bleiben vorerst; sie lassen sich in `GENERIC` in `lib/engine/classifier.ts` ergänzen.
+- Gespeicherte Zusammenfassungen behalten die Wörter, beim Lesen werden sie herausgefiltert. Die Änderung wirkt darum auch bei bereits importierten Daten, ohne erneutes Einlesen. Der Server verwirft die Begriffe ebenfalls, damit ältere Browser-Tabs sie nicht mehr mitschicken.
+- Entscheidung zur Zahl: Die KI-Zahl ersetzt die sichtbare Zahl, sobald eine ausreichende Lesung vorliegt. Die sichtbare Zahl ist sonst 80 % Profil und 20 % Lesung. Die KI-Zahl bleibt innerhalb von ±30 Punkten um diese Zahl. Mit einer Mittelung hätte die KI die Zahl nur schwach bewegt; der Inhaber wollte eine sichtbare Wirkung und nur eine Zahl. Ohne ausreichende Lesung bleibt die Profilzahl. Rückgängig machen: `shownScore` in `lib/engine/programme-fit.ts`.
+
+Prüfungen: TypeScript grün. Neuer Test in `test/generic-topics.test.ts`. Von 222 Tests sind 219 grün. Die drei Fehlschläge in `content-analysis` und `personal-comparison` bestehen auch auf `main` ohne diese Änderung.
+
 ## KI-Begründungen auch ohne Lesungen (12.10.2026)
 
 - Ursache des gesperrten Vergleichs bei zwölf Treffern: Suche und Top-Liste liessen nur Studiengänge mit ausreichender Lesung in den Vergleich. Die Obergrenze von 20 war keine Mindestanzahl.

@@ -1,5 +1,5 @@
 import { FIELDS, RIASEC_KEYS, SUBJECT_KEYS, type RiasecKey } from '../taxonomy/fields.ts'
-import { textTopics, topicFields } from './classifier.ts'
+import { isGenericTopic, textTopics, topicFields } from './classifier.ts'
 
 /**
  * How well a degree programme fits a person. Claude reads each programme's
@@ -54,7 +54,7 @@ export interface LocalFit {
 export function validatedTopics(raw: unknown): Record<string, number> {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
   return Object.fromEntries(Object.entries(raw)
-    .filter(([k, v]) => (topicFields(k).length > 0 || FIELDS.some((f) => f.id === k)) && typeof v === 'number' && Number.isFinite(v))
+    .filter(([k, v]) => !isGenericTopic(k) && (topicFields(k).length > 0 || FIELDS.some((f) => f.id === k)) && typeof v === 'number' && Number.isFinite(v))
     .sort((a, b) => Number(b[1]) - Number(a[1]))
     .slice(0, 40).map(([k, v]) => [k, Math.max(0, Math.min(1, Number(v)))]))
 }

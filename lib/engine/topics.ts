@@ -1,4 +1,4 @@
-import { topicFields } from './classifier.ts'
+import { isGenericTopic, topicFields } from './classifier.ts'
 import { SOURCE_RELIABILITY, ageWeight, studiedCap, studiedKeep } from './scoring.ts'
 import type { SourceId, SourceSummary, Studying } from './types.ts'
 
@@ -25,6 +25,8 @@ export function userTopics(summaries: SourceSummary[], studying?: Studying, limi
   const acc = new Map<string, { w: number; word: string; n: number; bySource: Map<SourceId, number>; examples: UserTopic['examples'] }>()
   for (const s of summaries) {
     if (!s.topics) continue
+    // Generic words («society») are no topic: they neither count nor dilute the others.
+    const specific = Object.entries(s.topics).filter(([key]) => !isGenericTopic(key))
     const volume = Math.min(1, Math.log10(1 + s.dataPoints) / 3)
     const reliability = (SOURCE_RELIABILITY[s.source] ?? 0.7) * volume
     const keep = studiedKeep(s.source)
@@ -32,7 +34,7 @@ export function userTopics(summaries: SourceSummary[], studying?: Studying, limi
     const activeYears = Object.keys(s.timeline ?? {}).map(Number)
     const eff = new Map<string, number>()
     let total = 0
-    for (const [key, t] of Object.entries(s.topics)) {
+    for (const [key, t] of specific) {
       const studied = !!studying && (key === studying.field || topicFields(key).includes(studying.field))
       const cap = studied ? studiedCap(activeYears.length ? activeYears : Object.keys(t.y).map(Number), (y) => t.y[y] ?? 0, since) : Infinity
       let v = 0
@@ -45,7 +47,7 @@ export function userTopics(summaries: SourceSummary[], studying?: Studying, limi
       total += v
     }
     if (!total) continue
-    for (const [key, t] of Object.entries(s.topics)) {
+    for (const [key, t] of specific) {
       const v = eff.get(key) ?? 0
       if (v <= 0) continue
       let a = acc.get(key)

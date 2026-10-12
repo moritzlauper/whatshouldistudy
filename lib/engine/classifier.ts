@@ -272,6 +272,20 @@ export function termsForField(c: Classification, field: number): string[] {
 }
 
 /**
+ * Words that name society itself rather than a subject («society»,
+ * «Gesellschaft»): nearly every text in the field uses them, so they say nothing
+ * about what someone looks at. They still count as field evidence; they are no
+ * topic, so they neither sort programmes nor show as reasons. Spelt as
+ * normalize() writes them.
+ */
+const GENERIC = new Set(['society', 'gesellschaft', 'gesellschaftlich', 'sociedad', 'societa', 'societe'])
+
+/** Whether a topic key, or a word as shown, is one of the generic words. */
+export function isGenericTopic(keyOrWord: string): boolean {
+  return GENERIC.has(normalize(keyOrWord.replace(/^[ps]:/, '').replace(/…/g, '')))
+}
+
+/**
  * Topics: the lexicon terms a text matched, by stable key, with the word as
  * written. Only terms that say something on their own (weight ≥ 1 in some
  * field), so «media» or «food» don't make two things look alike.
