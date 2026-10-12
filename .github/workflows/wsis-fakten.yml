@@ -28,6 +28,11 @@ on:
         description: 'Spending cap for this run, in US dollars'
         required: false
         default: '3'
+      reread:
+        description: 'Read every page again, also the unchanged ones (after a change to the prompt)'
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: wsis-fakten
@@ -85,9 +90,12 @@ jobs:
           COUNTRY: ${{ inputs.country }}
           LIMIT: ${{ inputs.limit }}
           MAX_USD: ${{ inputs.max_usd }}
+          REREAD: ${{ inputs.reread }}
         run: |
+          EXTRA=""
+          if [ "$REREAD" = "true" ]; then EXTRA="--reread"; fi
           node scrapers/programme-facts.ts --data data-in --previous facts-prev/facts.json \
-            --out facts-out/facts.json --country "$COUNTRY" --limit "$LIMIT" --max-usd "$MAX_USD"
+            --out facts-out/facts.json --country "$COUNTRY" --limit "$LIMIT" --max-usd "$MAX_USD" $EXTRA
 
       - name: Store the readings
         env:

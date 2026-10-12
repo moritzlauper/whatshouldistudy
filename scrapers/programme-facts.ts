@@ -8,7 +8,7 @@
  * university scraper does.
  *
  *   node scrapers/programme-facts.ts --data <dir> --previous <file> --out <file>
- *        [--country CH] [--limit 20] [--max-usd 3]
+ *        [--country CH] [--limit 20] [--max-usd 3] [--reread]
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -100,6 +100,8 @@ async function main() {
   const country = arg('--country', 'CH')
   const limit = Number(arg('--limit', '0')) || Infinity
   const maxUsd = Number(arg('--max-usd', '3'))
+  // Read every page again, also those whose text did not change (after a change to the prompt).
+  const reread = process.argv.includes('--reread')
   if (!dataDir || !outFile) throw new Error('usage: --data <dir> --out <file> [--previous <file>] [--country CH] [--limit N] [--max-usd 3]')
   if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY is not set')
 
@@ -148,7 +150,7 @@ async function main() {
     }
     const hash = hashText(text)
     for (const { r } of members) {
-      if (isUnchanged(previous[r.id], url, hash)) stats.unchanged++
+      if (!reread && isUnchanged(previous[r.id], url, hash)) stats.unchanged++
       else toRead.push({ r, text, page: { url, hash } })
     }
   }

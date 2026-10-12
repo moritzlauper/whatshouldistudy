@@ -87,7 +87,7 @@ For each programme give:
 - "checks": one sentence each in German (Swiss standard, never «ß», quotes «»), French, Italian and English on what the person should look into before deciding, for example admission requirements, the language of teaching, how much maths, or whether a track is really offered.
 - "enough_info": false when the page and the focus areas say too little about the content to judge. Then give 0 for every type, an empty list of subjects and empty checks.
 
-Rules: base every statement on the page text or the listed focus areas. Write the checks in your own words and never copy sentences from the page.`
+Rules: base every statement on the page text or the listed focus areas. Write the checks in your own words and never copy sentences from the page. Address the person informally: «du» in German, «tu» in French and Italian, «you» in English. Never «Sie», «vous» or «Lei».`
 
 export const FACTS_SCHEMA = {
   type: 'object',
