@@ -4,7 +4,7 @@ import { batches, costMicroUsd, hashText, isUnchanged, mergeFacts, normaliseFact
 import { parseHash, storeConfig } from '../lib/facts-store.ts'
 
 const old: StoredFact = {
-  id: 'a', url: 'https://www.unibe.ch/a', hash: 'h1', at: '2026-01-01', riasec: [0, 5, 0, 0, 0, 0], subjects: ['math'], enough: true,
+  id: 'a', url: 'https://www.unibe.ch/a', hash: 'h1', at: '2026-01-01', riasec: [0, 5, 0, 0, 0, 0], subjects: ['math'], topics: ['sociology'], specialisations: [], distinctive: [], enough: true,
   checks: { de: 'Alt.', fr: 'Ancien.', it: 'Vecchio.', en: 'Old.' },
 }
 
@@ -63,4 +63,27 @@ test('the store is read from the private database settings only, and a hash keep
   assert.deepEqual(Object.keys(parsed), ['a', 'b'])
   assert.equal(parsed.a.hash, 'h1')
   assert.deepEqual(parseHash(null), {})
+})
+
+test('specialisations keep the page’s names and known topics, and distinctive sentences are short and at most three', () => {
+  const sent = new Map<string, PageMember>([['p1', { url: 'https://x.ch/p1', hash: 'h' }]])
+  const f = normaliseFact({
+    id: 'p1', riasec: { R: 1 }, subjects: [], topics: ['statistics-data-science', 'astrology'], enough_info: true,
+    checks: { de: 'a', fr: 'b', it: 'c', en: 'd' },
+    specialisations: [
+      { name: ' Data Analytics ', topics: ['statistics-data-science', 'astrology'] },
+      { name: '', topics: ['sociology'] },
+      { name: 'Data Analytics', topics: [] },
+      { name: 'Religion und Gesellschaft', topics: ['religious-studies', 'sociology', 'philosophy', 'history'] },
+    ],
+    distinctive: ['Partner A.', '', 'Partner A.', 'Zwei.', 'Drei.', 'Vier.'],
+  }, sent, '2026-03-01')
+  assert.ok(f)
+  assert.deepEqual(f.topics, ['statistics-data-science'])
+  assert.deepEqual(f.specialisations, [
+    { name: 'Data Analytics', topics: ['statistics-data-science'] },
+    { name: 'Religion und Gesellschaft', topics: ['religious-studies', 'sociology', 'philosophy'] },
+  ])
+  assert.deepEqual(f.distinctive, ['Partner A.', 'Zwei.', 'Drei.'])
+  assert.deepEqual(normaliseFact({ id: 'p1', riasec: {}, specialisations: [{ name: 'Data', topics: [] }], distinctive: ['x'], enough_info: false }, sent, '2026-03-01')?.specialisations, [])
 })

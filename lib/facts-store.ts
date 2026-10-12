@@ -1,4 +1,4 @@
-import { CHECK_LANGUAGES, type CheckLanguage, type StoredFact } from '../scrapers/lib/facts.ts'
+import { CHECK_LANGUAGES, TOPIC_KEYS, type CheckLanguage, type Specialisation, type StoredFact } from '../scrapers/lib/facts.ts'
 import type { ProgrammeFacts } from './engine/programme-fit.ts'
 import type { Locale } from './site/config.ts'
 import { SUBJECT_KEYS } from './taxonomy/fields.ts'
@@ -102,14 +102,36 @@ export function validStoredFact(raw: unknown): StoredFact | null {
       : null
   const enough = typeof x.enough === 'boolean' ? x.enough : null
   const given = x.checks && typeof x.checks === 'object' ? (x.checks as Record<string, unknown>) : null
-  if (!id || !url || !hash || !at || !riasec || !subjects || enough === null || !given) return null
+  // A reading made before topics, specialisations and distinctive sentences existed has none of them: they count as none.
+  const topics = optional<string>(x.topics, (t) => typeof t === 'string' && TOPIC_KEYS.includes(t), 6)
+  const specialisations = optional<Specialisation>(x.specialisations, validSpecialisation, 8)
+  const distinctive = optional<string>(x.distinctive, (d) => typeof d === 'string' && d.length > 0 && d.length <= 160, 3)
+  if (!id || !url || !hash || !at || !riasec || !subjects || !topics || !specialisations || !distinctive || enough === null || !given) return null
   const checks = {} as Record<CheckLanguage, string>
   for (const l of CHECK_LANGUAGES) {
     const c = given[l]
     if (typeof c !== 'string' || c.length > 300) return null
     checks[l] = c
   }
-  return { id, url, hash, at, riasec, subjects, enough, checks }
+  return { id, url, hash, at, riasec, subjects, topics, specialisations, distinctive, enough, checks }
+}
+
+/** A list that may be absent (then it counts as empty); when given, at most `max` items, all of which pass `ok`. */
+function optional<T>(v: unknown, ok: (x: unknown) => boolean, max: number): T[] | null {
+  if (v === undefined) return []
+  return Array.isArray(v) && v.length <= max && v.every(ok) ? (v as T[]) : null
+}
+
+function validSpecialisation(s: unknown): boolean {
+  if (!s || typeof s !== 'object') return false
+  const y = s as Record<string, unknown>
+  return (
+    typeof y.name === 'string' &&
+    y.name.length > 0 &&
+    y.name.length <= 90 &&
+    Array.isArray(y.topics) &&
+    optional<string>(y.topics, (t) => typeof t === 'string' && TOPIC_KEYS.includes(t), 3) !== null
+  )
 }
 
 const LANGUAGE: Record<Locale, CheckLanguage> = {
@@ -123,5 +145,14 @@ const LANGUAGE: Record<Locale, CheckLanguage> = {
 
 /** A reading as the site shows it: the interest profile, the subjects, and the check in the reader's language. */
 export function factsForLocale(f: StoredFact, locale: Locale): ProgrammeFacts {
-  return { id: f.id, riasec: f.riasec, subjects: f.subjects, check: f.checks[LANGUAGE[locale]] || f.checks.en, enough: f.enough }
+  return {
+    id: f.id,
+    riasec: f.riasec,
+    subjects: f.subjects,
+    topics: f.topics ?? [],
+    specialisations: f.specialisations ?? [],
+    distinctive: f.distinctive ?? [],
+    check: f.checks[LANGUAGE[locale]] || f.checks.en,
+    enough: f.enough,
+  }
 }

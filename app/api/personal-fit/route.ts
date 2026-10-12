@@ -3,6 +3,7 @@ import { bearer, paymentMode, verifyToken } from '@/lib/server/token.ts'
 import { PURCHASE_BUDGET_MICRO_USD, purchaseAdd, purchaseSpent } from '@/lib/server/ai-budget.ts'
 import { MAX_PERSONAL, personalFits, type PersonalRequest } from '@/lib/server/personal-fit.ts'
 import { SUBJECT_KEYS } from '@/lib/taxonomy/fields.ts'
+import { TOPIC_KEYS } from '@/scrapers/lib/facts.ts'
 import type { Locale } from '@/lib/site/config.ts'
 
 const LOCALES: Locale[] = ['en', 'de-CH', 'de-DE', 'de-AT', 'fr-CH', 'it-CH']
@@ -28,8 +29,19 @@ export async function POST(req: Request) {
   const subjects = Array.isArray(body?.profile?.subjects)
     ? body!.profile!.subjects.filter((s): s is string => typeof s === 'string' && (SUBJECT_KEYS as readonly string[]).includes(s)).slice(0, 30)
     : []
+  // The person's topics: lexicon keys with weights 0..1, at most forty; anything else is dropped.
+  const given = body?.profile?.topics
+  const topics: Record<string, number> =
+    given && typeof given === 'object'
+      ? Object.fromEntries(
+          Object.entries(given)
+            .filter(([k, v]) => TOPIC_KEYS.includes(k) && typeof v === 'number' && Number.isFinite(v))
+            .slice(0, 40)
+            .map(([k, v]): [string, number] => [k, Math.max(0, Math.min(1, v))]),
+        )
+      : {}
   const locale = (LOCALES as string[]).includes(body?.locale ?? '') ? (body!.locale as Locale) : 'en'
-  const result = await personalFits({ programmes, profile: { riasec: riasec.map((x) => Math.max(0, Math.min(1, x))), subjects }, locale })
+  const result = await personalFits({ programmes, profile: { riasec: riasec.map((x) => Math.max(0, Math.min(1, x))), subjects, topics }, locale })
   if (!result) return NextResponse.json({ error: 'unavailable' }, { status: 503 })
   if (paid && result.costMicroUsd > 0) await purchaseAdd(paid.sid, result.costMicroUsd)
   if (!result.fits.length) return NextResponse.json({ error: 'unavailable' }, { status: 503 })

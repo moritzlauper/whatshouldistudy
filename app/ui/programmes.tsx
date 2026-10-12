@@ -20,8 +20,8 @@ import type { InstType } from '@/lib/institutions.ts'
 import { CONTACT, withBase } from '@/lib/site.ts'
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
 import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
-import { FACTS_COUNTRIES, localFit, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
-import { AiBlock, OwnDataPanel, PERSONAL_POOL, combinedScore, dotsFor, useReadings, type PersonalStatus } from './readings.tsx'
+import { FACTS_COUNTRIES, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
+import { AiBlock, OwnDataPanel, PERSONAL_POOL, combinedScore, dotsFor, useFitScores, useReadings, type PersonalStatus } from './readings.tsx'
 import { officialPageOf } from '@/lib/official-pages.ts'
 import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
 import { Price, useConfig } from './price.tsx'
@@ -76,7 +76,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const topicMap = useMemo(() => new Map(topics.map((x) => [x.key, x])), [topics])
   // Not on a shared link (its profile is someone else's).
   const readings = useReadings(token, unlocked && !shared && hasReadings(prefs))
-  const profile = useLocalProfile(results)
+  const profile = useLocalProfile(results, weights)
   // The best matches of the questionnaire, as before; the readings only re-order them.
   const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: 20 })
   const key = JSON.stringify([body, token, unlocked, attempt])
@@ -101,18 +101,11 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const current = reply?.key === key ? reply : null
   const locked = !unlocked || current?.locked
   const pool = current?.data?.items ?? []
-  const local = useMemo(() => {
-    const m = new Map<string, LocalFit>()
-    if (profile) for (const p of pool) {
-      const f = readings.byId.get(p.id)
-      if (f) m.set(p.id, localFit(f, profile))
-    }
-    return m
-  }, [pool, profile, readings.byId])
+  const { fits: local, scoreOf } = useFitScores(readings.byId, profile)
   // Every programme with a reading, best first by the reading and the match.
   const rated = useMemo(
-    () => pool.filter((p) => local.has(p.id)).sort((x, y) => combinedScore(y.match, local.get(y.id)?.score) - combinedScore(x.match, local.get(x.id)?.score)),
-    [pool, local],
+    () => pool.filter((p) => scoreOf(p.id) !== undefined).sort((x, y) => combinedScore(y.match, scoreOf(y.id)) - combinedScore(x.match, scoreOf(x.id))),
+    [pool, scoreOf],
   )
   // The optional step: Claude compares the best of them with the answers here. Off unless switched on.
   const [own, setOwn] = useState(false)
@@ -127,7 +120,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({
         programmes: personalPool.map((p) => ({ id: p.id, field: p.matchedField, country: p.country })),
-        profile: { riasec: profile.riasec, subjects: Object.entries(profile.enjoy).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => k) },
+        profile: { riasec: profile.riasec, subjects: Object.entries(profile.enjoy).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => k), topics: profile.topics ?? {} },
         locale,
       }),
     }).then(async (res) => {
@@ -155,17 +148,17 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
     if (personalMap) {
       return personalPool
         .map((p) => {
-          const l = local.get(p.id)!
+          const s = scoreOf(p.id)!
           const f = personalMap.get(p.id)
-          return { p, score: f ? Math.round((l.score + f.score) / 2) : l.score, personal: f }
+          return { p, score: f ? Math.round((s + f.score) / 2) : s, personal: f }
         })
         .sort((a, b) => combinedScore(b.p.match, b.score) - combinedScore(a.p.match, a.score))
     }
     // Every match stays in the list: those with a reading by the reading and the match, the others by the match.
     return [...pool]
-      .map((p) => ({ p, score: local.get(p.id)?.score, personal: undefined as PersonalFit | undefined }))
+      .map((p) => ({ p, score: scoreOf(p.id), personal: undefined as PersonalFit | undefined }))
       .sort((a, b) => combinedScore(b.p.match, b.score) - combinedScore(a.p.match, a.score))
-  }, [pool, rated, personalPool, personalMap, local])
+  }, [pool, rated, personalPool, personalMap, scoreOf])
   const best = ranked.slice(0, shown)
   return (
     <section className="mt-8" aria-label={t.programmes.topTitle}>
@@ -791,14 +784,15 @@ function Explorer({
   const [page, setPage] = useState(0)
   const [data, setData] = useState<RankResult | null>(null)
   const results = useContext(ResultsContext)
-  const profile = useLocalProfile(results)
+  const profile = useLocalProfile(results, topics)
   // The readings are shown in the rows; the order is the one the filters ask for.
   const readings = useReadings(token, !shared && hasReadings(prefs))
-  const fitOf = (id: string) => {
-    const f = readings.byId.get(id)
-    return f && profile ? localFit(f, profile) : undefined
-  }
-  const shownItems = data?.items ?? []
+  const { fits, scoreOf } = useFitScores(readings.byId, profile)
+  // The list shows the number it is ordered by: within the page, the best by the reading and the match come first.
+  const shownItems = useMemo(() => {
+    const items = data?.items ?? []
+    return sort === 'match' ? [...items].sort((a, b) => combinedScore(b.match, scoreOf(b.id)) - combinedScore(a.match, scoreOf(a.id))) : items
+  }, [data, sort, scoreOf])
   const [loading, setLoading] = useState(false)
 
   const query = useCallback(
@@ -904,10 +898,9 @@ function Explorer({
         {loading && data && t.programmes.updating}
       </p>
       <div className="mt-3 grid gap-4">
-        {shownItems.map((p) => {
-          const fit = fitOf(p.id)
-          return <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fit} score={fit?.score} />
-        })}
+        {shownItems.map((p) => (
+          <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={scoreOf(p.id)} />
+        ))}
       </div>
       {pages > 1 && (
         <div className="mt-7 flex items-center justify-center gap-3 text-sm">
@@ -927,7 +920,8 @@ function Explorer({
 }
 
 
-function useLocalProfile(given?: Results | null): LocalProfile | null {
+/** The person's side of the comparison: interest profile, the subjects they enjoy, and the topics they gave weight (lexicon keys). */
+function useLocalProfile(given?: Results | null, topics?: Record<string, number>): LocalProfile | null {
   const context = useContext(ResultsContext)
   const results = given ?? context
   const { answers } = useAppState()
@@ -935,8 +929,8 @@ function useLocalProfile(given?: Results | null): LocalProfile | null {
     if (!results) return null
     const enjoy: Partial<Record<string, number>> = {}
     for (const [k, v] of Object.entries(answers.subjects ?? {})) if (v?.enjoy) enjoy[k] = v.enjoy
-    return { riasec: [...results.riasec.profile], enjoy }
-  }, [results, answers])
+    return { riasec: [...results.riasec.profile], enjoy, topics }
+  }, [results, answers, topics])
 }
 
 interface ResearchResponse {

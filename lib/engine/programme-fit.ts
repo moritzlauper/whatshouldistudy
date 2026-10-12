@@ -14,6 +14,12 @@ export interface ProgrammeFacts {
   riasec: number[]
   /** School subjects the programme clearly relies on, keys from SUBJECT_KEYS. */
   subjects: string[]
+  /** Topics the programme clearly covers, keys of the lexicon, most central first. */
+  topics?: string[]
+  /** The specialisations the page names, with the topics each one covers. */
+  specialisations?: Array<{ name: string; topics: string[] }>
+  /** What sets the programme apart, in the page's own language. */
+  distinctive?: string[]
   /** One sentence on what to look into before deciding. */
   check: string
   /** False when the page and the focus areas say too little to judge the content. */
@@ -22,6 +28,8 @@ export interface ProgrammeFacts {
 
 /** The person's side of the comparison, from their answers. */
 export interface LocalProfile {
+  /** The person's topics, keys of the lexicon with weights 0..1. */
+  topics?: Record<string, number>
   /** Holland profile in R I A S E C order, each 0..1. */
   riasec: number[]
   /** How much they enjoy the school subjects they answered, 1..5. */
@@ -29,7 +37,11 @@ export interface LocalProfile {
 }
 
 /** Why a programme fits: the interest types or the subjects that match. */
-export type FitReason = { kind: 'riasec'; types: RiasecKey[] } | { kind: 'subjects'; subjects: string[] }
+export type FitReason =
+  | { kind: 'riasec'; types: RiasecKey[] }
+  | { kind: 'subjects'; subjects: string[] }
+  | { kind: 'topics'; keys: string[] }
+  | { kind: 'specialisations'; names: string[] }
 
 export interface LocalFit {
   /** 0..100 from the programme's content against the profile; 50 when neutral or unknown. */
@@ -56,7 +68,7 @@ export function correlation(a: readonly number[], b: readonly number[]): number 
   return da < 1e-9 || db < 1e-9 ? 0 : num / Math.sqrt(da * db)
 }
 
-/** How the programme's content fits the profile: 60 % the interest shape, 40 % the subjects it needs. */
+/** How the programme's content fits the profile: 40 % the interest shape, 20 % the subjects it needs, 40 % the topics it covers. */
 export function localFit(f: ProgrammeFacts, profile: LocalProfile): LocalFit {
   if (!f.enough) return { score: 50, reasons: [] }
   const r = correlation(profile.riasec, f.riasec)
@@ -64,8 +76,26 @@ export function localFit(f: ProgrammeFacts, profile: LocalProfile): LocalFit {
   // The subjects it needs, by how much the person enjoys them: 1..5 becomes 0..100; unanswered counts as 3.
   const needed = f.subjects.filter((s) => (SUBJECT_KEYS as readonly string[]).includes(s))
   const subjects = needed.length ? (needed.reduce((s, k) => s + (profile.enjoy[k] ?? 3), 0) / needed.length - 1) * 25 : 50
-  const score = Math.round(Math.max(0, Math.min(100, 0.6 * interest + 0.4 * subjects)))
+  // The topics the programme covers: its own focus and those of its specialisations. It fits well when it is about what the person
+  // cares about (recall) and few of its topics are others (precision), so a broad programme scores lower than a focused one.
+  const weights = profile.topics ?? {}
+  const total = Object.values(weights).reduce((s, w) => s + w, 0)
+  const covers = [...new Set([...(f.topics ?? []), ...(f.specialisations ?? []).flatMap((s) => s.topics)])]
+  const shared = covers.filter((k) => weights[k] !== undefined).sort((a, b) => weights[b] - weights[a])
+  const recall = total > 0 ? shared.reduce((s, k) => s + weights[k], 0) / total : 0
+  const precision = covers.length ? shared.length / covers.length : 0
+  const harmonic = recall + precision > 0 ? (2 * recall * precision) / (recall + precision) : 0
+  // Without topics on either side the part is neutral, not a miss.
+  const topicScore = total > 0 && covers.length ? 100 * harmonic : 50
+  const score = Math.round(Math.max(0, Math.min(100, 0.4 * interest + 0.2 * subjects + 0.4 * topicScore)))
   const reasons: FitReason[] = []
+  // The specialisations that cover what the person cares about, strongest first: the most specific reason comes first.
+  const named = (f.specialisations ?? [])
+    .map((s) => ({ name: s.name, weight: Math.max(0, ...s.topics.map((k) => weights[k] ?? 0)) }))
+    .filter((s) => s.weight > 0)
+    .sort((a, b) => b.weight - a.weight)
+  if (named.length) reasons.push({ kind: 'specialisations', names: named.slice(0, 2).map((s) => s.name) })
+  if (shared.length) reasons.push({ kind: 'topics', keys: shared.slice(0, 3) })
   const top = Math.max(0, ...profile.riasec)
   if (r >= 0.3 && top > 0) {
     const types = RIASEC_KEYS.map((k, i) => ({ k, i }))
@@ -78,6 +108,26 @@ export function localFit(f: ProgrammeFacts, profile: LocalProfile): LocalFit {
   const liked = needed.filter((s) => (profile.enjoy[s] ?? 0) >= 4)
   if (liked.length) reasons.push({ kind: 'subjects', subjects: liked.slice(0, 3) })
   return { score, reasons }
+}
+
+/** How one person's fits spread over the programmes of a country: their mean and standard deviation. */
+export interface FitSpread {
+  mean: number
+  sd: number
+}
+
+/** The spread of the given fits; null with fewer than ten, too few to place one against. The spread is at least 5. */
+export function fitSpread(scores: number[]): FitSpread | null {
+  if (scores.length < 10) return null
+  const mean = scores.reduce((s, x) => s + x, 0) / scores.length
+  const sd = Math.sqrt(scores.reduce((s, x) => s + (x - mean) ** 2, 0) / scores.length)
+  return { mean, sd: Math.max(sd, 5) }
+}
+
+/** A fit placed against the spread: 50 is the average programme, 15 points per standard deviation, 0..100. Unplaced without a spread. */
+export function calibrated(raw: number, spread: FitSpread | null): number {
+  if (!spread) return Math.round(raw)
+  return Math.round(Math.max(0, Math.min(100, 50 + (15 * (raw - spread.mean)) / spread.sd)))
 }
 
 /** Keeps what the model returned that we can use: known ids and keys, values in range, one short sentence. */

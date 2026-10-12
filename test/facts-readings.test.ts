@@ -5,7 +5,8 @@ import { toPersonalFit } from '../lib/engine/programme-fit.ts'
 import type { StoredFact } from '../scrapers/lib/facts.ts'
 
 const reading: StoredFact = {
-  id: 'p1', url: 'https://www.unibe.ch/p1', hash: 'h', at: '2026-10-01', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], enough: true,
+  id: 'p1', url: 'https://www.unibe.ch/p1', hash: 'h', at: '2026-10-01', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], topics: ['sociology'],
+  specialisations: [{ name: 'Data Analytics', topics: ['statistics-data-science'] }], distinctive: ['Gemeinsamer Master mit der Hochschule Luzern.'], enough: true,
   checks: { de: 'Zulassung prüfen.', fr: 'Vérifier l’admission.', it: 'Verificare l’ammissione.', en: 'Check admission.' },
 }
 
@@ -15,7 +16,11 @@ test('a reading is shown in the reader’s language, English when that language 
   assert.equal(factsForLocale(reading, 'fr-CH').check, 'Vérifier l’admission.')
   assert.equal(factsForLocale(reading, 'it-CH').check, 'Verificare l’ammissione.')
   assert.equal(factsForLocale({ ...reading, checks: { de: '', fr: '', it: '', en: 'Check.' } }, 'de-CH').check, 'Check.')
-  assert.deepEqual(factsForLocale(reading, 'en'), { id: 'p1', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], check: 'Check admission.', enough: true })
+  assert.deepEqual(factsForLocale(reading, 'en'), {
+    id: 'p1', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], topics: ['sociology'],
+    specialisations: [{ name: 'Data Analytics', topics: ['statistics-data-science'] }], distinctive: ['Gemeinsamer Master mit der Hochschule Luzern.'],
+    check: 'Check admission.', enough: true,
+  })
 })
 
 test('a personal reply is kept only for the programmes asked about, with scores in range', () => {
@@ -40,7 +45,7 @@ test('a reply without a score gets one from its fit', () => {
 })
 
 test('only a reading with every field of the right kind and size is stored', () => {
-  const ok = { id: 'p1', url: 'https://www.unibe.ch/p1', hash: 'a'.repeat(64), at: '2026-10-01', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], enough: true, checks: { de: 'Prüfen.', fr: 'Vérifier.', it: 'Verificare.', en: 'Check.' } }
+  const ok = { id: 'p1', url: 'https://www.unibe.ch/p1', hash: 'a'.repeat(64), at: '2026-10-01', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], topics: [], specialisations: [], distinctive: [], enough: true, checks: { de: 'Prüfen.', fr: 'Vérifier.', it: 'Verificare.', en: 'Check.' } }
   assert.deepEqual(validStoredFact(ok), ok)
   assert.equal(validStoredFact({ ...ok, riasec: [1, 4, 2, 3, 1, 9] }), null)
   assert.equal(validStoredFact({ ...ok, riasec: [1, 4, 2] }), null)
@@ -52,4 +57,22 @@ test('only a reading with every field of the right kind and size is stored', () 
   assert.equal(validStoredFact({ ...ok, checks: { de: 'a'.repeat(301), fr: 'b', it: 'c', en: 'd' } }), null)
   assert.equal(validStoredFact({ ...ok, id: '' }), null)
   assert.equal(validStoredFact(null), null)
+})
+
+test('a reading from before topics, specialisations and distinctive sentences is still kept, with none of them', () => {
+  const before = { id: 'p1', url: 'https://www.unibe.ch/p1', hash: 'a'.repeat(64), at: '2026-10-01', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], enough: true, checks: { de: 'Prüfen.', fr: 'Vérifier.', it: 'Verificare.', en: 'Check.' } }
+  assert.deepEqual(validStoredFact(before), { ...before, topics: [], specialisations: [], distinctive: [] })
+})
+
+test('a specialisation or a distinctive sentence is kept only as a name, known topics and a short sentence', () => {
+  const ok = {
+    id: 'p1', url: 'https://www.unibe.ch/p1', hash: 'a'.repeat(64), at: '2026-10-01', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'],
+    topics: ['sociology'], specialisations: [{ name: 'Data Analytics', topics: ['statistics-data-science'] }], distinctive: ['Gemeinsamer Master mit der Hochschule Luzern.'],
+    enough: true, checks: { de: 'Prüfen.', fr: 'Vérifier.', it: 'Verificare.', en: 'Check.' },
+  }
+  assert.deepEqual(validStoredFact(ok), ok)
+  assert.equal(validStoredFact({ ...ok, specialisations: [{ name: 'x'.repeat(91), topics: [] }] }), null)
+  assert.equal(validStoredFact({ ...ok, specialisations: [{ name: 'Data', topics: ['astrology'] }] }), null)
+  assert.equal(validStoredFact({ ...ok, distinctive: ['x'.repeat(161)] }), null)
+  assert.equal(validStoredFact({ ...ok, topics: ['society'] }), null)
 })

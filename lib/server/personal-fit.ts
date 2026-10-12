@@ -20,6 +20,8 @@ export interface PersonalProfile {
   riasec: number[]
   /** School subjects the person enjoys, keys from SUBJECT_KEYS. */
   subjects: string[]
+  /** Topics the person cares about, keys of the lexicon with weights 0..1. */
+  topics: Record<string, number>
 }
 
 export interface PersonalRequest {
@@ -66,7 +68,7 @@ const SCHEMA = {
 
 const system = (locale: Locale) => `You help a school leaver see how specific degree programmes fit their own answers from a study-choice questionnaire.
 
-For each programme you get its name, institution, level, the focus areas listed for it, and a reading of its official page: how strongly it involves each interest type R I A S E C (0..5), and which school subjects it clearly relies on. You also get the person's interest profile (R I A S E C, each 0..1) and the school subjects they enjoy.
+For each programme you get its name, institution, level, the focus areas listed for it, and a reading of its official page: how strongly it involves each interest type R I A S E C (0..5), which school subjects it clearly relies on, the topics it covers, its specialisations (Vertiefungen) with the topics each one covers, and what the page says sets it apart. You also get the person's interest profile (R I A S E C, each 0..1), the school subjects they enjoy and the topics they care about (keys with weights 0..1).
 
 For each programme give:
 - "fit": 1 (little in common) to 5 (very close).
@@ -74,7 +76,7 @@ For each programme give:
 - "reasons": one or two short sentences in ${LANGUAGE[locale]}, addressed to the person informally (du, tu or you, as the language requires), on why it fits or does not, in terms of this programme's content and the person's interests and subjects.
 - "enough_info": false when the reading and the focus areas say too little about the content to judge. Then give fit 3, score 50 and no reasons.
 
-Rules: base every statement on the reading and the listed focus areas. Do not invent specialisations, modules or admission rules. The profile is a rough self-description, not a diagnosis: make no statements about mental health or personality.`
+Rules: base every statement on the reading and the listed focus areas. Name only what the person's profile and the programme have in common, or a clear gap between them. Never name an interest, topic or subject the person did not give, and do not add interests of your own. Do not invent specialisations, modules or admission rules. The profile is a rough self-description, not a diagnosis: make no statements about mental health or personality.`
 
 const block = (p: FoundProgramme['p'], f: StoredFact) =>
   [
@@ -84,7 +86,13 @@ const block = (p: FoundProgramme['p'], f: StoredFact) =>
     `Level: ${p.level}`,
     p.focus?.length ? `Listed focus areas: ${p.focus.join('; ')}` : '',
     f.enough
-      ? `Reading of the official page, interest types R I A S E C (0..5): ${f.riasec.join(' ')}\nSubjects it relies on: ${f.subjects.join(', ') || 'none stated'}`
+      ? [
+          `Reading of the official page, interest types R I A S E C (0..5): ${f.riasec.join(' ')}`,
+          `Subjects it relies on: ${f.subjects.join(', ') || 'none stated'}`,
+          `Topics it covers: ${(f.topics ?? []).join(', ') || 'none stated'}`,
+          `Specialisations it names, with their topics: ${(f.specialisations ?? []).map((s) => `${s.name} (${s.topics.join(', ') || 'no topic'})`).join('; ') || 'none named'}`,
+          `What the page says sets it apart: ${(f.distinctive ?? []).join(' ') || 'nothing beyond the name'}`,
+        ].join('\n')
       : 'Reading: the official page says too little to judge the content.',
     '</programme>',
   ]
@@ -95,6 +103,7 @@ const profileText = (pr: PersonalProfile) =>
   [
     `Interest profile, R I A S E C (0..1): ${pr.riasec.map((x) => x.toFixed(2)).join(' ')}`,
     `School subjects they enjoy: ${pr.subjects.join(', ') || 'none named'}`,
+    `Topics they care about, weights 0..1: ${Object.entries(pr.topics).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v.toFixed(2)}`).join(', ') || 'none named'}`,
   ].join('\n')
 
 /** The comparison and what it cost; null when it cannot be made (no key, budget used up, no readings). */

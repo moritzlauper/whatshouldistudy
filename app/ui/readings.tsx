@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CONTACT, withBase } from '@/lib/site.ts'
 import { riasecLabel, subjectLabel } from '@/lib/site/labels.ts'
-import { FACTS_COUNTRIES, type FitReason, type LocalFit, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
+import { FACTS_COUNTRIES, calibrated, fitSpread, localFit, type FitReason, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
+import { topicLabel } from '@/lib/engine/classifier.ts'
 import type { SubjectKey } from '@/lib/taxonomy/fields.ts'
 import { useSite } from './site-context.tsx'
 
@@ -68,10 +69,33 @@ export function useReadings(token: string | null, enabled: boolean) {
 export const combinedScore = (match: number, score?: number) => (score === undefined ? match : Math.round(0.8 * score + 0.2 * match))
 export const dotsFor = (n: number) => (n >= 80 ? 5 : n >= 60 ? 4 : n >= 40 ? 3 : n >= 20 ? 2 : 1)
 
-const reasonKey = (r: FitReason) => (r.kind === 'riasec' ? `i-${r.types.join('')}` : `s-${r.subjects.join('')}`)
+/**
+ * Each programme's fit with the person, from the readings in this browser, placed against every reading the country has:
+ * 50 is the average programme and 65 one spread above it. A high number is then a clear fit, not a generic overlap.
+ */
+export function useFitScores(byId: Map<string, ProgrammeFacts>, profile: LocalProfile | null) {
+  return useMemo(() => {
+    const fits = new Map<string, LocalFit>()
+    if (profile) for (const f of byId.values()) fits.set(f.id, localFit(f, profile))
+    const spread = fitSpread([...byId.values()].filter((f) => f.enough).map((f) => fits.get(f.id)?.score ?? 50))
+    const scoreOf = (id: string): number | undefined => {
+      const f = byId.get(id)
+      const fit = fits.get(id)
+      return f?.enough && fit ? calibrated(fit.score, spread) : undefined
+    }
+    return { fits, scoreOf }
+  }, [byId, profile])
+}
 
-/** A reason in the page's language: the interest types or the subjects it names. */
-function fitReasonText(r: FitReason, locale: Parameters<typeof riasecLabel>[1], a: { reasonRiasec: (names: string) => string; reasonSubjects: (names: string) => string }): string {
+const reasonKey = (r: FitReason) =>
+  r.kind === 'riasec' ? `i-${r.types.join('')}` : r.kind === 'topics' ? `t-${r.keys.join('')}` : r.kind === 'specialisations' ? `v-${r.names.join('')}` : `s-${r.subjects.join('')}`
+
+type ReasonTexts = { reasonRiasec: (names: string) => string; reasonSubjects: (names: string) => string; reasonTopics: (names: string) => string; reasonSpecialisations: (names: string) => string }
+
+/** A reason in the page's language: the specialisations, topics, interest types or subjects it names. */
+function fitReasonText(r: FitReason, locale: Parameters<typeof riasecLabel>[1], a: ReasonTexts): string {
+  if (r.kind === 'specialisations') return a.reasonSpecialisations(r.names.join(' · '))
+  if (r.kind === 'topics') return a.reasonTopics(r.keys.map((k) => topicLabel(k)).join(' · '))
   if (r.kind === 'riasec') return a.reasonRiasec(r.types.map((k) => riasecLabel(k, locale).name).join(' · '))
   return a.reasonSubjects(r.subjects.map((s) => subjectLabel(s as SubjectKey, locale)).join(' · '))
 }
@@ -102,6 +126,22 @@ export function AiBlock({ fact, fit, personal, personalStatus }: { fact: Program
       {personalStatus === 'loading' && <p className="animate-pulse text-muted">{a.own.loading}</p>}
       {(personalStatus === 'failed' || personalStatus === 'missing') && <p className="text-muted">{a.own.failed}</p>}
       {personalStatus === 'outside' && <p className="text-muted">{a.own.notRated}</p>}
+      {fact.specialisations?.length ? (
+        <div>
+          <p className="font-bold">{a.specialisationsTitle}</p>
+          <ul className="mt-1 list-disc space-y-1 pl-5">
+            {fact.specialisations.map((s) => <li key={s.name}>{s.name}</li>)}
+          </ul>
+        </div>
+      ) : null}
+      {fact.distinctive?.length ? (
+        <div>
+          <p className="font-bold">{a.distinctiveTitle}</p>
+          <ul className="mt-1 list-disc space-y-1 pl-5">
+            {fact.distinctive.map((d) => <li key={d}>{d}</li>)}
+          </ul>
+        </div>
+      ) : null}
       {fact.check && (
         <p>
           <span className="font-bold">{a.check}</span> {fact.check}
