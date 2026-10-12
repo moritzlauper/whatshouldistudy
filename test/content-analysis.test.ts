@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { CONTENT_MAX, CONTENT_SAMPLE, contentPlan, contentRequest, contentVerdicts, type ContentVerdict } from '../lib/engine/content-analysis.ts'
+import { CONTENT_BATCH, CONTENT_MAX, CONTENT_SAMPLE, classifyInBatches, contentPlan, contentRequest, contentVerdicts, type ContentItem, type ContentVerdict } from '../lib/engine/content-analysis.ts'
 import { accumulate } from '../lib/engine/accumulate.ts'
 import { score } from '../lib/engine/scoring.ts'
 import { userTopics, topicWeights } from '../lib/engine/topics.ts'
@@ -40,7 +40,7 @@ test('the maximum classifies up to 2000 titles; their four-digit ids reach the s
   const plan = contentPlan(items, Date.now(), CONTENT_MAX)
   assert.equal(plan.items.length, CONTENT_MAX)
   assert.equal(plan.items[plan.items.length - 1].id, String(CONTENT_MAX - 1))
-  assert.ok(contentRequest(plan.items.slice(CONTENT_MAX - 40)), 'the last batch passes the server check')
+  assert.ok(contentRequest(plan.items.slice(CONTENT_MAX - CONTENT_BATCH)), 'the last batch passes the server check')
   assert.equal(contentRequest([{ id: '12345', kind: 'watch', title: 'Titel', channel: 'Kanal', context: [] }]), null)
   assert.equal(contentPlan(items).items.length, CONTENT_SAMPLE)
 })
@@ -91,13 +91,53 @@ test('a channel sample gives unseen titles weaker context without inventing acti
   assert.equal(accumulate(interpreted, { source: 'takeout', label: 'Test' }).totalWeight, accumulate(items, { source: 'takeout', label: 'Test' }).totalWeight)
 })
 
-test('unknown or incomplete model classifications are rejected and uncertain subjects stay unassigned', () => {
+test('a bad part of a model answer is dropped and the good answers still count; uncertain subjects stay unassigned', () => {
   const ids = new Set(['0'])
   const raw = { id: '0', reason: 'Unclear title.', fields: [{ id: 'political-science', confidence: .2 }] }
   assert.deepEqual(contentVerdicts([raw], ids)[0].fields, {})
-  for (const invalid of [[], [raw, raw], [{ ...raw, id: 'other' }], [{ ...raw, fields: [{ id: 'invented', confidence: 1 }] }], [{ ...raw, fields: [{ id: 'sociology', confidence: 2 }] }]]) assert.throws(() => contentVerdicts(invalid, ids))
+  // A bad part of an answer costs only itself; the good answers around it still count.
+  assert.deepEqual(contentVerdicts([], ids), [])
+  assert.equal(contentVerdicts([raw, raw], ids).length, 1, 'a repeated id counts once')
+  assert.deepEqual(contentVerdicts([{ ...raw, id: 'other' }], ids), [], 'a foreign id is dropped')
+  assert.deepEqual(contentVerdicts([{ ...raw, fields: [{ id: 'invented', confidence: 1 }] }], ids)[0].fields, {}, 'an unknown field is dropped and the reason stays')
+  assert.deepEqual(contentVerdicts([{ ...raw, fields: [{ id: 'sociology', confidence: 2 }] }], ids)[0].fields, {}, 'a confidence outside 0 to 1 is not trusted')
+  assert.deepEqual(contentVerdicts([{ ...raw, fields: [{ id: 'sociology', confidence: .9 }, { id: 'political-science', confidence: .8 }, { id: 'history', confidence: .7 }, { id: 'psychology', confidence: .65 }] }], ids)[0].fields, { sociology: .9, 'political-science': .8, history: .7 }, 'at most three connections, the strongest first')
   assert.deepEqual(contentRequest([{ id: '0', kind: 'watch', title: 'Stop stanning politicians.', channel: 'channel', context: [], account: 'must-not-leave' }]), [{ id: '0', kind: 'watch', title: 'Stop stanning politicians.', channel: 'channel', context: [] }])
   assert.equal(contentRequest([{ id: '0', kind: 'google', title: 'private search', channel: '', context: [] }]), null)
+})
+
+test('a group that keeps failing is left out, the others still count, and a limit stops the run', async () => {
+  const items: ContentItem[] = Array.from({ length: 25 }, (_, i): ContentItem => ({ id: String(i), kind: 'watch', title: `Titel ${i}`, channel: 'Kanal', context: [] }))
+  const tries = new Map<string, number>()
+  const send = async (group: ContentItem[]): Promise<ContentVerdict[]> => {
+    const key = group[0].id
+    tries.set(key, (tries.get(key) ?? 0) + 1)
+    if (key === '10' && tries.get(key)! < 3) throw new Error('failed')
+    if (key === '20') throw new Error('failed')
+    return group.map((x) => ({ id: x.id, fields: {}, reason: 'Ein Satz.' }))
+  }
+  const progress: number[] = []
+  const result = await classifyInBatches(items, send, { pause: 0, onProgress: (n) => progress.push(n) })
+  assert.equal(result.limited, false)
+  assert.equal(result.verdicts.length, 20, 'the group that never answers is left out')
+  assert.equal(tries.get('10'), 3, 'a group that fails is tried again')
+  assert.equal(tries.get('20'), 3)
+  assert.deepEqual(progress, [20])
+  let sent = 0
+  const limited = await classifyInBatches(items, async (group) => {
+    sent++
+    if (sent > 1) throw new Error('limit')
+    return group.map((x) => ({ id: x.id, fields: {}, reason: 'Ein Satz.' }))
+  }, { parallel: 1, pause: 0 })
+  assert.equal(limited.limited, true)
+  assert.equal(sent, 2, 'after the limit no further group is sent')
+  assert.equal(limited.verdicts.length, CONTENT_BATCH)
+})
+
+test('a partial answer is applied to the titles it covers', () => {
+  const plan = contentPlan(Array.from({ length: 3 }, (_, i) => watch(`Titel ${i} über Soziologie`)))
+  const applied = plan.apply([{ id: '0', fields: { sociology: .9 }, reason }])
+  assert.equal(applied.filter((x) => x.meaning).length, 1)
 })
 
 test('content explanations remain complete beyond 300 characters', () => {

@@ -62,7 +62,7 @@ export function prepareContentAnalysis(input: ContentAnalysisInput, size = CONTE
   const plan = contentPlan(input.items, Date.now(), size)
   return { items: plan.items, eligible: plan.eligible, apply: (verdicts: ContentVerdict[]) => accumulate(
     [...plan.apply(verdicts), ...input.otherItems],
-    { source: 'takeout', label: 'Google Takeout', stats: { ...input.stats, aiItems: plan.items.length, aiEligible: plan.eligible } },
+    { source: 'takeout', label: 'Google Takeout', stats: { ...input.stats, aiItems: plan.items.length, aiEligible: plan.eligible, aiClassified: verdicts.length } },
   ) }
 }
 

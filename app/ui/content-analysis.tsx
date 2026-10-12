@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { CONTENT_BATCH, CONTENT_MAX, contentVerdicts, type ContentVerdict } from '@/lib/engine/content-analysis.ts'
+import { CONTENT_MAX, CONTENT_MIN_SHARE, classifyInBatches, contentVerdicts, type ContentItem, type ContentVerdict } from '@/lib/engine/content-analysis.ts'
 import { prepareContentAnalysis } from '@/lib/sources/exports.ts'
 import { withBase } from '@/lib/site.ts'
 import { getState, loadContentInput, update, useAppState } from '@/lib/store.ts'
@@ -68,6 +68,18 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
     setWide(true)
   }
 
+  // One request for one group. Anything that is not a usable answer throws or comes back empty, and classifyInBatches tries the group again.
+  async function sendBatch(group: ContentItem[], signal: AbortSignal): Promise<ContentVerdict[]> {
+    const response = await fetch(withBase('/api/content-analysis'), {
+      method: 'POST', signal,
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ consent: true, source: 'takeout', locale, items: group }),
+    })
+    if (!response.ok) throw new Error(response.status === 429 ? 'limit' : 'failed')
+    const body = await response.json() as { items?: ContentVerdict[] }
+    return contentVerdicts((body.items ?? []).map((x) => ({ ...x, fields: Object.entries(x.fields ?? {}).map(([id, confidence]) => ({ id, confidence })) })), new Set(group.map((x) => x.id)))
+  }
+
   async function analyse() {
     if (!base || !plan?.items.length || status !== 'idle' || sending.current) return
     // A double click, replacement or deletion cannot start another batch.
@@ -80,29 +92,26 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
     setDone(0)
     setStatus('running')
     try {
-      const verdicts: ContentVerdict[] = []
-      for (let offset = 0; offset < plan.items.length; offset += CONTENT_BATCH) {
-        if (task.signal.aborted || getState().summaries.takeout !== base) return
-        const items = plan.items.slice(offset, offset + CONTENT_BATCH)
-        const response = await fetch(withBase('/api/content-analysis'), {
-          method: 'POST', signal: task.signal,
-          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-          body: JSON.stringify({ consent: true, source: 'takeout', locale, items }),
-        })
-        if (!response.ok) throw new Error(response.status === 429 ? 'limit' : 'failed')
-        const body = await response.json() as { items: ContentVerdict[] }
-        verdicts.push(...contentVerdicts(body.items.map((x) => ({ ...x, fields: Object.entries(x.fields).map(([id, confidence]) => ({ id, confidence })) })), new Set(items.map((x) => x.id))))
-        if (task.signal.aborted) return
-        setDone(verdicts.length)
-      }
-      const summary = plan.apply(verdicts)
+      const result = await classifyInBatches(plan.items, (group) => sendBatch(group, task.signal), {
+        stopped: () => task.signal.aborted || getState().summaries.takeout !== base,
+        onProgress: setDone,
+      })
+      if (task.signal.aborted || getState().summaries.takeout !== base) return
+      if (result.limited) throw new Error('limit')
+      // Titles of a group that failed for good are left out; the result replaces the earlier one only when most titles were classified.
+      if (result.verdicts.length < CONTENT_MIN_SHARE * plan.items.length) throw new Error('failed')
+      const summary = plan.apply(result.verdicts)
       if (task.signal.aborted) return
       update((s) => s.summaries.takeout !== base ? s : {
         ...s, contentAnalysis: { baseCollectedAt: base.collectedAt, summary, enabled: true, compare: { status: 'pending' } },
       })
       setWide(false)
     } catch (e) {
-      if (!task.signal.aborted) setError(e instanceof Error && e.message === 'limit' ? a.limit : a.failed)
+      if (!task.signal.aborted) {
+        setError(e instanceof Error && e.message === 'limit' ? a.limit : a.failed)
+        // Back to the result still in use, with the message above it.
+        setWide(false)
+      }
     } finally {
       if (active.current === task) { sending.current = false; setStatus('idle') }
     }
@@ -114,6 +123,7 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
     {ai && !wide ? <div className="space-y-2">
       <p>{ai.enabled ? a.active : a.off}</p>
       <p className="text-muted">{a.sample(Number(ai.summary.stats.aiItems ?? 0), Number(ai.summary.stats.aiEligible ?? 0))} {a.contextNote}</p>
+      {Number(ai.summary.stats.aiClassified ?? ai.summary.stats.aiItems ?? 0) < Number(ai.summary.stats.aiItems ?? 0) && <p>{a.partial(Number(ai.summary.stats.aiClassified ?? 0), Number(ai.summary.stats.aiItems ?? 0))}</p>}
       {comparison && <ContentAnalysisChanges comparison={comparison} />}
       {programmes && <ProgrammeChanges input={programmes} token={token} />}
       <div className="flex flex-wrap gap-2">

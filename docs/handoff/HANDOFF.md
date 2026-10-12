@@ -10,6 +10,16 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
 
+## Inhaltsanalyse: kleine Gruppen, Teilergebnis, Wiederholung (12.10.2026)
+
+- Ursache des Abbruchs, soweit im Code belegt: Eine Gruppe von 40 Titeln wurde ganz verworfen, sobald ein einziger Titel fehlte, doppelt kam, ein viertes Fach hatte oder eine Zahl ausserhalb von 0 bis 1 lag. Eine Anfrage mit 40 Titeln musste zudem in 45 Sekunden fertig sein. Beim Maximum-Lauf brach ein einzelner Ausfall den ganzen Lauf ab. Welcher Fall im Live-Betrieb auftrat, ist nicht belegt; in der Entwicklungsumgebung fehlt der Schlüssel.
+- Gruppen zu je 10 Titeln, vier Anfragen gleichzeitig. Eine Gruppe wird bis zu dreimal versucht. Bleibt sie danach leer, fehlen nur ihre Titel; die übrigen zählen weiter.
+- Ungültige Teile einer Antwort werden einzeln verworfen: fremde oder doppelte IDs, leere Begründung, unbekanntes Fach, Zahl ausserhalb 0 bis 1. Höchstens drei Verbindungen je Titel, die stärksten zuerst.
+- Ein Ergebnis ersetzt das bisherige nur, wenn mindestens 80 Prozent der Titel eingeordnet sind. Sonst bleibt das bisherige Ergebnis sichtbar, darüber steht die Meldung. Teilergebnisse zeigen «Eingeordnet: n von m».
+- Kosten für 2000 Einträge: rund 0,13 $ statt 0,10 $, weil jede Anfrage Systemtext und Fächerliste erneut schickt. Dauer geschätzt etwa 8 Minuten. Offene Tabs mit dem alten Stand einmal neu laden.
+
+Prüfungen: TypeScript grün; die neuen Tests in `test/content-analysis.test.ts` grün. Im Browser mit simulierten Ausfällen geprüft: Wiederholung (Gruppe dreimal geschickt, vollständig), Teilergebnis (56 von 66), Abbruch unter 80 Prozent (bisheriges Ergebnis bleibt sichtbar). Nicht geprüft: echtes Modell und echte Laufzeiten.
+
 ## Vergleich der 50 besten Studiengänge nach der Inhaltsanalyse (12.10.2026)
 
 - Nach dem Lauf «Verlauf mit KI verstehen» vergleicht Claude automatisch die 50 besten Studiengänge mit den neuen Angaben. Das geht in drei Anfragen an `/api/personal-fit` (20, 20 und 10 Programme); die Grenze von 20 pro Anfrage bleibt bestehen.

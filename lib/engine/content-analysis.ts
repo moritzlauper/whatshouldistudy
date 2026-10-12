@@ -1,12 +1,16 @@
 import { FIELD_BY_ID } from '../taxonomy/fields.ts'
-import { exactBatch } from '../ai-batch.ts'
 import { isStudyInfo } from './text.ts'
 import type { SignalItem } from './types.ts'
 
 export const CONTENT_SAMPLE = 240
 /** The most titles one run classifies; their ids have up to four digits. */
 export const CONTENT_MAX = 2000
-export const CONTENT_BATCH = 40
+/** Titles per request: small enough to finish well inside the server's time limit, and one bad answer costs only its own group. */
+export const CONTENT_BATCH = 10
+/** Requests in flight at once. */
+export const CONTENT_PARALLEL = 4
+/** Share of the sampled titles that must be classified before a result replaces the earlier one. */
+export const CONTENT_MIN_SHARE = 0.8
 
 /** Only user-supplied export titles. No API metadata, URLs, account IDs or dates. */
 export interface ContentItem {
@@ -85,17 +89,87 @@ export function contentPlan(items: readonly SignalItem[], now = Date.now(), size
   }
 }
 
-/** Reject malformed batches; keep only confident connections to known fields. */
+/**
+ * Keeps every connection the model gave in the right form and drops only the part that breaks a rule:
+ * an unknown, repeated or foreign id, an empty reason, an unknown field, a confidence outside 0 to 1.
+ * Only connections of 0.6 or more count, at most three of them, the strongest first.
+ */
 export function contentVerdicts(raw: unknown, ids: ReadonlySet<string>): ContentVerdict[] {
-  return exactBatch(raw, ids).map((x) => {
-    if (!Array.isArray(x.fields) || x.fields.length > 3 || typeof x.reason !== 'string' || !x.reason.trim()) throw new Error('Invalid content classification')
-    const fields: Record<string, number> = {}
-    for (const f of x.fields) {
-      if (!f || typeof f.id !== 'string' || !FIELD_BY_ID[f.id] || typeof f.confidence !== 'number' || !Number.isFinite(f.confidence) || f.confidence < 0 || f.confidence > 1) throw new Error('Invalid subject connection')
-      if (f.confidence >= .6) fields[f.id] = Math.max(fields[f.id] ?? 0, f.confidence)
+  if (!Array.isArray(raw)) return []
+  const seen = new Set<string>()
+  const out: ContentVerdict[] = []
+  for (const x of raw as Array<Record<string, unknown>>) {
+    const rawId = x?.id
+    const rawReason = x?.reason
+    const id = typeof rawId === 'string' ? rawId : ''
+    const reason = typeof rawReason === 'string' ? rawReason.trim() : ''
+    if (!ids.has(id) || seen.has(id) || !reason) continue
+    seen.add(id)
+    const strongest: Record<string, number> = {}
+    for (const f of Array.isArray(x.fields) ? (x.fields as Array<Record<string, unknown>>) : []) {
+      const field = typeof f?.id === 'string' ? f.id : ''
+      const confidence = f?.confidence
+      if (!FIELD_BY_ID[field] || typeof confidence !== 'number' || !(confidence >= 0 && confidence <= 1) || confidence < .6) continue
+      strongest[field] = Math.max(strongest[field] ?? 0, confidence)
     }
-    return { id: x.id as string, fields, reason: x.reason.trim() }
-  })
+    out.push({ id, fields: Object.fromEntries(Object.entries(strongest).sort((a, b) => b[1] - a[1]).slice(0, 3)), reason })
+  }
+  return out
+}
+
+export interface BatchOptions {
+  /** Titles per request; CONTENT_BATCH by default. */
+  batch?: number
+  /** Requests in flight at once; CONTENT_PARALLEL by default. */
+  parallel?: number
+  /** Tries per group, the first one included. */
+  attempts?: number
+  /** Wait before the next try in milliseconds, multiplied by the number of the try so far. */
+  pause?: number
+  /** Asked before each try; true stops the run. */
+  stopped?: () => boolean
+  onProgress?: (classified: number) => void
+}
+
+/**
+ * Sends the titles in groups, a few at a time. A group that fails or answers nothing usable is tried
+ * again; one that still fails is left out, so the others still count. A limit answer stops the run.
+ */
+export async function classifyInBatches(
+  items: readonly ContentItem[],
+  send: (group: ContentItem[]) => Promise<ContentVerdict[]>,
+  options: BatchOptions = {},
+): Promise<{ verdicts: ContentVerdict[]; limited: boolean }> {
+  const size = options.batch ?? CONTENT_BATCH
+  const parallel = options.parallel ?? CONTENT_PARALLEL
+  const attempts = options.attempts ?? 3
+  const pause = options.pause ?? 1500
+  const stopped = () => options.stopped?.() ?? false
+  const groups: ContentItem[][] = []
+  for (let i = 0; i < items.length; i += size) groups.push(items.slice(i, i + size))
+  const runGroup = async (group: ContentItem[]): Promise<ContentVerdict[] | 'limit' | null> => {
+    for (let attempt = 1; attempt <= attempts && !stopped(); attempt++) {
+      try {
+        const answer = await send(group)
+        if (answer.length) return answer
+      } catch (e) {
+        if (e instanceof Error && e.message === 'limit') return 'limit'
+      }
+      if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, pause * attempt))
+    }
+    return null
+  }
+  const verdicts: ContentVerdict[] = []
+  let limited = false
+  for (let i = 0; i < groups.length && !limited && !stopped(); i += parallel) {
+    const answers = await Promise.all(groups.slice(i, i + parallel).map(runGroup))
+    for (const answer of answers) {
+      if (answer === 'limit') limited = true
+      else if (answer) verdicts.push(...answer)
+    }
+    options.onProgress?.(verdicts.length)
+  }
+  return { verdicts, limited }
 }
 
 /** Construct an allowlisted request instead of forwarding an uploaded object. */
