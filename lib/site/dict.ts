@@ -55,6 +55,7 @@ const CONTENT_AI = {
     failed: 'The content analysis could not be completed. Your previous result is still in use.', limit: 'The AI budget is used up. Your previous result is still in use.',
     active: 'AI content analysis is included. Frequency, age and subscriptions retain their weights; the questionnaire remains the basis when completed.',
     off: 'The original analysis is in use. The AI summary is saved only in this browser.', disable: 'Use the original analysis', enable: 'Use the saved AI analysis', remove: 'Delete AI analysis', evidence: 'AI interpretation',
+    more: 'Maximum: classify up to 2000 entries', moreHint: 'Entries go to Claude in groups, one after another. Keep this tab open until everything is classified.',
   },
   de: {
     channel: 'Kanalkontext', channelEvidence: 'KI-Kanalkontext', contextNote: 'Wiederkehrende Themen in den Kanalbeispielen liefern schwächere Hinweise für Videos ausserhalb der Stichprobe. Sie sind als Kanalkontext gekennzeichnet, nicht als Einordnung dieser einzelnen Videos.',
@@ -70,6 +71,7 @@ const CONTENT_AI = {
     failed: 'Die Inhaltsanalyse konnte nicht abgeschlossen werden. Dein bisheriges Ergebnis bleibt bestehen.', limit: 'Das KI-Budget ist aufgebraucht. Dein bisheriges Ergebnis bleibt bestehen.',
     active: 'Die KI-Inhaltsanalyse ist einbezogen. Häufigkeit, Alter und Abos behalten ihre Gewichtung; ein ausgefüllter Interessenfragebogen bleibt die Grundlage.',
     off: 'Die ursprüngliche Analyse wird verwendet. Die KI-Zusammenfassung ist nur in diesem Browser gespeichert.', disable: 'Ursprüngliche Analyse verwenden', enable: 'Gespeicherte KI-Analyse verwenden', remove: 'KI-Analyse löschen', evidence: 'KI-Einordnung',
+    more: 'Maximum: bis zu 2000 Einträge einordnen', moreHint: 'Die Einträge gehen nacheinander in Gruppen an Claude. Lass diesen Tab offen, bis alles eingeordnet ist.',
   },
   fr: {
     channel: 'Contexte de la chaîne', channelEvidence: 'Contexte de chaîne par l’IA', contextNote: 'Les sujets récurrents des exemples donnent des indices plus faibles pour les vidéos hors échantillon. Ils sont signalés comme contexte de chaîne, pas comme analyse de ces vidéos.',
@@ -85,6 +87,7 @@ const CONTENT_AI = {
     failed: 'L’analyse n’a pas pu être terminée. Ton résultat précédent reste utilisé.', limit: 'Le budget IA est épuisé. Ton résultat précédent reste utilisé.',
     active: 'L’analyse IA est incluse. Fréquence, ancienneté et abonnements gardent leur poids ; le questionnaire rempli reste la base.',
     off: 'L’analyse initiale est utilisée. Le résumé IA reste seulement dans ce navigateur.', disable: 'Utiliser l’analyse initiale', enable: 'Utiliser l’analyse IA enregistrée', remove: 'Supprimer l’analyse IA', evidence: 'Interprétation IA',
+    more: 'Maximum : classer jusqu’à 2000 entrées', moreHint: 'Les entrées partent vers Claude par groupes, les unes après les autres. Garde cet onglet ouvert jusqu’à la fin du classement.',
   },
   it: {
     channel: 'Contesto del canale', channelEvidence: 'Contesto del canale IA', contextNote: 'I temi ricorrenti negli esempi danno indicazioni più deboli per i video fuori dal campione. Sono indicati come contesto del canale, non come analisi di quei video.',
@@ -100,6 +103,7 @@ const CONTENT_AI = {
     failed: 'L’analisi non è stata completata. Resta in uso il risultato precedente.', limit: 'Il budget IA è esaurito. Resta in uso il risultato precedente.',
     active: 'L’analisi IA è inclusa. Frequenza, età e iscrizioni mantengono il loro peso; il questionario compilato resta la base.',
     off: 'È in uso l’analisi originale. Il riepilogo IA è salvato solo in questo browser.', disable: 'Usa l’analisi originale', enable: 'Usa l’analisi IA salvata', remove: 'Elimina analisi IA', evidence: 'Interpretazione IA',
+    more: 'Massimo: classifica fino a 2000 voci', moreHint: 'Le voci vanno a Claude a gruppi, uno dopo l’altro. Tieni aperta questa scheda fino a quando tutto è classificato.',
   },
 }
 

@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { CONTENT_SAMPLE, contentPlan, contentRequest, contentVerdicts, type ContentVerdict } from '../lib/engine/content-analysis.ts'
+import { CONTENT_MAX, CONTENT_SAMPLE, contentPlan, contentRequest, contentVerdicts, type ContentVerdict } from '../lib/engine/content-analysis.ts'
 import { accumulate } from '../lib/engine/accumulate.ts'
 import { score } from '../lib/engine/scoring.ts'
 import { userTopics, topicWeights } from '../lib/engine/topics.ts'
@@ -33,6 +33,16 @@ test('semantic subjects reach field ranking, evidence and programme fit without 
   const fit = localFit({ id: 'politics', enough: true, riasec: [1, 4, 2, 3, 3, 2], subjects: [], topics: ['political-science'], check: '' }, { riasec: [0, 1, 0, 1, 0, 0], enjoy: {}, topics })
   assert.ok(fit.reasons.some((r) => r.kind === 'topics'))
   assert.equal(items[0].meaning, undefined, 'the original remains available')
+})
+
+test('the maximum classifies up to 2000 titles; their four-digit ids reach the server, the default stays at 240', () => {
+  const items = Array.from({ length: 2100 }, (_, i) => watch(`Titel ${i} über Soziologie`, `Kanal ${i % 120}`, i % 12))
+  const plan = contentPlan(items, Date.now(), CONTENT_MAX)
+  assert.equal(plan.items.length, CONTENT_MAX)
+  assert.equal(plan.items[plan.items.length - 1].id, String(CONTENT_MAX - 1))
+  assert.ok(contentRequest(plan.items.slice(CONTENT_MAX - 40)), 'the last batch passes the server check')
+  assert.equal(contentRequest([{ id: '12345', kind: 'watch', title: 'Titel', channel: 'Kanal', context: [] }]), null)
+  assert.equal(contentPlan(items).items.length, CONTENT_SAMPLE)
 })
 
 test('sampling includes subscriptions with channel examples and balances channels, not repeated autoplay', () => {

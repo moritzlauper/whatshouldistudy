@@ -1,6 +1,6 @@
 import { Unzip, UnzipInflate } from 'fflate'
 import { accumulate } from '../engine/accumulate.ts'
-import { contentPlan, type ContentVerdict } from '../engine/content-analysis.ts'
+import { CONTENT_SAMPLE, contentPlan, type ContentVerdict } from '../engine/content-analysis.ts'
 import { STUDY_INTENT, isStudyInfo, truncate } from '../engine/text.ts'
 import type { SignalItem, SourceSummary } from '../engine/types.ts'
 import { videoSignal } from './youtube.ts'
@@ -58,8 +58,8 @@ export interface ContentAnalysisInput {
   stats: SourceSummary['stats']
 }
 
-export function prepareContentAnalysis(input: ContentAnalysisInput) {
-  const plan = contentPlan(input.items)
+export function prepareContentAnalysis(input: ContentAnalysisInput, size = CONTENT_SAMPLE) {
+  const plan = contentPlan(input.items, Date.now(), size)
   return { items: plan.items, eligible: plan.eligible, apply: (verdicts: ContentVerdict[]) => accumulate(
     [...plan.apply(verdicts), ...input.otherItems],
     { source: 'takeout', label: 'Google Takeout', stats: { ...input.stats, aiItems: plan.items.length, aiEligible: plan.eligible } },

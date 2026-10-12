@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { CONTENT_BATCH, contentVerdicts, type ContentVerdict } from '@/lib/engine/content-analysis.ts'
+import { CONTENT_BATCH, CONTENT_MAX, contentVerdicts, type ContentVerdict } from '@/lib/engine/content-analysis.ts'
 import { prepareContentAnalysis } from '@/lib/sources/exports.ts'
 import { withBase } from '@/lib/site.ts'
 import { getState, loadContentInput, update, useAppState } from '@/lib/store.ts'
@@ -22,9 +22,14 @@ export function ContentAnalysisPanel({ token, comparison }: { token: string | nu
   const importId = state.contentImportId
   const ai = state.contentAnalysis?.baseCollectedAt === base?.collectedAt ? state.contentAnalysis : undefined
   const hasAnalysis = !!ai
+  const sampled = Number(ai?.summary.stats.aiItems ?? 0)
+  // After the standard sample, the panel can classify more titles, up to CONTENT_MAX.
+  const canExpand = !!ai && sampled < CONTENT_MAX && Number(ai.summary.stats.aiEligible ?? 0) > sampled
   const [prepared, setPrepared] = useState<{ base: typeof base; plan: Prepared } | null>(null)
   const [status, setStatus] = useState<'idle' | 'reading' | 'running'>('idle')
   const [dismissed, setDismissed] = useState(false)
+  // The panel shows the larger sample until its result replaces the standard one.
+  const [wide, setWide] = useState(false)
   const [done, setDone] = useState(0)
   const [error, setError] = useState('')
   const active = useRef<AbortController | null>(null)
@@ -38,6 +43,7 @@ export function ContentAnalysisPanel({ token, comparison }: { token: string | nu
     setPrepared(null)
     setError('')
     setDismissed(false)
+    setWide(false)
     setStatus(base && !hasAnalysis ? 'reading' : 'idle')
     if (base && !hasAnalysis) {
       void loadContentInput(getState()).then((input) => {
@@ -49,6 +55,17 @@ export function ContentAnalysisPanel({ token, comparison }: { token: string | nu
     }
     return () => { task.abort(); active.current?.abort() }
   }, [base, importId, hasAnalysis, token, a.failed])
+
+  // Up to CONTENT_MAX titles from this browser's import, with the same consent as the standard sample.
+  async function expand() {
+    if (!base || status !== 'idle' || sending.current) return
+    const input = await loadContentInput(getState()).catch(() => undefined)
+    if (getState().summaries.takeout !== base) return
+    if (!input) return setError(a.failed)
+    setError('')
+    setPrepared({ base, plan: prepareContentAnalysis(input, CONTENT_MAX) })
+    setWide(true)
+  }
 
   async function analyse() {
     if (!base || !plan?.items.length || status !== 'idle' || sending.current) return
@@ -82,6 +99,7 @@ export function ContentAnalysisPanel({ token, comparison }: { token: string | nu
       update((s) => s.summaries.takeout !== base ? s : {
         ...s, contentAnalysis: { baseCollectedAt: base.collectedAt, summary, enabled: true },
       })
+      setWide(false)
     } catch (e) {
       if (!task.signal.aborted) setError(e instanceof Error && e.message === 'limit' ? a.limit : a.failed)
     } finally {
@@ -92,18 +110,19 @@ export function ContentAnalysisPanel({ token, comparison }: { token: string | nu
   return <section className="card-sm mt-4 space-y-3 p-4 text-sm">
     <h3 className="font-display text-xl">{a.title}</h3>
     <p className="text-muted">{a.lead}</p>
-    {ai ? <div className="space-y-2">
+    {ai && !wide ? <div className="space-y-2">
       <p>{ai.enabled ? a.active : a.off}</p>
       <p className="text-muted">{a.sample(Number(ai.summary.stats.aiItems ?? 0), Number(ai.summary.stats.aiEligible ?? 0))} {a.contextNote}</p>
       {comparison && <ContentAnalysisChanges comparison={comparison} />}
       <div className="flex flex-wrap gap-2">
+        {canExpand && <button type="button" className="btn btn-ghost btn-sm max-w-full whitespace-normal text-left" disabled={status !== 'idle'} onClick={() => void expand()}>{a.more}</button>}
         <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => update((s) => ({ ...s, contentAnalysis: s.contentAnalysis ? { ...s.contentAnalysis, enabled: !s.contentAnalysis.enabled } : undefined }))}>{ai.enabled ? a.disable : a.enable}</button>
         <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => update((s) => ({ ...s, contentAnalysis: undefined }))}>{a.remove}</button>
       </div>
     </div> : status === 'reading' ? <p role="status">{a.reading}</p> : !plan ? <>
       <p className="text-muted">{base ? a.unavailable : a.missing}</p>
       <Link href={r.start} className="btn btn-ghost btn-sm">{a.import}</Link>
-    </> : !plan.items.length ? <p className="text-muted">{a.empty}</p> : dismissed ? (
+    </> : !plan.items.length ? <p className="text-muted">{a.empty}</p> : dismissed && !wide ? (
       <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDismissed(false)}>{a.ask}</button>
     ) : <>
       <p className="font-semibold">{a.ready}</p>
@@ -116,8 +135,9 @@ export function ContentAnalysisPanel({ token, comparison }: { token: string | nu
         </li>)}</ul>
       </details>
       <p>{a.consent}</p>
+      {wide && <p className="text-muted">{a.moreHint}</p>}
       {status === 'running' ? <p role="status" className="animate-pulse">{a.loading(done, plan.items.length)}</p> : <button type="button" className="btn btn-primary btn-sm max-w-full whitespace-normal text-left" onClick={() => void analyse()}>{a.agree}</button>}
-      <button type="button" className="btn btn-ghost btn-sm" onClick={() => { active.current?.abort(); sending.current = false; setDismissed(true); setStatus('idle'); setError('') }}>{a.cancel}</button>
+      <button type="button" className="btn btn-ghost btn-sm" onClick={() => { active.current?.abort(); sending.current = false; setWide(false); setDismissed(true); setStatus('idle'); setError('') }}>{a.cancel}</button>
     </>}
     {error && <p role="alert" className="text-bad">{error}</p>}
   </section>

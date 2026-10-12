@@ -4,6 +4,8 @@ import { isStudyInfo } from './text.ts'
 import type { SignalItem } from './types.ts'
 
 export const CONTENT_SAMPLE = 240
+/** The most titles one run classifies; their ids have up to four digits. */
+export const CONTENT_MAX = 2000
 export const CONTENT_BATCH = 40
 
 /** Only user-supplied export titles. No API metadata, URLs, account IDs or dates. */
@@ -26,8 +28,8 @@ const clean = (text: string) => text.replace(/https?:\/\/\S+|[\w.+-]+@[\w.-]+\.[
 const keyOf = (it: SignalItem) => `${it.kind}\n${it.text}`
 const groupOf = (it: SignalItem) => it.group ?? it.label
 
-/** A bounded, channel-balanced sample; repetition and dates remain in the browser. */
-export function contentPlan(items: readonly SignalItem[], now = Date.now()) {
+/** A bounded, channel-balanced sample of up to `size` titles; repetition and dates remain in the browser. */
+export function contentPlan(items: readonly SignalItem[], now = Date.now(), size = CONTENT_SAMPLE) {
   const eligible = items.filter((it) => (it.kind === 'watch' || it.kind === 'subscription') && !it.isMusic &&
     !(it.studyInfo ?? isStudyInfo(it.text, it.kind)) && (!it.time || now - it.time < 6 * 365.25 * 864e5))
   const seen = new Set<string>()
@@ -53,7 +55,7 @@ export function contentPlan(items: readonly SignalItem[], now = Date.now()) {
     .sort((a, b) => b[1].length - a[1].length).slice(0, 60)
     .map(([group, list]) => ({ kind: 'channel', group, text: list[0].text.split('\n')[1] ?? list[0].label, label: list[0].label, weight: 0 }))
   const selected: SignalItem[] = []
-  const watchLimit = CONTENT_SAMPLE - subscriptions.length - channels.length
+  const watchLimit = size - subscriptions.length - channels.length
   for (let round = 0; selected.length < watchLimit; round++) {
     let added = false
     for (const list of groups.values()) {
@@ -101,7 +103,7 @@ export function contentRequest(raw: unknown): ContentItem[] | null {
   if (!Array.isArray(raw) || !raw.length || raw.length > CONTENT_BATCH) return null
   const out: ContentItem[] = []
   for (const x of raw) {
-    if (!x || typeof x.id !== 'string' || !/^\d{1,3}$/.test(x.id) || !['watch', 'subscription', 'channel'].includes(x.kind) || typeof x.title !== 'string' || typeof x.channel !== 'string' || !Array.isArray(x.context) || x.context.length > 4 || x.context.some((t: unknown) => typeof t !== 'string')) return null
+    if (!x || typeof x.id !== 'string' || !/^\d{1,4}$/.test(x.id) || !['watch', 'subscription', 'channel'].includes(x.kind) || typeof x.title !== 'string' || typeof x.channel !== 'string' || !Array.isArray(x.context) || x.context.length > 4 || x.context.some((t: unknown) => typeof t !== 'string')) return null
     const title = clean(x.title)
     if (!title) return null
     out.push({ id: x.id, kind: x.kind, title, channel: clean(x.channel), context: x.context.map(clean) })
