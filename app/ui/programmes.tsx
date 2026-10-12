@@ -937,6 +937,12 @@ function Explorer({
       {readings.status === 'done' && (
         <div className="mt-3">
           <OwnDataPanel search on={own} status={ownStatus} onChange={(v) => { setOwn(v); if (!v) setOwnFits(null) }} />
+          {shownItems.length > 0 && (
+            <p className="mt-2 text-sm text-muted">
+              {t.programmes.ai.listBasis(shownItems.filter((p) => scoreOf(p.id) !== undefined).length, shownItems.length)}
+              {own && ` ${t.programmes.ai.listBasisOn}`}
+            </p>
+          )}
         </div>
       )}
       <p className="mt-4 text-sm font-semibold text-muted">
