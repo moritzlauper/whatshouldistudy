@@ -58,9 +58,10 @@ export interface ContentAnalysisInput {
   stats: SourceSummary['stats']
 }
 
-export function prepareContentAnalysis(input: ContentAnalysisInput, size = CONTENT_SAMPLE) {
-  const plan = contentPlan(input.items, Date.now(), size)
-  return { items: plan.items, eligible: plan.eligible, apply: (verdicts: ContentVerdict[]) => accumulate(
+export function prepareContentAnalysis(input: ContentAnalysisInput, size = CONTENT_SAMPLE, now = Date.now()) {
+  const plan = contentPlan(input.items, now, size)
+  // The time is kept with an unfinished run, so the same plan can be rebuilt from it.
+  return { items: plan.items, eligible: plan.eligible, size, now, apply: (verdicts: ContentVerdict[]) => accumulate(
     [...plan.apply(verdicts), ...input.otherItems],
     { source: 'takeout', label: 'Google Takeout', stats: { ...input.stats, aiItems: plan.items.length, aiEligible: plan.eligible, aiClassified: verdicts.length } },
   ) }

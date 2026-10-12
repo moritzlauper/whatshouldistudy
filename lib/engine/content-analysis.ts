@@ -3,8 +3,12 @@ import { isStudyInfo } from './text.ts'
 import type { SignalItem } from './types.ts'
 
 export const CONTENT_SAMPLE = 240
-/** The most titles one run classifies; their ids have up to four digits. */
-export const CONTENT_MAX = 2000
+/** The most titles one run classifies. */
+export const CONTENT_MAX = 1000
+/** Bump when contentPlan or the grouping changes: an unfinished run made with another version is not continued. */
+export const CONTENT_RUN_VERSION = 1
+/** An unfinished run is kept for this many days after its last saved group. */
+export const CONTENT_PROGRESS_DAYS = 7
 /** Titles per request: small enough to finish well inside the server's time limit, and one bad answer costs only its own group. */
 export const CONTENT_BATCH = 10
 /** Requests in flight at once. */
@@ -25,6 +29,28 @@ export interface ContentMeaning {
 }
 
 export interface ContentVerdict extends ContentMeaning { id: string }
+
+/**
+ * An unfinished run, kept on this device so a reopened page can continue it. It holds the answers
+ * the result keeps, and the time its plan was made, so the same plan can be rebuilt from it.
+ */
+export interface ContentProgress {
+  version: number
+  importId: string
+  baseCollectedAt: string
+  size: number
+  now: number
+  total: number
+  savedAt: number
+  /** Groups that were answered, by their place in the order. */
+  done: number[]
+  verdicts: ContentVerdict[]
+}
+
+/** Whether saved progress belongs to this import, is of this version, and is still recent enough to continue. */
+export function isCurrentProgress(progress: ContentProgress, importId: string | undefined, baseCollectedAt: string | undefined, now = Date.now()): boolean {
+  return progress.version === CONTENT_RUN_VERSION && progress.importId === importId && progress.baseCollectedAt === baseCollectedAt && now - progress.savedAt < CONTENT_PROGRESS_DAYS * 864e5
+}
 
 const clean = (text: string) => text.replace(/https?:\/\/\S+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, '').trim().slice(0, 240)
 const keyOf = (it: SignalItem) => `${it.kind}\n${it.text}`
@@ -126,6 +152,10 @@ export interface BatchOptions {
   pause?: number
   /** Asked before each try; true stops the run. */
   stopped?: () => boolean
+  /** Groups answered in an earlier run, by their place in the order; they are not sent again. */
+  done?: ReadonlySet<number>
+  /** Called once for each group that is answered, with its place and its answers. */
+  onGroup?: (group: number, verdicts: ContentVerdict[]) => void
   onProgress?: (classified: number) => void
 }
 
@@ -157,16 +187,23 @@ export async function classifyInBatches(
     }
     return null
   }
+  const queue = groups.map((_, i) => i).filter((i) => !options.done?.has(i))
   const verdicts: ContentVerdict[] = []
   let limited = false
-  for (let i = 0; i < groups.length && !limited && !stopped(); i += parallel) {
-    const answers = await Promise.all(groups.slice(i, i + parallel).map(runGroup))
-    for (const answer of answers) {
+  // Each worker takes the next group once its own one is answered, so progress is saved group by group.
+  const worker = async () => {
+    while (queue.length && !limited && !stopped()) {
+      const index = queue.shift()!
+      const answer = await runGroup(groups[index])
       if (answer === 'limit') limited = true
-      else if (answer) verdicts.push(...answer)
+      else if (answer) {
+        verdicts.push(...answer)
+        options.onGroup?.(index, answer)
+        options.onProgress?.(verdicts.length)
+      }
     }
-    options.onProgress?.(verdicts.length)
   }
+  await Promise.all(Array.from({ length: Math.min(parallel, queue.length) }, worker))
   return { verdicts, limited }
 }
 

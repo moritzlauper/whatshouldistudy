@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { CONTENT_MAX, classifyInBatches, contentVerdicts, type ContentItem, type ContentVerdict } from '@/lib/engine/content-analysis.ts'
+import { CONTENT_MAX, CONTENT_RUN_VERSION, CONTENT_SAMPLE, classifyInBatches, contentVerdicts, type ContentItem, type ContentProgress, type ContentVerdict } from '@/lib/engine/content-analysis.ts'
 import { prepareContentAnalysis } from '@/lib/sources/exports.ts'
 import { withBase } from '@/lib/site.ts'
-import { getState, loadContentInput, update, useAppState } from '@/lib/store.ts'
+import { getState, loadContentInput, loadContentProgress, saveContentProgress, update, useAppState } from '@/lib/store.ts'
 import { useSite } from './site-context.tsx'
 import { ProgrammeChanges, type ProgrammeChangesInput } from './programme-changes.tsx'
 import { fieldName } from '@/lib/site/labels.ts'
@@ -13,6 +13,9 @@ import type { FieldMatch } from '@/lib/engine/types.ts'
 
 type Prepared = ReturnType<typeof prepareContentAnalysis>
 type Comparison = { before: FieldMatch[]; after: FieldMatch[] }
+
+/** An unfinished run continues only on the plan it was made with: same size, same number of titles. */
+const sameRun = (progress: ContentProgress, plan: Prepared) => progress.size === plan.size && progress.total === plan.items.length
 
 /** Prepare the existing local import; only the explicit consent button sends it. */
 export function ContentAnalysisPanel({ token, comparison, programmes }: { token: string | null; comparison?: Comparison; programmes?: ProgrammeChangesInput }) {
@@ -27,6 +30,8 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
   // After the standard sample, the panel can classify more titles, up to CONTENT_MAX.
   const canExpand = !!ai && sampled < CONTENT_MAX && Number(ai.summary.stats.aiEligible ?? 0) > sampled
   const [prepared, setPrepared] = useState<{ base: typeof base; plan: Prepared } | null>(null)
+  // The unfinished run of this import, kept in this browser after every answered group.
+  const [saved, setSaved] = useState<{ base: typeof base; progress: ContentProgress } | null>(null)
   const [status, setStatus] = useState<'idle' | 'reading' | 'running'>('idle')
   const [dismissed, setDismissed] = useState(false)
   // The panel shows the larger sample until its result replaces the standard one.
@@ -36,20 +41,27 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
   const active = useRef<AbortController | null>(null)
   const sending = useRef(false)
   const plan = prepared?.base === base ? prepared?.plan : undefined
+  const pending = saved && saved.base === base ? saved.progress : null
+  // The unfinished run that the shown plan continues, and the maximum run that its button continues.
+  const resuming = pending && plan && sameRun(pending, plan) ? pending : null
+  const unfinished = pending && pending.size === CONTENT_MAX ? pending : null
 
   useEffect(() => {
     const task = new AbortController()
     active.current = task
     sending.current = false
     setPrepared(null)
+    setSaved(null)
     setError('')
     setDismissed(false)
     setWide(false)
     setStatus(base && !hasAnalysis ? 'reading' : 'idle')
-    if (base && !hasAnalysis) {
-      void loadContentInput(getState()).then((input) => {
+    if (base) {
+      void Promise.all([hasAnalysis ? null : loadContentInput(getState()), loadContentProgress(getState())]).then(([input, found]) => {
         if (task.signal.aborted) return
-        if (input) setPrepared({ base, plan: prepareContentAnalysis(input) })
+        // An unfinished standard run is rebuilt from the time it was made, so it continues on the same titles.
+        if (input) setPrepared({ base, plan: prepareContentAnalysis(input, CONTENT_SAMPLE, found?.size === CONTENT_SAMPLE ? found.now : undefined) })
+        if (found) setSaved({ base, progress: found })
       }).catch(() => {
         if (!task.signal.aborted) setError(a.failed)
       }).finally(() => { if (!task.signal.aborted) setStatus('idle') })
@@ -64,7 +76,8 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
     if (getState().summaries.takeout !== base) return
     if (!input) return setError(a.failed)
     setError('')
-    setPrepared({ base, plan: prepareContentAnalysis(input, CONTENT_MAX) })
+    // An unfinished maximum run is rebuilt from the time it was made, so it continues on the same titles.
+    setPrepared({ base, plan: prepareContentAnalysis(input, CONTENT_MAX, unfinished?.now) })
     setWide(true)
   }
 
@@ -80,8 +93,14 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
     return contentVerdicts((body.items ?? []).map((x) => ({ ...x, fields: Object.entries(x.fields ?? {}).map(([id, confidence]) => ({ id, confidence })) })), new Set(group.map((x) => x.id)))
   }
 
+  // Drops the unfinished run; the next start classifies from the beginning.
+  function discard() {
+    void saveContentProgress(null)
+    setSaved(null)
+  }
+
   async function analyse() {
-    if (!base || !plan?.items.length || status !== 'idle' || sending.current) return
+    if (!base || !importId || !plan?.items.length || status !== 'idle' || sending.current) return
     // A double click, replacement or deletion cannot start another batch.
     if (getState().summaries.takeout !== base) return
     active.current?.abort()
@@ -89,15 +108,29 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
     active.current = task
     sending.current = true
     setError('')
-    setDone(0)
     setStatus('running')
+    // An unfinished run of this plan continues: the groups it answered are not sent again.
+    const earlier = resuming
+    const answered = earlier?.verdicts.length ?? 0
+    setDone(answered)
+    let progress: ContentProgress = earlier ?? { version: CONTENT_RUN_VERSION, importId, baseCollectedAt: base.collectedAt, size: plan.size, now: plan.now, total: plan.items.length, savedAt: Date.now(), done: [], verdicts: [] }
     try {
       const result = await classifyInBatches(plan.items, (group) => sendBatch(group, task.signal), {
+        done: new Set(earlier?.done ?? []),
         stopped: () => task.signal.aborted || getState().summaries.takeout !== base,
-        onProgress: setDone,
+        onGroup: (group, verdicts) => {
+          if (getState().summaries.takeout !== base) return
+          // Saved after every answered group, so a closed tab loses at most the group still in flight.
+          progress = { ...progress, savedAt: Date.now(), done: [...progress.done, group], verdicts: [...progress.verdicts, ...verdicts] }
+          void saveContentProgress(progress)
+        },
+        onProgress: (n) => setDone(answered + n),
       })
       if (task.signal.aborted || getState().summaries.takeout !== base) return
-      const classified = result.verdicts.length
+      // Every group was tried, so the run is finished and its progress goes. A budget stop keeps it for a later run.
+      if (!result.limited) discard()
+      const verdicts = [...(earlier?.verdicts ?? []), ...result.verdicts]
+      const classified = verdicts.length
       // Nothing classified: there is no new result, and the earlier one stays.
       if (!classified) throw new Error(result.limited ? 'limit' : 'failed')
       // Fewer titles than the result in use: that result stays, and the message says why.
@@ -106,10 +139,9 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
         setWide(false)
         return
       }
-      const summary = plan.apply(result.verdicts)
+      const summary = plan.apply(verdicts)
       // A budget that ended the run early is stored with the result, so the note survives a reload.
       summary.stats.aiLimited = result.limited ? 1 : 0
-      if (task.signal.aborted) return
       update((s) => s.summaries.takeout !== base ? s : {
         ...s, contentAnalysis: { baseCollectedAt: base.collectedAt, summary, enabled: true, compare: { status: 'pending' } },
       })
@@ -122,6 +154,8 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
       }
     } finally {
       if (active.current === task) { sending.current = false; setStatus('idle') }
+      // Shows what is kept after the run: an interrupted or budget-stopped run can be continued.
+      void loadContentProgress(getState()).then((found) => setSaved(found ? { base, progress: found } : null))
     }
   }
 
@@ -137,9 +171,9 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
       {comparison && <ContentAnalysisChanges comparison={comparison} />}
       {programmes && <ProgrammeChanges input={programmes} token={token} />}
       <div className="flex flex-wrap gap-2">
-        {canExpand && <button type="button" className="btn btn-ghost btn-sm max-w-full whitespace-normal text-left" disabled={status !== 'idle'} onClick={() => void expand()}>{a.more(Math.min(CONTENT_MAX, Number(ai.summary.stats.aiEligible ?? 0)))}</button>}
+        {canExpand && <button type="button" className="btn btn-ghost btn-sm max-w-full whitespace-normal text-left" disabled={status !== 'idle'} onClick={() => void expand()}>{unfinished ? a.resumeMore(unfinished.verdicts.length, unfinished.total) : a.more(Math.min(CONTENT_MAX, Number(ai.summary.stats.aiEligible ?? 0)))}</button>}
         <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => update((s) => ({ ...s, contentAnalysis: s.contentAnalysis ? { ...s.contentAnalysis, enabled: !s.contentAnalysis.enabled } : undefined }))}>{ai.enabled ? a.disable : a.enable}</button>
-        <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => update((s) => ({ ...s, contentAnalysis: undefined }))}>{a.remove}</button>
+        <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => { discard(); update((s) => ({ ...s, contentAnalysis: undefined })) }}>{a.remove}</button>
       </div>
     </div> : status === 'reading' ? <p role="status">{a.reading}</p> : !plan ? <>
       <p className="text-muted">{base ? a.unavailable : a.missing}</p>
@@ -158,7 +192,9 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
       </details>
       <p>{a.consent}</p>
       {wide && <p className="text-muted">{a.moreHint}</p>}
-      {status === 'running' ? <p role="status" className="animate-pulse">{a.loading(done, plan.items.length)}</p> : <button type="button" className="btn btn-primary btn-sm max-w-full whitespace-normal text-left" onClick={() => void analyse()}>{a.agree}</button>}
+      {resuming && <p>{a.resumed(resuming.verdicts.length, resuming.total)}</p>}
+      {status === 'running' ? <p role="status" className="animate-pulse">{a.loading(done, plan.items.length)}</p> : <button type="button" className="btn btn-primary btn-sm max-w-full whitespace-normal text-left" onClick={() => void analyse()}>{resuming ? a.resume : a.agree}</button>}
+      {resuming && status !== 'running' && <button type="button" className="btn btn-ghost btn-sm" onClick={discard}>{a.discard}</button>}
       <button type="button" className="btn btn-ghost btn-sm" onClick={() => { active.current?.abort(); sending.current = false; setWide(false); setDismissed(true); setStatus('idle'); setError('') }}>{a.cancel}</button>
     </>}
     {error && <p role="alert" className="text-bad">{error}</p>}

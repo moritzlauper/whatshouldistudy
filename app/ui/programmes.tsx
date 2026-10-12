@@ -8,6 +8,7 @@ import { SALES_PAUSED, isLocal } from '@/lib/site/config.ts'
 import type { FieldMatch, Preferences, Results } from '@/lib/engine/types.ts'
 import { normalize } from '@/lib/engine/text.ts'
 import { topicWeights } from '@/lib/engine/topics.ts'
+import { requestKey } from '@/lib/engine/programme-changes.ts'
 import type { UserTopic } from '@/lib/engine/topics.ts'
 import { reasonText } from '@/lib/site/explain.ts'
 import { Contributions } from './contributions.tsx'
@@ -62,7 +63,7 @@ export function requestFields(results: Results) {
 export const hasReadings = (prefs: Preferences) => prefs.countries.length > 0 && prefs.countries.every((c) => (FACTS_COUNTRIES as readonly string[]).includes(c))
 
 /** Results per page of the list. The server pages the other sorts by the same size. */
-const PAGE_SIZE = 40
+const PAGE_SIZE = 10
 
 /** The limit that answered the comparison, if one did. */
 export const limitOf = (e: Error): 'budget' | 'daily' | undefined => (e.message === 'budget' || e.message === 'daily' ? e.message : undefined)
@@ -166,6 +167,37 @@ export function usePersonalComparison(programmes: RankedProgramme[], profile: Lo
 }
 
 /**
+ * The comparison made after the content analysis, while the request it was made for is unchanged.
+ * Lists use it instead of asking again: the same numbers, the same order and the same reasons.
+ */
+export function useAnalysisFits(request: { fields: unknown; prefs: Preferences; topics: Record<string, number> }): { fits: Map<string, PersonalFit>; rank: Map<string, number> } | null {
+  const compare = useAppState().contentAnalysis
+  const key = requestKey(request.fields, request.prefs, request.topics)
+  return useMemo(() => {
+    const stored = compare?.compare
+    const done = compare?.enabled && stored?.status === 'done' ? stored : null
+    if (!done || done.key !== key) return null
+    const fits = new Map<string, PersonalFit>()
+    const rank = new Map<string, number>()
+    for (const row of done.rows) {
+      rank.set(row.id, row.after.rank)
+      if (row.after.reasons.length) fits.set(row.id, { id: row.id, fit: row.after.fit ?? 3, score: row.after.score, reasons: row.after.reasons, thin: false })
+    }
+    return fits.size ? { fits, rank } : null
+  }, [compare, key])
+}
+
+/** Programmes the comparison ranked come first, in its order; the others keep the order they had. */
+function withAnalysisOrder<T extends { id: string }>(items: T[], rank?: Map<string, number>): T[] {
+  if (!rank) return items
+  return [...items].sort((a, b) => {
+    const ra = rank.get(a.id)
+    const rb = rank.get(b.id)
+    return ra === undefined ? (rb === undefined ? 0 : 1) : rb === undefined ? -1 : ra - rb
+  })
+}
+
+/**
  * The top programmes. Every programme with a reading is ranked, not only the best
  * matches of the questionnaire, so a good fit is not left out for lack of a place.
  */
@@ -207,12 +239,14 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   // Missing readings still allow catalogue-based explanations. Twenty is a maximum, not a minimum.
   const personalPool = useMemo(() => orderByNumber(pool, computedOf, fieldOrder).slice(0, PERSONAL_POOL), [pool, scoreOf, hasScores, fieldOrder])
   const personal = usePersonalComparison(personalPool, profile, locale, token, JSON.stringify([body, unlocked, shared]), computedOf)
-  const personalMap = personal.map
+  // After the content analysis the comparison already ran for this request: its numbers and reasons are shown, and it is not asked again.
+  const analysis = useAnalysisFits({ fields: request.fields, prefs, topics: weights ?? {} })
+  const personalMap = analysis?.fits ?? personal.map
   // The one number of each programme, best first; the preferred field only breaks a tie.
   const ranked = useMemo(() => {
     const shownOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores, personalMap?.get(p.id))
-    return orderByNumber(pool, shownOf, fieldOrder).map((p) => ({ p, score: shownOf(p), personal: personalMap?.get(p.id) }))
-  }, [pool, scoreOf, personalMap, hasScores, fieldOrder])
+    return withAnalysisOrder(orderByNumber(pool, shownOf, fieldOrder), analysis?.rank).map((p) => ({ p, score: shownOf(p), personal: personalMap?.get(p.id) }))
+  }, [pool, scoreOf, personalMap, hasScores, fieldOrder, analysis])
   const best = ranked.slice(0, shown)
   return (
     <section className="mt-8" aria-label={t.programmes.topTitle}>
@@ -229,13 +263,13 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
           {!shared && profile && personalPool.length > 0 && (
             <div className="mb-4">
-              <OwnDataPanel count={personalPool.length} on={personal.on} status={personal.status} onChange={personal.onChange} />
+              {analysis ? <p className="text-sm text-muted">{t.contentAi.afterAnalysis}</p> : <OwnDataPanel count={personalPool.length} on={personal.on} status={personal.status} onChange={personal.onChange} />}
             </div>
           )}
           <ol className="grid gap-4">
             {best.map((x, i) => (
               <li key={x.p.id}>
-                <ProgrammeRow p={x.p} rank={i + 1} fact={readings.byId.get(x.p.id)} fit={local.get(x.p.id)} score={x.score} personal={x.personal} personalStatus={personal.statusOf(x.p.id)} />
+                <ProgrammeRow p={x.p} rank={i + 1} fact={readings.byId.get(x.p.id)} fit={local.get(x.p.id)} score={x.score} personal={x.personal} personalStatus={analysis ? (analysis.fits.has(x.p.id) ? 'rated' : 'off') : personal.statusOf(x.p.id)} />
               </li>
             ))}
           </ol>
@@ -700,6 +734,7 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
               {' · '}
               {flag(p.country)} {[p.city, p.region].filter(Boolean).join(', ') || countryLabel(p.country, intl)}
             </div>
+            {personal && !personal.thin && personal.reasons.length > 0 && <p className="mt-2 text-sm">{personal.reasons.join(' ')}</p>}
             {p.focus && p.focus.length > 0 && (
               <div className="mt-1.5 text-xs">
                 <span className="text-muted">{t.programmes.details.focus}: </span>
@@ -799,7 +834,9 @@ function Explorer({
   const computedOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores)
   const ownPool = useMemo(() => orderByNumber(data?.items ?? [], computedOf).slice(0, PERSONAL_POOL), [data, scoreOf, hasScores])
   const personal = usePersonalComparison(ownPool, profile, locale, token, queryKey, computedOf)
-  const ownMap = personal.map
+  // After the content analysis the comparison already ran for this request: its numbers and reasons are used, and it is not asked again.
+  const analysis = useAnalysisFits({ fields, prefs, topics: topics ?? {} })
+  const ownMap = analysis?.fits ?? personal.map
   // The one number of each programme, as in the top list.
   const shownOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores, ownMap?.get(p.id))
   // Fetch every match before sorting by its displayed points, then page the complete order here.
@@ -807,8 +844,8 @@ function Explorer({
   const serverPage = byMatch ? 0 : page
   const ordered = useMemo(() => {
     const items = data?.items ?? []
-    return byMatch ? orderByNumber(items, shownOf) : items
-  }, [data, byMatch, scoreOf, ownMap, hasScores])
+    return byMatch ? withAnalysisOrder(orderByNumber(items, shownOf), analysis?.rank) : items
+  }, [data, byMatch, scoreOf, ownMap, hasScores, analysis])
   const pageItems = byMatch ? ordered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE) : ordered
   const [loading, setLoading] = useState(false)
 
@@ -826,7 +863,7 @@ function Explorer({
       const res = await fetch(withBase('/api/programmes'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ ...base, page: serverPage, ...extra }),
+        body: JSON.stringify({ ...base, page: serverPage, pageSize: PAGE_SIZE, ...extra }),
       })
       if (res.status === 401) {
         onInvalid()
@@ -932,7 +969,7 @@ function Explorer({
       </div>
       {!shared && profile && readings.status !== 'loading' && byMatch && (
         <div className="mt-3">
-          <OwnDataPanel search count={ownPool.length} on={personal.on} status={personal.status} disabled={loading || !ownPool.length} onChange={(on) => { personal.onChange(on); setPage(0) }} />
+          {analysis ? <p className="text-sm text-muted">{t.contentAi.afterAnalysis}</p> : <OwnDataPanel search count={ownPool.length} on={personal.on} status={personal.status} disabled={loading || !ownPool.length} onChange={(on) => { personal.onChange(on); setPage(0) }} />}
           {ordered.length > 0 && hasScores && (
             <p className="mt-2 text-sm text-muted">
               {t.programmes.ai.listBasis(ordered.filter((p) => scoreOf(p.id) !== undefined).length, ordered.length)}
@@ -948,7 +985,7 @@ function Explorer({
       </p>
       <div className="mt-3 grid gap-4">
         {pageItems.map((p) => (
-          <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={shownOf(p)} personal={ownMap?.get(p.id)} personalStatus={personal.statusOf(p.id)} />
+          <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={shownOf(p)} personal={ownMap?.get(p.id)} personalStatus={analysis ? (analysis.fits.has(p.id) ? 'rated' : 'off') : personal.statusOf(p.id)} />
         ))}
       </div>
       {pages > 1 && (

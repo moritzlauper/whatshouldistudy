@@ -5,7 +5,7 @@ import { update, useAppState } from '@/lib/store.ts'
 import { useSite } from './site-context.tsx'
 import { topicWeights, type UserTopic } from '@/lib/engine/topics.ts'
 import { orderByNumber, orderedFieldIds, shownScore, type PersonalFit } from '@/lib/engine/programme-fit.ts'
-import { changeSummary, COMPARE_TOP, programmeChanges, type ProgrammeCompare, type ProgrammeEntry } from '@/lib/engine/programme-changes.ts'
+import { changeSummary, COMPARE_TOP, programmeChanges, requestKey, type ProgrammeCompare, type ProgrammeEntry } from '@/lib/engine/programme-changes.ts'
 import type { Preferences, Results } from '@/lib/engine/types.ts'
 import type { RankedProgramme } from '@/lib/server/rank.ts'
 import { allProgrammes, askPersonal, hasReadings, limitOf, requestFields, useLocalProfile } from './programmes.tsx'
@@ -82,7 +82,8 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
           return { id: p.id, name: p.name, institution: p.institution, score: shownAfter(p), computed: computedAfter(p), reasons: personal && !personal.thin ? personal.reasons : [] }
         }),
       )
-      setCompare({ status: 'done', at: new Date().toISOString(), rows })
+      // Each row keeps its fit too, and the request it was made for, so the lists show the same rating without asking again.
+      setCompare({ status: 'done', at: new Date().toISOString(), rows: rows.map((row) => ({ ...row, after: { ...row.after, fit: rated.get(row.id)?.fit } })), key: requestKey(afterFields, prefs, afterWeights) })
     })().catch((e: Error) => {
       if (!controller.signal.aborted) setCompare({ status: 'failed', limit: limitOf(e) })
     })

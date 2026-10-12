@@ -10,6 +10,18 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
 
+## Fortsetzbar, Maximum 1000, Listen nach der Analyse (12.10.2026)
+
+- Maximum umfasst bis zu 1000 Einträge (`CONTENT_MAX`, vorher 2000). Standard bleibt bei 240.
+- Der Fortschritt wird nach jeder beantworteten Gruppe im Browser gespeichert: IndexedDB, derselbe Store wie der Import, eigener Schlüssel `progress:<Site-Schlüssel>`. Ein wieder geöffneter Tab zeigt «Bereits eingeordnet: n von m» und «Weiter einordnen»; bereits beantwortete Gruppen werden nicht erneut gesendet. Es startet nichts von allein: der Klick ist die Einwilligung.
+- Der Zwischenstand verlässt den Browser nicht und enthält dieselben Einordnungen, die das Ergebnis ohnehin hält. Er wird gelöscht, wenn der Lauf fertig ist, wenn man «Zwischenstand verwerfen» wählt, wenn die KI-Analyse entfernt oder der Import ersetzt wird, und nach 7 Tagen ohne neue Gruppe. Ein Lauf, den das Budget stoppt, behält seinen Stand. Gilt nur für denselben Import und dieselbe Version (`CONTENT_RUN_VERSION`); sonst wird er verworfen.
+- Listen nach der Analyse: Die Top 5 und der Studiengangsbrowser nehmen Punkte, Reihenfolge und Begründungen aus dem gespeicherten Vergleich (`contentAnalysis.compare`), solange die Anfrage dieselbe ist: Felder, Angaben und Themen (`requestKey`). Dann entfällt der Knopf «Mit KI vergleichen» und es erscheint ein Hinweis. Ändern sich Angaben, Filter oder die Verlaufsanalyse, erscheint der Knopf wieder.
+- Begründungen stehen direkt unter jeder Zeile, nicht nur im aufklappbaren Bereich.
+- Der Studiengangsbrowser zeigt 10 Einträge pro Seite (`PAGE_SIZE`); die Serveranfrage nach Stufe, Land oder Stadt sendet dieselbe Seitengröße.
+- Startseite (DE): Der Einstieg nennt den YouTube-Verlauf mit der Zustimmung für Claude und beschreibt die Passung mit Details (Schwerpunkte, Dauer, Sprache, Kosten, Zulassung) im Vergleich mit den persönlichen Angaben. Datenschutzpunkte ergänzt um Zwischenstände und Zustimmung. «Wir speichern nichts: keine Datenbank» ersetzt durch «Deine Angaben speichern wir nicht … auf unserem Server»: Der Server führt Nutzungszähler, daher ist «keine Datenbank» von hier aus nicht prüfbar.
+
+Prüfungen: TypeScript grün; Tests 231, davon 228 grün. Die drei Fehlschläge (`content control`, `existing imports`, `personal comparisons`) bestehen auch auf `main`. Im Browser mit Mock-Antworten geprüft: Unterbrechung nach vier Gruppen, Neuladen zeigt «Bereits eingeordnet: 40 von 66», Weiter sendet nur die drei fehlenden Gruppen; danach ist der Zwischenstand gelöscht. Vergleich fertig: Top 5 in derselben Reihenfolge wie die Tabelle, kein Knopf «Mit KI vergleichen», Hinweis sichtbar, Begründungen unter den Zeilen, 10 Zeilen im Browser, keine Seitenfehler. Nicht geprüft: echte Modellantworten und echte Laufzeiten; die Datenschutzaussagen gegen die Nutzungszähler.
+
 ## Inhaltsanalyse: kleine Gruppen, Teilergebnis, Wiederholung (12.10.2026)
 
 - Ursache des Abbruchs, soweit im Code belegt: Eine Gruppe von 40 Titeln wurde ganz verworfen, sobald ein einziger Titel fehlte, doppelt kam, ein viertes Fach hatte oder eine Zahl ausserhalb von 0 bis 1 lag. Eine Anfrage mit 40 Titeln musste zudem in 45 Sekunden fertig sein. Beim Maximum-Lauf brach ein einzelner Ausfall den ganzen Lauf ab. Welcher Fall im Live-Betrieb auftrat, ist nicht belegt; in der Entwicklungsumgebung fehlt der Schlüssel.

@@ -3,8 +3,9 @@
 import { useSyncExternalStore } from 'react'
 import type { Preferences, QuestionnaireAnswers, SourceId, SourceSummary } from './engine/types.ts'
 import type { ProgrammeCompare } from './engine/programme-changes.ts'
-import { readContentInput, saveContentInput } from './content-store.ts'
+import { readContentInput, readContentProgress, saveContentInput, writeContentProgress } from './content-store.ts'
 import type { ContentAnalysisInput } from './sources/exports.ts'
+import { isCurrentProgress, type ContentProgress } from './engine/content-analysis.ts'
 
 /**
  * Summaries and settings live in this browser's localStorage: the
@@ -99,6 +100,21 @@ export function setSummary(s: SourceSummary, contentInput?: ContentAnalysisInput
 
 export function loadContentInput(state: State): Promise<ContentAnalysisInput | null> {
   return state.summaries.takeout && state.contentImportId ? readContentInput(KEY, state.contentImportId) : Promise.resolve(null)
+}
+
+/** The unfinished run of the current import. A run from another import, version or an older save is removed. */
+export async function loadContentProgress(state: State): Promise<ContentProgress | null> {
+  const base = state.summaries.takeout
+  if (!base || !state.contentImportId) return null
+  const saved = await readContentProgress(KEY)
+  if (!saved) return null
+  if (isCurrentProgress(saved, state.contentImportId, base.collectedAt)) return saved
+  void writeContentProgress(KEY, null)
+  return null
+}
+
+export function saveContentProgress(progress: ContentProgress | null): Promise<void> {
+  return writeContentProgress(KEY, progress)
 }
 
 export function effectiveSummaries(state: State): SourceSummary[] {

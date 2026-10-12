@@ -1,6 +1,9 @@
 import type { ContentAnalysisInput } from './sources/exports.ts'
+import type { ContentProgress } from './engine/content-analysis.ts'
 
 type SavedInput = { id: string; input: ContentAnalysisInput }
+/** The unfinished run sits next to the import under its own key, so both are written and removed together. */
+const progressKey = (key: string) => `progress:${key}`
 // Also works for this visit when browser storage is disabled or full.
 const memory = new Map<string, SavedInput | null>()
 let database: Promise<IDBDatabase> | undefined
@@ -25,6 +28,8 @@ export function saveContentInput(key: string, saved: SavedInput | null): Promise
       const tx = db.transaction('imports', 'readwrite')
       if (saved) tx.objectStore('imports').put(saved, key)
       else tx.objectStore('imports').delete(key)
+      // Replacing or deleting the import also drops its unfinished run.
+      tx.objectStore('imports').delete(progressKey(key))
       tx.oncomplete = () => resolve()
       tx.onabort = () => reject(tx.error)
       tx.onerror = () => reject(tx.error)
@@ -49,5 +54,34 @@ export async function readContentInput(key: string, id: string): Promise<Content
     if (saved?.id !== id) return null
     memory.set(key, saved)
     return saved.input
+  } catch { return null }
+}
+
+/** The unfinished run of this import, saved after each answered group; null removes it. Queued with the imports. */
+export function writeContentProgress(key: string, progress: ContentProgress | null): Promise<void> {
+  writes = writes.then(async () => {
+    const db = await open()
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction('imports', 'readwrite')
+      if (progress) tx.objectStore('imports').put(progress, progressKey(key))
+      else tx.objectStore('imports').delete(progressKey(key))
+      tx.oncomplete = () => resolve()
+      tx.onabort = () => reject(tx.error)
+      tx.onerror = () => reject(tx.error)
+    })
+  }).catch(() => { /* Without browser storage the run cannot be continued later; it still works for this visit. */ })
+  return writes
+}
+
+export async function readContentProgress(key: string): Promise<ContentProgress | null> {
+  try {
+    await writes
+    const db = await open()
+    const saved = await new Promise<ContentProgress | undefined>((resolve, reject) => {
+      const request = db.transaction('imports').objectStore('imports').get(progressKey(key))
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    })
+    return saved ?? null
   } catch { return null }
 }

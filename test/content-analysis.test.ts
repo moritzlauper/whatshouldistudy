@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { CONTENT_BATCH, CONTENT_MAX, CONTENT_SAMPLE, classifyInBatches, contentPlan, contentRequest, contentVerdicts, type ContentItem, type ContentVerdict } from '../lib/engine/content-analysis.ts'
+import { CONTENT_BATCH, CONTENT_MAX, CONTENT_RUN_VERSION, CONTENT_SAMPLE, classifyInBatches, contentPlan, contentRequest, contentVerdicts, isCurrentProgress, type ContentItem, type ContentProgress, type ContentVerdict } from '../lib/engine/content-analysis.ts'
 import { accumulate } from '../lib/engine/accumulate.ts'
 import { score } from '../lib/engine/scoring.ts'
 import { userTopics, topicWeights } from '../lib/engine/topics.ts'
@@ -42,8 +42,8 @@ test('below the maximum, the maximum takes every eligible title', () => {
   assert.equal(plan.items.length, 33, 'the 30 titles and the three channel records')
 })
 
-test('the maximum classifies up to 2000 titles; their four-digit ids reach the server, the default stays at 240', () => {
-  const items = Array.from({ length: 2100 }, (_, i) => watch(`Titel ${i} über Soziologie`, `Kanal ${i % 120}`, i % 12))
+test('the maximum classifies up to 1000 titles, the default stays at 240, and the last batch passes the server check', () => {
+  const items = Array.from({ length: 1100 }, (_, i) => watch(`Titel ${i} über Soziologie`, `Kanal ${i % 120}`, i % 12))
   const plan = contentPlan(items, Date.now(), CONTENT_MAX)
   assert.equal(plan.items.length, CONTENT_MAX)
   assert.equal(plan.items[plan.items.length - 1].id, String(CONTENT_MAX - 1))
@@ -129,7 +129,8 @@ test('a group that keeps failing is left out, the others still count, and a limi
   assert.equal(result.verdicts.length, 20, 'the group that never answers is left out')
   assert.equal(tries.get('10'), 3, 'a group that fails is tried again')
   assert.equal(tries.get('20'), 3)
-  assert.deepEqual(progress, [20])
+  // Progress is reported after each answered group, so the two answered groups report 10 and then 20.
+  assert.deepEqual(progress, [10, 20])
   let sent = 0
   const limited = await classifyInBatches(items, async (group) => {
     sent++
@@ -139,6 +140,34 @@ test('a group that keeps failing is left out, the others still count, and a limi
   assert.equal(limited.limited, true)
   assert.equal(sent, 2, 'after the limit no further group is sent')
   assert.equal(limited.verdicts.length, CONTENT_BATCH)
+})
+
+test('an interrupted run keeps its answered groups; the next run sends only the groups still missing', async () => {
+  const items: ContentItem[] = Array.from({ length: 35 }, (_, i): ContentItem => ({ id: String(i), kind: 'watch', title: `Titel ${i}`, channel: 'Kanal', context: [] }))
+  const answer = (group: ContentItem[]): ContentVerdict[] => group.map((x) => ({ id: x.id, fields: {}, reason: 'Ein Satz.' }))
+  const kept = new Map<number, ContentVerdict[]>()
+  const first = await classifyInBatches(items, async (group) => answer(group), {
+    parallel: 1, stopped: () => kept.size === 2, onGroup: (group, verdicts) => kept.set(group, verdicts),
+  })
+  assert.deepEqual([...kept.keys()], [0, 1], 'each answered group is reported with its place')
+  assert.equal(first.verdicts.length, 20)
+  const sent: string[] = []
+  const second = await classifyInBatches(items, async (group) => {
+    sent.push(...group.map((x) => x.id))
+    return answer(group)
+  }, { done: new Set(kept.keys()) })
+  assert.deepEqual(sent, Array.from({ length: 15 }, (_, i) => String(20 + i)), 'only the groups that were not answered are sent')
+  assert.equal(new Set([...first.verdicts, ...second.verdicts].map((v) => v.id)).size, 35, 'together both runs classify every title once')
+})
+
+test('unfinished progress continues only for the same import and version, and only while it is recent', () => {
+  const day = 864e5
+  const progress: ContentProgress = { version: CONTENT_RUN_VERSION, importId: 'import-a', baseCollectedAt: 'base-b', size: CONTENT_MAX, now: 1, total: 10, savedAt: 10 * day, done: [0], verdicts: [] }
+  assert.equal(isCurrentProgress(progress, 'import-a', 'base-b', 11 * day), true)
+  assert.equal(isCurrentProgress(progress, 'import-other', 'base-b', 11 * day), false, 'another import never continues it')
+  assert.equal(isCurrentProgress(progress, 'import-a', 'base-newer', 11 * day), false, 'a newer export never continues it')
+  assert.equal(isCurrentProgress(progress, 'import-a', 'base-b', 18 * day), false, 'seven days after the last saved group it is dropped')
+  assert.equal(isCurrentProgress({ ...progress, version: CONTENT_RUN_VERSION + 1 }, 'import-a', 'base-b', 11 * day), false, 'another version of the plan is not continued')
 })
 
 test('a partial answer is applied to the titles it covers', () => {

@@ -22,14 +22,19 @@ export interface ProgrammeChange {
   /** Place and number before the analysis; null when the programme was not among the matches then. */
   before: { rank: number; score: number } | null
   /** Place and number now. The number is Claude's where it rated the programme; `computed` is the number without it. */
-  after: { rank: number; score: number; computed: number; reasons: string[] }
+  after: { rank: number; score: number; computed: number; reasons: string[]; fit?: number }
 }
 
 /** The stored comparison: running, finished with its rows, or stopped by a limit. */
 export type ProgrammeCompare =
   | { status: 'pending'; fresh?: boolean }
-  | { status: 'done'; at: string; rows: ProgrammeChange[] }
+  | { status: 'done'; at: string; rows: ProgrammeChange[]; key?: string }
   | { status: 'failed'; limit?: 'budget' | 'daily' }
+
+/** What a comparison was made for: its fields, preferences and topics. The same key means the same request, so its numbers still hold. */
+export function requestKey(fields: unknown, prefs: unknown, topics: unknown): string {
+  return JSON.stringify({ fields, prefs, topics })
+}
 
 /**
  * Both lists in their order: `before` every match before the analysis, `after` the
