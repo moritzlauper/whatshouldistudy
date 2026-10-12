@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { coreName, headingsOf, namesProgramme, plain, sitemapLocs, STUDY_PATH } from '../lib/page-match.ts'
+import { coreName, headingsOf, levelsIn, namesProgramme, NOT_A_PROGRAMME, plain, sitemapLocs, STUDY_PATH } from '../lib/page-match.ts'
 
 test('names are compared in plain letters, without the level word or the brackets', () => {
   assert.equal(plain('Historische und Kulturwissenschaften (fächerübergreifend)'), 'historische und kulturwissenschaften facherubergreifend')
@@ -28,4 +28,16 @@ test('study pages are recognised by their address in the languages of the countr
   assert.equal(STUDY_PATH.test('/fr/formation/master/philosophie'), true)
   assert.equal(STUDY_PATH.test('/it/formazione/bachelor/filosofia'.replace('formazione', 'offerta')), true)
   assert.equal(STUDY_PATH.test('/news/2026/presse'), false)
+})
+
+test('the level counts at the start of a compound word, and the title has to name the programme', () => {
+  assert.ok(levelsIn('Masterstudium Sekundarstufe I').has('master'))
+  assert.ok(levelsIn('Bachelorstudium Sport').has('bachelor'))
+  assert.equal(namesProgramme({ name: 'Bachelor Informatik', level: 'bachelor' }, 'Plus-Studiengang BSc FH in Marketing', 'Informatik Wirtschaftsinformatik'), false)
+})
+
+test('events, news and single people are not a programme page', () => {
+  assert.equal(NOT_A_PROGRAMME.test('/veranstaltungen/masterfeier-sek-i'), true)
+  assert.equal(NOT_A_PROGRAMME.test('/news/2026/diplomfeier'), true)
+  assert.equal(NOT_A_PROGRAMME.test('/studium/film'), false)
 })

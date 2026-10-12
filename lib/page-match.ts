@@ -22,8 +22,9 @@ export function coreName(name: string): string {
 export function levelsIn(text: string): Set<'bachelor' | 'master'> {
   const t = plain(text)
   const out = new Set<'bachelor' | 'master'>()
-  if (/\b(bachelor|ba|bsc)\b/.test(t)) out.add('bachelor')
-  if (/\b(master|ma|msc)\b/.test(t)) out.add('master')
+  // «Masterstudium» and «Bachelorstudium» count too: the level word starts the word.
+  if (/\b(bachelor|bsc)|\bba\b/.test(t)) out.add('bachelor')
+  if (/\b(master|msc)|\bma\b/.test(t)) out.add('master')
   return out
 }
 
@@ -31,9 +32,9 @@ export function levelsIn(text: string): Set<'bachelor' | 'master'> {
 export function namesProgramme(programme: { name: string; level: string }, title: string, heading: string): boolean {
   const core = coreName(programme.name)
   if (core.length < 4) return false
-  const text = `${heading} ${title}`
-  if (!` ${plain(text)} `.includes(` ${core} `)) return false
-  const levels = levelsIn(text)
+  // The title has to name it; the first heading only backs that up, since a heading can be a menu.
+  if (!` ${plain(title)} `.includes(` ${core} `)) return false
+  const levels = levelsIn(`${heading} ${title}`)
   const other = programme.level === 'master' ? 'bachelor' : 'master'
   return !levels.has(other) || levels.has(programme.level as 'bachelor' | 'master')
 }
@@ -51,6 +52,9 @@ export function headingsOf(html: string): { title: string; heading: string } {
 export function sitemapLocs(xml: string): string[] {
   return [...xml.matchAll(/<loc>\s*([^<\s]+?)\s*<\/loc>/g)].map((m) => m[1].replace(/&amp;/g, '&'))
 }
+
+/** Pages about events, news or single people are not a programme's own page. */
+export const NOT_A_PROGRAMME = /(veranstaltung|event|news|medien|press|presse|testimonial|podcast|blog|magazin|aktuell|feier|archiv|kosten)/i
 
 /** The words that mark a study page in an address, in the languages of the country. */
 export const STUDY_PATH = /(studium|studien|studies|study|formation|etude|étude|corsi|studi|studiengang|programm|program|bachelor|master|angebot|offre|offerta|ausbildung)/i
