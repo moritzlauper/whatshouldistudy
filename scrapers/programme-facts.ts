@@ -17,6 +17,7 @@ import { exactBatch } from '../lib/ai-batch.ts'
 import { pageText, robotsAllow, sameSite } from '../lib/official-facts.ts'
 import { officialPageOf } from '../lib/official-pages.ts'
 import { FACTS_SCHEMA, FACTS_SYSTEM, batches, costMicroUsd, hashText, isUnchanged, mergeFacts, normaliseFact, type PageMember, type StoredFact } from './lib/facts.ts'
+import { storedFactProblem } from '../lib/facts-store.ts'
 import { log } from './lib/common.ts'
 import { fetchSite } from './lib/site-fetch.ts'
 
@@ -175,9 +176,15 @@ async function main() {
     }
   }
 
+  // A reading the store would refuse is not kept: its programme keeps the reading it had, and the log names the field.
+  const storable = fresh.filter((f) => {
+    const problem = storedFactProblem(f)
+    if (problem) log(`reading of ${f.id} not stored: ${problem}`)
+    return !problem
+  })
   // Readings of programmes that left the data go; the others keep theirs when this run did not read them.
   const known = new Set(rows.map((r) => r.id))
-  const merged = Object.fromEntries(Object.entries(mergeFacts(previous, fresh)).filter(([id]) => known.has(id)))
+  const merged = Object.fromEntries(Object.entries(mergeFacts(previous, storable)).filter(([id]) => known.has(id)))
   mkdirSync(dirname(outFile), { recursive: true })
   writeFileSync(outFile, `${JSON.stringify({ updated: new Date().toISOString(), country, programmes: merged }, null, 1)}\n`)
   log(
