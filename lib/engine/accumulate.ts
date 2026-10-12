@@ -26,7 +26,7 @@ const TOPICS_KEPT = 200
  * pick up (new filters, new lexicon terms); the results page then suggests
  * reading the files again.
  */
-export const SUMMARY_VERSION = 5
+export const SUMMARY_VERSION = 6
 
 export interface AccumulateOptions {
   source: SourceId

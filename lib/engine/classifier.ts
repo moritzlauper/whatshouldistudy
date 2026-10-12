@@ -162,6 +162,10 @@ const BRANDS =
 const FALSE_FRIENDS =
   /\b(frank\s+ocean|ocean'?s\s+(?:eleven|twelve|thirteen|eight|8|11|12|13)|prison\s+break|orange\s+is\s+the\s+new\s+black|nocturnal\s+animals|(?:the\s+)?predator(?:s)?\s+(?:\d+|film|movie|prey|badlands|trailer)|grey'?s\s+anatomy|dr\.?\s+house|breaking\s+bad|criminal\s+minds|save\s+the\s+planet|our\s+planet|unseren?\s+planeten|planet\s+based|planetary\s+health|judge\s+(?:rinder|judy|mathis|jules)|cat\s+tv|katzen[\s-]?tv|(?:rain|thunder|ocean|jungle|forest|desert|nature|white|brown|fire|night|study|sleep)\s+(?:sounds?|noises?|ambien\w*)|ambient\s+(?:music|sounds?)|white\s+noise|[\p{L}-]+\s+(?:outfits?|kost(?:ü|u|ue)m\w*|costumes?|verkleidung\w*|halloween))\b/giu
 
+/** Team names, tuning/coordination and business alliances are not subject interest. */
+const SOCIAL_FALSE_FRIENDS =
+  /\b(?:m[aā]ori(?=\s+(?:all\s+blacks|rugby)\b)|abstimmung(?:en)?(?=\s+(?:der|von)\s+(?:instrument(?:e|en)?|termin(?:e|en)?|farbe(?:n)?|prozess(?:e|en)?)\b)|koalition(?:en)?(?=\s+(?:von|der|aus)\s+unternehmen\b)|coalitions?(?=\s+of\s+(?:companies|businesses)\b))\b/giu
+
 /**
  * Looking something up on a film or series database is choosing what to
  * watch, not interest in the subject: «best true crime imdb» counts as
@@ -182,7 +186,7 @@ export function classify(text: string, opts: { splitCamel?: boolean } = {}): Cla
 
   if (MEDIA_LOOKUP.test(text) && !MEDIA_STUDY.test(text)) return MEDIA_ONLY
   const lx = lexicon()
-  const norm = normalize(text.replace(BRANDS, ' ').replace(FALSE_FRIENDS, ' '), opts)
+  const norm = normalize(text.replace(BRANDS, ' ').replace(FALSE_FRIENDS, ' ').replace(SOCIAL_FALSE_FRIENDS, ' '), opts)
   const toks = tokens(norm)
   const seen = new Set<number>()
   const raw = new Float32Array(FIELD_COUNT)
