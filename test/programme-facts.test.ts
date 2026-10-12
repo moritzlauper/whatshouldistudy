@@ -14,6 +14,9 @@ test('a page counts as unchanged only with the same address and the same hash', 
   assert.equal(isUnchanged(old, 'https://www.unibe.ch/b', 'h1'), false)
   assert.equal(isUnchanged({ ...old, version: undefined }, 'https://www.unibe.ch/a', 'h1'), false)
   assert.equal(isUnchanged(undefined, 'https://www.unibe.ch/a', 'h1'), false)
+  // A reading stored before the specialisations and the distinctive points existed is read again.
+  const legacy = { id: 'a', url: old.url, hash: old.hash, at: old.at, riasec: old.riasec, subjects: old.subjects, topics: old.topics, enough: true, checks: old.checks } as unknown as StoredFact
+  assert.equal(isUnchanged(legacy, 'https://www.unibe.ch/a', 'h1'), false)
   assert.equal(hashText('x'), hashText('x'))
   assert.notEqual(hashText('x'), hashText('y'))
 })

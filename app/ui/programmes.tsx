@@ -834,6 +834,8 @@ function Explorer({
   const [ownHere, setOwnHere] = useState(false)
   const own = ownShared ?? ownHere
   const setOwn = onOwnChange ?? setOwnHere
+  // With the optional step on, the list is ordered by the number, so the sort is «Passt am besten».
+  const listSort = own ? 'match' : sort
   // The optional step compares the best of the results with a reading, in the order the top list uses.
   const ownPool = useMemo(() => orderByNumber((data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined), scoreOf, fieldOrder).slice(0, PERSONAL_POOL), [data, scoreOf, fieldOrder])
   const ownKey = JSON.stringify([ownPool.map((p) => p.id), locale, profile, token])
@@ -864,7 +866,7 @@ function Explorer({
   // The number the list shows: the reading, averaged with the answers when the optional step is on.
   const shownScore = (id: string): number | undefined => blendedScore(scoreOf(id), ownMap?.get(id)) ?? (hasScores ? 50 : undefined)
   // Sorted by the match, every result is fetched at once and ordered together, so this list agrees with the top list; it is paged here.
-  const byMatch = sort === 'match'
+  const byMatch = listSort === 'match'
   const serverPage = byMatch ? 0 : page
   const ordered = useMemo(() => {
     const items = data?.items ?? []
@@ -875,7 +877,7 @@ function Explorer({
 
   const query = useCallback(
     async (extra: Record<string, unknown> = {}) => {
-      const base = { fields, prefs, topics, country: country || undefined, level, sort, q: q || undefined, city: city || undefined }
+      const base = { fields, prefs, topics, country: country || undefined, level, sort: listSort, q: q || undefined, city: city || undefined }
       if (byMatch) {
         const all = await allProgrammes({ ...base, ...extra }, token)
         if (all === 'locked') {
@@ -895,7 +897,7 @@ function Explorer({
       }
       return (await res.json()) as RankResult
     },
-    [token, fields, prefs, topics, country, level, sort, q, city, byMatch, serverPage, onInvalid],
+    [token, fields, prefs, topics, country, level, listSort, q, city, byMatch, serverPage, onInvalid],
   )
 
   useEffect(() => {
@@ -972,7 +974,20 @@ function Explorer({
             </option>
           ))}
         </select>
-        <select value={sort} onChange={(e) => (setSort(e.target.value as typeof sort), setPage(0))} className="input w-auto">
+        <select
+          value={listSort}
+          onChange={(e) => {
+            const next = e.target.value as typeof sort
+            // Another order than the number takes the optional step off, so the list shows the order that was chosen.
+            if (next !== 'match' && own) {
+              setOwn(false)
+              setOwnFits(null)
+            }
+            setSort(next)
+            setPage(0)
+          }}
+          className="input w-auto"
+        >
           {(['match', 'cost', 'earnings', 'new'] as const).filter((s) => s !== 'earnings' || !isLocal(site)).map((s) => (
             <option key={s} value={s}>
               {t.programmes.sort[s]}
