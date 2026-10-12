@@ -90,6 +90,11 @@ test('unknown or incomplete model classifications are rejected and uncertain sub
   assert.equal(contentRequest([{ id: '0', kind: 'google', title: 'private search', channel: '', context: [] }]), null)
 })
 
+test('content explanations remain complete beyond 300 characters', () => {
+  const reason = 'Diese Inhalte behandeln gesellschaftliche Fragen und die Arbeit politischer Institutionen. '.repeat(4)
+  assert.equal(contentVerdicts([{ id: '0', reason, fields: [{ id: 'sociology', confidence: .9 }] }], new Set(['0']))[0].reason, reason.trim())
+})
+
 test('disabling AI restores the original exactly; stale AI does not affect a newer import', () => {
   const base = accumulate([watch('Stop stanning politicians.')], { source: 'takeout', label: 'Test' })
   const plan = contentPlan([watch('Stop stanning politicians.')])

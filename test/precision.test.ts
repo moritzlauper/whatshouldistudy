@@ -56,6 +56,14 @@ test('a batch must cover precisely its requested IDs, with no duplicates or omis
   for (const raw of [undefined, [{ id: 'a' }], [{ id: 'a' }, { id: 'a' }], [{ id: 'a' }, { id: 'other' }]]) assert.throws(() => exactBatch(raw, ids))
 })
 
+test('AI explanations keep complete paragraphs beyond the former 240 and 320 character cuts', () => {
+  const explanation = 'Dein Thema passt zur Medienkommunikation. ' + 'Gesellschaft, Ökonomie und Politik werden im Studiengang gemeinsam untersucht. '.repeat(5) + 'Die Bewerbung verlangt eine wissenschaftliche Arbeitsprobe.'
+  assert.ok(explanation.length > 320)
+  const canonical = { id: 'cs', fit: 4, score: 72, reasons: [], thin: false }
+  assert.deepEqual(aiPersonalFit({ id: 'cs', score: 80, reasons: ['  ' + explanation + '  '] }, canonical).reasons, [explanation])
+  assert.deepEqual(toPersonalFit({ id: 'cs', fit: 4, enough_info: true, reasons: [explanation] }, new Set(['cs']))?.reasons, [explanation])
+})
+
 test('HSLU-style outer forms retain the programme text while hidden controls are discarded', () => {
   const html = '<form id="superform"><input value="state"><nav>Menu</nav><h1>Informatik</h1><div hidden><p>Hidden</p></div><div aria-hidden="true"><div>Also hidden</div></div><div style="display:none">Secret</div><p>180 ECTS</p></form>'
   assert.equal(pageText(html), 'Informatik\n180 ECTS')

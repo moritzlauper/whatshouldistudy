@@ -210,7 +210,7 @@ export interface PersonalFit {
   fit: number
   /** 0..100, consistent with fit. */
   score: number
-  /** One or two short sentences in the reader's language, addressed to the person informally. */
+  /** Complete explanations in the reader's language, addressed to the person informally. */
   reasons: string[]
   /** The reading says too little to judge; the rating is neutral. */
   thin: boolean
@@ -229,7 +229,7 @@ export function toPersonalFit(raw: unknown, asked: ReadonlySet<string>): Persona
   const fit = fitBand(score)
   const reasons = (Array.isArray(x.reasons) ? x.reasons : [])
     .filter((r): r is string => typeof r === 'string')
-    .map((r) => r.trim().slice(0, 240))
+    .map((r) => r.trim())
     .filter(Boolean)
     .slice(0, 2)
   return { id: x.id, fit, score, reasons, thin: false }
@@ -242,7 +242,7 @@ export const PERSONAL_SWING = 30
 
 /**
  * Claude's own rating of one programme: its score kept within PERSONAL_SWING of the computed number, and at most three of its
- * sentences (trimmed, 320 characters each). Without sentences the computed connections stand. Thin readings stay neutral.
+ * explanations, without cutting off sentences. Without explanations the computed connections stand. Thin readings stay neutral.
  */
 export function aiPersonalFit(raw: Record<string, unknown>, canonical: PersonalFit): PersonalFit {
   if (raw.id !== canonical.id || typeof raw.score !== 'number' || !Number.isFinite(raw.score)) throw new Error('Unknown programme or score')
@@ -252,7 +252,7 @@ export function aiPersonalFit(raw: Record<string, unknown>, canonical: PersonalF
   const score = Math.round(Math.max(low, Math.min(high, raw.score)))
   const sentences = (Array.isArray(raw.reasons) ? raw.reasons : [])
     .filter((r): r is string => typeof r === 'string')
-    .map((r) => r.trim().slice(0, 320))
+    .map((r) => r.trim())
     .filter(Boolean)
     .slice(0, 3)
   return { id: canonical.id, fit: fitBand(score), score, reasons: sentences.length ? sentences : canonical.reasons, thin: false }

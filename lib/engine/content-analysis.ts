@@ -92,7 +92,7 @@ export function contentVerdicts(raw: unknown, ids: ReadonlySet<string>): Content
       if (!f || typeof f.id !== 'string' || !FIELD_BY_ID[f.id] || typeof f.confidence !== 'number' || !Number.isFinite(f.confidence) || f.confidence < 0 || f.confidence > 1) throw new Error('Invalid subject connection')
       if (f.confidence >= .6) fields[f.id] = Math.max(fields[f.id] ?? 0, f.confidence)
     }
-    return { id: x.id as string, fields, reason: x.reason.trim().slice(0, 300) }
+    return { id: x.id as string, fields, reason: x.reason.trim() }
   })
 }
 

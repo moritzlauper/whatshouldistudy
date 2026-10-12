@@ -6,7 +6,7 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 
 - Direkt auf `main` pushen, keine PRs.
 - Texte auf Deutsch: Schweizer Hochdeutsch, kein ß, Anführungszeichen «», schlicht und konkret, keine Werbefloskeln. Alle UI-Texte stehen in `lib/site/dict.ts` (en, de-CH, fr, it, dazu Overrides für DE/AT).
-- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 198 grün). Demodaten mit `node scrapers/build.ts --sample`.
+- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 212 grün). Demodaten mit `node scrapers/build.ts --sample`.
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
 
@@ -19,6 +19,8 @@ Auf «entscheide du» zum vorangegangenen Engine-Test wurden die belegten Lexiko
 - Der Matcher unterstützt Sterne nur bei einzelnen Tokens. Das wirkungslose `social norm*` wurde durch Singular und Plural ersetzt; die Einschränkung steht jetzt in der Lexikon-Dokumentation. Importversion 6 weist bei älteren Zusammenfassungen auf erneutes Einlesen hin. Basisraten, Gewichtung, Fragebogen und Paywall sind unverändert.
 
 Prüfungen: `test/social-sciences.test.ts` mit 14 Regressionen und 48 erfundenen Titeln in `test/fixtures/social-sciences.ts`. Im selben Set stieg die richtige Top-1-Zuordnung bei Geschichte von 2/12 auf 12/12, Politik von 0/12 auf 12/12, Ethnologie von 2/12 auf 12/12 und Soziologie von 11/12 auf 12/12. Pro Fach 30 reproduzierbar gezogene Verläufe mit je 60 Einträgen: jeweils das erwartete Fach auf Platz 1. Bei 15 % Soziologie neben 85 % Politik bleibt Politik in allen 30 Läufen vorne. Gegenproben prüfen andere Wortbedeutungen, Fachbelege, Themenübernahme und Studiengangnamen. Das ist ein gezielter synthetischer Regressionstest, keine Validierung mit echten Nutzerdaten.
+
+Gesamte Suite: 212 Tests und TypeScript erfolgreich; `git diff --check` ohne Befund.
 
 ## Freiwillige KI-Inhaltsanalyse von YouTube-Exporten
 

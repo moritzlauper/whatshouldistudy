@@ -185,7 +185,7 @@ function rememberAgreement(on: boolean) {
 /** Where the optional step stands: waiting, failed, a limit that answered, or ready. */
 export type OwnStatus = 'loading' | 'failed' | 'budget' | 'daily' | 'ready'
 
-export function OwnDataPanel({ on, status, onChange, search = false, hint }: { on: boolean; status: OwnStatus; onChange: (on: boolean) => void; search?: boolean; hint?: string }) {
+export function OwnDataPanel({ on, status, onChange, search = false, hint, disabled = false }: { on: boolean; status: OwnStatus; onChange: (on: boolean) => void; search?: boolean; hint?: string; disabled?: boolean }) {
   const { t } = useSite()
   const a = t.programmes.ai.own
   // The same step in two places: above the top list («Mit KI sortieren») and in the search («Mit KI suchen»).
@@ -219,6 +219,7 @@ export function OwnDataPanel({ on, status, onChange, search = false, hint }: { o
           <button
             type="button"
             className="btn btn-primary btn-sm"
+            disabled={disabled}
             onClick={() => {
               rememberAgreement(true)
               setAsking(false)
@@ -236,7 +237,7 @@ export function OwnDataPanel({ on, status, onChange, search = false, hint }: { o
   }
   return (
     <div className="flex flex-col items-start gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-      <button type="button" className="btn btn-ghost btn-sm max-w-full justify-start whitespace-normal text-left leading-snug" onClick={() => (agreedBefore() ? onChange(true) : setAsking(true))}>
+      <button type="button" disabled={disabled} className="btn btn-ghost btn-sm max-w-full justify-start whitespace-normal text-left leading-snug" onClick={() => (agreedBefore() ? onChange(true) : setAsking(true))}>
         ＋ {label.ask}
       </button>
       <span className="text-muted">{hint ?? label.hint}</span>

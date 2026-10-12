@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { studentId, unlockToken, update, useAppState } from '@/lib/store.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
 import { SALES_PAUSED, isLocal } from '@/lib/site/config.ts'
@@ -119,12 +119,56 @@ function askPersonal(programmes: RankedProgramme[], profile: LocalProfile, local
   return ask
 }
 
+/** A click authorises this list and profile only; changed filters require another click. */
+export function usePersonalComparison(programmes: RankedProgramme[], profile: LocalProfile | null, locale: string, token: string | null, context: string) {
+  const key = JSON.stringify([context, programmes.map((p) => p.id), locale, profile, token])
+  const [activeKey, setActiveKey] = useState<string | null>(null)
+  const attempt = useRef(0)
+  useEffect(() => () => { attempt.current++ }, [])
+  const [reply, setReply] = useState<{ key: string; map: Map<string, PersonalFit> | null; limit?: 'budget' | 'daily' } | null>(null)
+  const on = activeKey === key
+  useEffect(() => {
+    if (activeKey && !on) {
+      attempt.current++
+      setActiveKey(null)
+      setReply(null)
+    }
+  }, [activeKey, on])
+  const current = on && reply?.key === key ? reply : null
+  const status: OwnStatus = !on ? 'ready' : !current ? 'loading' : current.limit ?? (current.map ? 'ready' : 'failed')
+  const statusOf = (id: string): PersonalStatus => {
+    if (!on) return 'off'
+    if (!current) return 'loading'
+    if (!current.map) return 'failed'
+    if (current.map.has(id)) return 'rated'
+    return programmes.some((p) => p.id === id) ? 'missing' : 'outside'
+  }
+  const onChange = (enabled: boolean) => {
+    const run = ++attempt.current
+    setReply(null)
+    if (!enabled || !programmes.length || !profile) {
+      setActiveKey(null)
+      return
+    }
+    setActiveKey(key)
+    // Sending is an explicit button action, never an effect of opening or changing a list.
+    askPersonal(programmes, profile, locale, token)
+      .then((list) => {
+        if (attempt.current === run) setReply({ key, map: list.length ? new Map(list.map((f) => [f.id, f])) : null })
+      })
+      .catch((e: Error) => {
+        if (attempt.current === run) setReply({ key, map: null, limit: limitOf(e) })
+      })
+  }
+  return { on, status, statusOf, onChange, map: current?.map ?? null }
+}
+
 /**
  * The top programmes. Every programme with a reading is ranked, not only the best
  * matches of the questionnaire, so a good fit is not left out for lack of a place.
  */
-export function TopProgrammes({ results, prefs, topics = [], token, unlocked, shared = false, own: ownShared, onOwnChange, onStatus }: {
-  results: Results; prefs: Preferences; topics?: UserTopic[]; token: string | null; unlocked: boolean; shared?: boolean; own?: boolean; onOwnChange?: (on: boolean) => void; onStatus?: (status: OwnStatus) => void
+export function TopProgrammes({ results, prefs, topics = [], token, unlocked, shared = false }: {
+  results: Results; prefs: Preferences; topics?: UserTopic[]; token: string | null; unlocked: boolean; shared?: boolean
 }) {
   const { t, r, locale } = useSite()
   const [reply, setReply] = useState<{ key: string; data: RankResult | null; error?: boolean; locked?: boolean } | null>(null)
@@ -159,39 +203,8 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   // Every programme with a reading; the optional step compares the best of them, best first by the reading and the match.
   const rated = useMemo(() => pool.filter((p) => scoreOf(p.id) !== undefined), [pool, scoreOf])
   const personalPool = useMemo(() => orderByNumber(rated, scoreOf, fieldOrder).slice(0, PERSONAL_POOL), [rated, scoreOf, fieldOrder])
-  // The optional step: Claude compares the best of them with the answers here. Off unless switched on; the page's switch, when given, decides for every list.
-  const [ownHere, setOwnHere] = useState(false)
-  const own = ownShared ?? ownHere
-  const setOwn = onOwnChange ?? setOwnHere
-  const ownKey = JSON.stringify([personalPool.map((p) => p.id), locale, profile, token])
-  const [fits, setFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; limit?: 'budget' | 'daily' } | null>(null)
-  useEffect(() => {
-    if (!own || !personalPool.length || !profile) return
-    let alive = true
-    askPersonal(personalPool, profile, locale, token)
-      .then((list) => {
-        if (alive) setFits({ key: ownKey, map: new Map(list.map((f) => [f.id, f])) })
-      })
-      .catch((e: Error) => {
-        if (alive) setFits({ key: ownKey, map: null, limit: limitOf(e) })
-      })
-    return () => {
-      alive = false
-    }
-  }, [own, ownKey, token])
-  const personalMap = own && fits?.key === ownKey ? fits.map : null
-  const ownStatus: 'loading' | 'failed' | 'budget' | 'daily' | 'ready' = !own ? 'ready' : !fits || fits.key !== ownKey ? 'loading' : fits.limit === 'budget' ? 'budget' : fits.limit === 'daily' ? 'daily' : fits.map ? 'ready' : 'failed'
-  // Reported up, so that the switch above the results shows the same status as this list.
-  useEffect(() => {
-    onStatus?.(ownStatus)
-  }, [ownStatus, onStatus])
-  const personalStatus = (id: string): PersonalStatus => {
-    if (!own) return 'off'
-    if (!fits || fits.key !== ownKey) return 'loading'
-    if (!fits.map) return 'failed'
-    if (fits.map.has(id)) return 'rated'
-    return personalPool.some((p) => p.id === id) ? 'missing' : 'outside'
-  }
+  const personal = usePersonalComparison(personalPool, profile, locale, token, JSON.stringify([body, unlocked, shared]))
+  const personalMap = personal.map
   // Keep the preferred fields first; compare each field’s programmes by profile and content.
   const ranked = useMemo(() => {
     const numberOf = (id: string) => blendedScore(scoreOf(id), personalMap?.get(id)) ?? (hasScores ? 50 : undefined)
@@ -213,13 +226,13 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
           {rated.length > 0 && (
             <div className="mb-4">
-              <OwnDataPanel on={own} status={ownStatus} onChange={(v) => { setOwn(v); if (!v) setFits(null) }} />
+              <OwnDataPanel on={personal.on} status={personal.status} onChange={personal.onChange} />
             </div>
           )}
           <ol className="grid gap-4">
             {best.map((x, i) => (
               <li key={x.p.id}>
-                <ProgrammeRow p={x.p} rank={i + 1} fact={readings.byId.get(x.p.id)} fit={local.get(x.p.id)} score={x.score} personal={x.personal} personalStatus={personalStatus(x.p.id)} />
+                <ProgrammeRow p={x.p} rank={i + 1} fact={readings.byId.get(x.p.id)} fit={local.get(x.p.id)} score={x.score} personal={x.personal} personalStatus={personal.statusOf(x.p.id)} />
               </li>
             ))}
           </ol>
@@ -238,7 +251,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   )
 }
 
-export function Programmes({ results, prefs, topics = [], hideFirst = true, shared = false, own, onOwnChange }: { results: Results; prefs: Preferences; topics?: UserTopic[]; hideFirst?: boolean; shared?: boolean; own?: boolean; onOwnChange?: (on: boolean) => void }) {
+export function Programmes({ results, prefs, topics = [], hideFirst = true, shared = false }: { results: Results; prefs: Preferences; topics?: UserTopic[]; hideFirst?: boolean; shared?: boolean }) {
   const { t, r, site, locale, intl } = useSite()
   const [token, setToken] = useState<string | null>(null)
   const [teaser, setTeaser] = useState<Teaser | null>(null)
@@ -277,7 +290,7 @@ export function Programmes({ results, prefs, topics = [], hideFirst = true, shar
         {teaser?.sample && <p className="on-color mt-5 rounded-2xl border-2 border-line bg-yellow px-4 py-3 text-sm font-semibold">⚠ {t.programmes.demo}</p>}
 
         {token || config?.payments === 'off' ? (
-          <Explorer token={token} fields={fields} prefs={prefs} topics={weights} onInvalid={() => setToken(null)} shared={shared} own={own} onOwnChange={onOwnChange} />
+          <Explorer token={token} fields={fields} prefs={prefs} topics={weights} onInvalid={() => setToken(null)} shared={shared} />
         ) : (
           <Locked teaser={teaser} config={config} hideFirst={hideFirst} onUnlocked={setToken} />
         )}
@@ -811,8 +824,6 @@ function Explorer({
   topics,
   onInvalid,
   shared,
-  own: ownShared,
-  onOwnChange,
 }: {
   token: string | null
   fields: Array<{ id: string; score: number }>
@@ -820,8 +831,6 @@ function Explorer({
   topics?: Record<string, number>
   onInvalid: () => void
   shared?: boolean
-  own?: boolean
-  onOwnChange?: (on: boolean) => void
 }) {
   const { t, locale, intl, conf, site } = useSite()
   const [country, setCountry] = useState('')
@@ -830,46 +839,19 @@ function Explorer({
   const [q, setQ] = useState('')
   const [city, setCity] = useState('')
   const [page, setPage] = useState(0)
-  const [data, setData] = useState<RankResult | null>(null)
+  const queryKey = JSON.stringify([token, fields, prefs, topics, country, level, sort, q, city, sort === 'match' ? 0 : page])
+  const [reply, setReply] = useState<{ key: string; data: RankResult | null } | null>(null)
+  const data = reply?.key === queryKey ? reply.data : null
   const results = useContext(ResultsContext)
   const profile = useLocalProfile(results, topics)
-  const fieldOrder = useMemo(() => orderedFieldIds(fields), [fields])
   // The readings are shown in the rows; the order is the one the filters ask for.
   const readings = useReadings(token, !shared && hasReadings(prefs))
   const { fits, scoreOf, hasScores } = useFitScores(readings.byId, profile)
-  // The optional step «Mit KI sortieren» in the list: the shown results with a reading, compared with the answers. The page's switch, when given, decides.
-  const [ownHere, setOwnHere] = useState(false)
-  const own = ownShared ?? ownHere
-  const setOwn = onOwnChange ?? setOwnHere
-  // With the optional step on, the list is ordered by the number, so the sort is «Passt am besten».
-  const listSort = own ? 'match' : sort
-  // The optional step compares the best of the results with a reading, in the order the top list uses.
-  const ownPool = useMemo(() => orderByNumber((data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined), scoreOf, fieldOrder).slice(0, PERSONAL_POOL), [data, scoreOf, fieldOrder])
-  const ownKey = JSON.stringify([ownPool.map((p) => p.id), locale, profile, token])
-  const [ownFits, setOwnFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; limit?: 'budget' | 'daily' } | null>(null)
-  useEffect(() => {
-    if (!own || !ownPool.length || !profile) return
-    let alive = true
-    askPersonal(ownPool, profile, locale, token)
-      .then((list) => {
-        if (alive) setOwnFits({ key: ownKey, map: new Map(list.map((f) => [f.id, f])) })
-      })
-      .catch((e: Error) => {
-        if (alive) setOwnFits({ key: ownKey, map: null, limit: limitOf(e) })
-      })
-    return () => {
-      alive = false
-    }
-  }, [own, ownKey, token])
-  const ownMap = own && ownFits?.key === ownKey ? ownFits.map : null
-  const ownStatus: 'loading' | 'failed' | 'budget' | 'daily' | 'ready' = !own ? 'ready' : !ownFits || ownFits.key !== ownKey ? 'loading' : ownFits.limit === 'budget' ? 'budget' : ownFits.limit === 'daily' ? 'daily' : ownFits.map ? 'ready' : 'failed'
-  const personalStatusOf = (id: string): PersonalStatus => {
-    if (!own) return 'off'
-    if (!ownFits || ownFits.key !== ownKey) return 'loading'
-    if (!ownFits.map) return 'failed'
-    if (ownFits.map.has(id)) return 'rated'
-    return ownPool.some((p) => p.id === id) ? 'missing' : 'outside'
-  }
+  const listSort = sort
+  // Search compares its own twenty best results, only after its own button was pressed.
+  const ownPool = useMemo(() => orderByNumber((data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined), scoreOf).slice(0, PERSONAL_POOL), [data, scoreOf])
+  const personal = usePersonalComparison(ownPool, profile, locale, token, queryKey)
+  const ownMap = personal.map
   // The number the list shows: the reading, averaged with the answers when the optional step is on.
   const shownScore = (id: string): number | undefined => blendedScore(scoreOf(id), ownMap?.get(id)) ?? (hasScores ? 50 : undefined)
   // Sorted by the match, every result is fetched at once and ordered together, so this list agrees with the top list; it is paged here.
@@ -877,8 +859,8 @@ function Explorer({
   const serverPage = byMatch ? 0 : page
   const ordered = useMemo(() => {
     const items = data?.items ?? []
-    return byMatch ? orderByNumber(items, shownScore, fieldOrder) : items
-  }, [data, byMatch, scoreOf, ownMap, fieldOrder])
+    return byMatch ? orderByNumber(items, shownScore) : items
+  }, [data, byMatch, scoreOf, ownMap, hasScores])
   const pageItems = byMatch ? ordered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE) : ordered
   const [loading, setLoading] = useState(false)
 
@@ -912,9 +894,9 @@ function Explorer({
     setLoading(true)
     const timer = setTimeout(() => {
       query().then((d) => {
-        if (!cancelled && d) setData(d)
+        if (!cancelled && d) setReply({ key: queryKey, data: d })
       }).catch(() => {
-        if (!cancelled) setData(null)
+        if (!cancelled) setReply({ key: queryKey, data: null })
       }).finally(() => {
         if (!cancelled) setLoading(false)
       })
@@ -923,14 +905,14 @@ function Explorer({
       cancelled = true
       clearTimeout(timer)
     }
-  }, [query])
+  }, [query, queryKey])
 
   async function exportCsv() {
     const all = await allProgrammes({ fields, prefs, topics, country: country || undefined, level, sort, q: q || undefined, city: city || undefined }, token)
     if (all === 'locked') { onInvalid(); return }
     const cols = ['match', 'name', 'institution', 'country', 'city', 'level', 'field', 'tuition_per_year', 'currency', 'earnings', 'admission_rate', 'url']
     const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
-    const exportItems = byMatch ? orderByNumber(all.items, shownScore, fieldOrder) : all.items
+    const exportItems = byMatch ? orderByNumber(all.items, shownScore) : all.items
     const rows = exportItems.map((p) =>
       [combinedScore(p.match, shownScore(p.id)), p.name, p.institution, p.country, p.city, p.level, fieldName(p.fields[0] ?? p.matchedField, locale), p.fee?.amount, p.fee?.currency, p.earnings?.median, p.admissionRate, p.url ?? p.institutionUrl].map(esc).join(','),
     )
@@ -985,11 +967,6 @@ function Explorer({
           value={listSort}
           onChange={(e) => {
             const next = e.target.value as typeof sort
-            // Another order than the number takes the optional step off, so the list shows the order that was chosen.
-            if (next !== 'match' && own) {
-              setOwn(false)
-              setOwnFits(null)
-            }
             setSort(next)
             setPage(0)
           }}
@@ -1005,13 +982,13 @@ function Explorer({
           CSV ⤓
         </button>
       </div>
-      {readings.status === 'done' && (
+      {readings.status === 'done' && byMatch && (
         <div className="mt-3">
-          <OwnDataPanel search on={own} status={ownStatus} onChange={(v) => { setOwn(v); if (!v) setOwnFits(null) }} />
+          <OwnDataPanel search on={personal.on} status={personal.status} disabled={loading || !ownPool.length} onChange={(on) => { personal.onChange(on); setPage(0) }} />
           {ordered.length > 0 && (
             <p className="mt-2 text-sm text-muted">
               {t.programmes.ai.listBasis(ordered.filter((p) => scoreOf(p.id) !== undefined).length, ordered.length)}
-              {own && ` ${t.programmes.ai.listBasisOn}`}
+              {personal.on && ` ${t.programmes.ai.listBasisOn}`}
             </p>
           )}
         </div>
@@ -1023,7 +1000,7 @@ function Explorer({
       </p>
       <div className="mt-3 grid gap-4">
         {pageItems.map((p) => (
-          <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={shownScore(p.id)} personal={ownMap?.get(p.id)} personalStatus={personalStatusOf(p.id)} />
+          <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={shownScore(p.id)} personal={ownMap?.get(p.id)} personalStatus={personal.statusOf(p.id)} />
         ))}
       </div>
       {pages > 1 && (

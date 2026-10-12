@@ -33,6 +33,23 @@ test('equal numbers keep the order they came in, and the list given is not chang
   assert.deepEqual(items.map((p) => p.id), ['a', 'b', 'c'])
 })
 
+test('city-search results descend by their visible points across fields, before and after AI', () => {
+  const items = [
+    { id: 'politics', match: 52, fields: ['political-science'], matchedField: 'sociology' },
+    { id: 'education', match: 64, fields: ['psychology'], matchedField: 'psychology' },
+    { id: 'applied', match: 60, fields: ['psychology'], matchedField: 'psychology' },
+    { id: 'unread', match: 50, fields: ['sociology'], matchedField: 'sociology' },
+  ]
+  const local = { politics: 52, education: 64, applied: 60 } as Record<string, number>
+  const ai = { education: { score: 34 }, applied: { score: 90 } } as Record<string, { score: number }>
+  const numberOf = (id: string) => blendedScore(local[id], ai[id]) ?? 50
+  assert.deepEqual(orderByNumber(items, (id) => local[id] ?? 50).map((p) => p.id), ['education', 'applied', 'politics', 'unread'])
+  const ordered = orderByNumber(items, numberOf)
+  assert.deepEqual(ordered.map((p) => p.id), ['applied', 'education', 'politics', 'unread'])
+  const visible = ordered.map((p) => combinedScore(p.match, numberOf(p.id)))
+  assert.deepEqual(visible, [...visible].sort((a, b) => b - a))
+})
+
 
 test('Sociology stays first when theology has a higher reading but is a lower field', () => {
   const fields = orderedFieldIds([{ id: 'sociology', score: 96 }, { id: 'psychology', score: 94 }, { id: 'religious-studies', score: 85 }])
