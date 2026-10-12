@@ -165,7 +165,7 @@ async function main() {
     try {
       const response = await client.messages.create({
         model: MODEL,
-        max_tokens: 4000,
+        max_tokens: 8000,
         output_config: { effort: 'low', format: { type: 'json_schema', schema: FACTS_SCHEMA } },
         system: FACTS_SYSTEM,
         messages: [{ role: 'user', content: `Programmes:\n${group.map((x) => block(x.r, x.text)).join('\n\n')}` }],
