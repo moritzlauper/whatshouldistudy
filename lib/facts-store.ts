@@ -116,6 +116,29 @@ export function validStoredFact(raw: unknown): StoredFact | null {
   return { ...(Number.isInteger(x.version) && Number(x.version) > 0 ? { version: Number(x.version) } : {}), id, url, hash, at, riasec, subjects, topics, specialisations, distinctive, enough, checks }
 }
 
+/**
+ * The first field of a reading that is not as it may be stored, by name only; null when the reading is valid.
+ * The site answers with this when it refuses a part, so that the log says what failed, never what was read.
+ */
+export function storedFactProblem(raw: unknown): string | null {
+  if (!raw || typeof raw !== 'object') return 'not a reading'
+  const x = raw as Record<string, unknown>
+  if (typeof x.id !== 'string' || x.id.length === 0 || x.id.length > 40) return 'id'
+  if (typeof x.url !== 'string' || x.url.length === 0 || x.url.length > 500) return 'url'
+  if (!(typeof x.hash === 'string' && /^[0-9a-f]{64}$/.test(x.hash))) return 'hash'
+  if (!(typeof x.at === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.at))) return 'at'
+  if (!(Array.isArray(x.riasec) && x.riasec.length === 6 && x.riasec.every((n) => Number.isInteger(n) && n >= 0 && n <= 5))) return 'riasec'
+  if (!(Array.isArray(x.subjects) && x.subjects.length <= 6 && x.subjects.every((s) => typeof s === 'string' && (SUBJECT_KEYS as readonly string[]).includes(s)))) return 'subjects'
+  if (typeof x.enough !== 'boolean') return 'enough'
+  if (!(x.checks && typeof x.checks === 'object')) return 'checks'
+  if (!(x.topics === undefined || (Array.isArray(x.topics) && x.topics.length <= 6 && x.topics.every((t) => typeof t === 'string' && TOPIC_KEYS.includes(t))))) return 'topics'
+  if (!(x.specialisations === undefined || (Array.isArray(x.specialisations) && x.specialisations.length <= 8 && x.specialisations.every(validSpecialisation)))) return 'specialisations'
+  if (!(x.distinctive === undefined || (Array.isArray(x.distinctive) && x.distinctive.length <= 3 && x.distinctive.every((d) => typeof d === 'string' && d.length > 0 && d.length <= 160)))) return 'distinctive'
+  const given = x.checks as Record<string, unknown>
+  for (const l of CHECK_LANGUAGES) if (typeof given[l] !== 'string' || (given[l] as string).length > 300) return `checks.${l}`
+  return null
+}
+
 /** A list that may be absent (then it counts as empty); when given, at most `max` items, all of which pass `ok`. */
 function optional<T>(v: unknown, ok: (x: unknown) => boolean, max: number): T[] | null {
   if (v === undefined) return []

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { actionsKeys, checkActionsToken } from '@/lib/actions-oidc.ts'
 import { FACTS_COUNTRIES } from '@/lib/engine/programme-fit.ts'
-import { beginFacts, command, commitFacts, partFacts, readFacts, storeConfig, validStoredFact } from '@/lib/facts-store.ts'
+import { beginFacts, command, commitFacts, partFacts, readFacts, storedFactProblem, storeConfig, validStoredFact } from '@/lib/facts-store.ts'
 import { forgetCountry } from '@/lib/server/facts-db.ts'
 import type { StoredFact } from '@/scrapers/lib/facts.ts'
 
@@ -41,9 +41,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
     if (body?.action === 'part') {
-      const items = Array.isArray(body.programmes) ? body.programmes.map(validStoredFact) : []
-      if (!items.length || items.length > PART_MAX || items.some((f) => !f)) return NextResponse.json({ error: 'Invalid readings.' }, { status: 400 })
-      await partFacts(cfg, country, items as StoredFact[])
+      const list: unknown[] = Array.isArray(body.programmes) ? body.programmes : []
+      const bad = list.findIndex((raw) => storedFactProblem(raw) !== null)
+      if (!list.length || list.length > PART_MAX || bad >= 0) {
+        // Only the place and the name of the field leave the server, never the reading itself.
+        return NextResponse.json({ error: 'Invalid readings.', index: bad, field: bad >= 0 ? storedFactProblem(list[bad]) : null }, { status: 400 })
+      }
+      await partFacts(cfg, country, list.map(validStoredFact) as StoredFact[])
       return NextResponse.json({ ok: true })
     }
     if (body?.action === 'commit') {

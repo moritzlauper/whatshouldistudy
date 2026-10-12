@@ -55,7 +55,7 @@ async function ingest(body: Record<string, unknown>): Promise<{ status: number; 
 
 async function must(body: Record<string, unknown>): Promise<Record<string, unknown>> {
   const { status, json } = await ingest(body)
-  if (status !== 200) throw new Error(`the site answered ${status}: ${json.error ?? 'no reason given'}`)
+  if (status !== 200) throw new Error(`the site answered ${status}: ${json.error ?? 'no reason given'}${json.field ? ` (reading ${json.index}, field ${json.field})` : ''}`)
   return json
 }
 
