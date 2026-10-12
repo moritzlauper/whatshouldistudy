@@ -788,11 +788,53 @@ function Explorer({
   // The readings are shown in the rows; the order is the one the filters ask for.
   const readings = useReadings(token, !shared && hasReadings(prefs))
   const { fits, scoreOf } = useFitScores(readings.byId, profile)
+  // The optional step «Mit KI suchen»: the shown results with a reading, compared with the answers, as in the top list.
+  const [own, setOwn] = useState(false)
+  const ownPool = useMemo(() => (data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined).slice(0, PERSONAL_POOL), [data, scoreOf])
+  const ownKey = JSON.stringify([ownPool.map((p) => p.id), locale])
+  const [ownFits, setOwnFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; budget?: boolean } | null>(null)
+  useEffect(() => {
+    if (!own || !ownPool.length || !profile) return
+    const controller = new AbortController()
+    fetch(withBase('/api/personal-fit'), {
+      method: 'POST', signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({
+        programmes: ownPool.map((p) => ({ id: p.id, field: p.matchedField, country: p.country })),
+        profile: { riasec: profile.riasec, subjects: Object.entries(profile.enjoy).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => k), topics: profile.topics ?? {} },
+        locale,
+      }),
+    }).then(async (res) => {
+      if (res.status === 429) throw new Error('budget')
+      if (!res.ok) throw new Error(String(res.status))
+      return (await res.json()) as { fits: PersonalFit[] }
+    }).then(({ fits: list }) => {
+      if (!controller.signal.aborted) setOwnFits({ key: ownKey, map: new Map(list.map((f) => [f.id, f])) })
+    }).catch((e: Error) => {
+      if (!controller.signal.aborted) setOwnFits({ key: ownKey, map: null, budget: e.message === 'budget' })
+    })
+    return () => controller.abort()
+  }, [own, ownKey, token])
+  const ownMap = own && ownFits?.key === ownKey ? ownFits.map : null
+  const ownStatus: 'loading' | 'failed' | 'budget' | 'ready' = !own ? 'ready' : !ownFits || ownFits.key !== ownKey ? 'loading' : ownFits.budget ? 'budget' : ownFits.map ? 'ready' : 'failed'
+  const personalStatusOf = (id: string): PersonalStatus => {
+    if (!own) return 'off'
+    if (!ownFits || ownFits.key !== ownKey) return 'loading'
+    if (!ownFits.map) return 'failed'
+    if (ownFits.map.has(id)) return 'rated'
+    return ownPool.some((p) => p.id === id) ? 'missing' : 'outside'
+  }
+  // The number the list shows: the reading, averaged with the answers when the optional step is on.
+  const shownScore = (id: string): number | undefined => {
+    const local = scoreOf(id)
+    const personal = ownMap?.get(id)
+    return personal && local !== undefined ? Math.round((local + personal.score) / 2) : local
+  }
   // The list shows the number it is ordered by: within the page, the best by the reading and the match come first.
   const shownItems = useMemo(() => {
     const items = data?.items ?? []
-    return sort === 'match' ? [...items].sort((a, b) => combinedScore(b.match, scoreOf(b.id)) - combinedScore(a.match, scoreOf(a.id))) : items
-  }, [data, sort, scoreOf])
+    return sort === 'match' ? [...items].sort((a, b) => combinedScore(b.match, shownScore(b.id)) - combinedScore(a.match, shownScore(a.id))) : items
+  }, [data, sort, scoreOf, ownMap])
   const [loading, setLoading] = useState(false)
 
   const query = useCallback(
@@ -892,6 +934,11 @@ function Explorer({
           CSV ⤓
         </button>
       </div>
+      {readings.status === 'done' && (
+        <div className="mt-3">
+          <OwnDataPanel search on={own} status={ownStatus} onChange={(v) => { setOwn(v); if (!v) setOwnFits(null) }} />
+        </div>
+      )}
       <p className="mt-4 text-sm font-semibold text-muted">
         {data ? t.programmes.count(fmtNumber(data.total, intl)) : t.programmes.loading}
         {data?.updated && t.programmes.dataFrom(new Date(data.updated).toLocaleDateString(intl, { dateStyle: 'medium' }))}
@@ -899,7 +946,7 @@ function Explorer({
       </p>
       <div className="mt-3 grid gap-4">
         {shownItems.map((p) => (
-          <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={scoreOf(p.id)} />
+          <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={shownScore(p.id)} personal={ownMap?.get(p.id)} personalStatus={personalStatusOf(p.id)} />
         ))}
       </div>
       {pages > 1 && (

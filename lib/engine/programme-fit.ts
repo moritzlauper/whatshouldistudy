@@ -124,10 +124,11 @@ export function fitSpread(scores: number[]): FitSpread | null {
   return { mean, sd: Math.max(sd, 5) }
 }
 
-/** A fit placed against the spread: 50 is the average programme, 15 points per standard deviation, 0..100. Unplaced without a spread. */
+/** A fit placed against the spread: 50 is the average programme, 15 points per standard deviation; further out it flattens between 15 and 85, so no reading alone reaches the top. Unplaced without a spread. */
 export function calibrated(raw: number, spread: FitSpread | null): number {
   if (!spread) return Math.round(raw)
-  return Math.round(Math.max(0, Math.min(100, 50 + (15 * (raw - spread.mean)) / spread.sd)))
+  const z = (raw - spread.mean) / spread.sd
+  return Math.round(50 + 35 * Math.tanh(Math.atanh(15 / 35) * z))
 }
 
 /** Keeps what the model returned that we can use: known ids and keys, values in range, one short sentence. */

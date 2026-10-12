@@ -189,9 +189,11 @@ function rememberAgreement(on: boolean) {
  * The optional step, off unless the person switches it on. The first time, the
  * text says what is sent and to whom; switching it off again withdraws the agreement.
  */
-export function OwnDataPanel({ on, status, onChange }: { on: boolean; status: 'loading' | 'failed' | 'budget' | 'ready'; onChange: (on: boolean) => void }) {
+export function OwnDataPanel({ on, status, onChange, search = false }: { on: boolean; status: 'loading' | 'failed' | 'budget' | 'ready'; onChange: (on: boolean) => void; search?: boolean }) {
   const { t } = useSite()
   const a = t.programmes.ai.own
+  // The same step in two places: above the top list («Mit KI sortieren») and in the search («Mit KI suchen»).
+  const label = search ? { ask: a.askSearch, hint: a.askSearchHint, withdraw: a.withdrawSearch } : { ask: a.ask, hint: a.askHint, withdraw: a.withdraw }
   const [asking, setAsking] = useState(false)
   if (on) {
     return (
@@ -201,13 +203,13 @@ export function OwnDataPanel({ on, status, onChange }: { on: boolean; status: 'l
         </p>
         <button
           type="button"
-          className="btn btn-ghost btn-sm mt-3"
+          className="btn btn-ghost btn-sm mt-3 max-w-full justify-start whitespace-normal text-left leading-snug"
           onClick={() => {
             rememberAgreement(false)
             onChange(false)
           }}
         >
-          {a.withdraw}
+          {label.withdraw}
         </button>
       </div>
     )
@@ -237,11 +239,11 @@ export function OwnDataPanel({ on, status, onChange }: { on: boolean; status: 'l
     )
   }
   return (
-    <div className="flex flex-wrap items-center gap-3 text-sm">
-      <button type="button" className="btn btn-ghost btn-sm" onClick={() => (agreedBefore() ? onChange(true) : setAsking(true))}>
-        ＋ {a.ask}
+    <div className="flex flex-col items-start gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+      <button type="button" className="btn btn-ghost btn-sm max-w-full justify-start whitespace-normal text-left leading-snug" onClick={() => (agreedBefore() ? onChange(true) : setAsking(true))}>
+        ＋ {label.ask}
       </button>
-      <span className="text-muted">{a.askHint}</span>
+      <span className="text-muted">{label.hint}</span>
     </div>
   )
 }

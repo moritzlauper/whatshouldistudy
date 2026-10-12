@@ -60,6 +60,7 @@ test('a fit is placed against the average programme: 50 is average, a spread abo
   assert.ok(spread)
   assert.equal(calibrated(50, spread), 50)
   assert.equal(calibrated(spread.mean + spread.sd, spread), 65)
-  assert.equal(calibrated(0, spread), 0)
+  assert.equal(calibrated(0, spread), 15)
+  assert.ok(calibrated(spread.mean + 10 * spread.sd, spread) <= 85)
   assert.equal(calibrated(72.4, null), 72)
 })
