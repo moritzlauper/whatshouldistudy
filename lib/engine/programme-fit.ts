@@ -147,9 +147,9 @@ export function calibrated(raw: number, spread: FitSpread | null): number {
 /** The profile remains the basis (80 %); content refines it (20 %), with missing content neutral. */
 export const combinedScore = (match: number, score?: number, readings = score !== undefined) => (readings ? Math.round(0.8 * match + 0.2 * (score ?? 50)) : match)
 
-/** The reading, averaged with the answers when the optional step has rated the programme. */
-export function blendedScore(local: number | undefined, personal?: { score: number; thin?: boolean }): number | undefined {
-  return personal && !personal.thin && local !== undefined ? Math.round((local + personal.score) / 2) : local
+/** The one number a programme shows: Claude's comparison where it rated the programme (not a thin reading), otherwise the profile with the reading's 20 %. */
+export function shownScore(match: number, content: number | undefined, readings: boolean, personal?: { score: number; thin?: boolean }): number {
+  return personal && !personal.thin ? personal.score : combinedScore(match, content, readings)
 }
 
 /** Strongest fields first, keeping the supplied order on equal scores. */
@@ -168,15 +168,15 @@ export function programmeFieldRank(p: { fields?: readonly string[]; matchedField
   return field ? field.rank - 1 + (field.direct ? 0 : .5) : Infinity
 }
 
-/** Keep the user's field order first; compare programme scores within each field. Stable on ties. */
-export function orderByNumber<T extends { id: string; match: number; fields?: readonly string[]; matchedField?: string }>(items: readonly T[], numberOf: (id: string) => number | undefined, fieldOrder: readonly string[] = []): T[] {
-  const scores = new Map(items.map((p) => [p.id, numberOf(p.id)]))
-  const readings = [...scores.values()].some((s) => s !== undefined)
+/** The best by its number first, over all results. The preferred field only decides between equal numbers; stable on ties. */
+export function orderByNumber<T extends { id: string; match: number; fields?: readonly string[]; matchedField?: string }>(items: readonly T[], shownOf: (p: T) => number, fieldOrder: readonly string[] = []): T[] {
+  const numbers = new Map(items.map((p) => [p.id, shownOf(p)]))
   return [...items].sort((a, b) => {
+    const diff = numbers.get(b.id)! - numbers.get(a.id)!
+    if (diff !== 0) return diff
     const aField = programmeFieldRank(a, fieldOrder)
     const bField = programmeFieldRank(b, fieldOrder)
-    if (aField !== bField) return aField < bField ? -1 : 1
-    return combinedScore(b.match, scores.get(b.id), readings) - combinedScore(a.match, scores.get(a.id), readings)
+    return aField === bField ? 0 : aField < bField ? -1 : 1
   })
 }
 

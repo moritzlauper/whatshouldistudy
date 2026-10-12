@@ -63,9 +63,6 @@ export function useReadings(token: string | null, enabled: boolean) {
   return { status, byId, updated: current?.reading?.updated ?? '' }
 }
 
-/** Field order comes first; within a field, the profile counts 80 % and the reading 20 %. */
-export { combinedScore } from '@/lib/engine/programme-fit.ts'
-export const dotsFor = (n: number) => (n >= 80 ? 5 : n >= 60 ? 4 : n >= 40 ? 3 : n >= 20 ? 2 : 1)
 
 /**
  * Each programme's fit with the person, from the readings in this browser, placed against every reading the country has:

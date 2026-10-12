@@ -24,7 +24,12 @@ export async function POST(req: Request) {
     ? body!.programmes
         .filter((x) => x && typeof x.id === 'string' && typeof x.field === 'string' && typeof x.country === 'string' && /^[A-Z]{2}$/.test(x.country))
         .slice(0, MAX_PERSONAL)
-        .map((x) => ({ id: x.id.slice(0, 40), field: x.field.slice(0, 60), country: x.country }))
+        .map((x) => ({
+          id: x.id.slice(0, 40),
+          field: x.field.slice(0, 60),
+          country: x.country,
+          computed: typeof x.computed === 'number' && Number.isFinite(x.computed) ? Math.max(0, Math.min(100, Math.round(x.computed))) : undefined,
+        }))
     : []
   const riasec = body?.profile?.riasec
   if (!programmes.length || !Array.isArray(riasec) || riasec.length !== 6 || riasec.some((x) => typeof x !== 'number' || !Number.isFinite(x))) {

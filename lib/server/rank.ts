@@ -207,7 +207,7 @@ export async function rank(req: RankRequest): Promise<RankResult> {
     new: (a, b) => (b.firstSeen ?? '').localeCompare(a.firstSeen ?? '') || b.match - a.match,
   }
   filtered.sort(sorters[req.sort ?? 'match'])
-  const ordered = (req.sort ?? 'match') === 'match' ? orderByNumber(filtered, () => undefined, orderedFieldIds(req.fields)) : filtered
+  const ordered = (req.sort ?? 'match') === 'match' ? orderByNumber(filtered, (p) => p.match, orderedFieldIds(req.fields)) : filtered
 
   const pageSize = req.pageSize ?? 40
   const page = req.page ?? 0

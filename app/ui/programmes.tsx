@@ -20,8 +20,8 @@ import type { InstType } from '@/lib/institutions.ts'
 import { CONTACT, withBase } from '@/lib/site.ts'
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
 import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
-import { FACTS_COUNTRIES, blendedScore, orderByNumber, orderedFieldIds, programmeFieldMatch, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
-import { AiBlock, OwnDataPanel, PERSONAL_POOL, combinedScore, dotsFor, useFitScores, useReadings, type OwnStatus, type PersonalStatus } from './readings.tsx'
+import { FACTS_COUNTRIES, shownScore, orderByNumber, orderedFieldIds, programmeFieldMatch, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
+import { AiBlock, OwnDataPanel, PERSONAL_POOL, useFitScores, useReadings, type OwnStatus, type PersonalStatus } from './readings.tsx'
 import { officialPageOf } from '@/lib/official-pages.ts'
 import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
 import { Price, useConfig } from './price.tsx'
@@ -96,9 +96,9 @@ async function allProgrammes(request: object, token: string | null, signal?: Abo
  * between them; a failed ask is not kept, so the next one asks again.
  */
 const personalAsks = new Map<string, Promise<PersonalFit[]>>()
-function askPersonal(programmes: RankedProgramme[], profile: LocalProfile, locale: string, token: string | null): Promise<PersonalFit[]> {
+function askPersonal(programmes: RankedProgramme[], profile: LocalProfile, locale: string, token: string | null, computed: (p: RankedProgramme) => number): Promise<PersonalFit[]> {
   const body = JSON.stringify({
-    programmes: programmes.map((p) => ({ id: p.id, field: p.matchedField, country: p.country })),
+    programmes: programmes.map((p) => ({ id: p.id, field: p.matchedField, country: p.country, computed: Math.round(computed(p)) })),
     profile: { riasec: profile.riasec, subjects: Object.entries(profile.enjoy).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => k), topics: profile.topics ?? {} },
     locale,
   })
@@ -120,7 +120,7 @@ function askPersonal(programmes: RankedProgramme[], profile: LocalProfile, local
 }
 
 /** A click authorises this list and profile only; changed filters require another click. */
-export function usePersonalComparison(programmes: RankedProgramme[], profile: LocalProfile | null, locale: string, token: string | null, context: string) {
+export function usePersonalComparison(programmes: RankedProgramme[], profile: LocalProfile | null, locale: string, token: string | null, context: string, computed: (p: RankedProgramme) => number = (p) => p.match) {
   const key = JSON.stringify([context, programmes.map((p) => p.id), locale, profile, token])
   const [activeKey, setActiveKey] = useState<string | null>(null)
   const attempt = useRef(0)
@@ -152,7 +152,7 @@ export function usePersonalComparison(programmes: RankedProgramme[], profile: Lo
     }
     setActiveKey(key)
     // Sending is an explicit button action, never an effect of opening or changing a list.
-    askPersonal(programmes, profile, locale, token)
+    askPersonal(programmes, profile, locale, token, computed)
       .then((list) => {
         if (attempt.current === run) setReply({ key, map: list.length ? new Map(list.map((f) => [f.id, f])) : null })
       })
@@ -200,14 +200,16 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const locked = !unlocked || current?.locked
   const pool = current?.data?.items ?? []
   const { fits: local, scoreOf, hasScores } = useFitScores(readings.byId, profile)
+  // The number without Claude's comparison: the profile with the reading's 20 %.
+  const computedOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores)
   // Missing readings still allow catalogue-based explanations. Twenty is a maximum, not a minimum.
-  const personalPool = useMemo(() => orderByNumber(pool, scoreOf, fieldOrder).slice(0, PERSONAL_POOL), [pool, scoreOf, fieldOrder])
-  const personal = usePersonalComparison(personalPool, profile, locale, token, JSON.stringify([body, unlocked, shared]))
+  const personalPool = useMemo(() => orderByNumber(pool, computedOf, fieldOrder).slice(0, PERSONAL_POOL), [pool, scoreOf, hasScores, fieldOrder])
+  const personal = usePersonalComparison(personalPool, profile, locale, token, JSON.stringify([body, unlocked, shared]), computedOf)
   const personalMap = personal.map
-  // Keep the preferred fields first; compare each field’s programmes by profile and content.
+  // The one number of each programme, best first; the preferred field only breaks a tie.
   const ranked = useMemo(() => {
-    const numberOf = (id: string) => blendedScore(scoreOf(id), personalMap?.get(id)) ?? (hasScores ? 50 : undefined)
-    return orderByNumber(pool, numberOf, fieldOrder).map((p) => ({ p, score: numberOf(p.id), personal: personalMap?.get(p.id) }))
+    const shownOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores, personalMap?.get(p.id))
+    return orderByNumber(pool, shownOf, fieldOrder).map((p) => ({ p, score: shownOf(p), personal: personalMap?.get(p.id) }))
   }, [pool, scoreOf, personalMap, hasScores, fieldOrder])
   const best = ranked.slice(0, shown)
   return (
@@ -476,9 +478,6 @@ function useTopicHits(p: RankedProgramme): UserTopic[] {
   return hits.filter((h) => !hits.some((o) => o !== h && o.word.length > h.word.length && o.word.toLowerCase().includes(h.word.toLowerCase())))
 }
 
-/** Search queries and comments come quoted already. */
-const quoted = (label: string) => (/^[«“#@]/.test(label) ? label : `«${label}»`)
-
 /** What in the person's own data points to this programme. */
 function fitFor(p: RankedProgramme, results: Results) {
   const rank = results.fields.findIndex((f) => f.id === p.matchedField)
@@ -540,7 +539,7 @@ function ProgrammeDetails({ p, aiBlock }: { p: RankedProgramme; aiBlock?: ReactN
             {p.focus && p.focus.length > 0 && (
               <ul className="mt-2 flex flex-wrap gap-1.5">
                 {p.focus.map((x) => (
-                  <li key={x} className={`chip-soft ${[...(fit?.named ?? []), ...hits.map((h) => h.word)].some((n) => normalize(x).includes(normalize(n))) ? 'ring-2 ring-accent' : ''}`}>
+                  <li key={x} className={`chip-soft ${(fit?.named ?? []).some((n) => normalize(x).includes(normalize(n))) ? 'ring-2 ring-accent' : ''}`}>
                     {x}
                   </li>
                 ))}
@@ -557,36 +556,6 @@ function ProgrammeDetails({ p, aiBlock }: { p: RankedProgramme; aiBlock?: ReactN
         <div>
           <h5 className="font-display text-lg">{t.programmes.ai.oneTitle}</h5>
           {aiBlock}
-        </div>
-      )}
-
-      {/* 2. Why this programme: your topics it names, with what you looked at. */}
-      {hits.length > 0 && (
-        <div>
-          <h5 className="font-display text-lg">{t.programmes.fit.title}</h5>
-          <p className="mt-1 text-muted">{t.programmes.fit.intro}</p>
-          <ul className="mt-3 grid gap-3">
-            {hits.map((h) => (
-              <li key={h.key}>
-                <div>
-                  <span className="font-bold">«{h.word}»</span>{' '}
-                  <span className="text-muted">
-                    {t.programmes.fit.inData(fmtNumber(h.n, intl), h.bySource.map((x) => `${t.sourceNames[x.source] ?? x.source} ${fmtNumber(x.n, intl)}`).join(', '))}
-                  </span>
-                </div>
-                {h.examples.length > 0 && (
-                  <ul className="mt-1 grid gap-0.5 border-l-2 border-accent pl-3 text-xs">
-                    {h.examples.map((e) => (
-                      <li key={e.label} className="break-words">
-                        {quoted(e.label)} <span className="text-muted">· {t.sourceNames[e.source] ?? e.source}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-xs text-muted">{t.programmes.fit.bonus}</p>
         </div>
       )}
 
@@ -744,16 +713,10 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
               {typeShort(type, p.country)}
             </span>
           )}
-          {/* With a reading: the combined score, which tells programmes of one field apart. */}
-          <span className="rounded-full border-2 border-line bg-accent px-2.5 py-0.5 text-sm font-extrabold text-accent-ink" title={score !== undefined ? fact?.enough ? t.programmes.ai.scoreTip(p.match, score) : t.programmes.ai.scoreUnknown : t.programmes.row.matchTip}>
-            {combinedScore(p.match, score)}
+          {/* The one number of the programme: Claude's comparison where it rated it, otherwise the profile with the reading. */}
+          <span className="rounded-full border-2 border-line bg-accent px-2.5 py-0.5 text-sm font-extrabold text-accent-ink" title={t.programmes.row.matchTip}>
+            {score ?? p.match}
           </span>
-          {fact && (
-            <span className="chip text-xs" title={`${dotsFor(combinedScore(p.match, score))}/5`}>
-              {'●'.repeat(dotsFor(combinedScore(p.match, score)))}
-              <span className="opacity-30">{'●'.repeat(5 - dotsFor(combinedScore(p.match, score)))}</span>
-            </span>
-          )}
         </div>
       </div>
       <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted">
@@ -831,17 +794,18 @@ function Explorer({
   const { fits, scoreOf, hasScores } = useFitScores(readings.byId, profile)
   const listSort = sort
   // Search compares its own twenty best results, only after its own button was pressed.
-  const ownPool = useMemo(() => orderByNumber(data?.items ?? [], scoreOf).slice(0, PERSONAL_POOL), [data, scoreOf])
-  const personal = usePersonalComparison(ownPool, profile, locale, token, queryKey)
+  const computedOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores)
+  const ownPool = useMemo(() => orderByNumber(data?.items ?? [], computedOf).slice(0, PERSONAL_POOL), [data, scoreOf, hasScores])
+  const personal = usePersonalComparison(ownPool, profile, locale, token, queryKey, computedOf)
   const ownMap = personal.map
-  // The number the list shows: the reading, averaged with the answers when the optional step is on.
-  const shownScore = (id: string): number | undefined => blendedScore(scoreOf(id), ownMap?.get(id)) ?? (hasScores ? 50 : undefined)
+  // The one number of each programme, as in the top list.
+  const shownOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores, ownMap?.get(p.id))
   // Fetch every match before sorting by its displayed points, then page the complete order here.
   const byMatch = listSort === 'match'
   const serverPage = byMatch ? 0 : page
   const ordered = useMemo(() => {
     const items = data?.items ?? []
-    return byMatch ? orderByNumber(items, shownScore) : items
+    return byMatch ? orderByNumber(items, shownOf) : items
   }, [data, byMatch, scoreOf, ownMap, hasScores])
   const pageItems = byMatch ? ordered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE) : ordered
   const [loading, setLoading] = useState(false)
@@ -894,9 +858,9 @@ function Explorer({
     if (all === 'locked') { onInvalid(); return }
     const cols = ['match', 'name', 'institution', 'country', 'city', 'level', 'field', 'tuition_per_year', 'currency', 'earnings', 'admission_rate', 'url']
     const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
-    const exportItems = byMatch ? orderByNumber(all.items, shownScore) : all.items
+    const exportItems = byMatch ? orderByNumber(all.items, shownOf) : all.items
     const rows = exportItems.map((p) =>
-      [combinedScore(p.match, shownScore(p.id)), p.name, p.institution, p.country, p.city, p.level, fieldName(p.fields[0] ?? p.matchedField, locale), p.fee?.amount, p.fee?.currency, p.earnings?.median, p.admissionRate, p.url ?? p.institutionUrl].map(esc).join(','),
+      [shownOf(p), p.name, p.institution, p.country, p.city, p.level, fieldName(p.fields[0] ?? p.matchedField, locale), p.fee?.amount, p.fee?.currency, p.earnings?.median, p.admissionRate, p.url ?? p.institutionUrl].map(esc).join(','),
     )
     const blob = new Blob([[cols.join(','), ...rows].join('\n')], { type: 'text/csv' })
     const a = document.createElement('a')
@@ -982,7 +946,7 @@ function Explorer({
       </p>
       <div className="mt-3 grid gap-4">
         {pageItems.map((p) => (
-          <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={shownScore(p.id)} personal={ownMap?.get(p.id)} personalStatus={personal.statusOf(p.id)} />
+          <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={shownOf(p)} personal={ownMap?.get(p.id)} personalStatus={personal.statusOf(p.id)} />
         ))}
       </div>
       {pages > 1 && (

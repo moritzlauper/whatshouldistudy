@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { textTopics } from '../lib/engine/classifier.ts'
-import { combinedScore, localFit, orderByNumber, aiPersonalFit, toPersonalFit, validatedTopics, type ProgrammeFacts } from '../lib/engine/programme-fit.ts'
+import { combinedScore, localFit, orderByNumber, aiPersonalFit, shownScore, toPersonalFit, validatedTopics, type ProgrammeFacts } from '../lib/engine/programme-fit.ts'
 import { exactBatch } from '../lib/ai-batch.ts'
 import { pageText } from '../lib/official-facts.ts'
 import { completeSentence, FACTS_VERSION, normaliseFact } from '../scrapers/lib/facts.ts'
@@ -32,10 +32,10 @@ test('a general programming topic does not claim a specific specialisation', () 
 
 test('unread programmes get neutral content in mixed ranking and remain in the list', () => {
   const items = [{ id: 'unread', match: 95 }, { id: 'read', match: 95 }]
-  assert.deepEqual(orderByNumber(items, (id) => id === 'read' ? 65 : undefined).map((p) => p.id), ['read', 'unread'])
+  assert.deepEqual(orderByNumber(items, (p) => shownScore(p.match, p.id === 'read' ? 65 : undefined, true)).map((p) => p.id), ['read', 'unread'])
   assert.equal(combinedScore(95, undefined, true), 86)
   assert.equal(combinedScore(95), 95)
-  assert.deepEqual(orderByNumber(items, () => undefined), items)
+  assert.deepEqual(orderByNumber(items, (p) => p.match), items)
 })
 
 test('the personal AI rating moves the computed score by at most 30 points and keeps at most three sentences', () => {

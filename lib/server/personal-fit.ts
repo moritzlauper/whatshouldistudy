@@ -29,7 +29,7 @@ export interface PersonalProfile {
 }
 
 export interface PersonalRequest {
-  programmes: Array<{ id: string; field: string; country: string }>
+  programmes: Array<{ id: string; field: string; country: string; computed?: number }>
   profile: PersonalProfile
   locale: Locale
 }
@@ -46,7 +46,7 @@ export const PERSONAL_SCHEMA = {
   } } }, required: ['programmes'], additionalProperties: false,
 }
 
-export const PERSONAL_SYSTEM = `You compare one person's answers with degree programmes, for a study-choice website. Each programme comes with its name, institution, level and catalogue data. When basis is "reading", it also has a reading of its official page (interest types R I A S E C, the school subjects it relies on, its topics, its specialisations with their topics, and what sets it apart), the computed fit to the person's profile as a number from 0 to 100 (50 is the average programme) and the computed connections as numbered reasons.
+export const PERSONAL_SYSTEM = `You compare one person's answers with degree programmes, for a study-choice website. Each programme comes with its name, institution, level and catalogue data. When basis is "reading", it also has a reading of its official page (interest types R I A S E C, the school subjects it relies on, its topics, its specialisations with their topics, and what sets it apart), the number the site shows without this comparison, from 0 to 100 (80 % the match with the profile, 20 % the reading), and the computed connections as numbered reasons.
 
 When basis is "catalogue", no sufficient content reading is available. Still give two or three useful reasons, based only on the supplied name, listed focus areas, assigned fields and fieldConnections to the person's actual topics. Assigned fields and fieldConnections are our broad subject classification, not verified modules or evidence for specific programme content. Explain this limited basis and any missing information. Do not infer school-subject requirements, activity types, specialisations or other programme facts. Keep score at exactly 50: catalogue-only explanations must not change the ranking.
 
@@ -74,9 +74,11 @@ export async function personalFits(req: PersonalRequest): Promise<{ fits: Person
   const profile = { riasec: req.profile.riasec, topics: req.profile.topics, enjoy: Object.fromEntries(req.profile.subjects.map((k) => [k, 5])) }
   const a = dict(req.locale).programmes.ai
   const spreads = new Map([...stores].map(([country, facts]) => [country, fitSpread(Object.values(facts ?? {}).filter((f) => f.enough).map((f) => localFit(factsForLocale(f, req.locale), profile).score))]))
+  // The number the site shows without this comparison; Claude moves it, so it is the anchor when the browser sends it.
+  const anchors = new Map(req.programmes.map((p) => [p.id, p.computed]))
   const comparisons = new Map(found.map(({ p, reading }) => {
     const fit = reading?.enough ? localFit(factsForLocale(reading, req.locale), profile) : null
-    const score = fit ? calibrated(fit.score, spreads.get(p.country) ?? null) : 50
+    const score = fit ? (anchors.get(p.id) ?? calibrated(fit.score, spreads.get(p.country) ?? null)) : 50
     return [p.id, { score, fit: fitBand(score), thin: !fit, reasons: fit?.reasons.map((r) => fitReasonText(r, req.locale, a)) ?? [] }]
   }))
   const groups = Array.from({ length: Math.ceil(found.length / BATCH) }, (_, i) => found.slice(i * BATCH, (i + 1) * BATCH))
