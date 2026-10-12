@@ -148,8 +148,8 @@ export function calibrated(raw: number, spread: FitSpread | null): number {
 export const combinedScore = (match: number, score?: number, readings = score !== undefined) => (readings ? Math.round(0.8 * match + 0.2 * (score ?? 50)) : match)
 
 /** The reading, averaged with the answers when the optional step has rated the programme. */
-export function blendedScore(local: number | undefined, personal?: { score: number }): number | undefined {
-  return personal && local !== undefined ? Math.round((local + personal.score) / 2) : local
+export function blendedScore(local: number | undefined, personal?: { score: number; thin?: boolean }): number | undefined {
+  return personal && !personal.thin && local !== undefined ? Math.round((local + personal.score) / 2) : local
 }
 
 /** Strongest fields first, keeping the supplied order on equal scores. */
@@ -212,7 +212,7 @@ export interface PersonalFit {
   score: number
   /** Complete explanations in the reader's language, addressed to the person informally. */
   reasons: string[]
-  /** The reading says too little to judge; the rating is neutral. */
+  /** No sufficient reading: reasons use catalogue data and the rating stays neutral. */
   thin: boolean
 }
 
@@ -246,7 +246,6 @@ export const PERSONAL_SWING = 30
  */
 export function aiPersonalFit(raw: Record<string, unknown>, canonical: PersonalFit): PersonalFit {
   if (raw.id !== canonical.id || typeof raw.score !== 'number' || !Number.isFinite(raw.score)) throw new Error('Unknown programme or score')
-  if (canonical.thin) return canonical
   const low = Math.max(0, canonical.score - PERSONAL_SWING)
   const high = Math.min(100, canonical.score + PERSONAL_SWING)
   const score = Math.round(Math.max(low, Math.min(high, raw.score)))
@@ -255,5 +254,7 @@ export function aiPersonalFit(raw: Record<string, unknown>, canonical: PersonalF
     .map((r) => r.trim())
     .filter(Boolean)
     .slice(0, 3)
-  return { id: canonical.id, fit: fitBand(score), score, reasons: sentences.length ? sentences : canonical.reasons, thin: false }
+  const reasons = sentences.length ? sentences : canonical.reasons
+  if (canonical.thin) return { ...canonical, score: 50, fit: fitBand(50), reasons }
+  return { id: canonical.id, fit: fitBand(score), score, reasons, thin: false }
 }

@@ -200,9 +200,8 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const locked = !unlocked || current?.locked
   const pool = current?.data?.items ?? []
   const { fits: local, scoreOf, hasScores } = useFitScores(readings.byId, profile)
-  // Every programme with a reading; the optional step compares the best of them, best first by the reading and the match.
-  const rated = useMemo(() => pool.filter((p) => scoreOf(p.id) !== undefined), [pool, scoreOf])
-  const personalPool = useMemo(() => orderByNumber(rated, scoreOf, fieldOrder).slice(0, PERSONAL_POOL), [rated, scoreOf, fieldOrder])
+  // Missing readings still allow catalogue-based explanations. Twenty is a maximum, not a minimum.
+  const personalPool = useMemo(() => orderByNumber(pool, scoreOf, fieldOrder).slice(0, PERSONAL_POOL), [pool, scoreOf, fieldOrder])
   const personal = usePersonalComparison(personalPool, profile, locale, token, JSON.stringify([body, unlocked, shared]))
   const personalMap = personal.map
   // Keep the preferred fields first; compare each field’s programmes by profile and content.
@@ -224,9 +223,9 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
       ) : best.length > 0 ? (
         <ResultsContext.Provider value={results}><TopicsContext.Provider value={topicMap}>
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
-          {rated.length > 0 && (
+          {!shared && profile && personalPool.length > 0 && (
             <div className="mb-4">
-              <OwnDataPanel on={personal.on} status={personal.status} onChange={personal.onChange} />
+              <OwnDataPanel count={personalPool.length} on={personal.on} status={personal.status} onChange={personal.onChange} />
             </div>
           )}
           <ol className="grid gap-4">
@@ -700,8 +699,6 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
   const feeAmount = p.fee ? (perSemester ? Math.round(p.fee.amount / 2) : p.fee.amount) : 0
   const type = p.institutionType as InstType | undefined
   const lang = locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it'
-  const hits = useTopicHits(p)
-  const example = hits.flatMap((h) => h.examples)[0]
   const results = useContext(ResultsContext)
   const basis = programmeFieldMatch(p, orderedFieldIds(results?.fields.slice(0, 6) ?? []))
   const displayField = p.fields[0] ?? p.matchedField
@@ -759,21 +756,6 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
           )}
         </div>
       </div>
-      {hits.length > 0 && (
-        <div className="mt-3 rounded-xl bg-accent-soft px-3 py-2 text-sm">
-          <span className="font-bold">✨ {t.programmes.fit.why} </span>
-          {hits.slice(0, 3).map((h, i) => (
-            <span key={h.key}>
-              {i > 0 && ', '}«{h.word}» <span className="text-muted">({fmtNumber(h.n, intl)}×)</span>
-            </span>
-          ))}
-          {example && (
-            <div className="mt-1 break-words text-xs text-muted">
-              {t.programmes.fit.example} {quoted(example.label)}
-            </div>
-          )}
-        </div>
-      )}
       <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted">
         <Item k={t.programmes.row.field} v={`${emoji(displayField)} ${fieldName(displayField, locale)}${fieldRank ? ` (${t.programmes.row.fieldRank(fieldRank)})` : ''}`} />
         <Item k={t.programmes.row.level} v={levelLabel(p.level as Level, locale)} />
@@ -800,7 +782,7 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
       {open && (
         <ProgrammeDetails
           p={p}
-          aiBlock={fact ? <AiBlock fact={fact} fit={fit} personal={personal} personalStatus={personalStatus} fieldReason={fieldReason} /> : undefined}
+          aiBlock={fact || personalStatus !== 'off' ? <AiBlock fact={fact} fit={fit} personal={personal} personalStatus={personalStatus} fieldReason={fieldReason} /> : undefined}
         />
       )}
     </article>
@@ -849,7 +831,7 @@ function Explorer({
   const { fits, scoreOf, hasScores } = useFitScores(readings.byId, profile)
   const listSort = sort
   // Search compares its own twenty best results, only after its own button was pressed.
-  const ownPool = useMemo(() => orderByNumber((data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined), scoreOf).slice(0, PERSONAL_POOL), [data, scoreOf])
+  const ownPool = useMemo(() => orderByNumber(data?.items ?? [], scoreOf).slice(0, PERSONAL_POOL), [data, scoreOf])
   const personal = usePersonalComparison(ownPool, profile, locale, token, queryKey)
   const ownMap = personal.map
   // The number the list shows: the reading, averaged with the answers when the optional step is on.
@@ -982,10 +964,10 @@ function Explorer({
           CSV ⤓
         </button>
       </div>
-      {readings.status === 'done' && byMatch && (
+      {!shared && profile && readings.status !== 'loading' && byMatch && (
         <div className="mt-3">
-          <OwnDataPanel search on={personal.on} status={personal.status} disabled={loading || !ownPool.length} onChange={(on) => { personal.onChange(on); setPage(0) }} />
-          {ordered.length > 0 && (
+          <OwnDataPanel search count={ownPool.length} on={personal.on} status={personal.status} disabled={loading || !ownPool.length} onChange={(on) => { personal.onChange(on); setPage(0) }} />
+          {ordered.length > 0 && hasScores && (
             <p className="mt-2 text-sm text-muted">
               {t.programmes.ai.listBasis(ordered.filter((p) => scoreOf(p.id) !== undefined).length, ordered.length)}
               {personal.on && ` ${t.programmes.ai.listBasisOn}`}

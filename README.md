@@ -471,10 +471,15 @@ workflow); the site refuses everything else. No database secret is kept in GitHu
 The site reads the readings through `/api/facts` (paid) and ranks the list in the
 browser against the answers. The optional step «include my answers» (off by default,
 after consent) sends the interest profile, weighted lexical topics and favourite
-school subjects with the 20 best matches to `/api/personal-fit`. The server
+school subjects with up to 20 matches to `/api/personal-fit`, including smaller
+lists and programmes without readings. The server
 computes the numbers by fixed rules on the same calibrated scale as the browser.
-Claude selects up to two precomputed, supported reasons per programme; it cannot
-change the numbers or invent interests. Lexical topics are mapped to the field IDs
+With a sufficient reading, Claude can adjust that content score by at most 30
+points and explain the connections in up to three sentences. Without one, it uses
+the server's catalogue name, assigned fields and listed focus areas to explain
+the limited connection; these explanations never change the points. They appear
+in the programme details with their basis identified. Missing or unusable readings
+do not disable the comparison. Lexical topics are mapped to the field IDs
 used in stored readings. Missing readings have neutral content (50) in a list
 with readings; a list without readings retains the questionnaire scores.
 Programme ordering respects the person’s strongest fields first, using the

@@ -13,7 +13,7 @@ import { useSite } from './site-context.tsx'
  * the answers, and only after the person has agreed.
  */
 
-/** How many of the best programmes by the reading the optional step compares with the answers. */
+/** Maximum number of matches compared per click, including those without readings. */
 export const PERSONAL_POOL = 20
 
 export type ReadingsStatus = 'off' | 'loading' | 'done' | 'failed'
@@ -90,11 +90,11 @@ const reasonKey = (r: FitReason) =>
   r.kind === 'riasec' ? `i-${r.types.join('')}` : r.kind === 'topics' ? `t-${r.keys.join('')}` : r.kind === 'specialisations' ? `v-${r.names.join('')}` : `s-${r.subjects.join('')}`
 
 /** Under a programme's details: what Claude read, how it fits the answers here, and, when the optional step is on, Claude's own comparison. */
-export function AiBlock({ fact, fit, personal, personalStatus, fieldReason }: { fact: ProgrammeFacts; fit?: LocalFit; personal?: PersonalFit; personalStatus: PersonalStatus; fieldReason?: string }) {
+export function AiBlock({ fact, fit, personal, personalStatus, fieldReason }: { fact?: ProgrammeFacts; fit?: LocalFit; personal?: PersonalFit; personalStatus: PersonalStatus; fieldReason?: string }) {
   const { t, locale } = useSite()
   const a = t.programmes.ai
   const reasons = fit?.reasons ?? []
-  const personalShown = personalStatus === 'rated' && !!personal && !personal.thin && personal.reasons.length > 0
+  const personalShown = personalStatus === 'rated' && !!personal && personal.reasons.length > 0
   const specific = reasons.some((r) => r.kind === 'topics' || r.kind === 'specialisations')
   return (
     <div className="space-y-3 text-sm">
@@ -118,7 +118,7 @@ export function AiBlock({ fact, fit, personal, personalStatus, fieldReason }: { 
       {personalStatus === 'loading' && <p className="animate-pulse text-muted">{a.own.loading}</p>}
       {(personalStatus === 'failed' || personalStatus === 'missing') && <p className="text-muted">{a.own.failed}</p>}
       {personalStatus === 'outside' && <p className="text-muted">{a.own.notRated}</p>}
-      {fact.specialisations?.length ? (
+      {fact?.specialisations?.length ? (
         <div>
           <p className="font-bold">{a.specialisationsTitle}</p>
           <ul className="mt-1 list-disc space-y-1 pl-5">
@@ -126,7 +126,7 @@ export function AiBlock({ fact, fit, personal, personalStatus, fieldReason }: { 
           </ul>
         </div>
       ) : null}
-      {fact.distinctive?.length ? (
+      {fact?.distinctive?.length ? (
         <div>
           <p className="font-bold">{a.distinctiveTitle}</p>
           <ul className="mt-1 list-disc space-y-1 pl-5">
@@ -134,13 +134,13 @@ export function AiBlock({ fact, fit, personal, personalStatus, fieldReason }: { 
           </ul>
         </div>
       ) : null}
-      {fact.check && (
+      {fact?.check && (
         <p>
           <span className="font-bold">{a.check}</span> {fact.check}
         </p>
       )}
-      {(!fact.enough || (personalStatus === 'rated' && personal?.thin)) && <p className="text-muted">{a.thin}</p>}
-      <p className="text-xs text-muted">{a.note}</p>
+      {(!fact?.enough || (personalStatus === 'rated' && personal?.thin)) && <p className="text-muted">{personalShown ? a.catalogueOnly : a.thin}</p>}
+      {fact?.enough && <p className="text-xs text-muted">{a.note}</p>}
     </div>
   )
 }
@@ -185,7 +185,7 @@ function rememberAgreement(on: boolean) {
 /** Where the optional step stands: waiting, failed, a limit that answered, or ready. */
 export type OwnStatus = 'loading' | 'failed' | 'budget' | 'daily' | 'ready'
 
-export function OwnDataPanel({ on, status, onChange, search = false, hint, disabled = false }: { on: boolean; status: OwnStatus; onChange: (on: boolean) => void; search?: boolean; hint?: string; disabled?: boolean }) {
+export function OwnDataPanel({ on, status, onChange, search = false, hint, disabled = false, count = PERSONAL_POOL }: { on: boolean; status: OwnStatus; onChange: (on: boolean) => void; search?: boolean; hint?: string; disabled?: boolean; count?: number }) {
   const { t } = useSite()
   const a = t.programmes.ai.own
   // Separate controls for the top list and for the current search.
@@ -240,7 +240,7 @@ export function OwnDataPanel({ on, status, onChange, search = false, hint, disab
       <button type="button" disabled={disabled} className="btn btn-ghost btn-sm max-w-full justify-start whitespace-normal text-left leading-snug" onClick={() => (agreedBefore() ? onChange(true) : setAsking(true))}>
         ＋ {label.ask}
       </button>
-      <span className="text-muted">{hint ?? label.hint}</span>
+      <span className="text-muted">{hint ?? label.hint(count)}</span>
     </div>
   )
 }

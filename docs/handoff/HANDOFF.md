@@ -6,9 +6,22 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 
 - Direkt auf `main` pushen, keine PRs.
 - Texte auf Deutsch: Schweizer Hochdeutsch, kein ß, Anführungszeichen «», schlicht und konkret, keine Werbefloskeln. Alle UI-Texte stehen in `lib/site/dict.ts` (en, de-CH, fr, it, dazu Overrides für DE/AT).
-- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 218 grün). Demodaten mit `node scrapers/build.ts --sample`.
+- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 219 grün). Demodaten mit `node scrapers/build.ts --sample`.
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
+
+## KI-Begründungen auch ohne Lesungen (12.10.2026)
+
+- Ursache des gesperrten Vergleichs bei zwölf Treffern: Suche und Top-Liste liessen nur Studiengänge mit ausreichender Lesung in den Vergleich. Die Obergrenze von 20 war keine Mindestanzahl.
+- Beide Listen vergleichen jetzt bis zu 20 vorhandene Treffer, auch ohne Lesungen oder bei Ausfall der Faktenabfrage. Der Hinweis nennt die tatsächliche Anzahl. «Mit KI vergleichen» öffnet weiterhin zuerst die Einwilligung; Änderungen der Suche verlangen erneut einen Klick.
+- Der Server löst jeden Studiengang anhand seiner ID im eigenen Katalog auf. Ohne ausreichende Lesung erhält Claude nur Namen, Fachzuordnung, vorhandene Schwerpunkte und belegbare Themenverbindungen als Grundlage. Solche Begründungen erscheinen ausdrücklich als Einordnung aus Katalogdaten in den Details. Sie verändern keine Punkte, auch wenn Browser und Server unterschiedliche Lesungsstände haben. Leere Begründungen werden erneut angefragt und bei erneutem Fehlschlag als Fehler behandelt.
+- Texte in DE/EN/FR/IT und README nachgeführt. Paywall und KI-Budget unverändert. Die entfernten Themenbanner bleiben entfernt.
+
+Prüfungen: TypeScript und alle 219 Tests erfolgreich. Regressionen prüfen zwölf Treffer mit dünnen bzw. fehlenden Lesungen durch Suche, Einwilligung, Versand und Detailansicht, Top-Liste, Filterwechsel, Servergrenzen bei 1/12/25 Treffern, neutrale Punkte, gemischte Lesungen sowie HTTP 401 ohne Freischaltung. KI-Transport und Katalogdaten sind synthetisch; kein echter Claude-Aufruf.
+
+## Themenbanner auf Studiengangkarten entfernt (12.10.2026)
+
+Auf Wunsch des Inhabers entfällt das Banner «Passt zu dir wegen …» mit Häufigkeiten und angesehenen/gesuchten Beispielen auf den Studiengangkarten. Zugehörige Bannertexte in allen vier Sprachen entfernt. Die Themenberechnung und die aufklappbaren Detailbegründungen bleiben erhalten. TypeScript und 19 bestehende Tests zu Passung, Themen und KI-Vergleich erfolgreich.
 
 ## Persönlichkeit als Pflichtteil (12.10.2026)
 

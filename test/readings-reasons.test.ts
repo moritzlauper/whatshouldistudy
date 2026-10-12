@@ -26,7 +26,7 @@ test('general similarities neither claim a very good subject fit nor appear twic
     const React = (await import('react')).default;
     const { renderToStaticMarkup } = await import('react-dom/server');
     const { SiteProvider } = await import('./app/ui/site-context.tsx');
-    const { AiBlock } = await import('./app/ui/readings.tsx');
+    const { AiBlock, OwnDataPanel } = await import('./app/ui/readings.tsx');
     const fact = { id: 'theology', enough: true, riasec: [0, 5, 2, 5, 1, 2], subjects: ['lang', 'hist'], topics: ['religious-studies'], check: '' };
     const fit = { score: 85, reasons: [{ kind: 'riasec', types: ['S', 'I'] }, { kind: 'subjects', subjects: ['lang', 'hist'] }] };
     const personal = { id: 'theology', fit: 5, score: 85, thin: false, reasons: [
@@ -42,6 +42,21 @@ test('general similarities neither claim a very good subject fit nor appear twic
       assert.ok(html.includes('belegen kein Interesse'));
       assert.ok(!html.includes('Passt sehr gut'));
       assert.equal(html.match(/Ähnliches Tätigkeitsprofil/g)?.length, 1);
+    }
+    // A missing or unusable reading must not hide the returned explanation.
+    for (const missing of [undefined, { ...fact, enough: false }]) {
+      const html = renderToStaticMarkup(React.createElement(SiteProvider, { site: 'ch', base: '', locale: 'de-CH' },
+        React.createElement(AiBlock, { fact: missing, personal: { ...personal, thin: true, score: 50, reasons: ['Begründung aus Katalogdaten.'] }, personalStatus: 'rated' })));
+      assert.ok(html.includes('Begründung aus Katalogdaten.'));
+      assert.ok(html.includes('verändert sie die Punkte nicht'));
+      assert.ok(!html.includes('No clear link'));
+    }
+    for (const locale of ['en', 'de-CH', 'fr-CH', 'it-CH']) {
+      const html = renderToStaticMarkup(React.createElement(SiteProvider, { site: 'ch', base: '', locale },
+        React.createElement(OwnDataPanel, { on: false, status: 'ready', count: 12, search: true, onChange() {} })));
+      assert.ok(html.includes('12'));
+      assert.ok(!html.includes('20'));
+      assert.ok(!html.includes('disabled'));
     }
   `], { cwd: process.cwd(), encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr || result.stdout)
