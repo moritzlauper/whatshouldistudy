@@ -20,7 +20,7 @@ import type { InstType } from '@/lib/institutions.ts'
 import { CONTACT, withBase } from '@/lib/site.ts'
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
 import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
-import { FACTS_COUNTRIES, blendedScore, orderByNumber, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
+import { FACTS_COUNTRIES, blendedScore, orderByNumber, orderedFieldIds, programmeFieldMatch, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
 import { AiBlock, OwnDataPanel, PERSONAL_POOL, combinedScore, dotsFor, useFitScores, useReadings, type PersonalStatus } from './readings.tsx'
 import { officialPageOf } from '@/lib/official-pages.ts'
 import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
@@ -132,8 +132,9 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   // Not on a shared link (its profile is someone else's).
   const readings = useReadings(token, unlocked && !shared && hasReadings(prefs))
   const profile = useLocalProfile(results, weights)
-  // Every match, not only the twenty best of the questionnaire: a reading can move any programme to the top, so the list asks for all.
+  // Load every match: a reading can identify the strongest programme within a preferred field, even on a later page.
   const request = useMemo(() => ({ fields: requestFields(results), prefs, topics: weights, sort: 'match' as const }), [results, prefs, weights])
+  const fieldOrder = useMemo(() => orderedFieldIds(request.fields), [request])
   const body = JSON.stringify(request)
   const key = JSON.stringify([body, token, unlocked, attempt])
   // The list waits for the readings, so that it is asked for once, with them.
@@ -154,7 +155,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const { fits: local, scoreOf, hasScores } = useFitScores(readings.byId, profile)
   // Every programme with a reading; the optional step compares the best of them, best first by the reading and the match.
   const rated = useMemo(() => pool.filter((p) => scoreOf(p.id) !== undefined), [pool, scoreOf])
-  const personalPool = useMemo(() => orderByNumber(rated, scoreOf).slice(0, PERSONAL_POOL), [rated, scoreOf])
+  const personalPool = useMemo(() => orderByNumber(rated, scoreOf, fieldOrder).slice(0, PERSONAL_POOL), [rated, scoreOf, fieldOrder])
   // The optional step: Claude compares the best of them with the answers here. Off unless switched on; the page's switch, when given, decides for every list.
   const [ownHere, setOwnHere] = useState(false)
   const own = ownShared ?? ownHere
@@ -184,11 +185,11 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
     if (fits.map.has(id)) return 'rated'
     return personalPool.some((p) => p.id === id) ? 'missing' : 'outside'
   }
-  // The order both lists show, over all results: each by its number, the reading and the answers where there are, else the match.
+  // Keep the preferred fields first; compare each field’s programmes by profile and content.
   const ranked = useMemo(() => {
     const numberOf = (id: string) => blendedScore(scoreOf(id), personalMap?.get(id)) ?? (hasScores ? 50 : undefined)
-    return orderByNumber(pool, numberOf).map((p) => ({ p, score: numberOf(p.id), personal: personalMap?.get(p.id) }))
-  }, [pool, scoreOf, personalMap, hasScores])
+    return orderByNumber(pool, numberOf, fieldOrder).map((p) => ({ p, score: numberOf(p.id), personal: personalMap?.get(p.id) }))
+  }, [pool, scoreOf, personalMap, hasScores, fieldOrder])
   const best = ranked.slice(0, shown)
   return (
     <section className="mt-8" aria-label={t.programmes.topTitle}>
@@ -682,7 +683,12 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
   const hits = useTopicHits(p)
   const example = hits.flatMap((h) => h.examples)[0]
   const results = useContext(ResultsContext)
-  const fieldRank = (results?.fields.findIndex((f) => f.id === p.matchedField) ?? -1) + 1
+  const basis = programmeFieldMatch(p, orderedFieldIds(results?.fields.slice(0, 6) ?? []))
+  const displayField = p.fields[0] ?? p.matchedField
+  const fieldRank = (results?.fields.findIndex((f) => f.id === displayField) ?? -1) + 1
+  const fieldReason = basis ? basis.direct
+    ? t.programmes.ai.reasonField(fieldName(basis.id, locale), basis.rank)
+    : t.programmes.ai.reasonSecondaryField(fieldName(p.fields[0], locale), fieldName(basis.id, locale)) : undefined
   return (
     <article className="card-sm p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -749,7 +755,7 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
         </div>
       )}
       <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted">
-        <Item k={t.programmes.row.field} v={`${emoji(p.matchedField)} ${fieldName(p.matchedField, locale)}${fieldRank ? ` (${t.programmes.row.fieldRank(fieldRank)})` : ''}`} />
+        <Item k={t.programmes.row.field} v={`${emoji(displayField)} ${fieldName(displayField, locale)}${fieldRank ? ` (${t.programmes.row.fieldRank(fieldRank)})` : ''}`} />
         <Item k={t.programmes.row.level} v={levelLabel(p.level as Level, locale)} />
         {p.durationYears && <Item k={t.programmes.row.duration} v={`${p.durationYears} ${t.programmes.row.yrs}`} />}
         <Item
@@ -767,13 +773,14 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
           🎟️ {t.programmes.row.entry}: {admissionText(p.country, type, lang) ?? p.admission}
         </p>
       )}
+      {rank === 1 && basis?.direct && <p className="mt-3 text-sm font-semibold">{t.programmes.ai.firstReason(fieldName(basis.id, locale), basis.rank)}</p>}
       <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="mt-3 text-sm font-bold text-accent hover:underline">
         {open ? `▴ ${t.programmes.details.close}` : `▾ ${t.programmes.details.open}`}
       </button>
       {open && (
         <ProgrammeDetails
           p={p}
-          aiBlock={fact ? <AiBlock fact={fact} fit={fit} personal={personal} personalStatus={personalStatus} /> : undefined}
+          aiBlock={fact ? <AiBlock fact={fact} fit={fit} personal={personal} personalStatus={personalStatus} fieldReason={fieldReason} /> : undefined}
         />
       )}
     </article>
@@ -819,6 +826,7 @@ function Explorer({
   const [data, setData] = useState<RankResult | null>(null)
   const results = useContext(ResultsContext)
   const profile = useLocalProfile(results, topics)
+  const fieldOrder = useMemo(() => orderedFieldIds(fields), [fields])
   // The readings are shown in the rows; the order is the one the filters ask for.
   const readings = useReadings(token, !shared && hasReadings(prefs))
   const { fits, scoreOf, hasScores } = useFitScores(readings.byId, profile)
@@ -827,7 +835,7 @@ function Explorer({
   const own = ownShared ?? ownHere
   const setOwn = onOwnChange ?? setOwnHere
   // The optional step compares the best of the results with a reading, in the order the top list uses.
-  const ownPool = useMemo(() => orderByNumber((data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined), scoreOf).slice(0, PERSONAL_POOL), [data, scoreOf])
+  const ownPool = useMemo(() => orderByNumber((data?.items ?? []).filter((p) => scoreOf(p.id) !== undefined), scoreOf, fieldOrder).slice(0, PERSONAL_POOL), [data, scoreOf, fieldOrder])
   const ownKey = JSON.stringify([ownPool.map((p) => p.id), locale, profile, token])
   const [ownFits, setOwnFits] = useState<{ key: string; map: Map<string, PersonalFit> | null; budget?: boolean } | null>(null)
   useEffect(() => {
@@ -860,8 +868,8 @@ function Explorer({
   const serverPage = byMatch ? 0 : page
   const ordered = useMemo(() => {
     const items = data?.items ?? []
-    return byMatch ? orderByNumber(items, shownScore) : items
-  }, [data, byMatch, scoreOf, ownMap])
+    return byMatch ? orderByNumber(items, shownScore, fieldOrder) : items
+  }, [data, byMatch, scoreOf, ownMap, fieldOrder])
   const pageItems = byMatch ? ordered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE) : ordered
   const [loading, setLoading] = useState(false)
 
@@ -913,9 +921,9 @@ function Explorer({
     if (all === 'locked') { onInvalid(); return }
     const cols = ['match', 'name', 'institution', 'country', 'city', 'level', 'field', 'tuition_per_year', 'currency', 'earnings', 'admission_rate', 'url']
     const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
-    const exportItems = byMatch ? orderByNumber(all.items, shownScore) : all.items
+    const exportItems = byMatch ? orderByNumber(all.items, shownScore, fieldOrder) : all.items
     const rows = exportItems.map((p) =>
-      [combinedScore(p.match, shownScore(p.id)), p.name, p.institution, p.country, p.city, p.level, fieldName(p.matchedField, locale), p.fee?.amount, p.fee?.currency, p.earnings?.median, p.admissionRate, p.url ?? p.institutionUrl].map(esc).join(','),
+      [combinedScore(p.match, shownScore(p.id)), p.name, p.institution, p.country, p.city, p.level, fieldName(p.fields[0] ?? p.matchedField, locale), p.fee?.amount, p.fee?.currency, p.earnings?.median, p.admissionRate, p.url ?? p.institutionUrl].map(esc).join(','),
     )
     const blob = new Blob([[cols.join(','), ...rows].join('\n')], { type: 'text/csv' })
     const a = document.createElement('a')

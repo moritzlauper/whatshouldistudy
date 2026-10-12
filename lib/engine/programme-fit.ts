@@ -144,19 +144,40 @@ export function calibrated(raw: number, spread: FitSpread | null): number {
   return Math.round(50 + 35 * Math.tanh(Math.atanh(15 / 35) * z))
 }
 
-/** In a reading-based list, content and match count 80 : 20; missing content is neutral. Without readings, retain the questionnaire match. */
-export const combinedScore = (match: number, score?: number, readings = score !== undefined) => (readings ? Math.round(0.8 * (score ?? 50) + 0.2 * match) : match)
+/** The profile remains the basis (80 %); content refines it (20 %), with missing content neutral. */
+export const combinedScore = (match: number, score?: number, readings = score !== undefined) => (readings ? Math.round(0.8 * match + 0.2 * (score ?? 50)) : match)
 
 /** The reading, averaged with the answers when the optional step has rated the programme. */
 export function blendedScore(local: number | undefined, personal?: { score: number }): number | undefined {
   return personal && local !== undefined ? Math.round((local + personal.score) / 2) : local
 }
 
-/** The programmes in the order both lists show: by their number, best first. Equal numbers keep the order they came in. */
-export function orderByNumber<T extends { id: string; match: number }>(items: readonly T[], numberOf: (id: string) => number | undefined): T[] {
+/** Strongest fields first, keeping the supplied order on equal scores. */
+export const orderedFieldIds = (fields: readonly { id: string; score: number }[]): string[] => [...fields].sort((a, b) => b.score - a.score).map((f) => f.id)
+
+/** The main subject comes first; a secondary connection is identified as such. */
+export function programmeFieldMatch(p: { fields?: readonly string[]; matchedField?: string }, fieldOrder: readonly string[]): { id: string; rank: number; direct: boolean } | null {
+  const primary = fieldOrder.indexOf(p.fields?.[0] ?? p.matchedField ?? '')
+  if (primary >= 0) return { id: fieldOrder[primary], rank: primary + 1, direct: true }
+  const secondary = fieldOrder.indexOf(p.matchedField ?? '')
+  return secondary >= 0 ? { id: fieldOrder[secondary], rank: secondary + 1, direct: false } : null
+}
+
+export function programmeFieldRank(p: { fields?: readonly string[]; matchedField?: string }, fieldOrder: readonly string[]): number {
+  const field = programmeFieldMatch(p, fieldOrder)
+  return field ? field.rank - 1 + (field.direct ? 0 : .5) : Infinity
+}
+
+/** Keep the user's field order first; compare programme scores within each field. Stable on ties. */
+export function orderByNumber<T extends { id: string; match: number; fields?: readonly string[]; matchedField?: string }>(items: readonly T[], numberOf: (id: string) => number | undefined, fieldOrder: readonly string[] = []): T[] {
   const scores = new Map(items.map((p) => [p.id, numberOf(p.id)]))
   const readings = [...scores.values()].some((s) => s !== undefined)
-  return [...items].sort((a, b) => combinedScore(b.match, scores.get(b.id), readings) - combinedScore(a.match, scores.get(a.id), readings))
+  return [...items].sort((a, b) => {
+    const aField = programmeFieldRank(a, fieldOrder)
+    const bField = programmeFieldRank(b, fieldOrder)
+    if (aField !== bField) return aField < bField ? -1 : 1
+    return combinedScore(b.match, scores.get(b.id), readings) - combinedScore(a.match, scores.get(a.id), readings)
+  })
 }
 
 /** Keeps what the model returned that we can use: known ids and keys, values in range, one short sentence. */

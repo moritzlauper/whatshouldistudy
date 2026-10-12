@@ -1,6 +1,7 @@
 import 'server-only'
 import { COUNTRIES, feeFor } from '../countries.ts'
 import { textTopics } from '../engine/classifier.ts'
+import { orderByNumber, orderedFieldIds } from '../engine/programme-fit.ts'
 import type { Preferences } from '../engine/types.ts'
 import type { Level, Programme } from '../programmes.ts'
 import { FIELD_BY_ID } from '../taxonomy/fields.ts'
@@ -206,6 +207,7 @@ export async function rank(req: RankRequest): Promise<RankResult> {
     new: (a, b) => (b.firstSeen ?? '').localeCompare(a.firstSeen ?? '') || b.match - a.match,
   }
   filtered.sort(sorters[req.sort ?? 'match'])
+  const ordered = (req.sort ?? 'match') === 'match' ? orderByNumber(filtered, () => undefined, orderedFieldIds(req.fields)) : filtered
 
   const pageSize = req.pageSize ?? 40
   const page = req.page ?? 0
@@ -213,7 +215,7 @@ export async function rank(req: RankRequest): Promise<RankResult> {
     total: filtered.length,
     page,
     pageSize,
-    items: filtered.slice(page * pageSize, (page + 1) * pageSize),
+    items: ordered.slice(page * pageSize, (page + 1) * pageSize),
     facets,
     updated: meta?.updated,
     sample,
@@ -225,14 +227,17 @@ export async function teaser(req: RankRequest) {
   // Compute the actual best match with all fields before removing the paid
   // field. Otherwise a programme from field #2 can reveal programme #1.
   const best = await rank({ ...req, sort: 'match', page: 0, pageSize: 1 })
-  const fields = req.fields.slice(1)
+  // Readings can choose another programme within this field. Keep the entire
+  // highest available field private, also when the first field has no results.
+  const bestField = best.items[0]?.matchedField
+  const fields = req.fields.filter((f) => f.id !== req.fields[0].id && f.id !== bestField)
   const full = await rank({ ...req, fields, sort: 'match', page: 0, pageSize: 4 })
   const { meta } = await getMeta()
   const programmeCountries = Object.keys(COUNTRIES).filter((c) => COUNTRIES[c].programmeData)
   return {
     total: full.total,
     facets: full.facets,
-    samples: full.items.filter((p) => p.id !== best.items[0]?.id && !p.fields.includes(req.fields[0].id)).slice(0, 3),
+    samples: full.items.filter((p) => p.id !== best.items[0]?.id && !p.fields.includes(req.fields[0].id) && (!bestField || !p.fields.includes(bestField))).slice(0, 3),
     sample: full.sample,
     updated: full.updated,
     coverage: {

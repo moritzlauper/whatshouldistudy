@@ -18,6 +18,7 @@ test('free preview excludes the best programme even when it belongs to a lower f
       const free = await teaser(req);
       assert.ok(free.samples.length > 0);
       assert.ok(free.samples.every(p => p.id !== paid.items[0].id && !p.fields.includes(fields[0].id)));
+      assert.ok(free.samples.every(p => !p.fields.includes(paid.items[0].matchedField)));
       assert.equal(free.facets.fields[fields[0].id], undefined);
       assert.ok(free.coverage.fields.every(f => f.id !== fields[0].id));
     }

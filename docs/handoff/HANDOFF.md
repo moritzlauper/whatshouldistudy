@@ -6,9 +6,19 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 
 - Direkt auf `main` pushen, keine PRs.
 - Texte auf Deutsch: Schweizer Hochdeutsch, kein ß, Anführungszeichen «», schlicht und konkret, keine Werbefloskeln. Alle UI-Texte stehen in `lib/site/dict.ts` (en, de-CH, fr, it, dazu Overrides für DE/AT).
-- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 120 grün). Demodaten mit `node scrapers/build.ts --sample`.
+- Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 188 grün). Demodaten mit `node scrapers/build.ts --sample`.
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
+
+## Korrektur: Fachbezug vor allgemeinen Ähnlichkeiten
+
+Rückmeldung: «Theologische Studien» auf Platz 1 trotz Soziologie als bestes Fach; die Begründungen «Sozial · Forschend» und «Deutsch / Geschichte» stützen kein Interesse an Theologie.
+
+- Server, Top-Liste, Suche, freiwilliger Vergleichspool und CSV achten zuerst auf die Fächerrangliste. Die hauptsächliche Fachzuordnung zählt; ein zusätzliches Soziologie-Tag macht Theologie nicht zu einem Soziologiestudium. Innerhalb eines Fachs zählen Profil 80 % und Lesung 20 %. Fehlt ein Angebot im besten Fach unter den gewählten Filtern, folgt das nächste verfügbare Fach.
+- Die erste Karte und die Detailbegründung erklären den konkreten Fachbezug. Allgemeine Tätigkeitsarten und schulische Grundlagen sind als begrenzte Ähnlichkeiten formuliert. Ohne Themenbezug wird ausdrücklich gesagt, dass diese kein Interesse am Studieninhalt belegen. Kein zusätzliches «Passt sehr gut» aus einem generischen Lesungswert; die ausgewählten Begründungen werden nicht nochmals doppelt angezeigt.
+- Der kostenlose Teaser hält die gesamte höchste verfügbare Fachgruppe zurück, damit eine spätere Umreihung durch Lesungen nicht das beste Angebot verrät. Token-Prüfung und Checkout sind unverändert.
+
+Prüfungen: 188 Tests, TypeScript und Produktionsbuild mit `next build --webpack` erfolgreich. Regression Soziologie vor Theologie mit/ohne Lesung und mit freiwilligem Vergleich, spätere Seiten innerhalb desselben Fachs, Nebenfach-Tags, fehlendes Angebot im ersten Fach, Schutz des besten Fachs im Teaser sowie gerenderte Detailbegründung ohne Doppelung oder unbelegte Bestnote.
 
 ## Präzisionskorrekturen am 12.10.2026
 

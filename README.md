@@ -437,6 +437,12 @@ Claude selects up to two precomputed, supported reasons per programme; it cannot
 change the numbers or invent interests. Lexical topics are mapped to the field IDs
 used in stored readings. Missing readings have neutral content (50) in a list
 with readings; a list without readings retains the questionnaire scores.
+Programme ordering respects the person’s strongest fields first, using the
+programme’s primary field rather than an incidental secondary tag. Within a
+field, the profile counts 80 % and the content reading 20 %. A generic activity
+or school-subject overlap is shown as a limited resemblance, never as proof of
+interest in the programme’s subject; duplicate explanations and the standalone
+AI fit grade are omitted.
 
 BFH offers are read through the official public search with all result pages,
 instead of the slow sitemap. Empty or sharply shrinking university/level groups

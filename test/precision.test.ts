@@ -33,7 +33,7 @@ test('a general programming topic does not claim a specific specialisation', () 
 test('unread programmes get neutral content in mixed ranking and remain in the list', () => {
   const items = [{ id: 'unread', match: 95 }, { id: 'read', match: 95 }]
   assert.deepEqual(orderByNumber(items, (id) => id === 'read' ? 65 : undefined).map((p) => p.id), ['read', 'unread'])
-  assert.equal(combinedScore(95, undefined, true), 59)
+  assert.equal(combinedScore(95, undefined, true), 86)
   assert.equal(combinedScore(95), 95)
   assert.deepEqual(orderByNumber(items, () => undefined), items)
 })

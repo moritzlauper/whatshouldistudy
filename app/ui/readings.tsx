@@ -63,7 +63,7 @@ export function useReadings(token: string | null, enabled: boolean) {
   return { status, byId, updated: current?.reading?.updated ?? '' }
 }
 
-/** The order the lists use: the reading's score counts 80 %, the match from the questionnaire 20 % (lib/engine/programme-fit.ts). */
+/** Field order comes first; within a field, the profile counts 80 % and the reading 20 %. */
 export { combinedScore } from '@/lib/engine/programme-fit.ts'
 export const dotsFor = (n: number) => (n >= 80 ? 5 : n >= 60 ? 4 : n >= 40 ? 3 : n >= 20 ? 2 : 1)
 
@@ -90,14 +90,16 @@ const reasonKey = (r: FitReason) =>
   r.kind === 'riasec' ? `i-${r.types.join('')}` : r.kind === 'topics' ? `t-${r.keys.join('')}` : r.kind === 'specialisations' ? `v-${r.names.join('')}` : `s-${r.subjects.join('')}`
 
 /** Under a programme's details: what Claude read, how it fits the answers here, and, when the optional step is on, Claude's own comparison. */
-export function AiBlock({ fact, fit, personal, personalStatus }: { fact: ProgrammeFacts; fit?: LocalFit; personal?: PersonalFit; personalStatus: PersonalStatus }) {
+export function AiBlock({ fact, fit, personal, personalStatus, fieldReason }: { fact: ProgrammeFacts; fit?: LocalFit; personal?: PersonalFit; personalStatus: PersonalStatus; fieldReason?: string }) {
   const { t, locale } = useSite()
   const a = t.programmes.ai
   const reasons = fit?.reasons ?? []
-  const personalShown = personalStatus === 'rated' && !!personal && !personal.thin
+  const personalShown = personalStatus === 'rated' && !!personal && !personal.thin && personal.reasons.length > 0
+  const specific = reasons.some((r) => r.kind === 'topics' || r.kind === 'specialisations')
   return (
     <div className="space-y-3 text-sm">
-      {reasons.length ? (
+      {fieldReason && <p className="font-semibold">{fieldReason}</p>}
+      {!personalShown && reasons.length ? (
         <ul className="list-disc space-y-1 pl-5">
           {reasons.map((r) => <li key={reasonKey(r)}>{fitReasonText(r, locale, a)}</li>)}
         </ul>
@@ -106,12 +108,13 @@ export function AiBlock({ fact, fit, personal, personalStatus }: { fact: Program
       ) : null}
       {personalShown && personal && (
         <div className="rounded-xl bg-accent-soft px-3 py-2">
-          <p className="font-bold">{a.own.reasonsTitle}: {a.fit(personal.fit)}</p>
+          <p className="font-bold">{a.own.reasonsTitle}</p>
           <ul className="mt-1 list-disc space-y-1 pl-5">
             {personal.reasons.map((r) => <li key={r}>{r}</li>)}
           </ul>
         </div>
       )}
+      {!specific && reasons.length > 0 && <p className="text-muted">{a.generalOnly}</p>}
       {personalStatus === 'loading' && <p className="animate-pulse text-muted">{a.own.loading}</p>}
       {(personalStatus === 'failed' || personalStatus === 'missing') && <p className="text-muted">{a.own.failed}</p>}
       {personalStatus === 'outside' && <p className="text-muted">{a.own.notRated}</p>}
