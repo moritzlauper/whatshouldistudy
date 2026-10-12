@@ -6,6 +6,7 @@ import type { Level, Programme } from '../programmes.ts'
 import { FIELD_BY_ID } from '../taxonomy/fields.ts'
 import { getMeta, getShard } from './data.ts'
 import { cityMatches } from '../city-search.ts'
+import { bulkDays, isNewProgramme } from '../newness.ts'
 
 export interface RankRequest {
   /** The person's top fields with their 0..100 match. */
@@ -158,10 +159,14 @@ export async function rank(req: RankRequest): Promise<RankResult> {
         match: Math.round(best),
         matchedField: bestField,
         fee: fee ? { ...fee, eur: Math.round(fee.amount * (fx[fee.currency] ?? 1)) } : undefined,
-        isNew: (p.firstSeen ?? '') >= cutoff && p.firstSeen !== '2000-01-01',
+        isNew: false,
       })
     }
   }
+
+  // Whether a programme is new is decided once all programmes of the request are known: days of bulk imports do not count.
+  const bulk = bulkDays([...byId.values()].map((p) => p.firstSeen))
+  for (const p of byId.values()) p.isNew = isNewProgramme(p.firstSeen, cutoff, bulk)
 
   const levels = LEVELS_FOR[req.prefs.level]
   const q = req.q?.toLowerCase().trim()
