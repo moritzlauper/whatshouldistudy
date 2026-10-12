@@ -188,7 +188,7 @@ export type OwnStatus = 'loading' | 'failed' | 'budget' | 'daily' | 'ready'
 export function OwnDataPanel({ on, status, onChange, search = false, hint, disabled = false }: { on: boolean; status: OwnStatus; onChange: (on: boolean) => void; search?: boolean; hint?: string; disabled?: boolean }) {
   const { t } = useSite()
   const a = t.programmes.ai.own
-  // The same step in two places: above the top list («Mit KI sortieren») and in the search («Mit KI suchen»).
+  // Separate controls for the top list and for the current search.
   const label = search ? { ask: a.askSearch, hint: a.askSearchHint, withdraw: a.withdrawSearch } : { ask: a.ask, hint: a.askHint, withdraw: a.withdraw }
   const [asking, setAsking] = useState(false)
   if (on) {

@@ -854,7 +854,7 @@ function Explorer({
   const ownMap = personal.map
   // The number the list shows: the reading, averaged with the answers when the optional step is on.
   const shownScore = (id: string): number | undefined => blendedScore(scoreOf(id), ownMap?.get(id)) ?? (hasScores ? 50 : undefined)
-  // Sorted by the match, every result is fetched at once and ordered together, so this list agrees with the top list; it is paged here.
+  // Fetch every match before sorting by its displayed points, then page the complete order here.
   const byMatch = listSort === 'match'
   const serverPage = byMatch ? 0 : page
   const ordered = useMemo(() => {
@@ -949,7 +949,7 @@ function Explorer({
         />
         <select value={country} onChange={(e) => (setCountry(e.target.value), setPage(0))} className="input w-auto">
           <option value="">{t.programmes.allCountries}</option>
-          {Object.entries(data?.facets.countries ?? {}).map(([cc, n]) => (
+          {Object.entries(reply?.data?.facets.countries ?? {}).map(([cc, n]) => (
             <option key={cc} value={cc}>
               {countryLabel(cc, intl)} ({n})
             </option>
@@ -957,7 +957,7 @@ function Explorer({
         </select>
         <select value={level} onChange={(e) => (setLevel(e.target.value as Level | 'any'), setPage(0))} className="input w-auto">
           <option value="any">{t.programmes.allLevels}</option>
-          {Object.entries(data?.facets.levels ?? {}).map(([l, n]) => (
+          {Object.entries(reply?.data?.facets.levels ?? {}).map(([l, n]) => (
             <option key={l} value={l}>
               {levelLabel(l as Level, locale)} ({n})
             </option>
