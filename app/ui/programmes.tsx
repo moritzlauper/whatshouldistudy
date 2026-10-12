@@ -77,10 +77,8 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   // Not on a shared link (its profile is someone else's).
   const readings = useReadings(token, unlocked && !shared && hasReadings(prefs))
   const profile = useLocalProfile(results)
-  const readingIds = useMemo(() => [...readings.byId.keys()].slice(0, 2000), [readings.byId])
-  // With readings: exactly the programmes that have one. Without: the best matches of the questionnaire.
-  const listIds = readings.status === 'done' && readingIds.length ? readingIds : undefined
-  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: listIds ? listIds.length : 20, ids: listIds })
+  // The best matches of the questionnaire, as before; the readings only re-order them.
+  const body = JSON.stringify({ fields: requestFields(results), prefs, topics: weights, sort: 'match', page: 0, pageSize: 20 })
   const key = JSON.stringify([body, token, unlocked, attempt])
   // The list waits for the readings, so that it is asked for once, with them.
   const ready = readings.status !== 'loading'
@@ -163,7 +161,10 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
         })
         .sort((a, b) => combinedScore(b.p.match, b.score) - combinedScore(a.p.match, a.score))
     }
-    return rated.map((p) => ({ p, score: local.get(p.id)?.score, personal: undefined as PersonalFit | undefined }))
+    // Every match stays in the list: those with a reading by the reading and the match, the others by the match.
+    return [...pool]
+      .map((p) => ({ p, score: local.get(p.id)?.score, personal: undefined as PersonalFit | undefined }))
+      .sort((a, b) => combinedScore(b.p.match, b.score) - combinedScore(a.p.match, a.score))
   }, [pool, rated, personalPool, personalMap, local])
   const best = ranked.slice(0, shown)
   return (
