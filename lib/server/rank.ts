@@ -130,7 +130,9 @@ export async function rank(req: RankRequest): Promise<RankResult> {
   const byId = new Map<string, RankedProgramme>()
   const cutoff = new Date(Date.now() - 90 * 864e5).toISOString().slice(0, 10)
 
-  const shards = await Promise.all(req.fields.map((f) => getShard(f.id)))
+  // A search looks through every field: a programme is found by its name, not only in the person's own fields.
+  const searching = !!(req.q || req.city)
+  const shards = await Promise.all((searching ? Object.keys(FIELD_BY_ID) : req.fields.map((f) => f.id)).map((id) => getShard(id)))
   for (const shard of shards) {
     if (!shard) continue
     for (const p of shard.programmes) {
@@ -158,7 +160,7 @@ export async function rank(req: RankRequest): Promise<RankResult> {
       byId.set(p.id, {
         ...p,
         match: Math.round(best),
-        matchedField: bestField,
+        matchedField: bestField || p.fields[0] || '',
         fee: fee ? { ...fee, eur: Math.round(fee.amount * (fx[fee.currency] ?? 1)) } : undefined,
         isNew: false,
       })

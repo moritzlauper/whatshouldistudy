@@ -2,8 +2,8 @@
 
 import { useSyncExternalStore } from 'react'
 import type { Preferences, QuestionnaireAnswers, SourceId, SourceSummary } from './engine/types.ts'
-import type { ProgrammeCompare } from './engine/programme-changes.ts'
-import { readContentInput, readContentProgress, saveContentInput, writeContentProgress } from './content-store.ts'
+import type { ProgrammeChange, ProgrammeCompare } from './engine/programme-changes.ts'
+import { readCompareRows, readContentInput, readContentProgress, saveContentInput, writeCompareRows, writeContentProgress } from './content-store.ts'
 import type { ContentAnalysisInput } from './sources/exports.ts'
 import { isCurrentProgress, type ContentProgress } from './engine/content-analysis.ts'
 
@@ -115,6 +115,21 @@ export async function loadContentProgress(state: State): Promise<ContentProgress
 
 export function saveContentProgress(progress: ContentProgress | null): Promise<void> {
   return writeContentProgress(KEY, progress)
+}
+
+/** The comparison's rows, with the time the comparison was made. They are read back only for that same comparison. */
+export async function loadCompareRows(state: State, at: string): Promise<ProgrammeChange[] | null> {
+  if (!state.summaries.takeout || !state.contentImportId) return null
+  const saved = await readCompareRows(KEY)
+  return saved && saved.at === at ? saved.rows : null
+}
+
+export function saveCompareRows(at: string, rows: ProgrammeChange[]): Promise<void> {
+  return writeCompareRows(KEY, { at, rows })
+}
+
+export function discardCompareRows(): Promise<void> {
+  return writeCompareRows(KEY, null)
 }
 
 export function effectiveSummaries(state: State): SourceSummary[] {

@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CONTENT_MAX, CONTENT_RUN_VERSION, CONTENT_SAMPLE, classifyInBatches, contentVerdicts, type ContentItem, type ContentProgress, type ContentVerdict } from '@/lib/engine/content-analysis.ts'
 import { prepareContentAnalysis } from '@/lib/sources/exports.ts'
 import { withBase } from '@/lib/site.ts'
-import { getState, loadContentInput, loadContentProgress, saveContentProgress, update, useAppState } from '@/lib/store.ts'
+import { discardCompareRows, getState, loadContentInput, loadContentProgress, saveContentProgress, update, useAppState } from '@/lib/store.ts'
 import { useSite } from './site-context.tsx'
 import { ProgrammeChanges, type ProgrammeChangesInput } from './programme-changes.tsx'
 import { fieldName } from '@/lib/site/labels.ts'
@@ -173,7 +173,7 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
       <div className="flex flex-wrap gap-2">
         {canExpand && <button type="button" className="btn btn-ghost btn-sm max-w-full whitespace-normal text-left" disabled={status !== 'idle'} onClick={() => void expand()}>{unfinished ? a.resumeMore(unfinished.verdicts.length, unfinished.total) : a.more(Math.min(CONTENT_MAX, Number(ai.summary.stats.aiEligible ?? 0)))}</button>}
         <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => update((s) => ({ ...s, contentAnalysis: s.contentAnalysis ? { ...s.contentAnalysis, enabled: !s.contentAnalysis.enabled } : undefined }))}>{ai.enabled ? a.disable : a.enable}</button>
-        <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => { discard(); update((s) => ({ ...s, contentAnalysis: undefined })) }}>{a.remove}</button>
+        <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => { discard(); void discardCompareRows(); update((s) => ({ ...s, contentAnalysis: undefined })) }}>{a.remove}</button>
       </div>
     </div> : status === 'reading' ? <p role="status">{a.reading}</p> : !plan ? <>
       <p className="text-muted">{base ? a.unavailable : a.missing}</p>

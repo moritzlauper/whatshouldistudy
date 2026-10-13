@@ -1,14 +1,14 @@
 'use client'
 
 import { Fragment, useEffect, useMemo } from 'react'
-import { update, useAppState } from '@/lib/store.ts'
+import { saveCompareRows, update, useAppState } from '@/lib/store.ts'
 import { useSite } from './site-context.tsx'
 import { topicWeights, type UserTopic } from '@/lib/engine/topics.ts'
 import { PERSONAL_REQUEST, orderByNumber, orderedFieldIds, shownScore, type PersonalFit } from '@/lib/engine/programme-fit.ts'
-import { changeSummary, COMPARE_TOP, programmeChanges, requestKey, type ProgrammeCompare, type ProgrammeEntry } from '@/lib/engine/programme-changes.ts'
+import { changeSummary, COMPARE_TOP, programmeChanges, profileKeyOf, type ProgrammeCompare, type ProgrammeEntry } from '@/lib/engine/programme-changes.ts'
 import type { Preferences, Results } from '@/lib/engine/types.ts'
 import type { RankedProgramme } from '@/lib/server/rank.ts'
-import { allProgrammes, askPersonal, hasReadings, limitOf, requestFields, useLocalProfile } from './programmes.tsx'
+import { allProgrammes, askPersonal, hasReadings, limitOf, requestFields, useCompareRows, useLocalProfile } from './programmes.tsx'
 import { useFitScores, useReadings } from './readings.tsx'
 
 /** One side of the comparison: the answers as they stood, and the topics they and the data gave. */
@@ -36,7 +36,8 @@ function setCompare(compare: ProgrammeCompare) {
 export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInput; token: string | null }) {
   const { t, locale } = useSite()
   const a = t.contentAi
-  const compare = useAppState().contentAnalysis?.compare
+  const state = useAppState()
+  const compare = state.contentAnalysis?.compare
   const { prefs, unlocked, before, after } = input
   const pending = compare?.status === 'pending'
   const readings = useReadings(token, unlocked && hasReadings(prefs))
@@ -83,7 +84,10 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
         }),
       )
       // Each row keeps its fit too, and the request it was made for, so the lists show the same rating without asking again.
-      setCompare({ status: 'done', at: new Date().toISOString(), rows: rows.map((row) => ({ ...row, after: { ...row.after, fit: rated.get(row.id)?.fit } })), key: requestKey(afterFields, prefs, afterWeights) })
+      const at = new Date().toISOString()
+      // The rows are kept in the browser's own store, which has room for them; the state keeps only the comparison's marks.
+      void saveCompareRows(at, rows.map((row) => ({ ...row, after: { ...row.after, fit: rated.get(row.id)?.fit } })))
+      setCompare({ status: 'done', at, key: profileKeyOf(state) })
     })().catch((e: Error) => {
       if (!controller.signal.aborted) setCompare({ status: 'failed', limit: limitOf(e) })
     })
@@ -93,7 +97,8 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
   }, [pending, unlocked, ready])
 
   const done = compare?.status === 'done' ? compare : null
-  const summary = done ? changeSummary(done.rows) : null
+  const compared = useCompareRows()
+  const summary = done && compared ? changeSummary(compared) : null
   return <div className="space-y-2">
     {compare?.status === 'pending' && <p role="status" className="animate-pulse">{a.comparing}</p>}
     {compare?.status === 'failed' && <p role="alert" className="text-bad">{compare.limit ? a.compareLimit : a.compareFailed}</p>}
@@ -106,7 +111,7 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
         <div className="overflow-x-auto">
           <table className="w-full table-fixed text-left text-xs">
             <thead><tr>{[[a.programme, 'w-[40%]'], [a.rankBefore, 'w-[16%]'], [a.rankAfter, 'w-[16%]'], [a.pointsChange, 'w-[28%]']].map(([label, width]) => <th key={label} scope="col" className={`${width} px-2 py-2`}>{label}</th>)}</tr></thead>
-            <tbody>{done.rows.map((r) => <Fragment key={r.id}><tr className="border-t border-soft-line align-top">
+            <tbody>{(compared ?? []).map((r) => <Fragment key={r.id}><tr className="border-t border-soft-line align-top">
               <th scope="row" className="px-2 py-2 font-semibold">{r.name}<span className="block font-normal text-muted">{r.institution}</span></th>
               <td className="px-2 py-2">{r.before ? r.before.rank : a.newInList}</td>
               <td className="px-2 py-2">{r.after.rank}</td>

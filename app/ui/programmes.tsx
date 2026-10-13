@@ -2,13 +2,13 @@
 
 import Link from 'next/link'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { studentId, unlockToken, update, useAppState } from '@/lib/store.ts'
+import { getState, loadCompareRows, studentId, unlockToken, update, useAppState } from '@/lib/store.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
 import { SALES_PAUSED, isLocal } from '@/lib/site/config.ts'
 import type { FieldMatch, Preferences, Results } from '@/lib/engine/types.ts'
 import { normalize } from '@/lib/engine/text.ts'
 import { topicWeights } from '@/lib/engine/topics.ts'
-import { requestKey } from '@/lib/engine/programme-changes.ts'
+import { profileKeyOf, type ProgrammeChange } from '@/lib/engine/programme-changes.ts'
 import type { UserTopic } from '@/lib/engine/topics.ts'
 import { reasonText } from '@/lib/site/explain.ts'
 import { Contributions } from './contributions.tsx'
@@ -97,20 +97,31 @@ export async function allProgrammes(request: object, token: string | null, signa
  * between them; a failed ask is not kept, so the next one asks again.
  */
 const personalAsks = new Map<string, Promise<PersonalFit[]>>()
+/** The ratings this session has received, per profile: a programme keeps its rating when the list is filtered again. */
+const ratings = new Map<string, Map<string, PersonalFit>>()
+
 /**
  * The comparison of a list. A list may hold more programmes than one request carries, so they go in
  * requests of PERSONAL_REQUEST each, asked together. A limit answer fails the comparison; a request
  * that fails otherwise is left out, and the others still count.
  */
 export function askPersonal(programmes: RankedProgramme[], profile: LocalProfile, locale: string, token: string | null, computed: (p: RankedProgramme) => number, fresh = false): Promise<PersonalFit[]> {
-  const chunks = Array.from({ length: Math.ceil(programmes.length / PERSONAL_REQUEST) }, (_, i) => programmes.slice(i * PERSONAL_REQUEST, (i + 1) * PERSONAL_REQUEST))
+  const profileKey = JSON.stringify([token ?? '', locale, profile.riasec, Object.entries(profile.enjoy).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => k), profile.topics ?? {}])
+  const known = ratings.get(profileKey) ?? new Map<string, PersonalFit>()
+  ratings.set(profileKey, known)
+  // A rating given before is kept, so a programme keeps its number when the list is filtered; a repeat asks again.
+  if (fresh) for (const p of programmes) known.delete(p.id)
+  const missing = programmes.filter((p) => !known.has(p.id))
+  const chunks = Array.from({ length: Math.ceil(missing.length / PERSONAL_REQUEST) }, (_, i) => missing.slice(i * PERSONAL_REQUEST, (i + 1) * PERSONAL_REQUEST))
   return Promise.allSettled(chunks.map((chunk) => askRequest(chunk, profile, locale, token, computed, fresh))).then((settled) => {
     const limit = settled.find((s): s is PromiseRejectedResult => s.status === 'rejected' && !!limitOf(s.reason))
     if (limit) throw limit.reason
     const answers = settled.flatMap((s) => (s.status === 'fulfilled' ? s.value : []))
+    for (const f of answers) known.set(f.id, f)
     const failure = settled.find((s): s is PromiseRejectedResult => s.status === 'rejected')
-    if (!answers.length && failure) throw failure.reason
-    return answers
+    const rated = programmes.filter((p) => known.has(p.id)).map((p) => known.get(p.id)!)
+    if (!rated.length && failure) throw failure.reason
+    return rated
   })
 }
 
@@ -188,21 +199,39 @@ export function usePersonalComparison(programmes: RankedProgramme[], profile: Lo
  * The comparison made after the content analysis, while the request it was made for is unchanged.
  * Lists use it instead of asking again: the same numbers, the same order and the same reasons.
  */
-export function useAnalysisFits(request: { fields: unknown; prefs: Preferences; topics: Record<string, number> }): { fits: Map<string, PersonalFit>; rank: Map<string, number> } | null {
-  const compare = useAppState().contentAnalysis
-  const key = requestKey(request.fields, request.prefs, request.topics)
+/** The comparison's rows: kept beside the stored state, or those of an older version that kept them there. */
+export function useCompareRows(): ProgrammeChange[] | null {
+  const compare = useAppState().contentAnalysis?.compare
+  const at = compare?.status === 'done' ? compare.at : null
+  const inState = compare?.status === 'done' ? (compare.rows ?? null) : null
+  const [loaded, setLoaded] = useState<{ at: string; rows: ProgrammeChange[] } | null>(null)
+  useEffect(() => {
+    if (!at || inState) return
+    let current = true
+    void loadCompareRows(getState(), at).then((rows) => { if (current && rows) setLoaded({ at, rows }) })
+    return () => { current = false }
+  }, [at, inState])
+  if (inState) return inState
+  return at && loaded?.at === at ? loaded.rows : null
+}
+
+export function useAnalysisFits(): { fits: Map<string, PersonalFit>; rank: Map<string, number> } | null {
+  const state = useAppState()
+  const compare = state.contentAnalysis
+  const key = profileKeyOf(state)
+  const rows = useCompareRows()
   return useMemo(() => {
     const stored = compare?.compare
     const done = compare?.enabled && stored?.status === 'done' ? stored : null
-    if (!done || done.key !== key) return null
+    if (!done || done.key !== key || !rows) return null
     const fits = new Map<string, PersonalFit>()
     const rank = new Map<string, number>()
-    for (const row of done.rows) {
+    for (const row of rows) {
       rank.set(row.id, row.after.rank)
       if (row.after.reasons.length) fits.set(row.id, { id: row.id, fit: row.after.fit ?? 3, score: row.after.score, reasons: row.after.reasons, thin: false })
     }
     return fits.size ? { fits, rank } : null
-  }, [compare, key])
+  }, [compare, key, rows])
 }
 
 /** Programmes the comparison ranked come first, in its order; the others keep the order they had. */
@@ -258,7 +287,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const personalPool = useMemo(() => orderByNumber(pool, computedOf, fieldOrder).slice(0, PERSONAL_POOL), [pool, scoreOf, hasScores, fieldOrder])
   const personal = usePersonalComparison(personalPool, profile, locale, token, JSON.stringify([body, unlocked, shared]), computedOf)
   // After the content analysis the comparison already ran for this request: its numbers and reasons are shown, and it is not asked again.
-  const analysis = useAnalysisFits({ fields: request.fields, prefs, topics: weights ?? {} })
+  const analysis = useAnalysisFits()
   const personalMap = analysis?.fits ?? personal.map
   // The one number of each programme, best first; the preferred field only breaks a tie.
   const ranked = useMemo(() => {
@@ -852,7 +881,7 @@ function Explorer({
   const ownPool = useMemo(() => orderByNumber(data?.items ?? [], computedOf).slice(0, PERSONAL_POOL), [data, scoreOf, hasScores])
   const personal = usePersonalComparison(ownPool, profile, locale, token, queryKey, computedOf)
   // After the content analysis the comparison already ran for this request: its numbers and reasons are used, and it is not asked again.
-  const analysis = useAnalysisFits({ fields, prefs, topics: topics ?? {} })
+  const analysis = useAnalysisFits()
   const ownMap = analysis?.fits ?? personal.map
   // The one number of each programme, as in the top list.
   const shownOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores, ownMap?.get(p.id))

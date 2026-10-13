@@ -28,12 +28,19 @@ export interface ProgrammeChange {
 /** The stored comparison: running, finished with its rows, or stopped by a limit. */
 export type ProgrammeCompare =
   | { status: 'pending'; fresh?: boolean }
-  | { status: 'done'; at: string; rows: ProgrammeChange[]; key?: string }
+  | { status: 'done'; at: string; rows?: ProgrammeChange[]; key?: string }
   | { status: 'failed'; limit?: 'budget' | 'daily' }
 
-/** What a comparison was made for: its fields, preferences and topics. The same key means the same request, so its numbers still hold. */
-export function requestKey(fields: unknown, prefs: unknown, topics: unknown): string {
-  return JSON.stringify({ fields, prefs, topics })
+/**
+ * What a rating is based on: the questionnaire answers, the field of study and each imported source with its
+ * collection time. Filters do not count, and nor do scores derived from them: those can shift between loads.
+ */
+export function profileKeyOf(state: { answers: unknown; prefs: unknown; summaries: unknown }): string {
+  const studying = (state.prefs as { studying?: unknown } | undefined)?.studying ?? null
+  const sources = Object.values((state.summaries ?? {}) as Record<string, { source?: string; collectedAt?: string } | undefined>)
+    .flatMap((s) => (s ? [`${s.source ?? ''}@${s.collectedAt ?? ''}`] : []))
+    .sort()
+  return JSON.stringify({ answers: state.answers, studying, sources })
 }
 
 /**
