@@ -8,6 +8,7 @@ import { FIELD_BY_ID } from '../taxonomy/fields.ts'
 import { getMeta, getShard } from './data.ts'
 import { cityMatches } from '../city-search.ts'
 import { bulkDays, isNewProgramme } from '../newness.ts'
+import { TYPE_LABEL, type InstType } from '../institutions.ts'
 
 export interface RankRequest {
   /** The person's top fields with their 0..100 match. */
@@ -94,6 +95,7 @@ export function sanitizeRequest(body: unknown): RankRequest | null {
   const p = (b.prefs ?? {}) as Partial<Preferences>
   const prefs: Preferences = {
     level: p.level === 'master' || p.level === 'any' ? p.level : 'bachelor',
+    institutionType: typeof p.institutionType === 'string' && Object.hasOwn(TYPE_LABEL, p.institutionType) ? p.institutionType as InstType : undefined,
     countries: Array.isArray(p.countries) ? p.countries.filter((c) => typeof c === 'string' && /^[A-Z]{2}$/.test(c)).slice(0, 60) : [],
     maxTuitionEur: Math.max(0, Number(p.maxTuitionEur) || 0),
     origin: (['eu', 'us', 'uk', 'ch', 'other'] as const).includes(p.origin as never) ? (p.origin as Preferences['origin']) : 'eu',
@@ -177,6 +179,7 @@ export async function rank(req: RankRequest): Promise<RankResult> {
   const base = [...byId.values()].filter((p) => {
     if (onlyIds && !onlyIds.has(p.id)) return false
     if (levels && !levels.includes(p.level)) return false
+    if (req.prefs.institutionType && p.institutionType !== req.prefs.institutionType) return false
     if (req.prefs.countries.length && !req.prefs.countries.includes(p.country)) return false
     if (req.prefs.maxTuitionEur && p.fee && p.fee.eur > req.prefs.maxTuitionEur) return false
     if (req.prefs.englishOnly && !(p.languages ?? []).includes('en')) return false

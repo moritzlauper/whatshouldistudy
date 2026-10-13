@@ -20,6 +20,8 @@ test('a shared link carries the result but nothing personal', async () => {
   const snap = decodeSnapshot(code)!
   assert.equal(snap.results.fields[0].id, res.fields[0].id)
   assert.deepEqual(snap.prefs, { countries: ['CH'], level: 'master' })
+  const filtered = decodeSnapshot(encodeSnapshot(res, { level: 'bachelor', countries: ['CH'], institutionType: 'fh', maxTuitionEur: 0, origin: 'ch', englishOnly: false }))!
+  assert.equal(filtered.prefs.institutionType, 'fh')
   const text = JSON.stringify(snap)
   assert.ok(!/Geheimes|Privater|bourdieu/i.test(text), 'personal data leaked into the link')
   assert.equal(sharedParam(`#s=${code}`), code)

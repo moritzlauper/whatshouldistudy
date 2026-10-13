@@ -27,3 +27,29 @@ test('free preview excludes the best programme even when it belongs to a lower f
   `], { cwd: process.cwd(), env, encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr || result.stdout)
 })
+
+test('institution type limits ranked and preview programmes without exposing the paid top result', () => {
+  const env = { ...process.env }
+  for (const key of ['WSIS_DATA_URL', 'VERCEL_GIT_REPO_OWNER', 'VERCEL_GIT_REPO_SLUG']) delete env[key]
+  const result = spawnSync(process.execPath, ['--conditions=react-server', '--input-type=module', '-e', `
+    import assert from 'node:assert/strict';
+    import { rank, sanitizeRequest, teaser } from './lib/server/rank.ts';
+    const fields = ['psychology', 'computer-science', 'mechanical-engineering', 'education', 'nursing', 'business-management', 'architecture', 'medicine'].map(id => ({ id, score: 90 }));
+    const prefs = { level: 'any', countries: ['CH'], maxTuitionEur: 0, origin: 'ch', englishOnly: false };
+    const all = await rank({ fields, prefs, pageSize: 2000 });
+    assert.ok(all.total > 0);
+    for (const institutionType of ['uni', 'eth', 'fh', 'ph']) {
+      const req = sanitizeRequest({ fields, prefs: { ...prefs, institutionType } });
+      assert.equal(req?.prefs.institutionType, institutionType);
+      const paid = await rank({ ...req, pageSize: 2000 });
+      assert.ok(paid.total > 0 && paid.total < all.total, institutionType);
+      assert.ok(paid.items.every(p => p.institutionType === institutionType));
+      const free = await teaser(req);
+      if (institutionType !== 'ph') assert.ok(free.samples.length > 0);
+      assert.ok(free.samples.every(p => p.institutionType === institutionType));
+      assert.ok(free.samples.every(p => p.id !== paid.items[0].id));
+    }
+    assert.equal(sanitizeRequest({ fields, prefs: { ...prefs, institutionType: 'made-up' } })?.prefs.institutionType, undefined);
+  `], { cwd: process.cwd(), env, encoding: 'utf8' })
+  assert.equal(result.status, 0, result.stderr || result.stdout)
+})

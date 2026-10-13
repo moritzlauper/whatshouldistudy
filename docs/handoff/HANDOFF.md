@@ -2,6 +2,15 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Einstieg, Schweizer KI und Hochschulfilter (13.10.2026)
+
+- Ein Ablauf: zuerst der Fragebogen, danach freiwillig eigene Daten. Die zwei farbigen Karten bleiben als Sprunglinks zu Schritt 1 und Schritt 2; der Datenimport lässt sich überspringen.
+- Landingpage: Der grössere Schweizer-KI-Abschnitt steht direkt unter den drei Einstiegskarten. Er erklärt eigene YouTube-Daten, die freiwillige Themenanalyse bei Infomaniak und den Abgleich mit der Studiengangsdatenbank. Texte in DE/EN/FR/IT; der Button beginnt beim Fragebogen.
+- Schmale Fortschrittsbalken zeigen den Stand der Inhaltsanalyse und des anschliessenden Studiengangvergleichs.
+- Hochschultyp als gespeicherter Filter in Studienwünschen und Resultaten; wirkt auf Rangliste, Vorschau, Suche und CSV. Geteilte Resultate enthalten die Auswahl. Alte Links übernehmen keinen Hochschultyp aus dem Profil der betrachtenden Person. Verspätete Vorschauen können einen neu gewählten Filter nicht überschreiben.
+- Testhilfen aktualisiert: Der Einwilligungstest unterstützt den Fortschrittszustand; der Vergleichstest prüft, dass reine Katalogerklärungen die angezeigten Punkte unverändert lassen.
+- Prüfung: TypeScript, alle 260 Tests und Webpack-Produktionsbuild erfolgreich. Landingpage auf Desktop und 390 px geprüft, ohne horizontalen Überlauf; Sprunglink und Einstieg in den Fragebogen geprüft. Keine echten persönlichen Daten an die KI gesendet.
+
 ## Infomaniak-Migration (13.10.2026, lokal umgesetzt)
 
 - Alle KI-Aufrufe in dieser App und im öffentlichen Studiengangsleser verwenden jetzt `google/gemma-4-31B-it` bei Infomaniak. Gemeinsamer Transport: `lib/infomaniak.ts`; kein Fallback zu einem anderen Anbieter. Die separate Blog-Automation im privaten Repo ist nicht geändert.

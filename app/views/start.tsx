@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { update, clearAll, removeSummary, setSummary, useAppState } from '@/lib/store.ts'
+import { clearAll, removeSummary, setSummary, useAppState } from '@/lib/store.ts'
 import type { SourceId, SourceSummary } from '@/lib/engine/types.ts'
 import { getToken, isConfigured, startAuth } from '@/lib/sources/oauth.ts'
 import type { Provider } from '@/lib/sources/oauth.ts'
@@ -41,10 +41,6 @@ export function StartView() {
   const q = questionnaireProgress(state.answers)
   const personalityRemaining = BIG5_ITEMS.length - big5Answered(state.answers)
   const ready = resultsReady(state.answers, summaries.length)
-  // Data first only when chosen, or when exports are already in.
-  const dataMode = (state.mode ?? (summaries.length ? 'data' : 'standard')) === 'data'
-  const setMode = (mode: 'standard' | 'data') => update((s) => ({ ...s, mode }))
-
   const fail = (id: string, e: unknown) => setErrors((x) => ({ ...x, [id]: t.tr((e as Error).message || t.callback.generic) }))
   const progress = (source: string) => (message: string, count?: number) => setRunning({ source, message: t.tr(message), count })
 
@@ -120,40 +116,44 @@ export function StartView() {
         <span className="hl">{t.start.title}</span>
       </h1>
       <p className="mt-5 max-w-2xl text-lg text-muted">{t.start.lead}</p>
-      {dataMode && <div className="card-sm mt-6 flex max-w-3xl flex-col gap-3 bg-surface-2 p-5 sm:flex-row sm:items-center">
-        <span className="text-3xl" aria-hidden="true">🔒</span>
-        <p className="flex-1 text-sm">
-          <strong>{t.trust.nothingStored}.</strong> {t.trust.startNote} {t.contentAi.localNote}{' '}
-          <a href={SOURCE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-bold text-accent underline">
-            <GitHubMark size={14} /> {t.trust.viewCode}
-          </a>
-        </p>
-      </div>}
 
-      <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-2" role="radiogroup" aria-label={t.start.modeLabel}>
-        {(['standard', 'data'] as const).map((m) => {
-          const on = (m === 'data') === dataMode
-          return (
-            <button
-              key={m}
-              type="button"
-              role="radio"
-              aria-checked={on}
-              onClick={() => setMode(m)}
-              className={`card-sm p-4 text-left transition ${on ? 'on-color -translate-y-0.5' : 'hover:-translate-y-0.5'}`}
-              style={on ? { background: m === 'data' ? 'var(--pink)' : 'var(--sky)' } : undefined}
-            >
-              <span className="font-display text-xl">{t.start.modes[m].title}</span>
-              <span className="mt-1 block text-sm">{t.start.modes[m].text}</span>
-            </button>
-          )
-        })}
+      <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-2">
+        {([
+          { href: `#${r.anchors.questionnaire}`, color: 'var(--sky)', card: t.start.cards.questionnaire },
+          { href: `#${r.anchors.sources}`, color: 'var(--pink)', card: t.start.cards.data },
+        ] as const).map(({ href, color, card }) => (
+          <a
+            key={href}
+            href={href}
+            className="card-sm on-color block p-4 text-left transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-accent"
+            style={{ background: color }}
+          >
+            <span className="block text-xs font-extrabold uppercase tracking-wider">{card.step}</span>
+            <span className="mt-1 block font-display text-xl">{card.title}</span>
+            <span className="mt-1 block text-sm">{card.text}</span>
+          </a>
+        ))}
       </div>
 
-      {dataMode && (
-        <>
-      <section id={r.anchors.sources} className="mt-14 scroll-mt-24">
-        <StepTitle n={dataMode ? 1 : 2} color="var(--pink)" title={t.start.step1} sub={t.start.step1sub} />
+      <section id={r.anchors.questionnaire} className="mt-14 scroll-mt-24">
+        <StepTitle n={1} color="var(--sky)" title={t.start.step1} sub={t.start.step1sub} />
+        <div className="mt-7">
+          <Questionnaire />
+        </div>
+      </section>
+
+      <section id={r.anchors.sources} className="mt-20 scroll-mt-24">
+        <StepTitle n={2} color="var(--pink)" title={t.start.step2} sub={t.start.step2sub} />
+        <a href={`#${r.anchors.prefs}`} className="btn btn-ghost btn-sm mt-5">{t.start.skipData} →</a>
+        <div className="card-sm mt-6 flex max-w-3xl flex-col gap-3 bg-surface-2 p-5 sm:flex-row sm:items-center">
+          <span className="text-3xl" aria-hidden="true">🔒</span>
+          <p className="flex-1 text-sm">
+            <strong>{t.trust.nothingStored}.</strong> {t.trust.startNote} {t.contentAi.localNote}{' '}
+            <a href={SOURCE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-bold text-accent underline">
+              <GitHubMark size={14} /> {t.trust.viewCode}
+            </a>
+          </p>
+        </div>
         <div className="mt-7 grid gap-5 md:grid-cols-2">
           <ExportCard
             title="YouTube & Google"
@@ -237,30 +237,8 @@ export function StartView() {
         />
       </section>
 
-        </>
-      )}
-
-      <section id={r.anchors.questionnaire} className={`${dataMode ? 'mt-20' : 'mt-14'} scroll-mt-24`}>
-        <StepTitle n={dataMode ? 2 : 1} color="var(--sky)" title={t.start.step2} sub={dataMode ? t.start.step2subData : t.start.step2sub} />
-        <div className="mt-7">
-          <Questionnaire />
-        </div>
-      </section>
-
-      {!dataMode && (
-        <p className="card-sm mt-6 flex flex-col gap-3 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <span>
-            <span aria-hidden="true">✨ </span>
-            {t.start.dataHint}
-          </span>
-          <button type="button" onClick={() => setMode('data')} className="btn btn-ghost btn-sm shrink-0">
-            {t.start.dataHintButton}
-          </button>
-        </p>
-      )}
-
       <section id={r.anchors.prefs} className="mt-20 scroll-mt-24">
-        <StepTitle n={dataMode ? 3 : 2} color="var(--lime)" title={t.start.step3} sub={t.start.step3sub} />
+        <StepTitle n={3} color="var(--lime)" title={t.start.step3} sub={t.start.step3sub} />
         <div className="mt-7">
           <PrefsForm />
         </div>

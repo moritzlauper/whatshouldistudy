@@ -6,6 +6,7 @@ import { COUNTRIES, REGION_GROUPS, flag } from '@/lib/countries.ts'
 import type { Preferences } from '@/lib/engine/types.ts'
 import { countryLabel, fieldName, fmtMoney } from '@/lib/site/labels.ts'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
+import { SCHOOL_TYPES, TYPE_LABEL, typeLabel, type InstType } from '@/lib/institutions.ts'
 import { useSite } from './site-context.tsx'
 
 const ORIGINS: Array<Preferences['origin']> = ['eu', 'ch', 'uk', 'us', 'other']
@@ -42,6 +43,9 @@ export function PrefsForm() {
             options={(['bachelor', 'master', 'any'] as const).map((l) => [l, t.prefs.levels[l]])}
             onChange={(level) => set({ level: level as Preferences['level'] })}
           />
+        </Field>
+        <Field label={t.prefs.institutionType} hint={t.prefs.institutionTypeHint}>
+          <InstitutionTypeSelect />
         </Field>
         <Field label={t.prefs.studying} hint={t.prefs.studyingHint}>
           <StudyingControl />
@@ -111,6 +115,29 @@ export function PrefsForm() {
         </div>
       </div>
     </div>
+  )
+}
+
+export function InstitutionTypeSelect() {
+  const { t, locale, conf } = useSite()
+  const { prefs } = useAppState()
+  const countries = prefs.countries.length ? prefs.countries : conf.country ? [conf.country] : Object.keys(SCHOOL_TYPES)
+  const types = [...new Set(countries.flatMap((country) => SCHOOL_TYPES[country] ?? []))]
+  if (prefs.institutionType && Object.hasOwn(TYPE_LABEL, prefs.institutionType) && !types.includes(prefs.institutionType)) {
+    types.push(prefs.institutionType)
+  }
+  const labelCountry = countries.length === 1 ? countries[0] : undefined
+  const language = locale.split('-')[0] as 'de' | 'en' | 'fr' | 'it'
+  return (
+    <select
+      aria-label={t.prefs.institutionType}
+      value={prefs.institutionType ?? ''}
+      onChange={(e) => update((s) => ({ ...s, prefs: { ...s.prefs, institutionType: (e.target.value || undefined) as InstType | undefined } }))}
+      className="input w-full"
+    >
+      <option value="">{t.prefs.allInstitutionTypes}</option>
+      {types.map((type) => <option key={type} value={type}>{typeLabel(type, labelCountry, language)}</option>)}
+    </select>
   )
 }
 

@@ -11,7 +11,7 @@ export interface Snapshot {
   v: 1
   /** Date the result was shared (YYYY-MM-DD). */
   at: string
-  prefs: Pick<Preferences, 'countries' | 'level'>
+  prefs: Pick<Preferences, 'countries' | 'level' | 'institutionType'>
   results: Results
   /** Unlock token of a paid report, so place 1 shows for the recipient too. */
   token?: string
@@ -55,7 +55,7 @@ export function encodeSnapshot(results: Results, prefs: Preferences, token?: str
     riasec: { ...results.riasec, profile: results.riasec.profile.map((x) => r(x)) as Results['riasec']['profile'] },
     big5: results.big5 ? { ...results.big5, z: Object.fromEntries(Object.entries(results.big5.z).map(([k, v]) => [k, r(v)])) as NonNullable<Results['big5']>['z'] } : undefined,
   }
-  const snap: Snapshot = { v: 1, at: new Date().toISOString().slice(0, 10), prefs: { countries: prefs.countries, level: prefs.level }, results: lean, ...(token ? { token } : {}) }
+  const snap: Snapshot = { v: 1, at: new Date().toISOString().slice(0, 10), prefs: { countries: prefs.countries, level: prefs.level, ...(prefs.institutionType ? { institutionType: prefs.institutionType } : {}) }, results: lean, ...(token ? { token } : {}) }
   return toB64Url(deflateSync(strToU8(JSON.stringify(snap)), { level: 9 }))
 }
 

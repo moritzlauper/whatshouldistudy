@@ -338,7 +338,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
 export function Programmes({ results, prefs, topics = [], hideFirst = true, shared = false }: { results: Results; prefs: Preferences; topics?: UserTopic[]; hideFirst?: boolean; shared?: boolean }) {
   const { t, r, site, locale, intl } = useSite()
   const [token, setToken] = useState<string | null>(null)
-  const [teaser, setTeaser] = useState<Teaser | null>(null)
+  const [teaserReply, setTeaserReply] = useState<{ key: string; data: Teaser } | null>(null)
   const config = useConfig(site)
   const fields = useMemo(() => requestFields(results), [results])
   const weights = useMemo(() => (topics.length ? topicWeights(topics) : undefined), [topics])
@@ -346,12 +346,16 @@ export function Programmes({ results, prefs, topics = [], hideFirst = true, shar
 
   useEffect(() => setToken(unlockToken()), [])
 
+  const teaserKey = JSON.stringify({ fields, prefs, topics: weights })
+  const teaser = teaserReply?.key === teaserKey ? teaserReply.data : null
   useEffect(() => {
-    fetch(withBase('/api/teaser'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields, prefs, topics: weights }) })
+    const controller = new AbortController()
+    fetch(withBase('/api/teaser'), { method: 'POST', signal: controller.signal, headers: { 'Content-Type': 'application/json' }, body: teaserKey })
       .then((res) => res.json())
-      .then(setTeaser)
-      .catch(() => setTeaser(null))
-  }, [fields, prefs, hideFirst, weights])
+      .then((data: Teaser) => { if (!controller.signal.aborted) setTeaserReply({ key: teaserKey, data }) })
+      .catch(() => {})
+    return () => controller.abort()
+  }, [teaserKey])
 
   const noDataCountries = prefs.countries.filter((c) => !COUNTRIES[c]?.programmeData)
   const where = prefs.countries.length

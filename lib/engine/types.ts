@@ -1,4 +1,5 @@
 import type { Big5, Big5Key, Riasec, RiasecKey, SubjectKey, ValueKey } from '../taxonomy/fields.ts'
+import type { InstType } from '../institutions.ts'
 
 export type SourceId =
   | 'youtube'
@@ -126,6 +127,8 @@ export interface Studying {
 
 export interface Preferences {
   level: DegreeLevel
+  /** Only programmes from this kind of higher education institution. */
+  institutionType?: InstType
   /** ISO country codes; empty = anywhere. */
   countries: string[]
   /** Max tuition per year in EUR; 0 = no limit. */

@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, useEffect, useMemo } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { saveCompareRows, update, useAppState } from '@/lib/store.ts'
 import { useSite } from './site-context.tsx'
 import { topicWeights, type UserTopic } from '@/lib/engine/topics.ts'
@@ -10,6 +10,7 @@ import type { Preferences, Results } from '@/lib/engine/types.ts'
 import type { RankedProgramme } from '@/lib/server/rank.ts'
 import { allProgrammes, askPersonal, hasReadings, limitOf, requestFields, useCompareRows, useLocalProfile } from './programmes.tsx'
 import { useFitScores, useReadings } from './readings.tsx'
+import { ScanProgress } from './scan-progress.tsx'
 
 /** One side of the comparison: the answers as they stood, and the topics they and the data gave. */
 export interface ProgrammeSide {
@@ -41,6 +42,7 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
   const { prefs, unlocked, before, after } = input
   const providerAgreed = state.contentAnalysis?.provider === 'infomaniak'
   const pending = compare?.status === 'pending' && providerAgreed
+  const [progress, setProgress] = useState<{ compare?: ProgrammeCompare; done: number; total: number }>({ done: 0, total: 0 })
   const readings = useReadings(token, unlocked && hasReadings(prefs))
   const beforeWeights = useMemo(() => topicWeights(before.topics), [before.topics])
   const afterWeights = useMemo(() => topicWeights(after.topics), [after.topics])
@@ -61,6 +63,7 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
   useEffect(() => {
     if (!pending || !unlocked || !ready || !beforeProfile || !afterProfile) return
     const controller = new AbortController()
+    setProgress({ compare, done: 0, total: 0 })
     const profile = afterProfile
     const fresh = compare?.status === 'pending' && compare.fresh === true
     const shownBefore = (p: RankedProgramme) => shownScore(p.match, beforeFits.scoreOf(p.id), beforeFits.hasScores)
@@ -74,8 +77,12 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
       const top = orderByNumber(now.items, computedAfter, orderedFieldIds(afterFields)).slice(0, COMPARE_TOP)
       // All requests go out together; each one holds PERSONAL_REQUEST programmes, the most one request may carry.
       const chunks = Array.from({ length: Math.ceil(top.length / PERSONAL_REQUEST) }, (_, i) => top.slice(i * PERSONAL_REQUEST, (i + 1) * PERSONAL_REQUEST))
+      if (controller.signal.aborted) return
+      setProgress({ compare, done: 0, total: top.length })
       // A chunk that fails is asked once more, unless the limit ended it; the other chunks still count.
-      const settled = await Promise.allSettled(chunks.map((c) => askPersonal(c, profile, locale, token, computedAfter, fresh).catch((e: Error) => (limitOf(e) ? Promise.reject(e) : askPersonal(c, profile, locale, token, computedAfter, true)))))
+      const settled = await Promise.allSettled(chunks.map((c) => askPersonal(c, profile, locale, token, computedAfter, fresh)
+        .catch((e: Error) => (limitOf(e) ? Promise.reject(e) : askPersonal(c, profile, locale, token, computedAfter, true)))
+        .finally(() => { if (!controller.signal.aborted) setProgress((p) => p.compare === compare ? { ...p, done: p.done + c.length } : p) })))
       const answers: PersonalFit[] = settled.flatMap((s) => (s.status === 'fulfilled' ? s.value : []))
       const failure = settled.find((s): s is PromiseRejectedResult => s.status === 'rejected')
       if (!answers.length && failure) throw failure.reason
@@ -108,6 +115,7 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
   const summary = done && compared ? changeSummary(compared) : null
   return <div className="space-y-2">
     {pending && <p role="status" className="animate-pulse">{a.comparing}</p>}
+    {pending && progress.compare === compare && progress.total > 0 && <ScanProgress done={progress.done} total={progress.total} label={a.comparing} />}
     {compare?.status === 'failed' && <p role="alert" className="text-bad">{compare.limit ? a.compareLimit : a.compareFailed}</p>}
     {!pending && <p className="text-muted">{a.compareNote}</p>}
     {!pending && !providerAgreed && <p className="text-muted">{t.landing.swissAi.retention}</p>}

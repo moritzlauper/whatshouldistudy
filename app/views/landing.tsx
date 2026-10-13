@@ -94,7 +94,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
         </div>
       </section>
 
-      {/* Choose a mode, find programmes, compare their content. */}
+      {/* Answer the questionnaire, find programmes, compare their content. */}
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="grid gap-5 md:grid-cols-3">
           {t.landing.cols.map(([title, text], i) => (
@@ -104,6 +104,35 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
               <p className="mt-3 leading-relaxed text-muted">{text}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* The optional second step: own data, Swiss AI, then concrete programmes. */}
+      <section id="swiss-ai" aria-labelledby="swiss-ai-title" className="scroll-mt-20 px-4 py-14 sm:px-6">
+        <div className="card relative mx-auto max-w-6xl overflow-hidden bg-accent-soft p-6 sm:p-10 lg:p-12">
+          <Sparkle className="absolute right-8 top-10 hidden lg:block" size={64} color="var(--pink)" />
+          <div className="relative">
+            <div className="flex flex-wrap items-center gap-4">
+              <p className="sticker" style={{ background: 'var(--pink)' }}><span aria-hidden="true">🇨🇭</span> {t.landing.swissAi.badge}</p>
+              <p className="text-sm font-semibold text-muted">{t.landing.swissAi.optional}</p>
+            </div>
+            <h2 id="swiss-ai-title" className="mt-7 max-w-3xl font-display text-4xl sm:text-5xl">{t.landing.swissAi.title}</h2>
+            <p className="mt-5 max-w-3xl text-lg leading-relaxed text-muted">{t.landing.swissAi.intro}</p>
+            <ol className="mt-8 grid gap-4 md:grid-cols-3">
+              {t.landing.swissAi.uses.map((use, i) => (
+                <li key={use} className="card-flat p-5 sm:p-6">
+                  <span className="on-color mb-5 inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-line font-display text-xl" style={{ background: ['var(--pink)', 'var(--sky)', 'var(--lime)'][i] }} aria-hidden="true">0{i + 1}</span>
+                  <h3 className="font-display text-2xl">{t.landing.swissAi.stepTitles[i]}</h3>
+                  <p className="mt-3 leading-relaxed text-muted">{use}</p>
+                </li>
+              ))}
+            </ol>
+            <div className="mt-8 flex flex-wrap items-center gap-5">
+              <Link href={r.start} className="btn btn-primary">{t.landing.swissAi.cta} <span aria-hidden="true">→</span></Link>
+              <Link href={r.privacy} className="font-semibold text-accent underline">{t.landing.swissAi.details} →</Link>
+            </div>
+            <p className="mt-6 max-w-4xl text-sm leading-relaxed text-muted">{t.landing.swissAi.retention}</p>
+          </div>
         </div>
       </section>
 
@@ -170,19 +199,6 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
       </section>
 
       {local && country && <SchoolTypes k={k} country={country} counts={own?.byType ?? {}} />}
-
-      <section id="swiss-ai" aria-labelledby="swiss-ai-title" className="scroll-mt-20 px-4 py-14 sm:px-6">
-        <div className="card mx-auto max-w-6xl bg-surface p-7 sm:p-10">
-          <p className="sticker" style={{ background: 'var(--pink)' }}><span aria-hidden="true">🇨🇭</span> {t.landing.swissAi.badge}</p>
-          <h2 id="swiss-ai-title" className="mt-5 max-w-3xl font-display text-3xl sm:text-4xl">{t.landing.swissAi.title}</h2>
-          <p className="mt-4 max-w-3xl leading-relaxed text-muted">{t.landing.swissAi.intro}</p>
-          <ul className="mt-7 grid gap-4 md:grid-cols-3">
-            {t.landing.swissAi.uses.map((use, i) => <li key={use} className="rounded-2xl border-2 border-soft-line bg-surface-2 p-5 leading-relaxed"><span className="mb-3 block font-display text-xl text-accent" aria-hidden="true">0{i + 1}</span>{use}</li>)}
-          </ul>
-          <p className="mt-6 max-w-4xl text-sm leading-relaxed text-muted">{t.landing.swissAi.retention}</p>
-          <Link href={r.privacy} className="mt-4 inline-block font-semibold text-accent underline">{t.landing.swissAi.details} →</Link>
-        </div>
-      </section>
 
       {/* Privacy */}
       <section className="px-4 py-14 sm:px-6">

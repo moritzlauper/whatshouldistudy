@@ -18,7 +18,7 @@ import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes, TopProgrammes } from '../ui/programmes.tsx'
 import { ContentAnalysisPanel } from '../ui/content-analysis.tsx'
-import { StudyingControl } from '../ui/prefs-form.tsx'
+import { InstitutionTypeSelect, StudyingControl } from '../ui/prefs-form.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { Contributions } from '../ui/contributions.tsx'
 import { useConfig } from '../ui/price.tsx'
@@ -92,7 +92,7 @@ export function ResultsView() {
   const topics = useMemo(() => (own ? userTopics(summaries, state.prefs.studying) : []),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [own])
-  const prefs: Preferences = isShared ? { ...state.prefs, ...(shared as Snapshot).prefs } : state.prefs
+  const prefs: Preferences = isShared ? { ...state.prefs, institutionType: undefined, ...(shared as Snapshot).prefs } : state.prefs
   // The step from analysis to result, for ads and the usage counters: that it happened, nothing of what it says.
   useEffect(() => {
     if (own && resultsReady(state.answers, summaries.length)) {
@@ -186,6 +186,15 @@ export function ResultsView() {
       )}
 
       {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop shared={isShared} score={first.score} />}
+      {!isShared && (
+        <div className="card-sm mt-6 grid gap-2 p-4 sm:grid-cols-[1fr_1.2fr] sm:items-center">
+          <div>
+            <div className="font-bold">{t.prefs.institutionType}</div>
+            <div className="text-xs text-muted">{t.prefs.institutionTypeHint}</div>
+          </div>
+          <InstitutionTypeSelect />
+        </div>
+      )}
       <TopProgrammes results={results} prefs={prefs} topics={topics} unlocked={unlocked} shared={isShared}
         token={isShared ? ((shared as Snapshot).token ?? null) : paid ? state.unlock!.token : null} />
       {/* Browsing the programmes sits right under the top list: the main thing on this page. */}

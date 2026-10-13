@@ -10,6 +10,7 @@ import { useSite } from './site-context.tsx'
 import { ProgrammeChanges, type ProgrammeChangesInput } from './programme-changes.tsx'
 import { fieldName } from '@/lib/site/labels.ts'
 import type { FieldMatch } from '@/lib/engine/types.ts'
+import { ScanProgress } from './scan-progress.tsx'
 
 type Prepared = ReturnType<typeof prepareContentAnalysis>
 type Comparison = { before: FieldMatch[]; after: FieldMatch[] }
@@ -195,6 +196,7 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
       {wide && <p className="text-muted">{a.moreHint}</p>}
       {resuming && <p>{a.resumed(resuming.verdicts.length, resuming.total)}</p>}
       {status === 'running' ? <p role="status" className="animate-pulse">{a.loading(done, plan.items.length)}</p> : <button type="button" className="btn btn-primary btn-sm max-w-full whitespace-normal text-left" onClick={() => void analyse()}>{resuming ? a.resume : a.agree}</button>}
+      {(status === 'running' || resuming) && <ScanProgress done={status === 'running' ? done : resuming!.verdicts.length} total={plan.items.length} label={a.title} />}
       {resuming && status !== 'running' && <button type="button" className="btn btn-ghost btn-sm" onClick={discard}>{a.discard}</button>}
       <button type="button" className="btn btn-ghost btn-sm" onClick={() => { active.current?.abort(); sending.current = false; setWide(false); setDismissed(true); setStatus('idle'); setError('') }}>{a.cancel}</button>
     </>}

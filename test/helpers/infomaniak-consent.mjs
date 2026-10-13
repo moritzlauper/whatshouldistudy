@@ -20,7 +20,14 @@ registerHooks({
     return next(s.startsWith('@/') ? new URL(s.slice(2), root).href : s, c)
   },
   load(url, c, next) {
-    const source = url === 'mock:react' ? `export * from '${new URL('node_modules/react/index.js', root)}'; export const useMemo = fn => fn(), useEffect = globalThis.consentTest.effect;`
+    const source = url === 'mock:react' ? `
+      export * from '${new URL('node_modules/react/index.js', root)}';
+      export const useMemo = fn => fn(), useEffect = globalThis.consentTest.effect;
+      export const useState = initial => {
+        let value = typeof initial === 'function' ? initial() : initial;
+        return [value, next => { value = typeof next === 'function' ? next(value) : next; }];
+      };
+    `
       : url.endsWith('/lib/store.ts') ? `export const useAppState = globalThis.consentTest.state, update = globalThis.consentTest.update, saveCompareRows = async () => {};`
       : url.endsWith('/app/ui/site-context.tsx') ? `import {kit} from '${new URL('lib/site/kit.ts', root)}'; export const useSite = () => kit('ch', '', 'de-CH');`
       : url.endsWith('/app/ui/readings.tsx') ? `export const useReadings = () => ({ status: 'done', byId: {} }), useFitScores = () => ({ scoreOf: () => 50, hasScores: false });`
