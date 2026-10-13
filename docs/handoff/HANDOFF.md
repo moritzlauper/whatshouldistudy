@@ -2,6 +2,19 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## KI-Karte nennt «Meine Aktivitäten», nicht mehr einen YouTube-Import (13.10.2026)
+
+- Die KI-Karte (`app/ui/content-analysis.tsx`) liest nur `summaries.takeout`, also die Videos aus «Meine Aktivitäten». Ihre Texte sagten aber «YouTube-Verlauf importieren». Geändert in `lib/site/dict.ts` für de, en, fr und it: `ready`, `ask`, `missing`, `unavailable` der Karte sowie `intro` und `uses` der Einstiegsseite. «Meine Aktivitäten» ist jetzt der einzige Upload, den die Texte nennen. Der optionale separate YouTube-Export bleibt erwähnt.
+- Offen: Der Screenshot vom 13.10. zeigt ein Ergebnis ohne «YouTube-Verlauf» in den Quellen. Der Upload hat also keine Videos geliefert, obwohl die Karte jetzt «Meine Aktivitäten» verlangt. Ursache nicht bestätigt, siehe nächster Abschnitt.
+
+## Grosse My-Activity-Dateien: Speicher reicht bei rund 3 Mio. Einträgen nicht (13.10.2026)
+
+- Synthetischer Export, 176 MB als zip, 3'250'000 Einträge (`make-real-like.py`): Im Browser mit 512 MB Heap-Limit stürzt der Tab nach rund 16 Minuten ab, ohne Ergebnis. Eine Datei mit 703'355 Videos (420 MB, lose HTML) läuft dagegen in 51 Sekunden durch.
+- Vermutung, nicht bestätigt: Jeder gelesene Eintrag bleibt als Objekt im Speicher (`c.watch`, `seenWatch`, Inhalte für die KI). Bei mehreren Millionen reicht das auf einem Telefon nicht. Ein Absturz während des Uploads würde erklären, warum «Google-Aktivität» aus einem früheren Upload erscheint, YouTube aber fehlt.
+- Offene Entscheidung: nur die neuesten N Videos lesen (mit sichtbarem Hinweis), oder den Aufbau auf fortlaufende Summen umstellen. Ersteres ist klein, ändert aber das Ergebnis für sehr grosse Verläufe.
+- Der Parser liest das echte Takeout-Layout mit «Angesehen» und Zeilenumbruch korrekt (30 Videos, Browsertest). HTML-Tests laufen nur im Browser, weil Node kein `DOMParser` hat.
+- Der Review-Workflow der Streaming-Lesung ist am Wochenlimit gescheitert (Reset 15.10., 06:00 UTC). Die Prüfung ist daher offen.
+
 ## «Neu hochladen» führt auf Schritt 2 (13.10.2026)
 
 - Der Knopf im Hinweis auf veraltete Daten (`StudyInfoNote` in `app/views/results.tsx`) führte auf die Startseite ohne Anker, also auf Schritt 1 (Fragebogen). Er zeigt jetzt auf `#quellen` (Schritt 2, «Mit deinen Daten»).
