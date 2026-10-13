@@ -6,7 +6,7 @@ name: whatshouldistudy facts
 # again. The readings go to a private database (lib/facts-store.ts), not to the
 # public data branch: they are part of the paid comparison.
 #
-# Weekly after the catalogue refresh, or by hand, on main only.
+# After a successful catalogue refresh (weekly and on scraper changes), or by hand.
 # Limits and spending caps apply PER COUNTRY (nine countries for ALL).
 #
 # Secret: ANTHROPIC_API_KEY (public programme pages only). The readings reach the site's private store with this
@@ -14,8 +14,10 @@ name: whatshouldistudy facts
 # is kept in GitHub.
 
 on:
-  schedule:
-    - cron: '23 3 * * 2' # Tuesdays, after Monday’s programme refresh
+  workflow_run:
+    workflows: ['whatshouldistudy data']
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       country:
@@ -50,7 +52,7 @@ env:
 
 jobs:
   countries:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     outputs:
       countries: ${{ steps.select.outputs.countries }}

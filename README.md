@@ -507,7 +507,7 @@ and in emails, never on a public page.
 
 ## Facts database (international programme pages)
 
-`.github/workflows/wsis-fakten.yml` (Tuesdays or by hand, on main only) has Claude
+`.github/workflows/wsis-fakten.yml` (after each successful data refresh or by hand, on main only) has Claude
 Haiku 5.5 at Anthropic read public programme pages for CH, FR, GB, NL, NO, FI, AU,
 KR and US (`scrapers/programme-facts.ts`,
 rules and prompt in `scrapers/lib/facts.ts`). robots.txt is respected, one request
@@ -554,7 +554,7 @@ Only public programme information goes to this offline reader, never user profil
 The workflow accepts `ALL` or one country (`UK` is normalized to `GB`). Each country
 has its own job, cached page index and reading cursor; one failure does not stop the
 others. Defaults: 150 reading attempts and at most USD 1 **per country** (USD 9
-for ALL), weekly. Missing pages are found through institution sitemaps, at most
+for ALL), after the weekly catalogue refresh and after scraper changes. Missing pages are found through institution sitemaps, at most
 five institutions and 100 pages per institution per run; successive runs rotate
 institutions and page batches. This builds coverage incrementally, not a promise
 that every listed programme already has a reading. DE/AT remain excluded.

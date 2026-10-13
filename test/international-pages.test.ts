@@ -113,6 +113,8 @@ test('facts workflow covers the shared country list and persists per-country pro
   assert.match(workflow, /matrix\.country/)
   assert.match(workflow, /--pages page-index\/pages\.json/)
   assert.match(workflow, /actions\/cache\/save/)
+  assert.match(workflow, /workflows: \['whatshouldistudy data'\]/)
+  assert.match(workflow, /github\.event\.workflow_run\.conclusion == 'success'/)
   const run = readFileSync(new URL('../scrapers/run-all.ts', import.meta.url), 'utf8')
   for (const name of ['us-scorecard', 'fr-parcoursup', 'uk-discoveruni', 'nl-duo', 'no-dbh', 'fi-opintopolku', 'au-cricos', 'kr-academyinfo']) assert.ok(run.includes(`'${name}'`))
   assert.equal(PROGRAMME_COUNTRIES.includes('CH'), true)
