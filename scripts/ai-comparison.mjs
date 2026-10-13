@@ -261,9 +261,12 @@ if (!process.argv.includes('--run') && process.argv.includes('--resume')) {
   if (schemaErrors({ items: [] }, content.SCHEMA).length || !schemaErrors({ items: [{ id: 1 }] }, content.SCHEMA).length) throw new Error('Schema checker self-check failed')
   console.log(JSON.stringify({ mode: 'dry-run', cases: selected.map(c => ({ id: c.id, rows: c.expected.length, maxTokens: c.maxTokens })), requests: selected.length * repeats * providers.length, sourceHashes }, null, 2))
 } else {
-  for (const key of ['ANTHROPIC_API_KEY', 'INFOMANIAK_API_TOKEN', 'INFOMANIAK_PRODUCT_ID']) if (!process.env[key]?.trim()) throw new Error(`Missing ${key}`)
-  if (!/^\d+$/.test(process.env.INFOMANIAK_PRODUCT_ID)) throw new Error('Product ID must be numeric')
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, baseURL: 'https://api.anthropic.com', maxRetries: 0, timeout: 90000 })
+  const needsHaiku = providers.some(p => p.id === 'haiku')
+  const needsInfomaniak = providers.some(p => p.id !== 'haiku')
+  const requiredKeys = [...(needsHaiku ? ['ANTHROPIC_API_KEY'] : []), ...(needsInfomaniak ? ['INFOMANIAK_API_TOKEN', 'INFOMANIAK_PRODUCT_ID'] : [])]
+  for (const key of requiredKeys) if (!process.env[key]?.trim()) throw new Error(`Missing ${key}`)
+  if (needsInfomaniak && !/^\d+$/.test(process.env.INFOMANIAK_PRODUCT_ID)) throw new Error('Product ID must be numeric')
+  const anthropic = needsHaiku ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, baseURL: 'https://api.anthropic.com', maxRetries: 0, timeout: 90000 }) : null
   async function run(c, p, repeat) {
     const start = performance.now()
     const r = { case: c.id, task: c.task, provider: p.id, model: p.model, repeat, startedAt: new Date().toISOString(), productionTimeoutMs: c.productionTimeoutMs,

@@ -3,8 +3,8 @@ import type { Locale, SiteId } from './site/config.ts'
 import type { Post } from './blog-check.ts'
 
 /**
- * The blog. A GitHub Action of a private repo has Claude research
- * and write the posts and commits them here as JSON files in content/blog:
+ * The blog. A GitHub Action of a private repo researches
+ * and writes the posts and commits them here as JSON files in content/blog:
  * every other day one German article each for the Swiss, German and Austrian
  * site, from that country's sources, and once a week an English one for the
  * global site. Such a post only appears on its own site. The first posts were

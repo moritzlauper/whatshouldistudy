@@ -7,7 +7,7 @@ test('the profile counts 80 %, the reading 20 %; without a reading the profile a
   assert.equal(combinedScore(72), 72)
 })
 
-test('the one number is Claude’s comparison where it rated the programme and the reading is not thin, otherwise the profile with the reading', () => {
+test('the one number is the AI’s comparison where it rated the programme and the reading is not thin, otherwise the profile with the reading', () => {
   assert.equal(shownScore(76, 60, true), 73)
   assert.equal(shownScore(76, 60, true, { score: 40 }), 40)
   assert.equal(shownScore(76, 60, true, { score: 40, thin: true }), 73)
@@ -27,7 +27,7 @@ test('city-search results descend by their visible points across fields, before 
   assert.deepEqual(orderByNumber(items, before).map((p) => p.id), ['education', 'applied', 'politics', 'unread'])
   const after = (p: { id: string; match: number }) => shownScore(p.match, content[p.id], true, ai[p.id])
   const ordered = orderByNumber(items, after)
-  // Claude's number replaces the profile-and-reading number, so a low rating moves a programme down.
+  // The AI's number replaces the profile-and-reading number, so a low rating moves a programme down.
   assert.deepEqual(ordered.map((p) => p.id), ['applied', 'politics', 'unread', 'education'])
   const visible = ordered.map(after)
   assert.deepEqual(visible, [...visible].sort((a, b) => b - a))

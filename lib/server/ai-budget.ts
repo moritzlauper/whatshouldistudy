@@ -25,13 +25,12 @@ const LIMIT_USD: Record<AiPurpose | 'total', number> = {
   total: 12,
 }
 
-/** List prices in millionths of a dollar per token (input, output). */
+/** Conservative budget rates in millionths of a dollar per token (input, output). */
 const PRICE: Record<string, [number, number]> = {
   [AI_MODEL]: [...AI_BUDGET_PRICE],
-  'claude-haiku-5-5': [0.1, 0.5],
-  'claude-sonnet-5-5': [2, 10],
-  'claude-opus-5-5': [4, 20],
 }
+// Keep the previous conservative reserve for any unrecognised future model.
+const UNKNOWN_MODEL_PRICE: [number, number] = [4, 20]
 
 const day = () => new Date().toISOString().slice(0, 10)
 const key = (p: string) => `wsis:ai-spend:${day()}:${p}`
@@ -54,7 +53,7 @@ export async function aiAllowed(p: AiPurpose): Promise<boolean> {
 
 /** Books one response's cost against today's limits. Returns it in millionths of a dollar. */
 export async function aiSpend(p: AiPurpose, model: string, usage: { input_tokens: number; output_tokens: number }): Promise<number> {
-  const [pin, pout] = PRICE[model] ?? PRICE['claude-opus-5-5']
+  const [pin, pout] = PRICE[model] ?? UNKNOWN_MODEL_PRICE
   const micro = Math.ceil(usage.input_tokens * pin + usage.output_tokens * pout)
   try {
     for (const k of [key(p), key('total')]) {

@@ -552,7 +552,7 @@ Secrets: `INFOMANIAK_API_TOKEN` and `INFOMANIAK_PRODUCT_ID` (GitHub Actions).
 All AI calls implemented in this repository use `google/gemma-4-31B-it` at
 Infomaniak: export content classification, personal programme comparisons,
 public description translations, and the offline programme-facts reader.
-There is no runtime Anthropic fallback. Gemma is a Google-developed model;
+There is no runtime fallback to another provider. Gemma is a Google-developed model;
 the inference endpoint is Infomaniak, not Google. The separate private blog
 automation described below is outside this migration.
 
@@ -610,10 +610,12 @@ subset (`app/ui/markdown.tsx`) with links to field pages (`field:<id>`) and the
 questionnaire (`start`). Every article says that it was written with AI and
 lists its sources.
 
-The posts are researched and written by Claude in a GitHub Action of the
+The posts are researched and written with AI in a GitHub Action of the
 private repository, which checks out this one, adds the posts, runs
-typecheck, tests and a production build and pushes to `main`. That's why
-`@anthropic-ai/sdk` is a dev dependency here. `checkPost()` in
+typecheck, tests and a production build and pushes to `main`. That separate
+automation configures its own provider and is not part of the website's
+Infomaniak migration. The comparison script's provider SDK is a development-only
+dependency. `checkPost()` in
 `lib/blog-check.ts` is the bar a post has to clear: free slugs, known fields, at
 least three sources, the right language for its site, no dashes as sentence
 connectors and the spelling of its country (Swiss: no ß, «», 1’250, 14.7;

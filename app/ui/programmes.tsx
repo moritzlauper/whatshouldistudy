@@ -281,7 +281,7 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const locked = !unlocked || current?.locked
   const pool = current?.data?.items ?? []
   const { fits: local, scoreOf, hasScores } = useFitScores(readings.byId, profile)
-  // The number without Claude's comparison: the profile with the reading's 20 %.
+  // The number without the AI's comparison: the profile with the reading's 20 %.
   const computedOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores)
   // Missing readings still allow catalogue-based explanations. Twenty is a maximum, not a minimum.
   const personalPool = useMemo(() => orderByNumber(pool, computedOf, fieldOrder).slice(0, PERSONAL_POOL), [pool, scoreOf, hasScores, fieldOrder])
@@ -634,7 +634,7 @@ function ProgrammeDetails({ p, aiBlock }: { p: RankedProgramme; aiBlock?: ReactN
         )}
       </div>}
 
-      {/* 1b. In the paid report: what Claude read, weighed against the profile in this browser. */}
+      {/* 1b. In the paid report: what the AI read, weighed against the profile in this browser. */}
       {aiBlock && (
         <div>
           <h5 className="font-display text-lg">{t.programmes.ai.oneTitle}</h5>
@@ -740,7 +740,7 @@ function ProgrammeDetails({ p, aiBlock }: { p: RankedProgramme; aiBlock?: ReactN
   )
 }
 
-/** `fact`: what Claude read about the programme; `fit`: how it matches the answers here; `score`: the list's score; `rank`: its place in the top list. */
+/** `fact`: what the AI read about the programme; `fit`: how it matches the answers here; `score`: the list's score; `rank`: its place in the top list. */
 function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'off' }: {
   p: RankedProgramme; rank?: number; fact?: ProgrammeFacts; fit?: LocalFit; score?: number; personal?: PersonalFit; personalStatus?: PersonalStatus
 }) {
@@ -796,7 +796,7 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
               {typeShort(type, p.country)}
             </span>
           )}
-          {/* The one number of the programme: Claude's comparison where it rated it, otherwise the profile with the reading. */}
+          {/* The one number of the programme: the AI's comparison where it rated it, otherwise the profile with the reading. */}
           <span className="rounded-full border-2 border-line bg-accent px-2.5 py-0.5 text-sm font-extrabold text-accent-ink" title={t.programmes.row.matchTip}>
             {score ?? p.match}
           </span>

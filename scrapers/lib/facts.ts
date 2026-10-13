@@ -4,7 +4,7 @@ import { LEXICON } from '../../lib/taxonomy/lexicon.ts'
 
 /**
  * Pure helpers for the facts database (scrapers/programme-facts.ts). A fact is
- * what Claude said about a programme's official page: how much it involves each
+ * what the AI said about a programme's official page: how much it involves each
  * interest type, which school subjects it needs, and what to check before
  * deciding. The page text itself is never kept, only its hash, so a page that
  * has not changed costs nothing in the next run.

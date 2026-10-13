@@ -193,7 +193,8 @@ test('disabling AI restores the original exactly; stale AI does not affect a new
 
 test('content endpoint requires the existing paid unlock before calling an AI provider', () => {
   const env: NodeJS.ProcessEnv = { ...process.env, NODE_ENV: 'test' }
-  delete env.ANTHROPIC_API_KEY
+  delete env.INFOMANIAK_API_TOKEN
+  delete env.INFOMANIAK_PRODUCT_ID
   const result = spawnSync(process.execPath, ['--conditions=react-server', '--input-type=module', '-e', `
     import assert from 'node:assert/strict';
     import { registerHooks } from 'node:module';
@@ -233,7 +234,7 @@ test('the content control has no second uploader and does not assume programme c
     const html = renderToStaticMarkup(React.createElement(SiteProvider, { site: 'ch', base: '', locale: 'de-CH' }, React.createElement(ContentAnalysisPanel, { token: null })));
     assert.ok(html.includes('Zum Datenimport'));
     assert.ok(!html.includes('type="file"'));
-    assert.ok(!html.includes('Diese Titel an Claude senden'));
+    assert.ok(!html.includes('Diese Titel an Infomaniak senden'));
   `], { cwd: process.cwd(), encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr || result.stdout)
 })

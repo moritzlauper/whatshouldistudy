@@ -8,7 +8,7 @@ test('the comparison covers the 60 best programmes', () => {
   assert.equal(COMPARE_TOP, 60)
 })
 
-test('a programme that Claude lifts moves up, keeps its place before, and the rows follow the new order', () => {
+test('a programme that the AI lifts moves up, keeps its place before, and the rows follow the new order', () => {
   const before = [entry('a', 80), entry('b', 79), entry('c', 70), entry('d', 60)]
   const after = [
     { ...entry('c', 88), computed: 70, reasons: ['Der Kanal passt zu deinem Interesse.'] },

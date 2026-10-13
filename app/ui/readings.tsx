@@ -7,7 +7,7 @@ import { FACTS_COUNTRIES, calibrated, fitSpread, localFit, type FitReason, type 
 import { useSite } from './site-context.tsx'
 
 /**
- * The readings: what Claude read on each programme's official page, kept in the
+ * The readings: what the AI read on each programme's official page, kept in the
  * facts database and shown to the paid report. The comparison with the answers
  * here runs in the browser; only the optional step «include my answers» sends
  * the answers, and only after the person has agreed.
@@ -86,7 +86,7 @@ export function useFitScores(byId: Map<string, ProgrammeFacts>, profile: LocalPr
 const reasonKey = (r: FitReason) =>
   r.kind === 'riasec' ? `i-${r.types.join('')}` : r.kind === 'topics' ? `t-${r.keys.join('')}` : r.kind === 'specialisations' ? `v-${r.names.join('')}` : `s-${r.subjects.join('')}`
 
-/** Under a programme's details: what Claude read, how it fits the answers here, and, when the optional step is on, Claude's own comparison. */
+/** Under a programme's details: what the AI read, how it fits the answers here, and, when the optional step is on, the AI's own comparison. */
 export function AiBlock({ fact, fit, personal, personalStatus, fieldReason }: { fact?: ProgrammeFacts; fit?: LocalFit; personal?: PersonalFit; personalStatus: PersonalStatus; fieldReason?: string }) {
   const { t, locale } = useSite()
   const a = t.programmes.ai

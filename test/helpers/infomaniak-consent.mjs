@@ -43,7 +43,7 @@ const mount = async () => {
 for (const compare of [{ status: 'pending' }, { status: 'done', at: 'old', key: '{"v":2}' }]) {
   state = { answers: {}, prefs: {}, summaries: {}, contentAnalysis: { enabled: true, compare } }
   await mount()
-  assert.equal(requests, 0, 'old Anthropic consent must never trigger new provider requests')
+  assert.equal(requests, 0, 'consent for the previous provider must never trigger new provider requests')
   assert.equal(state.contentAnalysis.compare, compare)
 }
 state.contentAnalysis = { ...state.contentAnalysis, provider: 'infomaniak', compare: { status: 'pending' } }

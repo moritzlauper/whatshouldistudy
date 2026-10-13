@@ -1,7 +1,7 @@
 /**
  * Helpers for reading a programme's official page: whether robots.txt allows
  * it, its visible text, and a check that a quoted passage occurs on the page.
- * They are kept and tested, although no page uses Claude to extract facts now.
+ * They are kept and tested, although no page uses the AI to extract facts now.
  */
 
 export interface OfficialFacts {
@@ -116,7 +116,7 @@ function visibleHtml(html: string): string {
 const norm = (s: string) => s.normalize('NFC').toLowerCase().replace(/[\s ]+/g, ' ').replace(/[’']/g, "'").trim()
 
 
-/** Claude's answer: each yes comes with a quote from the page. */
+/** The AI's answer: each yes comes with a quote from the page. */
 export interface Raw {
   specialisations: string[]
   free_choice: { value: boolean; quote: string }

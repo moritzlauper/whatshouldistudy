@@ -8,7 +8,7 @@ import type { Locale } from '@/lib/site/config.ts'
 const LOCALES: Locale[] = ['en', 'de-CH', 'de-DE', 'de-AT', 'fr-CH', 'it-CH']
 
 /**
- * The paid part: what Claude read on each programme's official page, for the
+ * The paid part: what the AI read on each programme's official page, for the
  * countries asked for. Not public: the readings are part of the paid comparison.
  */
 export async function GET(req: Request) {

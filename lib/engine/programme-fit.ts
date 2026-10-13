@@ -2,13 +2,13 @@ import { FIELDS, RIASEC_KEYS, SUBJECT_KEYS, type RiasecKey } from '../taxonomy/f
 import { isGenericTopic, textTopics, topicFields } from './classifier.ts'
 
 /**
- * How well a degree programme fits a person. Claude reads each programme's
+ * How well a degree programme fits a person. The AI reads each programme's
  * official page and describes it: how much it involves each interest type and
  * which school subjects it needs. Nothing about the person goes to the AI; the
  * comparison with their answers happens here, in the browser.
  */
 
-/** What Claude read about one programme. */
+/** What the AI read about one programme. */
 export interface ProgrammeFacts {
   id: string
   /** How strongly the typical study and work involves each interest type, 0..5, in R I A S E C order. */
@@ -147,7 +147,7 @@ export function calibrated(raw: number, spread: FitSpread | null): number {
 /** The profile remains the basis (80 %); content refines it (20 %), with missing content neutral. */
 export const combinedScore = (match: number, score?: number, readings = score !== undefined) => (readings ? Math.round(0.8 * match + 0.2 * (score ?? 50)) : match)
 
-/** The one number a programme shows: Claude's comparison where it rated the programme (not a thin reading), otherwise the profile with the reading's 20 %. */
+/** The one number a programme shows: the AI's comparison where it rated the programme (not a thin reading), otherwise the profile with the reading's 20 %. */
 export function shownScore(match: number, content: number | undefined, readings: boolean, personal?: { score: number; thin?: boolean }): number {
   return personal && !personal.thin ? personal.score : combinedScore(match, content, readings)
 }
@@ -203,7 +203,7 @@ export function toFacts(raw: unknown, allowed: ReadonlySet<string>): ProgrammeFa
 /** Countries with readings in the facts database; the site asks only for these. */
 export const FACTS_COUNTRIES = ['CH'] as const
 
-/** Computed comparison with reasons selected by Claude, the optional step. */
+/** Computed comparison with reasons selected by the AI, the optional step. */
 /** Most programmes one request to /api/personal-fit may carry; a longer list is asked in several requests. */
 export const PERSONAL_REQUEST = 20
 
@@ -244,7 +244,7 @@ export const fitBand = (score: number) => score >= 80 ? 5 : score >= 60 ? 4 : sc
 export const PERSONAL_SWING = 30
 
 /**
- * Claude's own rating of one programme: its score kept within PERSONAL_SWING of the computed number, and at most three of its
+ * The AI's own rating of one programme: its score kept within PERSONAL_SWING of the computed number, and at most three of its
  * explanations, without cutting off sentences. Without explanations the computed connections stand. Thin readings stay neutral.
  */
 export function aiPersonalFit(raw: Record<string, unknown>, canonical: PersonalFit): PersonalFit {

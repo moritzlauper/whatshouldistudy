@@ -56,7 +56,7 @@ for (const n of [1, 12, 25]) {
   const result = await personalFits(request(n))
   assert.equal(result.fits.length, Math.min(n, 20))
   assert.ok(result.fits.every(f => f.thin && f.score === 50 && f.reasons.length > 0))
-  // A thin reply keeps the number the site shows without it: profile and reading, never Claude's neutral 50.
+  // A thin reply keeps the number the site shows without it: profile and reading, never the AI's neutral 50.
   assert.ok(result.fits.every(f => shownScore(80, 70, true, f) === 78))
   assert.ok(result.fits.every(f => shownScore(80, undefined, false, f) === 80))
   assert.ok(calls.every(group => group.length <= 5))

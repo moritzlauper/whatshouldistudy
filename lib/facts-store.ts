@@ -5,7 +5,7 @@ import { SUBJECT_KEYS } from './taxonomy/fields.ts'
 
 /**
  * The facts database: one Redis hash per country, a field per programme with what
- * Claude read about its official page (scrapers/lib/facts.ts). It is private: the
+ * the AI read about its official page (scrapers/lib/facts.ts). It is private: the
  * readings belong to the paid comparison. The weekly job writes it through
  * /api/facts/ingest, the site reads it from the same store.
  */
