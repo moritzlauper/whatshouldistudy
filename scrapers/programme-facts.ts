@@ -1,5 +1,5 @@
 /**
- * The facts database. Claude reads the official page of every programme we have
+ * The facts database. the AI reads the official page of every programme we have
  * a link for and keeps what it said as facts: how strongly the programme involves
  * each interest type, which school subjects it needs, and what to check before
  * deciding. Page texts are not kept, only their hashes, so a page that has not
@@ -12,7 +12,7 @@
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import Anthropic from '@anthropic-ai/sdk'
+import { aiConfigured, complete } from '../lib/infomaniak.ts'
 import { exactBatch } from '../lib/ai-batch.ts'
 import { pageText, robotsAllow, sameSite } from '../lib/official-facts.ts'
 import { officialPageOf } from '../lib/official-pages.ts'
@@ -36,7 +36,6 @@ interface Row {
 
 const MAX_CHARS = 7000
 const MIN_CHARS = 200
-const MODEL = 'claude-haiku-5-5'
 
 function arg(name: string, fallback: string): string {
   const i = process.argv.indexOf(name)
@@ -87,7 +86,7 @@ async function main() {
   // Read every page again, also those whose text did not change (after a change to the prompt).
   const reread = process.argv.includes('--reread')
   if (!dataDir || !outFile) throw new Error('usage: --data <dir> --out <file> [--previous <file>] [--country CH] [--limit N] [--max-usd 3]')
-  if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY is not set')
+  if (!aiConfigured()) throw new Error('INFOMANIAK_API_TOKEN and INFOMANIAK_PRODUCT_ID are required')
 
   const previous: Record<string, StoredFact> = previousFile && existsSync(previousFile)
     ? (JSON.parse(readFileSync(previousFile, 'utf8')) as { programmes?: Record<string, StoredFact> }).programmes ?? {}
@@ -139,10 +138,9 @@ async function main() {
     }
   }
 
-  const client = new Anthropic({ maxRetries: 0, timeout: 45_000 })
   const fresh: StoredFact[] = []
   const at = new Date().toISOString().slice(0, 10)
-  for (const group of batches(toRead, 5)) {
+  for (const group of batches(toRead, 3)) {
     if (stats.spendMicro >= maxUsd * 1_000_000) {
       log(`spending cap of $${maxUsd} reached; the rest is read in the next run`)
       break
@@ -154,24 +152,22 @@ async function main() {
     for (let attempt = 0; attempt < 2; attempt++) {
       if (stats.spendMicro + reserveMicro > maxUsd * 1_000_000) break
       try {
-        const response = await client.messages.create({
-          model: MODEL,
-          max_tokens: 16000,
-          output_config: { effort: 'low', format: { type: 'json_schema', schema: FACTS_SCHEMA } },
+        const response = await complete({
+          maxTokens: 16000, schema: FACTS_SCHEMA, timeoutMs: 120_000,
           system: FACTS_SYSTEM,
-          messages: [{ role: 'user', content: input }],
+          input,
         })
         stats.calls++
         stats.spendMicro += costMicroUsd(response.usage)
-        if (response.stop_reason !== 'end_turn') throw new Error(`stopped: ${response.stop_reason}`)
-        const out = JSON.parse(response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('')) as { programmes?: unknown[] }
+        if (!response.complete) throw new Error('Incomplete facts')
+        const out = JSON.parse(response.text) as { programmes?: unknown[] }
         const read = exactBatch(out.programmes, new Set(sent.keys())).map((raw) => normaliseFact(raw, sent, at))
         if (read.some((f) => !f)) throw new Error('Invalid fact in batch')
         fresh.push(...read as StoredFact[])
         stats.fresh += read.length
         break
-      } catch (e) {
-        log(`model call failed for ${group.length} programmes: ${(e as Error).message}`)
+      } catch {
+        log(`model call failed for ${group.length} programmes, attempt ${attempt + 1}`)
       }
     }
   }

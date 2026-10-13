@@ -164,6 +164,15 @@ export function ResultsView() {
 
       <QualityNotes results={results} />
 
+      <section className="card-sm mt-6 flex flex-wrap items-center justify-between gap-5 bg-accent-soft p-5 sm:p-6" aria-label={t.work.title}>
+        <div className="max-w-2xl">
+          <span className="sticker bg-lime text-xs">{t.work.free}</span>
+          <h2 className="mt-3 font-display text-2xl">{t.work.title}</h2>
+          <p className="mt-2 text-sm text-muted">{isShared ? t.work.shared : t.work.ctaText}</p>
+        </div>
+        <Link href={r.work} className="btn btn-primary">{t.work.cta}</Link>
+      </section>
+
       {isShared ? (
         <div className="card-sm mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent-soft p-4">
           <p className="text-sm font-semibold">{t.share.banner(new Date((shared as Snapshot).at).toLocaleDateString(intl, { dateStyle: 'medium' }))}</p>

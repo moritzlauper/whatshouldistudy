@@ -137,6 +137,7 @@ export interface Routes {
   home: string
   start: string
   results: string
+  work: string
   fields: string
   field: (id: string) => string
   /** The free programme catalogue: every country on the global site, the site's own country on a country site. */
@@ -172,6 +173,7 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
       home: root || '/',
       start: `${root}/start`,
       results: `${root}/resultat`,
+      work: `${root}/wasarbeiten`,
       fields: `${root}/faecher`,
       field: (id) => `${root}/faecher/${fieldSlugDe(id)}`,
       // A country site lists its own country only.
@@ -197,6 +199,7 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
     home: '/',
     start: '/start',
     results: '/results',
+    work: '/wasarbeiten',
     fields: '/fields',
     field: (id) => `/fields/${id}`,
     programmes: '/programmes',

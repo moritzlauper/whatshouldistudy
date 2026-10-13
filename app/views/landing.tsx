@@ -58,6 +58,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
                 <span aria-hidden="true">✦</span> {t.landing.badge}
               </p>
               <TrustStickers stored={t.trust.nothingStored} openSource={t.trust.openSource} />
+              <a href="#swiss-ai" className="chip-soft text-sm"><span aria-hidden="true">🇨🇭</span> {t.landing.swissAi.badge}</a>
             </div>
             <h1 className="mt-7 font-display text-[2.5rem] sm:text-5xl lg:text-6xl">
               <span className="block text-accent">{t.landing.h1a}</span>
@@ -168,6 +169,19 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
       </section>
 
       {local && country && <SchoolTypes k={k} country={country} counts={own?.byType ?? {}} />}
+
+      <section id="swiss-ai" aria-labelledby="swiss-ai-title" className="scroll-mt-20 px-4 py-14 sm:px-6">
+        <div className="card mx-auto max-w-6xl bg-surface p-7 sm:p-10">
+          <p className="sticker" style={{ background: 'var(--sky)' }}><span aria-hidden="true">🇨🇭</span> {t.landing.swissAi.badge}</p>
+          <h2 id="swiss-ai-title" className="mt-5 max-w-3xl font-display text-3xl sm:text-4xl">{t.landing.swissAi.title}</h2>
+          <p className="mt-4 max-w-3xl leading-relaxed text-muted">{t.landing.swissAi.intro}</p>
+          <ul className="mt-7 grid gap-4 md:grid-cols-3">
+            {t.landing.swissAi.uses.map((use, i) => <li key={use} className="rounded-2xl border-2 border-soft-line bg-surface-2 p-5 leading-relaxed"><span className="mb-3 block font-display text-xl text-accent" aria-hidden="true">0{i + 1}</span>{use}</li>)}
+          </ul>
+          <p className="mt-6 max-w-4xl text-sm leading-relaxed text-muted">{t.landing.swissAi.retention}</p>
+          <Link href={r.privacy} className="mt-4 inline-block font-semibold text-accent underline">{t.landing.swissAi.details} →</Link>
+        </div>
+      </section>
 
       {/* Privacy */}
       <section className="px-4 py-14 sm:px-6">

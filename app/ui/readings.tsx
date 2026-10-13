@@ -154,8 +154,8 @@ export function BudgetNote() {
   )
 }
 
-// v2: the consent names the topics and Claude as the recipient, so agreements to the earlier text are asked again.
-const OWN_STORE = 'wsis:own-data:v2'
+// A change of processor requires the new consent text to be shown again.
+const OWN_STORE = 'wsis:own-data:infomaniak:v1'
 
 /** Whether the person agreed before in this browser; nothing else about the agreement is kept. */
 function agreedBefore(): boolean {
@@ -212,6 +212,7 @@ export function OwnDataPanel({ on, status, onChange, search = false, hint, disab
       <div className="card-sm p-4 text-sm">
         <h3 className="font-display text-lg">{a.consentTitle}</h3>
         <p className="mt-2 text-muted">{a.consentText}</p>
+        <p className="mt-2 text-muted">{t.landing.swissAi.retention}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"

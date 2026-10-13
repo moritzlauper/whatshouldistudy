@@ -143,7 +143,7 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
       // A budget that ended the run early is stored with the result, so the note survives a reload.
       summary.stats.aiLimited = result.limited ? 1 : 0
       update((s) => s.summaries.takeout !== base ? s : {
-        ...s, contentAnalysis: { baseCollectedAt: base.collectedAt, summary, enabled: true, compare: { status: 'pending' } },
+        ...s, contentAnalysis: { baseCollectedAt: base.collectedAt, summary, enabled: true, provider: 'infomaniak', compare: { status: 'pending' } },
       })
       setWide(false)
     } catch (e) {
@@ -191,6 +191,7 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
         </li>)}</ul>
       </details>
       <p>{a.consent}</p>
+      <p>{t.landing.swissAi.retention}</p>
       {wide && <p className="text-muted">{a.moreHint}</p>}
       {resuming && <p>{a.resumed(resuming.verdicts.length, resuming.total)}</p>}
       {status === 'running' ? <p role="status" className="animate-pulse">{a.loading(done, plan.items.length)}</p> : <button type="button" className="btn btn-primary btn-sm max-w-full whitespace-normal text-left" onClick={() => void analyse()}>{resuming ? a.resume : a.agree}</button>}

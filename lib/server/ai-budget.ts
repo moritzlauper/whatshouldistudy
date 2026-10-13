@@ -1,9 +1,10 @@
 import 'server-only'
 import { createHash } from 'node:crypto'
 import { redis } from './usage.ts'
+import { AI_MODEL, AI_BUDGET_PRICE } from '../infomaniak.ts'
 
 /**
- * Hard ceilings on what Claude may cost, so that a bug or a crawler can never
+ * Hard ceilings on what the AI may cost, so that a bug or a crawler can never
  * run up a bill. Spend is counted from each response's token usage in
  * millionths of a dollar. Once a limit is reached the feature answers as if
  * no key were set, until the next day (UTC). With the counter store (USAGE_*
@@ -26,6 +27,7 @@ const LIMIT_USD: Record<AiPurpose | 'total', number> = {
 
 /** List prices in millionths of a dollar per token (input, output). */
 const PRICE: Record<string, [number, number]> = {
+  [AI_MODEL]: [...AI_BUDGET_PRICE],
   'claude-haiku-5-5': [0.1, 0.5],
   'claude-sonnet-5-5': [2, 10],
   'claude-opus-5-5': [4, 20],
@@ -44,7 +46,7 @@ async function read(p: string): Promise<number> {
   }
 }
 
-/** Whether this purpose may call Claude now. */
+/** Whether this purpose may call the AI now. */
 export async function aiAllowed(p: AiPurpose): Promise<boolean> {
   const [mine, total] = await Promise.all([read(p), read('total')])
   return mine < LIMIT_USD[p] * 1e6 && total < LIMIT_USD.total * 1e6
@@ -68,7 +70,7 @@ export async function aiSpend(p: AiPurpose, model: string, usage: { input_tokens
 }
 
 /**
- * Budget per purchase (one report, CHF 9): at most this much Claude for the
+ * Budget per purchase (one report, CHF 9): at most this much AI spend for the
  * AI rating of one report. Above it the report asks people to write to us.
  * Without the counter store nothing is counted.
  */

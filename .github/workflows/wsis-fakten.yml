@@ -1,7 +1,7 @@
 name: whatshouldistudy facts
 
 # Reads the official page of every programme that has one (Switzerland for now)
-# and keeps what Claude says about it: the facts database, which the site uses to
+# and keeps what the AI says about it: the facts database, which the site uses to
 # rank programmes. Pages that have not changed since the last run are not read
 # again. The readings go to a private database (lib/facts-store.ts), not to the
 # public data branch: they are part of the paid comparison.
@@ -9,7 +9,7 @@ name: whatshouldistudy facts
 # Runs by hand («Run workflow») on main only; a run on another branch would spend
 # money without storing anything. Add a weekly schedule once a first run is checked.
 #
-# Secret: ANTHROPIC_API_KEY. The readings reach the site's private store with this
+# Secrets: INFOMANIAK_API_TOKEN and INFOMANIAK_PRODUCT_ID. The readings reach the site's private store with this
 # run's GitHub Actions token (id-token), which the site checks: no database secret
 # is kept in GitHub.
 
@@ -86,7 +86,8 @@ jobs:
 
       - name: Read the official pages
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          INFOMANIAK_API_TOKEN: ${{ secrets.INFOMANIAK_API_TOKEN }}
+          INFOMANIAK_PRODUCT_ID: ${{ secrets.INFOMANIAK_PRODUCT_ID }}
           COUNTRY: ${{ inputs.country }}
           LIMIT: ${{ inputs.limit }}
           MAX_USD: ${{ inputs.max_usd }}

@@ -5,6 +5,7 @@ import type { Preferences, QuestionnaireAnswers, SourceId, SourceSummary } from 
 import type { ProgrammeChange, ProgrammeCompare } from './engine/programme-changes.ts'
 import { readCompareRows, readContentInput, readContentProgress, saveContentInput, writeCompareRows, writeContentProgress } from './content-store.ts'
 import type { ContentAnalysisInput } from './sources/exports.ts'
+import type { WorkPreferences } from './work/types.ts'
 import { isCurrentProgress, type ContentProgress } from './engine/content-analysis.ts'
 
 /**
@@ -15,10 +16,12 @@ import { isCurrentProgress, type ContentProgress } from './engine/content-analys
  */
 
 export interface State {
+  /** Preferences for the free job explorer, cleared together with the study profile. */
+  workPrefs?: WorkPreferences
   /** Identifies the current YouTube import in this site's local IndexedDB record. */
   contentImportId?: string
   /** Optional semantic summary; the original stays available when switched off. */
-  contentAnalysis?: { baseCollectedAt: string; summary: SourceSummary; enabled: boolean; compare?: ProgrammeCompare }
+  contentAnalysis?: { baseCollectedAt: string; summary: SourceSummary; enabled: boolean; provider?: 'infomaniak'; compare?: ProgrammeCompare }
   summaries: Partial<Record<SourceId, SourceSummary>>
   answers: QuestionnaireAnswers
   prefs: Preferences

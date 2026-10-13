@@ -2,6 +2,18 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Infomaniak-Migration (13.10.2026, lokal umgesetzt)
+
+- Alle KI-Aufrufe in dieser App und im öffentlichen Studiengangsleser verwenden jetzt `google/gemma-4-31B-it` bei Infomaniak. Gemeinsamer Transport: `lib/infomaniak.ts`; kein Anthropic-Fallback. Die separate Blog-Automation im privaten Repo ist nicht geändert.
+- `INFOMANIAK_API_TOKEN` und `INFOMANIAK_PRODUCT_ID` sind lokal getestet. Für den Livebetrieb beide Variablen auch in Vercel und für `wsis-fakten.yml` als GitHub-Secrets setzen. Keine Secrets gedruckt, kein Deployment oder Push vorgenommen.
+- Persönliche Anfragen/Antworten werden nicht auf dem App-Server gespeichert, gecacht oder als Text protokolliert. Stateless API, keine Conversation-ID, keine Weiterleitung auf andere Hosts. Öffentlich abgeleitete Studiengangsanalysen und Übersetzungen bleiben wiederverwendbar gespeichert; persönliche Ergebnisse liegen im Browser.
+- DPA/AVV und LLM-Bedingungen geprüft; Links und Grenzen im README. DPA gehört laut Dokument zu den ANB. Kein dokumentierter Zero-Retention-Schalter gefunden. Temporäre Verarbeitung und Betriebs-/Abrechnungsmetadaten bleiben laut Bedingungen möglich; kein Versprechen «absolut nichts gespeichert» oder «alle Website-Daten nur Schweiz».
+- Landingpage mit Schweizer KI-Badge und drei konkreten Anwendungen in allen vier Sprachen. Einwilligungen und Datenschutz nennen Infomaniak und unterscheiden dessen KI-Verarbeitung von Vercel/Stripe. Gemma wird nicht als in der Schweiz entwickeltes Modell ausgegeben.
+- Alte Anbieter-Einwilligungen starten keine automatische Übermittlung an Infomaniak. Neuer Einwilligungsschlüssel und Fortschritts-/Vergleichsversionen; Regressionstest für alte laufende und abgeschlossene Vergleiche.
+- Liveprüfung nur mit erfundenen Daten: 60/60 Titel strukturell gültig, zunächst 58/60 erwartete Themen; nach präzisierter Vorgabe besteht die betroffene Zehnergruppe vollständig. 25/25 persönliche Erklärungen vollständig innerhalb 40 s. Fünf öffentliche Testseiten in Dreiergruppen nach Quellen-/Sprachkorrektur: 35/35 automatische Prüfungen; manuelle Sprachkontrolle passend. Echte Übersetzungsfunktion mit erfundenem Satz erfolgreich. Kein Lasttest mit realen Nutzerprofilen.
+- Lokale Berichte: `scrapers/out/infomaniak-migration-live`, `infomaniak-content-final`, `infomaniak-readings-final` (ignorierte synthetische Daten). Benchmark nutzt bei Gemma den Produktions-Transport; bestehende historische Berichte bleiben erhalten.
+- Abschlussprüfung: TypeScript und Webpack-Produktionsbuild erfolgreich, Browserprüfung von Landingpage/Anker. 258/259 Tests bestanden, einschliesslich sechs neuer Transport-/Einwilligungstests. Ein bereits vor der Migration bekannter Fehler in `personal comparisons require a click …` (`88 !== undefined`) bleibt bestehen.
+
 ## Arbeitsweise im Repo
 
 - Direkt auf `main` pushen, keine PRs.
@@ -9,6 +21,22 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 - Checks vor jedem Push: `npx tsc --noEmit -p tsconfig.json` und `node --test test/*.test.ts` (zurzeit 219 grün). Demodaten mit `node scrapers/build.ts --sample`.
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
+
+## Was arbeiten: kostenlose Berufsideen, Schweizer Stellen und Firmenvergleich (13.10.2026)
+
+- Neue Unterseite `/wasarbeiten`, auf der globalen Domain `/schweiz/wasarbeiten`; Link direkt im Resultat, unabhängig vom Kauf. Alle Sprachversionen und Mounts nutzen dieselbe View. Zunächst Schweiz, vom Inhaber bestätigt.
+- «Beta» steht im Linktext auf dem Studienresultat und als gelbes Label im Kopf von «Was arbeiten?»; in allen vier Sprachversionen.
+- Übernimmt Antworten und `effectiveSummaries` aus dem bestehenden Browser-Store, einschliesslich bereits aktivierter Inhaltsanalyse. Kein neuer Upload und kein KI-Aufruf. Ein geteiltes Resultat ersetzt das eigene Profil nicht. Zusätzliche Wünsche stehen unter `workPrefs` im selben Store und werden mit «Daten löschen» entfernt.
+- 25 redaktionelle Berufsrichtungen als langfristige Orientierung plus aktuelle Inserate. Eigenes Modell aus Tätigkeitsinteressen, Schulfächern, Werten und vorhandenen Interessen; keine Freigabe oder Kopie der bezahlten Studiengangdaten. Persönlichkeit wird nicht für Firmenurteile genutzt.
+- Firmenvergleich: Arbeitsort, Arbeitsmodell und Branche, immer bezogen auf dieselbe konkrete Stelle. Unbekannte Angaben bleiben unbekannt; Teamkultur, Lohn und Führung werden nicht erfunden. Einstieg wird aus expliziten Angaben im Stellentitel oder strukturierten Stellenfeldern abgeleitet und entsprechend bezeichnet.
+- `scrapers/jobs.ts` liest öffentliche SmartRecruiters-Karriereseiten mit beiden Paginierungsebenen. `scrapers/job-feeds.ts` ergänzt die öffentlichen Suchfeeds von Coop, Bund und SBB. Immer robots.txt und 1,5 Sekunden Abstand; keine Beschreibungen oder Kontaktdaten im Datensatz. Die zentrale SmartRecruiters-API bleibt wegen robots.txt ausgeschlossen.
+- Erweiterung auf Wunsch des Inhabers: echter Abruf am 13.10.2026 mit **2’954 Inseraten**, **93 Arbeitgebernamen/Organisationseinheiten**, davon **964 Lehrstellen, Praktika und Trainee-Stellen**. Quellen: Coop 2’235, Bund 421, SBB 147, Swissquote 37, Swiss Medical Network 110, Nexthink 4. Alle sechs Quellen erfolgreich. Noch keine Vollabdeckung der Schweiz. Migros und Post untersucht, aber nicht eingebunden (Migros hätte zusätzliche Detailabrufe benötigt; Post-Schnittstelle für unseren Leser gesperrt).
+- Landprüfung anhand Arbeitsland, bei Coop-Lehrstellen ersatzweise explizitem Schweizer Kanton. «Ausland» beim Bund hat Vorrang vor dessen teils voreingestelltem Land «Schweiz». Schnupperangebote, Initiativbewerbungen, zukünftige und abgelaufene Inserate ausgeschlossen; gleiche Stellennummern zusammengeführt. Paginierung verwirft unvollständige, wiederholte oder währenddessen veränderte Feeds.
+- Firmenbranche für Coop-Töchter separat statt pauschal Handel; neue Branchen in allen vier Sprachen. Sichtbare Gesamtzahl, Ausbildungsangebote, Arbeitgeberzahl und Quellenzahlen. Firmenkarten mit «Weitere Arbeitgeber zeigen». Einstieg aus expliziten Titeln oder strukturierten Angaben. `--sources Coop,Bund,SBB` erlaubt gezielte Aktualisierung und bewahrt den tatsächlichen Stand unberührter Quellen.
+- Grössere Datensätze werden ausserhalb des 2-MB-Fetch-Caches von Next geladen (begrenzte native HTTP-Anfrage, geteilter stündlicher Speicher). Regressionstest mit 5’100 Inseraten über 2 MB.
+- `npm run data:jobs` erneuert `data/jobs/current.json`. Täglicher Workflow `.github/workflows/wsis-jobs.yml` (04:41 UTC) publiziert nach dem Push auf main den separaten Branch `whatshouldistudy-jobs`. Die App liest `jobs.json` dort über die Vercel-Repoangaben oder `WSIS_JOBS_URL`, mit stündlicher Revalidierung. Bis zum ersten Workflowlauf gilt der gebündelte Snapshot mit originalem Prüfdatum. Workflow noch nicht auf GitHub ausgeführt.
+- Vollständige Abrufe entfernen verschwundene Stellen. Fehler oder ein auffälliger Rückgang bewahren den vorherigen Stand mit alten Prüfdaten. Abgelaufene und sieben Tage ungeprüfte Stellen verschwinden automatisch. Quellenstatus bleibt sichtbar.
+- Prüfung: 20 neue Tests für Zuordnung, Firmenbedingungen, sichere Links, Ablauf, vollständige Paginierung, Ausfälle, Sprachrouten, gerenderte Begründungen und grosse Datensätze. TypeScript und Webpack-Produktionsbuild grün. Gesamtsuite 257/258 grün; der bekannte Fehler in `personal comparisons require a click …` (`88 !== undefined`) bleibt, zuvor in einer separaten Kopie von HEAD bestätigt. Browser: eigenes fiktives Profil weiterhin verbunden, 2’954 Inserate sichtbar, Ausbildungsfilter 964, Suche SBB 147, Firmenkarten von 6 auf 12 nachgeladen. Desktop und 390 px ohne horizontalen Überlauf. Screenshot `/tmp/wasarbeiten-expanded.jpg`. Nur lokale Umsetzung, noch kein Push/Deploy oder GitHub-Workflowlauf.
 
 ## KI-Vergleich nach dem Neuladen: alte Schlüssel werden erneuert (13.10.2026)
 

@@ -19,6 +19,7 @@ function pages(fieldIds: readonly string[], country?: string): Page[] {
     (r) => r.home,
     (r) => r.start,
     (r) => r.results,
+    (r) => r.work,
     (r) => r.how,
     (r) => r.fields,
     ...fieldIds.map((id): Page => (r) => r.field(id)),

@@ -1,0 +1,67 @@
+name: wasarbeiten jobs
+
+on:
+  schedule:
+    - cron: '41 4 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scrapers/jobs.ts'
+      - 'scrapers/job-feeds.ts'
+      - 'scrapers/lib/job-facts.ts'
+      - 'scrapers/lib/site-fetch.ts'
+      - 'lib/work/**'
+      - '.github/workflows/wsis-jobs.yml'
+
+concurrency:
+  group: wsis-jobs-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Previous jobs
+        run: |
+          if git ls-remote --exit-code --heads origin whatshouldistudy-jobs >/dev/null 2>&1; then
+            git fetch --depth 1 origin refs/heads/whatshouldistudy-jobs:refs/remotes/origin/whatshouldistudy-jobs
+            git show FETCH_HEAD:jobs.json > /tmp/previous-jobs.json
+          fi
+      - name: Read public career pages
+        run: node scrapers/jobs.ts --previous /tmp/previous-jobs.json --out /tmp/jobs.json
+      - name: Keep run artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasarbeiten-jobs
+          path: /tmp/jobs.json
+          retention-days: 7
+      - name: Publish job facts
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          if git show-ref --verify --quiet refs/remotes/origin/whatshouldistudy-jobs; then
+            git worktree add --detach /tmp/jobs-publication refs/remotes/origin/whatshouldistudy-jobs
+          else
+            mkdir -p /tmp/jobs-publication
+            git -C /tmp/jobs-publication init -b whatshouldistudy-jobs
+          fi
+          cp /tmp/jobs.json /tmp/jobs-publication/jobs.json
+          node -e 'require("fs").writeFileSync("/tmp/jobs-publication/vercel.json", JSON.stringify({git:{deploymentEnabled:false}}))'
+          cd /tmp/jobs-publication
+          git config user.name whatshouldistudy-bot
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add jobs.json vercel.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'Refresh public Swiss job facts'
+          git -C "$GITHUB_WORKSPACE" fetch /tmp/jobs-publication HEAD
+          git -C "$GITHUB_WORKSPACE" push origin FETCH_HEAD:refs/heads/whatshouldistudy-jobs

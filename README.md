@@ -30,6 +30,56 @@ The field results are free. The full programme list (every matching programme
 with the fee for the student's citizenship, earnings, admission rates, filters,
 CSV) is a one-time payment.
 
+**Was arbeiten? — free Swiss job explorer.** The results page links to
+`/wasarbeiten` (or `/schweiz/wasarbeiten` under the global domain). It reuses
+the same browser-local questionnaire and effective interest summaries, including
+an already enabled content analysis. No new upload, AI call, payment or profile
+transmission is needed. Shared results are not imported into the viewer's profile.
+The study paywall and its endpoints remain separate.
+
+The page combines 25 editorial career directions with current Swiss job adverts.
+Career suggestions compare activity interests, enjoyed school subjects, work
+priorities and existing interest summaries; they do not assess qualifications.
+Employer fit compares the preferred city, work arrangement and sector with one
+specific opening. It neither invents a company culture nor combines conditions
+from different vacancies. Extra preferences live in the existing site store and
+are removed by its normal data deletion. Interface text is available in DE/EN/FR/IT.
+
+Run `npm run data:jobs` to refresh `data/jobs/current.json`, or
+`node scrapers/jobs.ts --previous previous/jobs.json --out output/jobs.json`.
+The scraper reads public career pages for Swissquote, Swiss Medical Network and
+Nexthink, plus the public job feeds embedded in the Coop group, federal government
+and SBB career portals. It reads all pagination levels, observes robots.txt, waits
+at least 1.5 seconds between requests, and stores only job facts and original links,
+not descriptions or contact details. The central SmartRecruiters API is excluded
+because its robots.txt disallows this reader. Switzerland must be explicit in the
+work country or (for Coop apprenticeships without a country) a Swiss canton.
+Foreign postings, speculative applications and trial visits are excluded.
+Publications with the same requisition ID are merged. Each source must return a
+complete list; truncated, repeated or changing pages fail without deleting the
+previous source snapshot. These employer groups are still a selection of the market.
+
+The 13 October 2026 snapshot contains 2,954 adverts across 93 employer names and
+organisational units, including 964 apprenticeships, internships and trainee roles.
+Coop contributes 2,235, the federal government 421, SBB 147, Swissquote 37,
+Swiss Medical Network 110 and Nexthink 4. Counts and training places are shown
+separately in the interface. Subsidiaries of a diversified group get their own
+sector; unknown employers are not assigned the sector of the parent group.
+
+To refresh a subset, use e.g. `--sources Coop,Bund,SBB`. Other configured sources
+retain their original statuses and check dates. The loader accepts larger feeds
+with a bounded native HTTP request and hourly memory cache, avoiding Next's 2 MB
+fetch-cache limit. Employer cards are paginated as well as job cards.
+
+`.github/workflows/wsis-jobs.yml` refreshes daily at 04:41 UTC and when scraper
+code changes on main. It publishes the separate `whatshouldistudy-jobs` branch
+without triggering a Vercel deployment. The app reads its `jobs.json` with hourly
+page revalidation and memory caching; `WSIS_JOBS_URL` can override the full URL. Until that branch exists,
+the bundled real snapshot is used with its original check dates. Complete reads
+remove closed jobs; failed or unexpectedly incomplete reads retain the previous
+source and its old timestamps. Expired jobs and jobs unchecked for seven days are
+hidden even if a refresh fails. Source status and check dates are visible on the page.
+
 **Free programme catalogue for search engines.** Every programme can be found
 for free: `/programmes` lists the countries with programme data,
 `/programmes/<country>` has a search and links to one page per field,
@@ -81,7 +131,7 @@ after analysis. Removing the YouTube source or deleting all data clears that rec
 Optional import statistics send only a recognised source category.
 The separate, explicit AI content step previews a bounded sample of titles and
 channel context from a user-selected Takeout export, then sends it through our
-server to Anthropic. API-fetched YouTube metadata never enters this sample.
+server to Infomaniak (Swiss AI infrastructure). API-fetched YouTube metadata never enters this sample.
 We do not store or log these requests. The original and AI summaries stay locally.
 
 ## Licence and paywall
@@ -210,7 +260,7 @@ titles. Account identifiers, URLs, dates, watch counts, searches, comments,
 music-listening entries and API metadata are excluded from the request.
 `/api/content-analysis` requires the existing unlock and consent flag, processes
 40 records per batch, and charges the existing AI and purchase budgets.
-Claude interprets the content against the known subject taxonomy, can abstain,
+Gemma at Infomaniak interprets the content against the known subject taxonomy, can abstain,
 and must not infer political beliefs or other sensitive traits of the viewer.
 
 Each direct reading replaces the keyword classification of that title. A
@@ -454,7 +504,7 @@ and in emails, never on a public page.
 
 ## Facts database (Swiss programme pages)
 
-`.github/workflows/wsis-fakten.yml` (run by hand, on main only) has Claude read
+`.github/workflows/wsis-fakten.yml` (run by hand, on main only) has Gemma at Infomaniak read
 the official page of every Swiss programme that has one (`scrapers/programme-facts.ts`,
 rules and prompt in `scrapers/lib/facts.ts`). robots.txt is respected, one request
 goes out every 1.5 seconds, including robots and redirects. A reading is refreshed
@@ -474,7 +524,7 @@ after consent) sends the interest profile, weighted lexical topics and favourite
 school subjects with up to 60 matches to `/api/personal-fit`, in requests of up to
 20 matches each, including smaller lists and programmes without readings. The server
 computes the numbers by fixed rules on the same calibrated scale as the browser.
-With a sufficient reading, Claude can adjust that content score by at most 30
+With a sufficient reading, the AI can adjust that content score by at most 30
 points and explain the connections in up to three sentences. Without one, it uses
 the server's catalogue name, assigned fields and listed focus areas to explain
 the limited connection; these explanations never change the points. They appear
@@ -494,8 +544,57 @@ instead of the slow sitemap. Empty or sharply shrinking university/level groups
 retain their previous catalogue entries while other universities refresh.
 Programme languages and study modes remain unknown unless their source states them.
 
-Secret: `ANTHROPIC_API_KEY` (GitHub Actions).
+Secrets: `INFOMANIAK_API_TOKEN` and `INFOMANIAK_PRODUCT_ID` (GitHub Actions).
 
+
+## Infomaniak AI and data processing
+
+All AI calls implemented in this repository use `google/gemma-4-31B-it` at
+Infomaniak: export content classification, personal programme comparisons,
+public description translations, and the offline programme-facts reader.
+There is no runtime Anthropic fallback. Gemma is a Google-developed model;
+the inference endpoint is Infomaniak, not Google. The separate private blog
+automation described below is outside this migration.
+
+Set `INFOMANIAK_API_TOKEN` and `INFOMANIAK_PRODUCT_ID` in `.env.local` and in
+each Vercel deployment environment that should run AI. Configure the same two
+GitHub Actions secrets for `wsis-fakten.yml`. Local credentials do not configure
+Vercel or GitHub automatically. Never use `NEXT_PUBLIC_` for these values.
+`ANTHROPIC_API_KEY` is only needed for the explicitly invoked benchmark here.
+Daily and per-purchase dollar budgets remain in place; Gemma costs are reserved
+at a deliberately conservative 2 USD/CHF, not represented as an actual exchange
+rate. The offline reader's existing $1/$5-per-million-token estimates are also
+conservative. Personal comparison groups get up to 40 seconds, with any retry
+bounded by a shared 50-second deadline. Offline facts use groups of three and
+a 120-second timeout.
+
+Privacy review, 2026-10-13:
+
+- Infomaniak's [DPA/AVV](https://www.infomaniak.com/documents/privacy/DPA/Data_Processing_Agreement_%28DPA%29.pdf)
+  states that it forms part of the general terms. Retain the terms applicable
+  to the organisation's account; this code change does not sign a new agreement
+  or verify the account's contractual records. Its general transfer clause alone
+  is not an exclusive Switzerland guarantee.
+- The [AI product commitment](https://www.infomaniak.com/de/hosting/ai-services)
+  specifies Swiss infrastructure. Advertising is scoped to AI processing at
+  Infomaniak, not all website processing (Vercel, Stripe and other processors).
+- [LLM API terms, article 6](https://welcome.infomaniak.com/api/components/cgu/latest?id=87&locale=en_GB)
+  exclude training with prompts/responses but allow temporary processing and
+  operational/billing metadata. No documented zero-retention request setting
+  was found. `cache: 'no-store'` controls our fetch cache, not provider retention.
+- Requests are stateless, contain no conversation/user IDs, forbid redirects,
+  and are not cached or logged with their content. Personal results stay in the
+  browser. Cost counters contain usage amounts and hashed purchase references,
+  not prompts. Public programme readings and translations are stored for reuse.
+- Consent text names Infomaniak; the remembered consent key changes. Existing
+  content analyses remain local, but cannot automatically trigger a comparison
+  with the new provider until the person agrees. Pending content batches from
+  the old provider are not resumed as part of a new analysis.
+
+The repeatable synthetic comparison is `scripts/ai-comparison.mjs`. An explicit
+`--run --with-gemma --provider infomaniak-gemma --repeats 1 --out <new-folder>`
+uses the production Infomaniak transport. Reports contain invented data only.
+Existing reports retain their original provider settings and prompts.
 
 ## Blog
 

@@ -17,22 +17,21 @@ globalThis.personalTest = {
     return p ? { p } : null
   },
   async create(input) {
-    const data = JSON.parse(input.messages[0].content)
+    const data = JSON.parse(input.input)
     calls.push(data.programmes)
-    return { stop_reason: 'end_turn', usage: {}, content: [{ type: 'text', text: JSON.stringify({ programmes: data.programmes.map(p => ({
+    return { complete: true, usage: {}, text: JSON.stringify({ programmes: data.programmes.map(p => ({
       id: p.id, score: 99, reasons: [`${p.name} relates to your topic of society through its assigned field.`],
-    })) }) }] }
+    })) }) }
   },
 }
 const root = pathToFileURL(process.cwd() + '/')
 registerHooks({
   resolve(s, c, next) {
-    if (s === '@anthropic-ai/sdk') return { url: 'test:anthropic', shortCircuit: true }
     if (s === 'next/server') return next('next/server.js', c)
     return next(s.startsWith('@/') ? new URL(s.slice(2), root).href : s, c)
   },
   load(url, c, next) {
-    const source = url === 'test:anthropic' ? 'export default class { messages = { create: globalThis.personalTest.create } }'
+    const source = url.endsWith('/lib/infomaniak.ts') ? 'export const AI_MODEL = "test", aiConfigured = () => true, complete = globalThis.personalTest.create'
       : url.endsWith('/lib/server/facts-db.ts') ? 'export const countryFacts = globalThis.personalTest.countryFacts'
       : url.endsWith('/lib/server/programme.ts') ? 'export const findProgramme = globalThis.personalTest.findProgramme'
       : url.endsWith('/lib/server/ai-budget.ts') ? 'export const aiAllowed = async () => true, aiSpend = async () => 1, purchaseSpent = async () => 0, purchaseAdd = async () => {}, PURCHASE_BUDGET_MICRO_USD = 100'
@@ -41,7 +40,6 @@ registerHooks({
   },
 })
 process.env.NODE_ENV = 'test'
-process.env.ANTHROPIC_API_KEY = 'synthetic-unused-by-mocked-transport'
 globalThis.fetch = () => { throw new Error('No network allowed') }
 const { personalFits } = await import('../../lib/server/personal-fit.ts')
 const { POST } = await import('../../app/api/personal-fit/route.ts')

@@ -30,7 +30,7 @@ function setCompare(compare: ProgrammeCompare) {
 
 /**
  * The comparison after the content analysis. It starts by itself once the analysis has
- * finished, which the stored status says; the consent of the analysis covers it. Claude rates
+ * finished, which the stored status says; the consent of the analysis covers it. The AI rates
  * the COMPARE_TOP best programmes of the new state, in requests of PERSONAL_REQUEST each.
  */
 export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInput; token: string | null }) {
@@ -39,7 +39,8 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
   const state = useAppState()
   const compare = state.contentAnalysis?.compare
   const { prefs, unlocked, before, after } = input
-  const pending = compare?.status === 'pending'
+  const providerAgreed = state.contentAnalysis?.provider === 'infomaniak'
+  const pending = compare?.status === 'pending' && providerAgreed
   const readings = useReadings(token, unlocked && hasReadings(prefs))
   const beforeWeights = useMemo(() => topicWeights(before.topics), [before.topics])
   const afterWeights = useMemo(() => topicWeights(after.topics), [after.topics])
@@ -54,8 +55,8 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
   const outdated = compare?.status === 'done' && !isCurrentKey(compare.key)
   const analysisOn = !!state.contentAnalysis?.enabled
   useEffect(() => {
-    if (outdated && analysisOn && unlocked) setCompare({ status: 'pending' })
-  }, [outdated, analysisOn, unlocked])
+    if (outdated && analysisOn && unlocked && providerAgreed) setCompare({ status: 'pending' })
+  }, [outdated, analysisOn, unlocked, providerAgreed])
 
   useEffect(() => {
     if (!pending || !unlocked || !ready || !beforeProfile || !afterProfile) return
@@ -106,10 +107,11 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
   const compared = useCompareRows()
   const summary = done && compared ? changeSummary(compared) : null
   return <div className="space-y-2">
-    {compare?.status === 'pending' && <p role="status" className="animate-pulse">{a.comparing}</p>}
+    {pending && <p role="status" className="animate-pulse">{a.comparing}</p>}
     {compare?.status === 'failed' && <p role="alert" className="text-bad">{compare.limit ? a.compareLimit : a.compareFailed}</p>}
     {!pending && <p className="text-muted">{a.compareNote}</p>}
-    {!pending && <button type="button" className="btn btn-ghost btn-sm max-w-full whitespace-normal text-left" onClick={() => setCompare({ status: 'pending', fresh: true })}>{compare ? a.repeat : a.compareStart}</button>}
+    {!pending && !providerAgreed && <p className="text-muted">{t.landing.swissAi.retention}</p>}
+    {!pending && <button type="button" className="btn btn-ghost btn-sm max-w-full whitespace-normal text-left" onClick={() => update((s) => s.contentAnalysis ? { ...s, contentAnalysis: { ...s.contentAnalysis, provider: 'infomaniak', compare: { status: 'pending', fresh: true } } } : s)}>{compare ? a.repeat : a.compareStart}</button>}
     {done && summary && <details>
       <summary className="cursor-pointer font-bold">{a.programmeChanges}</summary>
       <div className="mt-2 space-y-2">

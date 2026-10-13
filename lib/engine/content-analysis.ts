@@ -6,7 +6,7 @@ export const CONTENT_SAMPLE = 240
 /** The most titles one run classifies. */
 export const CONTENT_MAX = 1000
 /** Bump when contentPlan or the grouping changes: an unfinished run made with another version is not continued. */
-export const CONTENT_RUN_VERSION = 1
+export const CONTENT_RUN_VERSION = 2
 /** An unfinished run is kept for this many days after its last saved group. */
 export const CONTENT_PROGRESS_DAYS = 7
 /** Titles per request: small enough to finish well inside the server's time limit, and one bad answer costs only its own group. */

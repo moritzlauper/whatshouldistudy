@@ -1,5 +1,5 @@
 import 'server-only'
-import Anthropic from '@anthropic-ai/sdk'
+import { AI_MODEL as MODEL, aiConfigured, complete } from '../infomaniak.ts'
 import type { StoredFact } from '../../scrapers/lib/facts.ts'
 import { PERSONAL_REQUEST, aiPersonalFit, calibrated, fitBand, fitSpread, localFit, type PersonalFit } from '../engine/programme-fit.ts'
 import { factsForLocale } from '../facts-store.ts'
@@ -15,7 +15,7 @@ import { findProgramme } from './programme.ts'
 
 /**
  * The optional step «include my answers»: The server compares the profile
- * with the stored readings by fixed rules. Claude rates each programme within 30 points of the computed number and writes its reasons from the reading and the profile; it never receives a name or an account. Nothing is stored; the browser keeps the
+ * with the stored readings by fixed rules. The AI rates each programme within 30 points of the computed number and writes its reasons from the reading and the profile; it never receives a name or an account. Nothing is stored; the browser keeps the
  * ratings only while the step is on.
  */
 
@@ -36,7 +36,6 @@ export interface PersonalRequest {
 
 export const MAX_PERSONAL = PERSONAL_REQUEST
 const BATCH = 5
-const MODEL = 'claude-haiku-5-5'
 
 export const PERSONAL_SCHEMA = {
   type: 'object',
@@ -56,7 +55,8 @@ Rules: write two or three concise, complete sentences in total, each as a separa
 
 /** The comparison and what it cost; missing readings fall back to the server's catalogue data. */
 export async function personalFits(req: PersonalRequest): Promise<{ fits: PersonalFit[]; costMicroUsd: number } | null> {
-  if (!process.env.ANTHROPIC_API_KEY || !(await aiAllowed('fit'))) return null
+  if (!aiConfigured() || !(await aiAllowed('fit'))) return null
+  const deadline = Date.now() + 50_000
   const wanted = [...new Map(req.programmes.map((p) => [p.id, p])).values()].slice(0, MAX_PERSONAL)
   const stores = new Map<string, Record<string, StoredFact> | null>()
   for (const c of new Set(wanted.map((x) => x.country))) stores.set(c, await countryFacts(c))
@@ -74,7 +74,7 @@ export async function personalFits(req: PersonalRequest): Promise<{ fits: Person
   const profile = { riasec: req.profile.riasec, topics: req.profile.topics, enjoy: Object.fromEntries(req.profile.subjects.map((k) => [k, 5])) }
   const a = dict(req.locale).programmes.ai
   const spreads = new Map([...stores].map(([country, facts]) => [country, fitSpread(Object.values(facts ?? {}).filter((f) => f.enough).map((f) => localFit(factsForLocale(f, req.locale), profile).score))]))
-  // The number the site shows without this comparison; Claude moves it, so it is the anchor when the browser sends it.
+  // The number the site shows without this comparison; the AI moves it, so it is the anchor when the browser sends it.
   const anchors = new Map(req.programmes.map((p) => [p.id, p.computed]))
   const comparisons = new Map(found.map(({ p, reading }) => {
     const fit = reading?.enough ? localFit(factsForLocale(reading, req.locale), profile) : null
@@ -82,12 +82,13 @@ export async function personalFits(req: PersonalRequest): Promise<{ fits: Person
     return [p.id, { score, fit: fitBand(score), thin: !fit, reasons: fit?.reasons.map((r) => fitReasonText(r, req.locale, a)) ?? [] }]
   }))
   const groups = Array.from({ length: Math.ceil(found.length / BATCH) }, (_, i) => found.slice(i * BATCH, (i + 1) * BATCH))
-  const client = new Anthropic({ maxRetries: 0, timeout: 20_000 })
   let costMicroUsd = 0
   const results = await Promise.all(
     groups.map(async (group) => {
       const ids = new Set(group.map((x) => x.p.id))
       for (let attempt = 0; attempt < 2; attempt++) {
+        const remaining = deadline - Date.now()
+        if (remaining < 5_000) break
         try {
           const input = group.map(({ p, reading }) => {
             const facts = reading?.enough ? factsForLocale(reading, req.locale) : null
@@ -108,15 +109,14 @@ export async function personalFits(req: PersonalRequest): Promise<{ fits: Person
               reasons: computed.reasons.map((text, id) => ({ id, text })),
             }
           })
-          const response = await client.messages.create({
-            model: MODEL, max_tokens: 2500,
-            output_config: { effort: 'low', format: { type: 'json_schema', schema: PERSONAL_SCHEMA } },
+          const response = await complete({
+            maxTokens: 4000, schema: PERSONAL_SCHEMA, timeoutMs: Math.min(40_000, remaining),
             system: PERSONAL_SYSTEM,
-            messages: [{ role: 'user', content: JSON.stringify({ locale: req.locale, profile: req.profile, programmes: input }) }],
+            input: JSON.stringify({ locale: req.locale, profile: req.profile, programmes: input }),
           })
           costMicroUsd += await aiSpend('fit', MODEL, response.usage)
-          if (response.stop_reason !== 'end_turn') throw new Error(`stopped: ${response.stop_reason}`)
-          const out = JSON.parse(response.content.flatMap((b) => b.type === 'text' ? [b.text] : []).join(''))
+          if (!response.complete) throw new Error('Incomplete comparison')
+          const out = JSON.parse(response.text)
           return exactBatch(out.programmes, ids).map((raw): PersonalFit => {
             const id = raw.id as string
             const canonical = comparisons.get(id)!

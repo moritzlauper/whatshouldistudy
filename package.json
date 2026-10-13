@@ -21,7 +21,8 @@
     "data:directory": "node scrapers/global-directory.ts",
     "data:build": "node scrapers/build.ts",
     "data:all": "node scrapers/run-all.ts",
-    "data:sample": "node scrapers/build.ts --sample"
+    "data:sample": "node scrapers/build.ts --sample",
+    "data:jobs": "node scrapers/jobs.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

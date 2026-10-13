@@ -1,10 +1,10 @@
 /**
  * What changed in the top programmes when the content analysis was added. Each
  * programme keeps the place and the number it had before, and its place and number
- * now, with Claude's number where it rated the programme.
+ * now, with the AI's number where it rated the programme.
  */
 
-/** How many of the top programmes Claude compares after the content analysis. */
+/** How many of the top programmes the AI compares after the content analysis. */
 export const COMPARE_TOP = 60
 
 export interface ProgrammeEntry {
@@ -21,7 +21,7 @@ export interface ProgrammeChange {
   institution: string
   /** Place and number before the analysis; null when the programme was not among the matches then. */
   before: { rank: number; score: number } | null
-  /** Place and number now. The number is Claude's where it rated the programme; `computed` is the number without it. */
+  /** Place and number now. The number is the AI's where it rated the programme; `computed` is the number without it. */
   after: { rank: number; score: number; computed: number; reasons: string[]; fit?: number }
 }
 
@@ -32,7 +32,7 @@ export type ProgrammeCompare =
   | { status: 'failed'; limit?: 'budget' | 'daily' }
 
 /** Version of the key below. A comparison stored under another version was made by an older app, and no list accepts it. */
-const KEY_VERSION = 2
+const KEY_VERSION = 3
 
 /**
  * What a rating is based on: the questionnaire answers, the field of study and each imported source with its
@@ -72,7 +72,7 @@ export function programmeChanges(before: ProgrammeEntry[], after: Array<Programm
   }))
 }
 
-/** How the rows moved: up, down, new in the list, and where Claude changed the number. */
+/** How the rows moved: up, down, new in the list, and where the AI changed the number. */
 export function changeSummary(rows: ProgrammeChange[]) {
   const summary = { up: 0, down: 0, added: 0, changed: 0 }
   for (const r of rows) {

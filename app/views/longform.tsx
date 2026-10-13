@@ -352,6 +352,16 @@ export async function HowView({ site, base, locale }: SiteProps) {
   )
 }
 
+function AiDataNotice({ k }: { k: Kit }) {
+  const a = k.t.landing.swissAi
+  return <>
+    <h2>{a.badge}</h2>
+    <p>{a.retention}</p>
+    <p>{a.scope}</p>
+    <p><a href="https://welcome.infomaniak.com/api/components/cgu/latest?id=87&amp;locale=en_GB">{a.terms}</a>{' · '}<a href="https://www.infomaniak.com/documents/privacy/DPA/Data_Processing_Agreement_%28DPA%29.pdf">{a.dpa}</a></p>
+  </>
+}
+
 export function PrivacyView({ site, base, locale }: SiteProps) {
   const k = kit(site, base, locale)
   if (k.locale === 'fr-CH') {
@@ -369,8 +379,9 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <h2>{k.t.contentAi.title}</h2>
         <p>{k.t.contentAi.localNote}</p>
         <p>{k.t.contentAi.consent}</p>
+        <AiDataNotice k={k} />
         <h2>Évaluation des formations par l’IA</h2>
-        <p>Régulièrement, Claude lit les pages publiques des formations suisses et note à quel point chacune touche aux types d’intérêts et quelles matières scolaires elle demande. Seule la page d’une formation part chez Anthropic (États-Unis), sans profil, sans nom ni compte. Nous conservons les résultats dans notre propre base de données ; ils ne contiennent rien sur toi. Le classement se calcule dans ton navigateur, à partir de tes réponses. L’option « Trier avec l’IA » est désactivée par défaut. Si tu l’actives, Claude reçoit en plus ton profil d’intérêts, tes thèmes avec leur pondération et les matières que tu aimes, avec les résultats des 20 meilleures correspondances. Nous te demandons d’abord ton accord, et tu peux le retirer à tout moment.</p>
+        <p>Régulièrement, Infomaniak lit les pages publiques des formations suisses et note à quel point chacune touche aux types d’intérêts et quelles matières scolaires elle demande. Seule la page d’une formation part chez Infomaniak (Suisse), sans profil, sans nom ni compte. Nous conservons les résultats dans notre propre base de données ; ils ne contiennent rien sur toi. Le classement se calcule dans ton navigateur, à partir de tes réponses. L’option « Trier avec l’IA » est désactivée par défaut. Si tu l’actives, Infomaniak reçoit en plus ton profil d’intérêts, tes thèmes avec leur pondération et les matières que tu aimes, avec les résultats des 20 meilleures correspondances. Nous te demandons d’abord ton accord, et tu peux le retirer à tout moment.</p>
         <h2>Paiements et hébergement</h2>
         <p>Stripe traite le paiement et nous indique s’il a abouti, sans nous transmettre les données de ta carte. Le site est hébergé par Vercel, qui peut enregistrer temporairement l’adresse IP, l’heure et la page consultée. Nous utilisons l’adresse IP uniquement pour déterminer le pays et afficher la devise correspondante.</p>
         <h2>Données Google et YouTube</h2>
@@ -415,8 +426,9 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <h2>{k.t.contentAi.title}</h2>
         <p>{k.t.contentAi.localNote}</p>
         <p>{k.t.contentAi.consent}</p>
+        <AiDataNotice k={k} />
         <h2>Valutazione dei corsi con l’IA</h2>
-        <p>Regolarmente Claude legge le pagine pubbliche dei corsi svizzeri e annota quanto ciascuno tocca i tipi di interesse e quali materie scolastiche richiede. Verso Anthropic (USA) va soltanto la pagina di un corso: nessun profilo, nessun nome, nessun account. I risultati li conserviamo in una nostra banca dati; non contengono nulla su di te. La classifica viene calcolata nel tuo browser, a partire dalle tue risposte. L’opzione «Ordina con l’IA» è disattivata di default. Se la attivi, Claude riceve anche il tuo profilo di interessi, i tuoi temi con il loro peso e le materie che ti piacciono, insieme ai risultati dei 20 migliori abbinamenti. Ti chiediamo prima il consenso, che puoi ritirare in qualsiasi momento.</p>
+        <p>Regolarmente Infomaniak legge le pagine pubbliche dei corsi svizzeri e annota quanto ciascuno tocca i tipi di interesse e quali materie scolastiche richiede. Verso Infomaniak (Svizzera) va soltanto la pagina di un corso: nessun profilo, nessun nome, nessun account. I risultati li conserviamo in una nostra banca dati; non contengono nulla su di te. La classifica viene calcolata nel tuo browser, a partire dalle tue risposte. L’opzione «Ordina con l’IA» è disattivata di default. Se la attivi, Infomaniak riceve anche il tuo profilo di interessi, i tuoi temi con il loro peso e le materie che ti piacciono, insieme ai risultati dei 20 migliori abbinamenti. Ti chiediamo prima il consenso, che puoi ritirare in qualsiasi momento.</p>
         <h2>Pagamenti e hosting</h2>
         <p>Stripe gestisce il pagamento e ci comunica se è andato a buon fine, senza trasmetterci i dati della carta. Il sito è ospitato da Vercel, che può registrare temporaneamente indirizzo IP, ora e pagina visitata. Usiamo l’indirizzo IP solo per determinare il Paese e mostrare la valuta corretta.</p>
         <h2>Dati Google e YouTube</h2>
@@ -456,7 +468,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
 
         <h2>Was wir speichern: nichts</h2>
         <p>
-          Bei uns gibt es keine Datenbank, kein Konto und keine Kopie deiner Daten. Zusammenfassungen und eingelesene YouTube-Exporte liegen nur im Speicher deines Browsers. Ein Klick auf «Alle meine Daten löschen» entfernt es. Zwei Dinge liegen nicht bei uns: Der Hoster Vercel führt kurz technische Protokolle, und wenn du bezahlst, speichert Stripe die Zahlung.
+          Wir führen keine Datenbank mit deinen Antworten und speichern keine Kopie deiner Exportdateien. Zusammenfassungen und eingelesene YouTube-Exporte liegen im Speicher deines Browsers. Ein Klick auf «Alle meine Daten löschen» entfernt sie. Der Hoster Vercel führt technische Protokolle, und wenn du bezahlst, speichert Stripe die Zahlung. Die freiwillige KI-Verarbeitung bei Infomaniak ist unten beschrieben.
           {GOOGLE_TAG && ' Dazu bekommt Google Messdaten zu unserer Werbung, wie unten unter «Cookies und Messung» beschrieben.'}
         </p>
 
@@ -492,10 +504,11 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
             <strong>{k.t.contentAi.title}:</strong> {k.t.contentAi.localNote} {k.t.contentAi.consent}
           </li>
           <li>
-            <strong>KI-Einordnung der Studiengänge:</strong> Claude liest regelmässig die öffentlichen Seiten der Schweizer Studiengänge und hält fest, wie stark sie die Interessentypen berühren und welche Schulfächer sie brauchen. An Anthropic (USA) geht dabei nur die Seite eines Studiengangs, kein Profil, kein Name, kein Konto. Die Ergebnisse speichern wir in einer eigenen Datenbank; sie enthalten nichts über dich. Die Rangliste rechnet dein Browser mit deinen Angaben. Die Option «Mit KI sortieren» ist standardmässig aus. Wenn du sie einschaltest, bekommt Claude zusätzlich dein Interessenprofil, deine Themen mit ihrer Gewichtung und deine Lieblingsfächer zusammen mit den Ergebnissen der 20 besten Treffer. Dafür holen wir vorher deine Einwilligung ein, und du kannst sie jederzeit zurückziehen.
+            <strong>KI-Einordnung der Studiengänge:</strong> Infomaniak liest regelmässig die öffentlichen Seiten der Schweizer Studiengänge und hält fest, wie stark sie die Interessentypen berühren und welche Schulfächer sie brauchen. An Infomaniak (Schweiz) geht dabei nur die Seite eines Studiengangs, kein Profil, kein Name, kein Konto. Die Ergebnisse speichern wir in einer eigenen Datenbank; sie enthalten nichts über dich. Die Rangliste rechnet dein Browser mit deinen Angaben. Die Option «Mit KI sortieren» ist standardmässig aus. Wenn du sie einschaltest, bekommt Infomaniak zusätzlich dein Interessenprofil, deine Themen mit ihrer Gewichtung und deine Lieblingsfächer zusammen mit den Ergebnissen der 20 besten Treffer. Dafür holen wir vorher deine Einwilligung ein, und du kannst sie jederzeit zurückziehen.
           </li>
         </ul>
 
+        <AiDataNotice k={k} />
         <h2>Google-Nutzerdaten</h2>
         <p>
           Die Nutzung und Weitergabe von Informationen aus Google-Schnittstellen hält sich an die <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, einschliesslich der Anforderungen zur eingeschränkten Nutzung (Limited Use). Wir verlangen nur den Lesezugriff <code>youtube.readonly</code>, um deine Abos, gelikten Videos, Playlists und Uploads zu lesen, und nutzen ihn nur, um dein Fächerprofil in deinem Browser zu berechnen. Die Daten gehen weder an uns noch an Dritte, werden nicht für Werbung genutzt und nicht zum Trainieren von KI-Modellen. Du kannst den Zugriff jederzeit unter <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a> widerrufen.
@@ -567,7 +580,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
     <Page title="Privacy" lead="Your history never reaches us, the analysis runs in your browser, and what it keeps stays there. All of the code is open source.">
       <h2>What we store: nothing</h2>
       <p>
-        There is no database, no account and no copy of your data on our side. Summaries and parsed YouTube exports live only in your browser’s storage, and «Delete all my data» removes it. Two things are outside our hands: our host Vercel keeps short-lived technical logs, and if you pay, Stripe stores the payment.
+        We do not keep a database of your answers or copies of your export files. Summaries and parsed YouTube exports live in your browser’s storage, and «Delete all my data» removes them. Our host Vercel keeps technical logs, and if you pay, Stripe stores the payment. Optional AI processing at Infomaniak is described below.
         {GOOGLE_TAG && ' Google also receives measurement data about our ads, as described under «Cookies and measurement» below.'}
       </p>
 
@@ -603,10 +616,11 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
           <strong>{k.t.contentAi.title}:</strong> {k.t.contentAi.localNote} {k.t.contentAi.consent}
         </li>
         <li>
-          <strong>AI classification of programmes:</strong> Claude regularly reads the public pages of the Swiss programmes and notes how strongly each involves the interest types and which school subjects it needs. Only a programme’s page goes to Anthropic (USA), no profile, no name, no account. We keep the results in our own database; they contain nothing about you. The ranking is computed in your browser against your answers. The option “Sort with AI” is off by default. If you switch it on, Claude also receives your interest profile, your topics with their weights and the subjects you enjoy, together with the results for the 20 best matches. We ask for your consent first, and you can withdraw it at any time.
+          <strong>AI classification of programmes:</strong> Infomaniak regularly reads the public pages of the Swiss programmes and notes how strongly each involves the interest types and which school subjects it needs. Only a programme’s page goes to Infomaniak (Switzerland), no profile, no name, no account. We keep the results in our own database; they contain nothing about you. The ranking is computed in your browser against your answers. The option “Sort with AI” is off by default. If you switch it on, Infomaniak also receives your interest profile, your topics with their weights and the subjects you enjoy, together with the results for the 20 best matches. We ask for your consent first, and you can withdraw it at any time.
         </li>
       </ul>
 
+      <AiDataNotice k={k} />
       <h2>Google user data</h2>
       <p>
         whatshouldistudy’s use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements. We request the read-only scope <code>youtube.readonly</code> to read your subscriptions, liked videos, playlists and uploads, and use it only to compute your field-of-study profile in your browser. The data is not transferred to us or to third parties, not used for advertising, and not used to train AI models. You can revoke access at any time at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.
