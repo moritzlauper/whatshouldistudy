@@ -44,7 +44,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
           <Burst className="spin-slow" size={130} color="var(--yellow)" />
           {!SALES_PAUSED[site] && (
             <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-center">
-              <span className="font-display text-xl leading-none"><Price site={site} swissNotation /></span>
+              <span className="font-display text-xl leading-none"><Price site={site} /></span>
               <span className="max-w-20 text-xs font-extrabold leading-tight">{t.landing.full}</span>
             </span>
           )}

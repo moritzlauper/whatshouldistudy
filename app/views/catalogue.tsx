@@ -505,7 +505,7 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
         <Burst className="spin-slow absolute -right-2 -top-6 hidden sm:block" size={110} color="var(--yellow)" />
         <div className="text-7xl" aria-hidden="true">
           {emoji(id)}
-          <span className="ml-2 text-5xl">{flag(cc)}</span>
+          {cc !== 'CH' && <span className="ml-2 text-5xl">{flag(cc)}</span>}
         </div>
         <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.fieldH1(name, inC)}</h1>
         <p className="mt-5 max-w-3xl text-xl text-muted">{ct.fieldSummary(name, inC, fmtNumber(programmes.length, intl), fmtNumber(institutionCount, intl), levelsText)}</p>
