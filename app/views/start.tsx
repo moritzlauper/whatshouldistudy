@@ -109,7 +109,9 @@ export function StartView() {
         await setSummary(s, s.source === 'takeout' || s.source === 'google-search' ? result.contentInput : undefined)
         measureImport(s.source)
       }
-      setNotes((n) => ({ ...n, [card]: result.recognised.map(t.tr) }))
+      // An activity log that could not be read is named here too, so a missing part of a download is never silent.
+      const unread = result.skipped.filter((name) => /activity|aktivit|history|verlauf|watch/i.test(name))
+      setNotes((n) => ({ ...n, [card]: [...result.recognised.map(t.tr), ...(unread.length ? [t.start.unread(unread.length, unread.slice(0, 3).join(', '))] : [])] }))
     } catch (e) {
       fail(card, e)
     } finally {

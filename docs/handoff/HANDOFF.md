@@ -2,6 +2,14 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Grosse Takeout-Aktivitätsdateien werden stückweise gelesen (13.10.2026)
+
+- Ursache, wahrscheinlich, nicht am Bericht des Inhabers bestätigt: Eine sehr grosse YouTube-Datei eines My-Activity-Berichts wurde als Ganzes gelesen. Text, DOM und Einträge brauchen ein Mehrfaches der Dateigrösse; auf dem Telefon scheiterte das. Der Fehler blieb unsichtbar, weil andere Teile (Google-Suche) erkannt wurden. Zudem übersprang der Zip-Leser Dateien über 400 MB stillschweigend. Die Karte zeigte dann nur «Google-Aktivität», ohne YouTube.
+- Jetzt: HTML-Aktivitätsdateien werden in Stücken von rund 4 Mio. Zeichen gelesen, geschnitten vor jedem Eintrag (`cutBeforeLastEntry`). JSON-Aktivitätsdateien werden an den Objektgrenzen geschnitten (`ObjectCutter`). Die Stücke laufen in `sinkFor` in `lib/sources/exports.ts`. Kleine Dateien bleiben beim bisherigen Weg. Die 400-MB-Grenze ist weg; andere grosse Dateien werden ab 400 MB sichtbar übersprungen.
+- Die Karte nennt Aktivitätsdateien, die nicht gelesen werden konnten, neben den erkannten (`app/views/start.tsx`).
+- Prüfungen: TypeScript grün; Export-Tests 18 von 18 (neu: Teilung im HTML, JSON-Objekte in beliebigen Stücken, grosse Aktivitäts- und Nicht-Aktivitäts-JSON); gesamte Suite 282 von 285, die drei bekannten. Browser mit synthetischen Exporten (keine persönlichen Daten): kleine HTML- und JSON-Exporte unverändert. Ein 420-MB-YouTube-Teil in einer Zip mit bekannter Grösse wurde vorher stillschweigend verworfen; jetzt 703'355 Videos in 55 s. Mit 512 MB Browser-Speicher dasselbe Ergebnis in 51 s; mit dem alten Code lief dieser Lauf 15 Minuten ohne Ergebnis.
+- Nicht geprüft: eine lose, nicht gezippte grosse HTML-Datei; die Meldung für nicht lesbare Dateien auf der Karte; der echte Export des Inhabers. Nach dem Deploy den My-Activity-Export neu hochladen; bestehende Auswertungen ändern sich nur beim Import.
+
 ## Internationale Studiengangsdetails (13.10.2026)
 
 - Die Listen für CH/FR/GB/NL/NO/FI/AU/KR/US liefen bereits erfolgreich; der veröffentlichte Lauf vom 13.10. enthält alle neun Länder. Die Detailfreigabe (`FACTS_COUNTRIES`) war auf CH beschränkt und ist jetzt mit der gemeinsamen Länderliste erweitert. DE/AT bleiben ausgeschlossen; Paywall unverändert. OIDC akzeptiert zusätzlich den automatischen workflow_run-Auslöser, weiterhin ausschliesslich GitHub-signiert für dieses Repo, main und den Faktenworkflow; dessen Referenz muss jetzt exakt main sein.

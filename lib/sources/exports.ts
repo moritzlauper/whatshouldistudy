@@ -280,6 +280,20 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
   return 'other'
 }
 
+/** How many entries of each kind an activity log gave. */
+interface ActivityCounts { watch: number; search: number; google: number; other: number }
+const totalOf = (n: ActivityCounts) => n.watch + n.search + n.google + n.other
+
+function recogniseActivity(c: Collected, name: string, n: ActivityCounts) {
+  const parts = [
+    n.watch && `${n.watch.toLocaleString('en-US')} watched videos`,
+    n.search && `${n.search.toLocaleString('en-US')} YouTube searches`,
+    n.google && `${n.google.toLocaleString('en-US')} Google searches`,
+    n.other && `${n.other.toLocaleString('en-US')} other activity entries`,
+  ].filter(Boolean)
+  c.recognised.push(`${name}: ${parts.join(', ')}`)
+}
+
 function parseActivityJson(c: Collected, name: string, data: unknown): boolean {
   if (!Array.isArray(data) || !data.length || typeof data[0] !== 'object') return false
   const first = data[0] as Record<string, unknown>
@@ -296,25 +310,13 @@ function parseActivityJson(c: Collected, name: string, data: unknown): boolean {
     return true
   }
   if (!('title' in first) && !('titleUrl' in first) && !('header' in first)) return false
-  let watch = 0
-  let search = 0
-  let google = 0
-  let other = 0
+  const n: ActivityCounts = { watch: 0, search: 0, google: 0, other: 0 }
   for (const a of data as Activity[]) {
     const kind = addActivity(c, a)
-    if (kind === 'watch') watch++
-    else if (kind === 'search') search++
-    else if (kind === 'google') google++
-    else if (kind === 'other') other++
+    if (kind) n[kind]++
   }
-  if (!watch && !search && !google && !other) return false
-  const parts = [
-    watch && `${watch.toLocaleString('en-US')} watched videos`,
-    search && `${search.toLocaleString('en-US')} YouTube searches`,
-    google && `${google.toLocaleString('en-US')} Google searches`,
-    other && `${other.toLocaleString('en-US')} other activity entries`,
-  ].filter(Boolean)
-  c.recognised.push(`${name}: ${parts.join(', ')}`)
+  if (!totalOf(n)) return false
+  recogniseActivity(c, name, n)
   return true
 }
 
@@ -374,9 +376,16 @@ export function takeoutDate(raw: string): number {
 /** Takeout's HTML version of the same activity log. */
 function parseActivityHtml(c: Collected, path: string, html: string): boolean {
   const name = path.split('/').pop() ?? path
+  const n = activityCells(c, path, new DOMParser().parseFromString(html, 'text/html'))
+  if (!n) return false
+  c.recognised.push(`${name}: ${n.toLocaleString('en-US')} activity entries`)
+  return true
+}
+
+/** The entries in one parsed part of a Takeout activity log; a large log is read part by part, see sinkFor. */
+function activityCells(c: Collected, path: string, doc: Document): number {
   // My Activity keeps one folder per product: …/My Activity/Chrome/MyActivity.html.
   const product = path.split('/').slice(-2, -1)[0] ?? ''
-  const doc = new DOMParser().parseFromString(html, 'text/html')
   const cells = doc.querySelectorAll('.content-cell:not(.mdl-typography--caption)')
   let n = 0
   for (const cell of cells) {
@@ -399,9 +408,153 @@ function parseActivityHtml(c: Collected, path: string, html: string): boolean {
     })
     if (kind) n++
   }
-  if (!n) return false
-  c.recognised.push(`${name}: ${n.toLocaleString('en-US')} activity entries`)
-  return true
+  return n
+}
+
+/** A large Takeout activity log is read in parts of about this many characters, so the whole file never sits in memory. */
+const PART = 4 << 20
+/** Any other file that grows past this is not read: it would not fit in a browser's memory. */
+const WHOLE_LIMIT = 400e6
+/** Takeout starts each activity entry with an outer cell; a part is cut right before the last one. */
+const ENTRY_START = /<div\b[^>]*\bouter-cell\b/g
+
+/** Where a part can be cut: before its last entry, so every entry in the part is complete. -1 when there is none. */
+export function cutBeforeLastEntry(text: string): number {
+  let at = -1
+  for (const m of text.matchAll(ENTRY_START)) if (m.index) at = m.index
+  return at
+}
+
+/**
+ * Cuts the objects of a JSON array out of text as it arrives. A part may end in the middle of an object;
+ * the unfinished object waits for the next part.
+ */
+export class ObjectCutter {
+  private depth = 0
+  private inString = false
+  private escaped = false
+  private open = false
+  private carry = ''
+
+  take(text: string): string[] {
+    const objects: string[] = []
+    let from = 0
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i]
+      if (this.inString) {
+        if (this.escaped) this.escaped = false
+        else if (ch === '\\') this.escaped = true
+        else if (ch === '"') this.inString = false
+      } else if (ch === '"') {
+        this.inString = true
+      } else if (ch === '{' || ch === '[') {
+        // The objects of the outer array sit at depth one.
+        if (ch === '{' && this.depth === 1) {
+          this.open = true
+          this.carry = ''
+          from = i
+        }
+        this.depth++
+      } else if (ch === '}' || ch === ']') {
+        this.depth--
+        if (ch === '}' && this.depth === 1 && this.open) {
+          objects.push(this.carry + text.slice(from, i + 1))
+          this.open = false
+          this.carry = ''
+        }
+      }
+    }
+    if (this.open) this.carry += text.slice(from)
+    return objects
+  }
+}
+
+/**
+ * Reads one export file as its bytes arrive. A Takeout activity log is parsed part by part; any other file,
+ * and a small activity log, is read whole, as before.
+ */
+function sinkFor(c: Collected, name: string): { push(bytes: Uint8Array): void; end(): Promise<void> } {
+  const short = name.split('/').pop() ?? name
+  const decoder = new TextDecoder()
+  const isHtml = /\.html$/i.test(name)
+  const isJson = /\.json$/i.test(name)
+  const counts: ActivityCounts = { watch: 0, search: 0, google: 0, other: 0 }
+  let htmlEntries = 0
+  let cutter: ObjectCutter | null = null
+  let mode: 'undecided' | 'html' | 'json' | 'whole' | 'dropped' = 'undecided'
+  let text = ''
+  const takeHtml = (part: string) => {
+    htmlEntries += activityCells(c, name, new DOMParser().parseFromString(part, 'text/html'))
+  }
+  const takeJson = (objects: string[]) => {
+    for (const o of objects) {
+      const kind = addActivity(c, JSON.parse(o) as Activity)
+      if (kind) counts[kind]++
+    }
+  }
+  const drop = () => {
+    mode = 'dropped'
+    text = ''
+    c.skipped.push(short)
+  }
+  // The kind of file is decided by its first part.
+  const decide = () => {
+    if (isHtml) mode = /content-cell/.test(text) ? 'html' : 'whole'
+    else if (isJson) {
+      const probe = new ObjectCutter().take(text)[0]
+      const first = probe ? (JSON.parse(probe) as Record<string, unknown>) : undefined
+      mode = first && 'time' in first && ('title' in first || 'titleUrl' in first || 'header' in first) ? 'json' : 'whole'
+      if (mode === 'json') cutter = new ObjectCutter()
+    } else mode = 'whole'
+  }
+  return {
+    push(bytes) {
+      if (mode === 'dropped') return
+      try {
+        text += decoder.decode(bytes, { stream: true })
+        if (mode === 'undecided') {
+          if (text.length < PART) return
+          decide()
+        }
+        if (mode === 'html') {
+          const at = cutBeforeLastEntry(text)
+          if (at > 0) {
+            takeHtml(text.slice(0, at))
+            text = text.slice(at)
+          }
+          if (text.length > WHOLE_LIMIT) drop()
+        } else if (mode === 'json') {
+          takeJson(cutter!.take(text))
+          text = ''
+        } else if (mode === 'whole' && text.length > WHOLE_LIMIT) drop()
+      } catch {
+        // Like readEntry: a file that cannot be read is named as skipped, and the rest of the export goes on.
+        drop()
+      }
+    },
+    async end() {
+      if (mode === 'dropped') return
+      try {
+        text += decoder.decode()
+        if (mode === 'undecided') {
+          await readEntry(c, name, text)
+          return
+        }
+        if (mode === 'html') {
+          takeHtml(text)
+          if (htmlEntries) c.recognised.push(`${short}: ${htmlEntries.toLocaleString('en-US')} activity entries`)
+          else c.skipped.push(short)
+        } else if (mode === 'json') {
+          takeJson(cutter!.take(text))
+          if (totalOf(counts)) recogniseActivity(c, short, counts)
+          else c.skipped.push(short)
+        } else if (mode === 'whole') await readEntry(c, name, text)
+      } catch {
+        drop()
+      }
+      text = ''
+    },
+  }
 }
 
 function parseCsv(text: string): string[][] {
@@ -553,13 +706,13 @@ async function readZip(c: Collected, file: File, onProgress: Progress): Promise<
   unzip.register(UnzipInflate)
   unzip.onfile = (f) => {
     // Takeout puts everything else (videos, photos) in the same archive; skip it.
-    if (!WANTED.test(f.name) || (f.originalSize ?? 0) > 400e6) return
+    if (!WANTED.test(f.name)) return
     if (/\/(videos?|fotos?|photos?)\//i.test(f.name) && !/history|verlauf|historique|historial|cronologia/i.test(f.name)) return
     // Instagram and TikTok downloads: direct messages stay unread.
     if (/(^|\/)(messages|inbox|message_requests|direct_messages?)\//i.test(f.name)) return
     // Reddit: messages and chats stay unread too.
     if (REDDIT_PRIVATE.test(f.name)) return
-    const chunks: Uint8Array[] = []
+    const sink = sinkFor(c, f.name)
     pending.push(
       new Promise<void>((resolve) => {
         f.ondata = (err, data, final) => {
@@ -568,11 +721,8 @@ async function readZip(c: Collected, file: File, onProgress: Progress): Promise<
             resolve()
             return
           }
-          chunks.push(data)
-          if (final) {
-            const text = new TextDecoder().decode(concat(chunks))
-            void readEntry(c, f.name, text).then(resolve)
-          }
+          sink.push(data)
+          if (final) void sink.end().then(resolve)
         }
       }),
     )
@@ -591,14 +741,19 @@ async function readZip(c: Collected, file: File, onProgress: Progress): Promise<
   await Promise.all(pending)
 }
 
-function concat(chunks: Uint8Array[]): Uint8Array {
-  const out = new Uint8Array(chunks.reduce((s, x) => s + x.length, 0))
-  let o = 0
-  for (const ch of chunks) {
-    out.set(ch, o)
-    o += ch.length
+/** One export file, read as it arrives: a large file never sits in memory whole. */
+async function readLooseFile(c: Collected, file: File, onProgress: Progress): Promise<void> {
+  const sink = sinkFor(c, file.name)
+  const reader = file.stream().getReader()
+  let read = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    sink.push(value)
+    read += value.length
+    onProgress(`Reading ${file.name}`, Math.round((read / Math.max(1, file.size)) * 100))
   }
-  return out
+  await sink.end()
 }
 
 export async function readExports(files: File[], onProgress: Progress = () => {}): Promise<ExportResult> {
@@ -606,7 +761,7 @@ export async function readExports(files: File[], onProgress: Progress = () => {}
   for (const file of files) {
     onProgress(`Reading ${file.name}`)
     if (/\.zip$/i.test(file.name)) await readZip(c, file, onProgress)
-    else if (WANTED.test(file.name)) await readEntry(c, file.name, await file.text())
+    else if (WANTED.test(file.name)) await readLooseFile(c, file, onProgress)
     else c.skipped.push(file.name)
   }
   return buildSummaries(c)

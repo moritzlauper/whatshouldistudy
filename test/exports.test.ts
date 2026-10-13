@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readTexts } from '../lib/sources/exports.ts'
+import { ObjectCutter, cutBeforeLastEntry, readExports, readTexts } from '../lib/sources/exports.ts'
 import { resultsReady } from '../lib/engine/questionnaire.ts'
 import { score } from '../lib/engine/scoring.ts'
 
@@ -220,4 +220,59 @@ test('videos and pages about choosing a degree are study info, not interest', as
   assert.equal(y.fields.psychology.items, 1)
   const g = r.summaries.find((x) => x.source === 'google-search')
   assert.equal(g?.fields.psychology, undefined)
+})
+
+test('a part of a large activity log is cut right before its last entry, never inside one', () => {
+  const entry = (i: number) => `<div class="outer-cell mdl-grid"><div class="content-cell">Angesehen ${i}</div></div>`
+  const text = `<html><body>${entry(1)}${entry(2)}${entry(3)}`
+  const at = cutBeforeLastEntry(text)
+  assert.ok(at > 0)
+  assert.equal(text.slice(at), entry(3))
+  assert.equal(cutBeforeLastEntry('<div class="outer-cell">first entry is not a cut</div>'), -1)
+  assert.equal(cutBeforeLastEntry('no entries here'), -1)
+})
+
+test('the objects of a JSON array come out whole, however the text is split into parts', () => {
+  const objects = [
+    { title: 'Angesehen "Zitat } mit Klammer [x]"', n: 1 },
+    { title: 'Zweites \\ Objekt', nested: { a: [1, { b: 'c}' }] } },
+    { title: 'drittes' },
+  ]
+  const json = JSON.stringify(objects)
+  for (const size of [1, 2, 3, 7, 50, json.length]) {
+    const cutter = new ObjectCutter()
+    const got: string[] = []
+    for (let i = 0; i < json.length; i += size) got.push(...cutter.take(json.slice(i, i + size)))
+    assert.deepEqual(got.map((o) => JSON.parse(o)), objects, `part size ${size}`)
+  }
+})
+
+test('a large Takeout activity log is read part by part and counted like a small one', async () => {
+  const n = 30_000
+  const watch = Array.from({ length: n }, (_, i) => ({
+    header: 'YouTube',
+    title: `Angesehen Video über Psychologie und Gedächtnis, Teil ${i}`,
+    titleUrl: `https://www.youtube.com/watch?v=v${String(i).padStart(10, '0')}`,
+    subtitles: [{ name: `Kanal ${i % 50}`, url: `https://www.youtube.com/channel/UC${String(i % 50).padStart(22, '0')}` }],
+    time: new Date(Date.UTC(2026, 0, 1) + i * 60_000).toISOString(),
+  }))
+  const text = JSON.stringify(watch)
+  assert.ok(text.length > 4 << 20, 'the file is bigger than one part')
+  const result = await readExports([new File([text], 'Takeout/My Activity/YouTube/MyActivity.json')])
+  assert.equal(result.summaries.find((s) => s.source === 'takeout')?.stats.watchedVideos, n)
+  assert.ok(result.recognised.some((r) => r.includes(`${n.toLocaleString('en-US')} watched videos`)), result.recognised.join(' | '))
+})
+
+test('a large JSON file that is no activity log is still read as before', async () => {
+  const n = 50_000
+  const plays = Array.from({ length: n }, (_, i) => ({
+    ts: `2026-01-01T00:${String(i % 60).padStart(2, '0')}:00Z`,
+    ms_played: 60_000,
+    master_metadata_track_name: `Track ${i}`,
+    master_metadata_album_artist_name: `Artist ${i % 200}`,
+  }))
+  const text = JSON.stringify(plays)
+  assert.ok(text.length > 4 << 20, 'the file is bigger than one part')
+  const result = await readExports([new File([text], 'StreamingHistory_music_0.json')])
+  assert.equal(result.summaries.find((s) => s.source === 'spotify-export')?.dataPoints, n)
 })
