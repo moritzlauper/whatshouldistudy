@@ -2,6 +2,11 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## «Neu hochladen» führt auf Schritt 2 (13.10.2026)
+
+- Der Knopf im Hinweis auf veraltete Daten (`StudyInfoNote` in `app/views/results.tsx`) führte auf die Startseite ohne Anker, also auf Schritt 1 (Fragebogen). Er zeigt jetzt auf `#quellen` (Schritt 2, «Mit deinen Daten»).
+- Geprüft im Browser: Nach dem Klick ist der Abschnitt `quellen` sichtbar und `fragebogen` ausgeblendet. Google News aus einer HTML-Datei von My Activity wird als Artikel gezählt (synthetischer Export, 40 Artikel).
+
 ## Grosse Takeout-Aktivitätsdateien werden stückweise gelesen (13.10.2026)
 
 - Ursache, wahrscheinlich, nicht am Bericht des Inhabers bestätigt: Eine sehr grosse YouTube-Datei eines My-Activity-Berichts wurde als Ganzes gelesen. Text, DOM und Einträge brauchen ein Mehrfaches der Dateigrösse; auf dem Telefon scheiterte das. Der Fehler blieb unsichtbar, weil andere Teile (Google-Suche) erkannt wurden. Zudem übersprang der Zip-Leser Dateien über 400 MB stillschweigend. Die Karte zeigte dann nur «Google-Aktivität», ohne YouTube.

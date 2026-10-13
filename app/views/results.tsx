@@ -608,7 +608,7 @@ function StudyInfoNote({ summaries }: { summaries: SourceSummary[] }) {
       {stale && (
         <div className="on-color flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-line bg-yellow px-3 py-2">
           <p className="max-w-2xl font-semibold">⚠ {s.stale}</p>
-          <Link href={r.start} className="btn btn-primary btn-sm">
+          <Link href={`${r.start}#${r.anchors.sources}`} className="btn btn-primary btn-sm">
             {s.staleCta}
           </Link>
         </div>
