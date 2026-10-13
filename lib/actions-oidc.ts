@@ -10,8 +10,8 @@ import { createPublicKey, createVerify } from 'node:crypto'
 export const ACTIONS_ISSUER = 'https://token.actions.githubusercontent.com'
 export const FACTS_AUDIENCE = 'wasstudieren-facts'
 const REPOSITORY = 'moritzlauper/whatshouldistudy'
-const WORKFLOW_PREFIX = `${REPOSITORY}/.github/workflows/wsis-fakten.yml@`
-const EVENTS = ['workflow_dispatch', 'schedule']
+const WORKFLOW_REF = `${REPOSITORY}/.github/workflows/wsis-fakten.yml@refs/heads/main`
+const EVENTS = ['workflow_dispatch', 'schedule', 'workflow_run']
 const LEEWAY_SECONDS = 60
 
 export interface Jwk {
@@ -77,6 +77,6 @@ export function checkActionsToken(jwt: string, list: Jwk[], now = Date.now() / 1
     typeof claims.event_name === 'string' &&
     EVENTS.includes(claims.event_name) &&
     typeof claims.job_workflow_ref === 'string' &&
-    claims.job_workflow_ref.startsWith(WORKFLOW_PREFIX)
+    claims.job_workflow_ref === WORKFLOW_REF
   return fresh && ours ? claims : null
 }

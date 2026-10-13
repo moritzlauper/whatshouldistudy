@@ -29,6 +29,7 @@ test('a run of the facts workflow on main is accepted', () => {
   assert.ok(checkActionsToken(sign(good), [jwk], NOW))
   assert.ok(checkActionsToken(sign({ ...good, aud: [FACTS_AUDIENCE, 'other'] }), [jwk], NOW))
   assert.ok(checkActionsToken(sign({ ...good, event_name: 'schedule' }), [jwk], NOW))
+  assert.ok(checkActionsToken(sign({ ...good, event_name: 'workflow_run' }), [jwk], NOW))
 })
 
 test('every other run, audience, branch, workflow or time is refused', () => {
@@ -36,6 +37,9 @@ test('every other run, audience, branch, workflow or time is refused', () => {
   refused({ ...good, aud: 'someone-else' })
   refused({ ...good, repository: 'moritzlauper/outreach' })
   refused({ ...good, ref: 'refs/heads/feature' })
+  refused({ ...good, event_name: 'workflow_run', ref: 'refs/heads/feature' })
+  refused({ ...good, event_name: 'workflow_run', repository: 'someone/fork' })
+  refused({ ...good, job_workflow_ref: 'moritzlauper/whatshouldistudy/.github/workflows/wsis-fakten.yml@refs/heads/feature' })
   refused({ ...good, event_name: 'pull_request' })
   refused({ ...good, job_workflow_ref: 'moritzlauper/whatshouldistudy/.github/workflows/wsis-daten.yml@refs/heads/main' })
   refused({ ...good, iss: 'https://example.com' })
