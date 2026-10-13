@@ -13,6 +13,7 @@ import { teachersText } from '@/lib/site/teachers-text.ts'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
 import { OrgCapture } from './org-capture.tsx'
 import { LangSwitch } from './lang-switch.tsx'
+import { StartLink } from './start-link.tsx'
 import type { LangOption } from './lang-switch.tsx'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
 import { blogLang, postsFor } from '@/lib/blog.ts'
@@ -68,9 +69,7 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
               {t.footer.privacy}
             </Link>
             {languages && <LangSwitch from={{ site, base, locale: k.locale }} options={languages} label={t.misc.language} fieldIds={FIELDS.map((f) => f.id)} />}
-            <Link href={r.start} className="btn btn-primary btn-sm ml-1">
-              {t.nav.start}
-            </Link>
+            <StartLink start={r.start} home={r.home} startLabel={t.nav.start} backLabel={t.nav.back} />
           </nav>
         </div>
       </header>

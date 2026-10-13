@@ -3,9 +3,10 @@
 Find a programme at a specific university with a short questionnaire, optionally
 supplemented by your own data. The questionnaire covers RIASEC interests (four
 custom items per area plus an attention check), school subjects and values;
-all 20 Mini-IPIP Big Five items are required to view a result, including when
-data is imported. Personality is a regular questionnaire step and counts towards
-the overall progress (67 entries). The
+the 20 Mini-IPIP Big Five items are optional. Results are available with at least
+two interest answers per area or imported data, without personality answers.
+Personality remains a questionnaire step and counts towards the overall progress
+(67 entries, including optional questions). The
 custom interest scale is not yet validated in a study. Results match 80 fields
 to programmes in the available country datasets. Germany and Austria currently
 link to official programme searches; their own programme readers are pending.
@@ -125,7 +126,7 @@ footer and in the privacy policy, with a link here
 counters, as described below.
 
 **Privacy model:** the default analysis runs in the browser. OAuth tokens stay
-in the tab and exports are unpacked on the device. Parsed YouTube export data
+in the tab and exports are unpacked on the device. Parsed Google activity and YouTube export data
 stays in local IndexedDB for the optional AI step; other raw imports are discarded
 after analysis. Removing the YouTube source or deleting all data clears that record. Programme requests send field ids, scores, topics and filters to the server.
 Optional import statistics send only a recognised source category.
@@ -279,12 +280,14 @@ replace a previous result.
 | Source | What | Setup |
 | --- | --- | --- |
 | YouTube Data API | subscriptions, likes, playlists, uploads, channel details | Google Cloud project, enable *YouTube Data API v3*, OAuth client (web), consent screen with scope `youtube.readonly`. Until Google verifies the app (sensitive scope, a few weeks, needs the privacy page and a demo video), only listed test users can sign in. Default quota is 10,000 units/day ≈ 50–60 full scans; request more via the quota form. |
-| Google Takeout | full watch + search history, comments, subscriptions; Google searches from «My Activity» | none: the start page links to Takeout with YouTube (`custom/youtube`) or My Activity (`custom/myactivity`) preselected, the user drops the .zip |
+| Google Takeout | YouTube history, Google searches and readable Google News article titles from My Activity; separate YouTube exports remain supported | none: one main link preselects My Activity (`custom/my_activity`); upload the .zip (all split parts together). Other imports are collapsed under optional sources. |
 | Spotify Web API | podcasts, episodes, audiobooks, artists/genres | app on developer.spotify.com. Development mode allows 25 allow-listed users; public use needs Spotify's extended quota approval, which Spotify currently grants mainly to organisations. The Spotify data export works for everyone. |
 | Instagram data download (JSON) | topics Instagram files you under, accounts you follow, likes, saved posts, searches, posts seen | none, the user requests it in Accounts Center and drops the .zip; direct messages are skipped. Instagram's API only covers business accounts and their own posts, so there is no sign-in. |
 | TikTok data download (JSON or TXT) | searches, accounts you follow, hashtags, own comments, how many videos watched and liked | none, the user requests it in the app (Settings → Account → Download your data). TikTok's Login Kit gives only profile and own videos. |
 | Reddit API | communities, saved, upvoted, own posts | app of type *installed app* on reddit.com/prefs/apps |
 | GitHub | public repos and stars | none (public API, 60 requests/hour per visitor IP) |
+
+My Activity is the default import. YouTube leads; Google searches and News are supplementary (source weight 0.15 versus 0.85 for the YouTube export). URL-only and unavailable video titles are excluded, including from optional AI context. News titles are classified locally. The first AI selection (up to 240 entries) uses only YouTube; the explicit maximum run (up to 1,000 entries) can include up to 200 readable News titles after preview and consent. Google searches are never sent to this content analysis. AI News results replace the corresponding Google summary, keeping its lower source weight; disabling AI restores both originals. Activity weight halves every two calendar years; activity six or more calendar years old remains historical but no longer affects current interests. This is a product heuristic, not a validated psychological norm. Reimport older saved summaries to apply the new title filtering.
 
 Further sources worth adding later (account access exists): Google "My Activity"
 search history is already read from Takeout; Goodreads and Letterboxd CSV

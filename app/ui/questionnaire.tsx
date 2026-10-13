@@ -70,7 +70,7 @@ export function Questionnaire() {
           <LikertList items={localise(INTEREST_LIST, t.q.riasec)} values={a.riasec ?? {}} labels={t.q.likertInterest} onChange={(id, v) => setLikert('riasec', id, v)} color={TAB_COLOR.interests} />
         )}
         {tab === 'personality' && <>
-          <p className="mb-2 font-semibold">{t.q.personalityRequired}</p>
+          <p className="mb-2 font-semibold">{t.q.personalityOptional}</p>
           <p className="mb-4 text-sm text-muted">{t.q.personalityNote}</p>
           <LikertList items={localise(BIG5_ITEMS, t.q.big5)} values={a.big5 ?? {}} labels={t.q.likertAccuracy} onChange={(id, v) => setLikert('big5', id, v)} color={TAB_COLOR.personality} />
           <p className="mt-4 text-xs text-muted">{t.q.ipipNote}</p>

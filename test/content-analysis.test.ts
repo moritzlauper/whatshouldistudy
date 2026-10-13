@@ -6,7 +6,7 @@ import { accumulate } from '../lib/engine/accumulate.ts'
 import { score } from '../lib/engine/scoring.ts'
 import { userTopics, topicWeights } from '../lib/engine/topics.ts'
 import { localFit } from '../lib/engine/programme-fit.ts'
-import { readTexts } from '../lib/sources/exports.ts'
+import { prepareContentAnalysis, readTexts } from '../lib/sources/exports.ts'
 import { DEFAULT_PREFS, effectiveSummaries } from '../lib/store.ts'
 import type { SignalItem } from '../lib/engine/types.ts'
 
@@ -243,4 +243,55 @@ test('the content control has no second uploader and does not assume programme c
 test('existing imports are previewed locally, sent only on consent, and stale replies are ignored', () => {
   const result = spawnSync(process.execPath, ['test/helpers/content-analysis.mjs'], { cwd: process.cwd(), encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr || result.stdout)
+})
+
+
+test('News is excluded from the first AI selection and bounded inside the explicit 1000 maximum', () => {
+  const items = [...Array.from({ length: 1200 }, (_, i) => watch(`Video ${i}`, `Channel ${i % 10}`)),
+    ...Array.from({ length: 300 }, (_, i): SignalItem => ({ kind: 'read', text: `News ${i}`, label: `News ${i}`, weight: .2, time: Date.UTC(year, 1, 1) })),
+    { kind: 'read', text: 'https://news.google.com/opaque', label: 'URL', weight: .2 },
+    { kind: 'read', text: 'Old headline', label: 'Old', weight: .2, time: Date.UTC(year - 12, 1, 1) },
+  ]
+  const small = contentPlan(items)
+  assert.equal(small.items.length, CONTENT_SAMPLE)
+  assert.ok(small.items.every(it => it.kind !== 'read'))
+  const large = contentPlan(items, Date.now(), CONTENT_MAX)
+  assert.equal(large.items.length, 1000)
+  assert.equal(large.items.filter(it => it.kind === 'read').length, 200)
+  assert.ok(large.items.filter(it => it.kind === 'read').every(it => it.channel === '' && !it.context.length))
+  assert.ok(!large.items.some(it => it.title === 'Old headline' || it.title.includes('opaque')))
+  assert.ok(contentRequest(large.items.slice(-CONTENT_BATCH)))
+})
+
+test('extended News interpretations replace only the matching Google source and keep its lower weight', async () => {
+  const result = await readTexts([{ name: 'My Activity.json', text: JSON.stringify([
+    { header: 'YouTube', title: 'Watched Quantum physics', titleUrl: 'https://www.youtube.com/watch?v=physics0001', time: new Date().toISOString() },
+    { header: 'Google News', title: 'Read An indirect headline', titleUrl: 'https://example.org/news', time: new Date().toISOString() },
+    { header: 'Search', title: 'Searched for private situational question', titleUrl: 'https://www.google.com/search?q=private', time: new Date().toISOString() },
+  ]) }])
+  const standard = prepareContentAnalysis(result.contentInput!)
+  assert.ok(standard.items.every(it => it.kind !== 'read'))
+  assert.equal(standard.applyGoogle([]), undefined)
+  const smallSummary = standard.apply([])
+  assert.ok(Number(smallSummary.stats.aiExpandable) > standard.items.length, 'expansion remains available even with fewer than 240 YouTube items')
+  const maximum = prepareContentAnalysis(result.contentInput!, CONTENT_MAX)
+  const news = maximum.items.find(it => it.kind === 'read')!
+  assert.ok(news)
+  assert.ok(!JSON.stringify(maximum.items).includes('situational'))
+  const verdicts = [{ id: news.id, fields: { sociology: .9 }, reason: 'News subject' }]
+  const yt = maximum.apply(verdicts)
+  const google = maximum.applyGoogle(verdicts)!
+  const originalGoogle = result.summaries.find(s => s.source === 'google-search')!
+  assert.equal(yt.dataPoints, 1)
+  assert.equal(yt.fields.sociology, undefined)
+  assert.equal(google.dataPoints, originalGoogle.dataPoints)
+  assert.ok(google.fields.sociology)
+  const base = result.summaries.find(s => s.source === 'takeout')!
+  const state = { summaries: { takeout: base, 'google-search': originalGoogle }, answers: {}, prefs: DEFAULT_PREFS,
+    contentAnalysis: { baseCollectedAt: base.collectedAt, summary: yt, google: { baseCollectedAt: originalGoogle.collectedAt, summary: google }, enabled: true } }
+  assert.deepEqual(effectiveSummaries(state), [yt, google])
+  assert.deepEqual(effectiveSummaries({ ...state, contentAnalysis: { ...state.contentAnalysis, enabled: false } }), [base, originalGoogle])
+  const replacement = { ...originalGoogle, collectedAt: 'replacement' }
+  assert.deepEqual(effectiveSummaries({ ...state, summaries: { takeout: base, 'google-search': replacement } }), [yt, replacement])
+  assert.deepEqual(effectiveSummaries({ ...state, summaries: { takeout: base } }), [yt])
 })

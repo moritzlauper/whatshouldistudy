@@ -1,6 +1,7 @@
 import { FIELDS, FIELD_COUNT, FIELD_INDEX } from '../taxonomy/fields.ts'
 import { classify, fieldVector, learningScore, saturate, termsForField, topics } from './classifier.ts'
-import { isStudyInfo } from './text.ts'
+import { isStudyInfo, usableContentTitle } from './text.ts'
+import { activityAgeWeight } from './recency.ts'
 import type { FieldEvidence, MusicProfile, SignalItem, SourceId, SourceSummary, Topic } from './types.ts'
 
 /**
@@ -27,7 +28,7 @@ const TOPICS_KEPT = 200
  * pick up (new filters, new lexicon terms); the results page then suggests
  * reading the files again.
  */
-export const SUMMARY_VERSION = 6
+export const SUMMARY_VERSION = 7
 
 export interface AccumulateOptions {
   source: SourceId
@@ -61,7 +62,8 @@ function monthOf(t: number): string {
 }
 
 export function accumulate(items: SignalItem[], opts: AccumulateOptions): SourceSummary {
-  items = items.map((it) => (it.time && !plausible(it.time) ? { ...it, time: undefined } : it))
+  items = items.filter((it) => it.kind !== 'watch' || usableContentTitle(it.text))
+    .map((it) => (it.time && !plausible(it.time) ? { ...it, time: undefined } : it))
   const fieldScore = new Float64Array(FIELD_COUNT)
   const fieldItems = new Uint32Array(FIELD_COUNT)
   const fieldMonths: Array<Set<string>> = FIELDS.map(() => new Set())
@@ -146,7 +148,8 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
 
     let vmax = 0
     for (let i = 0; i < FIELD_COUNT; i++) vmax = Math.max(vmax, vec[i])
-    const stale = !!it.time && Date.now() - it.time > EVIDENCE_MAX_AGE
+    const age = it.time ? activityAgeWeight(new Date(it.time).getFullYear()) : 0.7
+    const stale = !!it.time && (age === 0 || Date.now() - it.time > EVIDENCE_MAX_AGE)
     if (!stale) {
       const foundTopics = it.meaning
         ? FIELDS.filter((f) => (it.meaning!.fields[f.id] ?? 0) >= STRONG).map((f) => ({ key: f.id, word: f.name }))
@@ -170,7 +173,7 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
       fieldItems[i] += 1
       if (month) fieldMonths[i].add(month)
       const top = fieldTop[i]
-      const ew = w * s
+      const ew = w * s * age
       // Evidence only where the item is (nearly) strongest.
       if (!stale && s >= 0.8 * vmax && (top.length < EVIDENCE_PER_FIELD || ew > top[top.length - 1].w)) {
         // One entry per channel (or label), with its best item: the video
@@ -236,7 +239,7 @@ export function accumulate(items: SignalItem[], opts: AccumulateOptions): Source
     }
   }
   if (topicMap.size) {
-    const total = (t: Topic) => Object.values(t.y).reduce((a, b) => a + b, 0)
+    const total = (t: Topic) => Object.entries(t.y).reduce((sum, [year, w]) => sum + w * (Number(year) ? activityAgeWeight(Number(year)) : 0.7), 0)
     summary.topics = Object.fromEntries(
       [...topicMap]
         .sort((a, b) => total(b[1]) - total(a[1]))

@@ -14,6 +14,14 @@ const SPECIAL: Array<[RegExp, string]> = [
 
 const LIGATURES: Record<string, string> = { ß: 'ss', œ: 'oe', æ: 'ae', ø: 'o', ł: 'l', đ: 'd', ı: 'i' }
 
+/** A missing title, URL or export placeholder provides no subject to classify. */
+export function usableContentTitle(text: string): boolean {
+  const title = text.split('\n')[0].trim()
+  if (!title || /^(?:https?:\/\/|www\.|(?:music\.)?youtube\.com\/|youtu\.be\/)/i.test(title)) return false
+  const plain = title.replace(/^[\s[\]()]+|[\s[\]()]+$/g, '').toLowerCase()
+  return !/^(?:(?:deleted|private|unavailable|removed) video|video (?:unavailable|deleted|removed)|(?:gelöschtes|privates|entferntes|nicht verfügbares) video|video nicht verfügbar|vidéo (?:supprimée|privée|indisponible)|video (?:eliminato|privato|non disponibile)|unknown|unbekannt)$/.test(plain)
+}
+
 export function normalize(text: string, opts: { splitCamel?: boolean } = {}): string {
   let s = text
   for (const [re, rep] of SPECIAL) s = s.replace(re, rep)

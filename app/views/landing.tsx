@@ -17,7 +17,7 @@ import { Blob, Burst, Pill, Ring, Sparkle, Squiggle } from '../ui/shapes.tsx'
 import { GitHubMark } from '../ui/trust.tsx'
 import { JsonLd, homeLd } from '../ui/json-ld.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
-import { isConfigured } from '@/lib/sources/oauth.ts'
+import type { LandingSource } from '@/lib/site/dict.ts'
 
 /** A spread of fields for the browse card, so it does not show six kinds of computing. */
 const SAMPLE_FIELDS = ['psychology', 'medicine', 'computer-science', 'law', 'architecture', 'biology']
@@ -32,8 +32,31 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
   const own = country ? meta?.byCountry?.[country] : undefined
   const programmes = local ? (own?.programmes ?? 0) : (meta?.totals.programmes ?? 0)
   const institutions = local ? (own?.institutions ?? 0) : (meta?.totals.institutions ?? 0)
-  // Reddit only once this deployment has an approved Reddit app, as on the start page.
-  const sources = t.landing.sources.filter((s) => s.id !== 'reddit' || isConfigured('reddit'))
+  const sources = t.landing.sources.filter((s) => s.id !== 'questionnaire')
+  const sourceCard = (s: LandingSource) => (
+    <div key={s.id} className="card card-pop flex flex-col overflow-hidden">
+      <div className={`${s.badge === 'optional' ? '' : 'on-color '}flex items-center justify-between gap-3 border-b-2 border-line px-6 py-4`} style={{ background: `var(--${s.color})` }}>
+        <span className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl border-2 border-line bg-surface text-xl text-ink" aria-hidden="true">
+            {s.glyph}
+          </span>
+          <span className="font-display text-2xl">{s.name}</span>
+        </span>
+        {s.badge === 'best' && <span className="rounded-full border-2 border-line bg-surface px-2.5 py-0.5 text-xs font-extrabold text-ink">{t.start.best}</span>}
+        {s.badge === 'optional' && <span className="rounded-full border-2 border-soft-line px-2.5 py-0.5 text-xs font-semibold text-muted">{t.start.optional}</span>}
+      </div>
+      <div className="flex flex-1 flex-col p-6">
+        <p className="font-semibold">{s.how}</p>
+        <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{s.what}</p>
+        {s.id === 'takeout' ? (
+          <div className="mt-5 flex flex-wrap gap-3">
+            <a href="https://takeout.google.com/settings/takeout/custom/my_activity" target="_blank" rel="noreferrer" className="btn btn-ink btn-sm">{t.start.request.activity} ↗</a>
+            <Link href={`${r.start}#${r.anchors.sources}`} className="btn btn-ghost btn-sm">{t.start.fileReady} →</Link>
+          </div>
+        ) : <span className="chip mt-5 self-start">{s.n}</span>}
+      </div>
+    </div>
+  )
 
   return (
     <>
@@ -175,27 +198,17 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
           <h2 className="font-display text-4xl sm:text-5xl">{t.landing.sourcesTitle}</h2>
           <p className="mt-4 text-lg text-muted">{t.landing.sourcesSub}</p>
         </div>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {sources.map((s, i) => (
-            <div key={s.id} className={`card card-pop flex flex-col overflow-hidden ${i === sources.length - 1 && sources.length % 3 === 1 ? 'sm:col-span-2 lg:col-span-1 lg:col-start-2' : ''}`}>
-              <div className={`${s.badge === 'optional' ? '' : 'on-color '}flex items-center justify-between gap-3 border-b-2 border-line px-6 py-4`} style={{ background: `var(--${s.color})` }}>
-                <span className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl border-2 border-line bg-surface text-xl text-ink" aria-hidden="true">
-                    {s.glyph}
-                  </span>
-                  <span className="font-display text-2xl">{s.name}</span>
-                </span>
-                {s.badge === 'best' && <span className="rounded-full border-2 border-line bg-surface px-2.5 py-0.5 text-xs font-extrabold text-ink">{t.start.best}</span>}
-                {s.badge === 'optional' && <span className="rounded-full border-2 border-soft-line px-2.5 py-0.5 text-xs font-semibold text-muted">{t.start.optional}</span>}
-              </div>
-              <div className="flex flex-1 flex-col p-6">
-                <p className="font-semibold">{s.how}</p>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{s.what}</p>
-                <span className="chip mt-5 self-start">{s.n}</span>
-              </div>
-            </div>
-          ))}
+        <div className="mt-10">
+          {sources.filter((s) => s.id === 'takeout').map(sourceCard)}
         </div>
+        <details className="mt-4 text-xs text-muted">
+          <summary className="w-fit cursor-pointer py-2 underline-offset-4 hover:underline">{t.start.optionalSources}</summary>
+          <p className="mt-3">{t.start.optionalYoutube}</p>
+          <a href="https://takeout.google.com/settings/takeout/custom/youtube" target="_blank" rel="noreferrer" className="mt-2 inline-block font-semibold underline">{t.start.request.youtube} ↗</a>
+          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {sources.filter((s) => s.id !== 'takeout').map(sourceCard)}
+          </div>
+        </details>
       </section>
 
       {local && country && <SchoolTypes k={k} country={country} counts={own?.byType ?? {}} />}

@@ -35,7 +35,7 @@ export function PrefsForm() {
   if (!mounted) return <div className="card animate-soft h-[26rem]" aria-busy="true" />
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_1.4fr]">
+    <div className="grid items-start gap-5 lg:grid-cols-[1fr_1.4fr]">
       <div className="card grid content-start gap-5 p-6">
         <Field label={t.prefs.level}>
           <Segmented
@@ -74,9 +74,24 @@ export function PrefsForm() {
         </label>
       </div>
 
-      <div className="card p-6">
-        <div className="flex items-baseline justify-between gap-3">
-          <span className="font-display text-xl">{t.prefs.where}</span>
+      <details className="card group min-w-0 p-6">
+        <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+          <span className="min-w-0">
+            <span className="block font-display text-xl">{t.prefs.where}</span>
+            <span className="mt-1 block text-sm text-muted">
+              {prefs.countries.length > 3
+                ? t.prefs.selectedCountries(prefs.countries.length)
+                : prefs.countries.length
+                  ? prefs.countries.map((cc) => `${flag(cc)} ${name(cc)}`).join(' · ')
+                  : t.prefs.anywhere}
+            </span>
+          </span>
+          <span className="flex items-center gap-2 text-sm font-bold text-accent">
+            {t.prefs.changeCountries}
+            <span aria-hidden="true" className="transition-transform group-open:rotate-180">⌄</span>
+          </span>
+        </summary>
+        <div className="mt-4 flex justify-end border-t border-line pt-4">
           <button type="button" className="text-sm font-semibold text-muted hover:text-ink" onClick={() => set({ countries: [] })}>
             {prefs.countries.length ? t.prefs.clear(prefs.countries.length) : t.prefs.anywhere}
           </button>
@@ -113,7 +128,7 @@ export function PrefsForm() {
             </Chip>
           ))}
         </div>
-      </div>
+      </details>
     </div>
   )
 }

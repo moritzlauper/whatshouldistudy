@@ -32,7 +32,7 @@ export type ProgrammeCompare =
   | { status: 'failed'; limit?: 'budget' | 'daily' }
 
 /** Version of the key below. A comparison stored under another version was made by an older app, and no list accepts it. */
-const KEY_VERSION = 3
+const KEY_VERSION = 4
 
 /**
  * What a rating is based on: the questionnaire answers, the field of study and each imported source with its

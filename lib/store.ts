@@ -11,7 +11,7 @@ import { isCurrentProgress, type ContentProgress } from './engine/content-analys
 /**
  * Summaries and settings live in this browser's localStorage: the
  * per-source summaries (aggregates, never raw history), questionnaire answers,
- * preferences and the unlock token. Parsed YouTube exports for the optional
+ * preferences and the unlock token. Parsed Google activity and YouTube exports for the optional
  * AI step live separately in IndexedDB. "Delete my data" wipes both.
  */
 
@@ -21,7 +21,7 @@ export interface State {
   /** Identifies the current YouTube import in this site's local IndexedDB record. */
   contentImportId?: string
   /** Optional semantic summary; the original stays available when switched off. */
-  contentAnalysis?: { baseCollectedAt: string; summary: SourceSummary; enabled: boolean; provider?: 'infomaniak'; compare?: ProgrammeCompare }
+  contentAnalysis?: { baseCollectedAt: string; summary: SourceSummary; google?: { baseCollectedAt: string; summary: SourceSummary }; enabled: boolean; provider?: 'infomaniak'; compare?: ProgrammeCompare }
   summaries: Partial<Record<SourceId, SourceSummary>>
   answers: QuestionnaireAnswers
   prefs: Preferences
@@ -98,11 +98,23 @@ export function setSummary(s: SourceSummary, contentInput?: ContentAnalysisInput
   const contentImportId = s.source === 'takeout' && contentInput ? crypto.randomUUID() : undefined
   const saved = s.source === 'takeout' ? saveContentInput(KEY, contentImportId && contentInput ? { id: contentImportId, input: contentInput } : null) : Promise.resolve()
   update((st) => ({ ...st, summaries: { ...st.summaries, [s.source]: s }, ...(s.source === 'takeout' ? { contentAnalysis: undefined, contentImportId } : {}) }))
+  // A separately imported News file can supplement an existing YouTube import.
+  if (s.source === 'google-search' && contentInput?.google) {
+    const existing = getState()
+    if (existing.contentImportId && existing.summaries.takeout) return readContentInput(KEY, existing.contentImportId).then(async input => {
+      if (!input || input.google?.collectedAt === contentInput.google!.collectedAt || getState().contentImportId !== existing.contentImportId) return
+      const id = crypto.randomUUID()
+      await saveContentInput(KEY, { id, input: { ...input, google: contentInput.google } })
+      if (getState().contentImportId === existing.contentImportId) update(st => ({ ...st, contentImportId: id, contentAnalysis: undefined }))
+    })
+  }
   return saved
 }
 
-export function loadContentInput(state: State): Promise<ContentAnalysisInput | null> {
-  return state.summaries.takeout && state.contentImportId ? readContentInput(KEY, state.contentImportId) : Promise.resolve(null)
+export async function loadContentInput(state: State): Promise<ContentAnalysisInput | null> {
+  const input = state.summaries.takeout && state.contentImportId ? await readContentInput(KEY, state.contentImportId) : null
+  // Replacing or removing the Google source must not send titles from the old source.
+  return input?.google && input.google.collectedAt !== state.summaries['google-search']?.collectedAt ? { ...input, google: undefined } : input
 }
 
 /** The unfinished run of the current import. A run from another import, version or an older save is removed. */
@@ -137,16 +149,24 @@ export function discardCompareRows(): Promise<void> {
 
 export function effectiveSummaries(state: State): SourceSummary[] {
   const ai = state.contentAnalysis
+  const active = ai?.enabled && ai.baseCollectedAt === state.summaries.takeout?.collectedAt
   return (Object.values(state.summaries).filter(Boolean) as SourceSummary[]).map((s) =>
-    s.source === 'takeout' && ai?.enabled && ai.baseCollectedAt === s.collectedAt ? ai.summary : s)
+    active && s.source === 'takeout' ? ai!.summary
+      : active && s.source === 'google-search' && ai!.google?.baseCollectedAt === s.collectedAt ? ai!.google.summary : s)
 }
 
 export function removeSummary(id: SourceId): void {
+  if (id === 'google-search') {
+    const importId = getState().contentImportId
+    if (importId) void readContentInput(KEY, importId).then(input => {
+      if (input?.google && getState().contentImportId === importId) return saveContentInput(KEY, { id: importId, input: { ...input, google: undefined } })
+    })
+  }
   if (id === 'takeout') void saveContentInput(KEY, null)
   update((st) => {
     const summaries = { ...st.summaries }
     delete summaries[id]
-    return { ...st, summaries, ...(id === 'takeout' ? { contentAnalysis: undefined, contentImportId: undefined } : {}) }
+    return { ...st, summaries, ...(id === 'takeout' ? { contentAnalysis: undefined, contentImportId: undefined } : {}), ...(id === 'google-search' && st.contentAnalysis ? { contentAnalysis: { ...st.contentAnalysis, google: undefined } } : {}) }
   })
 }
 

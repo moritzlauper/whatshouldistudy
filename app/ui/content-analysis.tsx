@@ -29,7 +29,8 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
   const hasAnalysis = !!ai
   const sampled = Number(ai?.summary.stats.aiItems ?? 0)
   // After the standard sample, the panel can classify more titles, up to CONTENT_MAX.
-  const canExpand = !!ai && sampled < CONTENT_MAX && Number(ai.summary.stats.aiEligible ?? 0) > sampled
+  const expandable = Number(ai?.summary.stats.aiExpandable ?? ai?.summary.stats.aiEligible ?? 0)
+  const canExpand = !!ai && sampled < CONTENT_MAX && expandable > sampled
   const [prepared, setPrepared] = useState<{ base: typeof base; plan: Prepared } | null>(null)
   // The unfinished run of this import, kept in this browser after every answered group.
   const [saved, setSaved] = useState<{ base: typeof base; progress: ContentProgress } | null>(null)
@@ -68,7 +69,7 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
       }).finally(() => { if (!task.signal.aborted) setStatus('idle') })
     }
     return () => { task.abort(); active.current?.abort() }
-  }, [base, importId, hasAnalysis, token, a.failed])
+  }, [base, importId, hasAnalysis, token, a.failed, state.summaries['google-search']])
 
   // Up to CONTENT_MAX titles from this browser's import, with the same consent as the standard sample.
   async function expand() {
@@ -103,7 +104,7 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
   async function analyse() {
     if (!base || !importId || !plan?.items.length || status !== 'idle' || sending.current) return
     // A double click, replacement or deletion cannot start another batch.
-    if (getState().summaries.takeout !== base) return
+    if (getState().summaries.takeout !== base || (wide && plan.googleBaseCollectedAt !== getState().summaries['google-search']?.collectedAt && plan.items.some(it => it.kind === 'read'))) return
     active.current?.abort()
     const task = new AbortController()
     active.current = task
@@ -141,10 +142,11 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
         return
       }
       const summary = plan.apply(verdicts)
+      const googleSummary = plan.googleBaseCollectedAt === getState().summaries['google-search']?.collectedAt ? plan.applyGoogle(verdicts) : undefined
       // A budget that ended the run early is stored with the result, so the note survives a reload.
       summary.stats.aiLimited = result.limited ? 1 : 0
       update((s) => s.summaries.takeout !== base ? s : {
-        ...s, contentAnalysis: { baseCollectedAt: base.collectedAt, summary, enabled: true, provider: 'infomaniak', compare: { status: 'pending' } },
+        ...s, contentAnalysis: { baseCollectedAt: base.collectedAt, summary, ...(googleSummary ? { google: { baseCollectedAt: plan.googleBaseCollectedAt!, summary: googleSummary } } : {}), enabled: true, provider: 'infomaniak', compare: { status: 'pending' } },
       })
       setWide(false)
     } catch (e) {
@@ -172,7 +174,7 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
       {comparison && <ContentAnalysisChanges comparison={comparison} />}
       {programmes && <ProgrammeChanges input={programmes} token={token} />}
       <div className="flex flex-wrap gap-2">
-        {canExpand && <button type="button" className="btn btn-ghost btn-sm max-w-full whitespace-normal text-left" disabled={status !== 'idle'} onClick={() => void expand()}>{unfinished ? a.resumeMore(unfinished.verdicts.length, unfinished.total) : a.more(Math.min(CONTENT_MAX, Number(ai.summary.stats.aiEligible ?? 0)))}</button>}
+        {canExpand && <button type="button" className="btn btn-ghost btn-sm max-w-full whitespace-normal text-left" disabled={status !== 'idle'} onClick={() => void expand()}>{unfinished ? a.resumeMore(unfinished.verdicts.length, unfinished.total) : a.more(Math.min(CONTENT_MAX, expandable))}</button>}
         <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => update((s) => ({ ...s, contentAnalysis: s.contentAnalysis ? { ...s.contentAnalysis, enabled: !s.contentAnalysis.enabled } : undefined }))}>{ai.enabled ? a.disable : a.enable}</button>
         <button type="button" className="btn btn-ghost btn-sm" disabled={status !== 'idle'} onClick={() => { discard(); void discardCompareRows(); update((s) => ({ ...s, contentAnalysis: undefined })) }}>{a.remove}</button>
       </div>
@@ -187,10 +189,11 @@ export function ContentAnalysisPanel({ token, comparison, programmes }: { token:
       <p className="text-muted">{a.contextNote}</p>
       <details><summary className="cursor-pointer font-bold">{a.preview}</summary>
         <ul className="mt-2 max-h-64 space-y-2 overflow-auto break-words text-xs">{plan.items.map((it) => <li key={it.id}>
-          <strong>{t.results.kinds[it.kind] ?? a.channel}: {it.title}</strong>{it.channel && ` · ${it.channel}`}
+          <strong>{it.kind === 'read' ? a.article : t.results.kinds[it.kind] ?? a.channel}: {it.title}</strong>{it.channel && ` · ${it.channel}`}
           {it.context.length > 0 && <p className="text-muted">{it.context.join(' · ')}</p>}
         </li>)}</ul>
       </details>
+      {wide && <p>{a.newsMaximum}</p>}
       <p>{a.consent}</p>
       <p>{t.landing.swissAi.retention}</p>
       {wide && <p className="text-muted">{a.moreHint}</p>}

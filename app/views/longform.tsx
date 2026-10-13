@@ -119,7 +119,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
         <h2>3. Tes réponses complètent l’analyse</h2>
         <ul>
           <li><strong>Intérêts :</strong> le modèle RIASEC de John Holland décrit six types d’intérêts. Le questionnaire et les thèmes de ton historique contribuent à ton profil.</li>
-          <li><strong>Personnalité :</strong> le Mini-IPIP de Donnellan et ses collègues (2006) contient 20 questions issues de l’International Personality Item Pool. Les 20 réponses sont requises pour consulter ton résultat. Cette partie ne modifie pas le classement des domaines en mode questionnaire ; elle ajoute un profil de personnalité et peut contribuer à la comparaison facultative par IA.</li>
+          <li><strong>Personnalité :</strong> le Mini-IPIP de Donnellan et ses collègues (2006) contient 20 questions issues de l’International Personality Item Pool. Cette partie est facultative ; tu peux consulter ton résultat sans y répondre. Cette partie ne modifie pas le classement des domaines en mode questionnaire ; elle ajoute un profil de personnalité et peut contribuer à la comparaison facultative par IA.</li>
           <li><strong>Matières et priorités :</strong> tes matières préférées, tes points forts et ce que tu recherches dans un métier sont comparés aux contenus des domaines.</li>
         </ul>
         <h2>4. Ce que le résultat ne dit pas</h2>
@@ -153,7 +153,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
         <h2>3. Le tue risposte completano l’analisi</h2>
         <ul>
           <li><strong>Interessi:</strong> il modello RIASEC di John Holland descrive sei tipi di interesse. Al profilo contribuiscono il questionario e i temi della tua cronologia.</li>
-          <li><strong>Personalità:</strong> il Mini-IPIP di Donnellan e colleghi (2006) contiene 20 domande tratte dall’International Personality Item Pool. Tutte le 20 risposte sono obbligatorie per vedere il risultato. Questa parte non cambia la classifica delle aree in modalità questionario; aggiunge un profilo di personalità e può contribuire al confronto facoltativo tramite IA.</li>
+          <li><strong>Personalità:</strong> il Mini-IPIP di Donnellan e colleghi (2006) contiene 20 domande tratte dall’International Personality Item Pool. Questa parte è facoltativa; puoi vedere il risultato senza rispondere. Questa parte non cambia la classifica delle aree in modalità questionario; aggiunge un profilo di personalità e può contribuire al confronto facoltativo tramite IA.</li>
           <li><strong>Materie e priorità:</strong> confrontiamo le materie che ti piacciono, i tuoi punti di forza e ciò che cerchi in un lavoro con i contenuti delle aree.</li>
         </ul>
         <h2>4. Cosa non indica il risultato</h2>
@@ -323,7 +323,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
           <strong>Interests (RIASEC):</strong> John Holland’s six interest types (Realistic, Investigative, Artistic, Social, Enterprising, Conventional) underpin most career guidance. Every field has a RIASEC profile; yours comes from 24 activity questions and from the fields you engage with. Congruence between the two is one of the best-replicated predictors of satisfaction and persistence in a major.
         </li>
         <li>
-          <strong>Personality (Big Five):</strong> the Mini-IPIP (Donnellan et al., 2006), a validated 20-item public-domain scale. All 20 responses are required to view your result. This part does not change the field ranking in questionnaire mode. It adds a personality profile to the result and can inform the optional AI comparison. Without the questionnaire, music taste gives a weak estimate, clearly labelled as such.
+          <strong>Personality (Big Five):</strong> the Mini-IPIP (Donnellan et al., 2006), a validated 20-item public-domain scale. This part is optional; you can view your result without answering it. This part does not change the field ranking in questionnaire mode. It adds a personality profile to the result and can inform the optional AI comparison. Without the questionnaire, music taste gives a weak estimate, clearly labelled as such.
         </li>
         <li>
           <strong>School subjects and values:</strong> what you enjoy and are good at, and what you want from work (salary, security, creativity, helping, impact), compared with what each field draws on and offers. For salary, US graduate earnings data is mixed in.

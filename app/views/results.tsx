@@ -7,7 +7,7 @@ import { effectiveSummaries, useAppState } from '@/lib/store.ts'
 import { decodeSnapshot, encodeSnapshot, sharedParam } from '@/lib/share.ts'
 import type { Snapshot } from '@/lib/share.ts'
 import { score, sourceProfile } from '@/lib/engine/scoring.ts'
-import { BIG5_ITEMS, big5Answered, resultsReady } from '@/lib/engine/questionnaire.ts'
+import { resultsReady } from '@/lib/engine/questionnaire.ts'
 import { userTopics } from '@/lib/engine/topics.ts'
 import { SUMMARY_VERSION } from '@/lib/engine/accumulate.ts'
 import type { FieldMatch, Preferences, Results, SourceSummary } from '@/lib/engine/types.ts'
@@ -118,12 +118,11 @@ export function ResultsView() {
 
   const hasInput = isShared || resultsReady(state.answers, summaries.length)
   if (!hasInput) {
-    const personalityRemaining = BIG5_ITEMS.length - big5Answered(state.answers)
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
         <Burst className="mx-auto" size={90} />
         <h1 className="mt-6 font-display text-5xl">{t.results.nothingTitle}</h1>
-        <p className="mt-4 text-lg text-muted">{personalityRemaining ? t.start.needPersonality(personalityRemaining) : t.results.nothingText}</p>
+        <p className="mt-4 text-lg text-muted">{t.results.nothingText}</p>
         <Link href={`${r.start}#${r.anchors.questionnaire}`} className="btn btn-primary btn-lg mt-8">
           {t.misc.start}
         </Link>

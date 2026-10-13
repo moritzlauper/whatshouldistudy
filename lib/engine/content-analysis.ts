@@ -1,12 +1,13 @@
 import { FIELD_BY_ID } from '../taxonomy/fields.ts'
-import { isStudyInfo } from './text.ts'
+import { isStudyInfo, usableContentTitle } from './text.ts'
+import { activityAgeWeight } from './recency.ts'
 import type { SignalItem } from './types.ts'
 
 export const CONTENT_SAMPLE = 240
 /** The most titles one run classifies. */
 export const CONTENT_MAX = 1000
 /** Bump when contentPlan or the grouping changes: an unfinished run made with another version is not continued. */
-export const CONTENT_RUN_VERSION = 2
+export const CONTENT_RUN_VERSION = 4
 /** An unfinished run is kept for this many days after its last saved group. */
 export const CONTENT_PROGRESS_DAYS = 7
 /** Titles per request: small enough to finish well inside the server's time limit, and one bad answer costs only its own group. */
@@ -17,7 +18,7 @@ export const CONTENT_PARALLEL = 4
 /** Only user-supplied export titles. No API metadata, URLs, account IDs or dates. */
 export interface ContentItem {
   id: string
-  kind: 'watch' | 'subscription' | 'channel'
+  kind: 'watch' | 'subscription' | 'channel' | 'read'
   title: string
   channel: string
   context: string[]
@@ -58,8 +59,10 @@ const groupOf = (it: SignalItem) => it.group ?? it.label
 
 /** A bounded, channel-balanced sample of up to `size` titles; repetition and dates remain in the browser. */
 export function contentPlan(items: readonly SignalItem[], now = Date.now(), size = CONTENT_SAMPLE) {
-  const eligible = items.filter((it) => (it.kind === 'watch' || it.kind === 'subscription') && !it.isMusic &&
-    !(it.studyInfo ?? isStudyInfo(it.text, it.kind)) && (!it.time || now - it.time < 6 * 365.25 * 864e5))
+  const eligible = items.filter((it) => (it.kind === 'watch' || it.kind === 'subscription' || (size >= CONTENT_MAX && it.kind === 'read')) && !it.isMusic &&
+    (it.kind === 'subscription' || usableContentTitle(it.text)) &&
+    !(it.studyInfo ?? isStudyInfo(it.text, it.kind)) && (!it.time || activityAgeWeight(new Date(it.time).getFullYear(), new Date(now).getFullYear()) > 0))
+  const eligibleSet = new Set(eligible)
   const seen = new Set<string>()
   const unique = [...eligible].sort((a, b) => (b.time ?? 0) - (a.time ?? 0)).filter((it) => {
     const key = keyOf(it)
@@ -82,8 +85,10 @@ export function contentPlan(items: readonly SignalItem[], now = Date.now(), size
   const channels: SignalItem[] = [...groups].filter(([group, list]) => list.length >= 2 && clean(list[0].text.split('\n')[1] ?? '') && !subscribedGroups.has(group))
     .sort((a, b) => b[1].length - a[1].length).slice(0, 60)
     .map(([group, list]) => ({ kind: 'channel', group, text: list[0].text.split('\n')[1] ?? list[0].label, label: list[0].label, weight: 0 }))
+  // News is supplementary: only in the maximum run, at most one fifth of its slots.
+  const news = unique.filter((it) => it.kind === 'read').slice(0, Math.floor(size / 5))
   const selected: SignalItem[] = []
-  const watchLimit = size - subscriptions.length - channels.length
+  const watchLimit = size - subscriptions.length - channels.length - news.length
   for (let round = 0; selected.length < watchLimit; round++) {
     let added = false
     for (const list of groups.values()) {
@@ -92,12 +97,12 @@ export function contentPlan(items: readonly SignalItem[], now = Date.now(), size
     }
     if (!added) break
   }
-  selected.push(...subscriptions, ...channels)
+  selected.push(...subscriptions, ...channels, ...news)
   const sample: ContentItem[] = selected.map((it, i) => ({
     id: String(i), kind: it.kind as ContentItem['kind'],
     title: clean(it.text.split('\n')[0]),
-    channel: clean(it.kind === 'watch' ? it.text.split('\n')[1] ?? it.label : it.label),
-    context: (groups.get(groupOf(it)) ?? []).filter((other) => other !== it).slice(0, 4).map((other) => clean(other.text.split('\n')[0])),
+    channel: it.kind === 'read' ? '' : clean(it.kind === 'watch' ? it.text.split('\n')[1] ?? it.label : it.label),
+    context: it.kind === 'read' ? [] : (groups.get(groupOf(it)) ?? []).filter((other) => other !== it).slice(0, 4).map((other) => clean(other.text.split('\n')[0])),
   }))
   return {
     items: sample,
@@ -107,7 +112,7 @@ export function contentPlan(items: readonly SignalItem[], now = Date.now(), size
       const meanings = new Map(validated.map((v) => [keyOf(selected[Number(v.id)]), { fields: v.fields, reason: v.reason }]))
       const channelMeanings = new Map(validated.filter((v) => ['subscription', 'channel'].includes(selected[Number(v.id)].kind))
         .map((v) => [groupOf(selected[Number(v.id)]), { fields: v.fields, reason: v.reason }]))
-      return items.map((it) => meanings.has(keyOf(it)) ? { ...it, meaning: meanings.get(keyOf(it))! }
+      return items.map((it) => !eligibleSet.has(it) ? it : meanings.has(keyOf(it)) ? { ...it, meaning: meanings.get(keyOf(it))! }
         : it.kind === 'watch' && channelMeanings.has(groupOf(it)) ? { ...it, contextMeaning: channelMeanings.get(groupOf(it))! } : it)
     },
   }
@@ -212,7 +217,7 @@ export function contentRequest(raw: unknown): ContentItem[] | null {
   if (!Array.isArray(raw) || !raw.length || raw.length > CONTENT_BATCH) return null
   const out: ContentItem[] = []
   for (const x of raw) {
-    if (!x || typeof x.id !== 'string' || !/^\d{1,4}$/.test(x.id) || !['watch', 'subscription', 'channel'].includes(x.kind) || typeof x.title !== 'string' || typeof x.channel !== 'string' || !Array.isArray(x.context) || x.context.length > 4 || x.context.some((t: unknown) => typeof t !== 'string')) return null
+    if (!x || typeof x.id !== 'string' || !/^\d{1,4}$/.test(x.id) || !['watch', 'subscription', 'channel', 'read'].includes(x.kind) || typeof x.title !== 'string' || typeof x.channel !== 'string' || !Array.isArray(x.context) || x.context.length > 4 || x.context.some((t: unknown) => typeof t !== 'string')) return null
     const title = clean(x.title)
     if (!title) return null
     out.push({ id: x.id, kind: x.kind, title, channel: clean(x.channel), context: x.context.map(clean) })

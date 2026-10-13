@@ -5,6 +5,7 @@ import { careless, profileShape, riasecCode, riasecCompleteness, scoreBig5, scor
 import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, SourceId, SourceSummary, Studying } from './types.ts'
 import { isGenericTopic } from './classifier.ts'
 import { isStudyInfo } from './text.ts'
+import { activityAgeWeight } from './recency.ts'
 
 /**
  * The matching model. Five components per field, each in 0..1:
@@ -34,10 +35,10 @@ import { isStudyInfo } from './text.ts'
  * with low confidence.
  */
 
-// What you seek out and make yourself (posts, repositories, searches) says more than a feed a platform fills for you.
+// Product weights: YouTube leads My Activity; situational Google searches and News remain supplementary.
 export const SOURCE_RELIABILITY: Record<SourceId, number> = {
   takeout: 0.85,
-  'google-search': 0.5,
+  'google-search': 0.15,
   youtube: 0.75,
   reddit: 1,
   github: 1,
@@ -79,15 +80,11 @@ function fieldShare(s: SourceSummary, id: string, studying?: Studying): number {
 }
 
 /**
- * How much an activity from a given year still says about you. The last two
- * years count in full; a comment from ten years ago says nothing about who you
- * are now. Subscriptions you still keep never drop to zero.
+ * Current interests: halve the weight every two calendar years; six-year-old
+ * activity stays in the historical timeline but no longer affects matching.
  */
-export function ageWeight(year: number, source: SourceId, now = new Date().getFullYear()): number {
-  const d = now - year
-  if (!Number.isFinite(d) || d < -1 || year < 2004) return 0
-  const w = d <= 1 ? 1 : d <= 4 ? 1 - 0.15 * (d - 1) : d <= 7 ? 0.4 - 0.1 * (d - 5) : 0
-  return source === 'youtube' ? Math.max(w, 0.15) : w
+export function ageWeight(year: number, _source: SourceId, now = new Date().getFullYear()): number {
+  return activityAgeWeight(year, now)
 }
 
 /** What a source keeps of a degree's coursework: Google is mostly looking things up for it. */
@@ -160,7 +157,7 @@ export function computeInterest(summaries: SourceSummary[], studying?: Studying)
   let weightSum = 0
   const perSource: Array<{ s: SourceSummary; w: number }> = []
   for (const s of summaries) {
-    if (s.totalWeight <= 0) continue
+    if (s.totalWeight <= 0 || !Object.keys(s.fields).some((id) => effectiveScore(s, id, studying) > 1e-6)) continue
     const volume = Math.min(1, Math.log10(1 + s.dataPoints) / 3)
     const w = (SOURCE_RELIABILITY[s.source] ?? 0.7) * volume
     perSource.push({ s, w })
@@ -184,7 +181,8 @@ export function computeInterest(summaries: SourceSummary[], studying?: Studying)
       const shrink = n / (n + 4)
       let factor = 0.9
       if (s.span && s.span.months >= 3 && ev) {
-        const pers = Math.min(1, ev.months.length / Math.min(12, s.span.months))
+        const months = ev.months.reduce((sum, month) => sum + ageWeight(Number(month.slice(0, 4)), s.source), 0)
+        const pers = Math.min(1, months / Math.min(12, s.span.months))
         factor = 0.65 + 0.35 * pers
         persSum += pers * w
         persW += w

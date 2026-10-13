@@ -1,7 +1,7 @@
 import { Unzip, UnzipInflate } from 'fflate'
 import { accumulate } from '../engine/accumulate.ts'
-import { CONTENT_SAMPLE, contentPlan, type ContentVerdict } from '../engine/content-analysis.ts'
-import { STUDY_INTENT, isStudyInfo, truncate } from '../engine/text.ts'
+import { CONTENT_MAX, CONTENT_SAMPLE, contentPlan, type ContentVerdict } from '../engine/content-analysis.ts'
+import { STUDY_INTENT, isStudyInfo, truncate, usableContentTitle } from '../engine/text.ts'
 import type { SignalItem, SourceSummary } from '../engine/types.ts'
 import { videoSignal } from './youtube.ts'
 import type { ChannelInfo, VideoResource } from './youtube.ts'
@@ -33,7 +33,7 @@ import type { SocialCollected } from './social-exports.ts'
  */
 
 export interface ExportResult {
-  /** Parsed YouTube export data kept locally for the optional AI step. No API enrichment. */
+  /** Parsed Google activity and YouTube export data kept locally for the optional AI step. No API enrichment. */
   contentInput?: ContentAnalysisInput
   /** Explicit export-only AI step; the original titles never include API enrichment. */
   contentAnalysis: () => { items: ReturnType<typeof contentPlan>['items']; eligible: number; apply: (verdicts: ContentVerdict[]) => SourceSummary }
@@ -56,15 +56,32 @@ export interface ContentAnalysisInput {
   items: SignalItem[]
   otherItems: SignalItem[]
   stats: SourceSummary['stats']
+  /** Local supporting activity; only readable News titles enter the maximum AI selection. */
+  google?: { items: SignalItem[]; stats: SourceSummary['stats']; collectedAt: string }
 }
 
 export function prepareContentAnalysis(input: ContentAnalysisInput, size = CONTENT_SAMPLE, now = Date.now()) {
-  const plan = contentPlan(input.items, now, size)
+  const news = input.google?.items.filter(it => it.kind === 'read') ?? []
+  const combined = [...input.items, ...news]
+  const plan = contentPlan(combined, now, size)
+  const expandable = size >= CONTENT_MAX ? plan.items.length : contentPlan(combined, now, CONTENT_MAX).items.length
   // The time is kept with an unfinished run, so the same plan can be rebuilt from it.
-  return { items: plan.items, eligible: plan.eligible, size, now, apply: (verdicts: ContentVerdict[]) => accumulate(
-    [...plan.apply(verdicts), ...input.otherItems],
-    { source: 'takeout', label: 'Google Takeout', stats: { ...input.stats, aiItems: plan.items.length, aiEligible: plan.eligible, aiClassified: verdicts.length } },
-  ) }
+  return {
+    items: plan.items, eligible: plan.eligible, size, now,
+    googleBaseCollectedAt: input.google?.collectedAt,
+    apply: (verdicts: ContentVerdict[]) => accumulate(
+      [...plan.apply(verdicts).slice(0, input.items.length), ...input.otherItems],
+      { source: 'takeout', label: 'Google Takeout', stats: { ...input.stats, aiItems: plan.items.length, aiEligible: plan.eligible, aiExpandable: expandable, aiClassified: verdicts.length } },
+    ),
+    applyGoogle: (verdicts: ContentVerdict[]): SourceSummary | undefined => {
+      if (!input.google || !plan.items.some(it => it.kind === 'read' && verdicts.some(v => v.id === it.id))) return undefined
+      const interpreted = plan.apply(verdicts).slice(input.items.length)
+      const meanings = new Map(news.map((it, i) => [it, interpreted[i]]))
+      return accumulate(input.google.items.map(it => meanings.get(it) ?? it), {
+        source: 'google-search', label: 'Google activity', stats: input.google.stats,
+      })
+    },
+  }
 }
 
 const videoId = (url?: string) => /[?&]v=([\w-]{6,})/.exec(url ?? '')?.[1]
@@ -204,14 +221,16 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
   if (a.details?.some((d) => /ads/i.test(d.name ?? ''))) return null
   // Google's own «Why is this here?» and settings links.
   if (/^https?:\/\/(myaccount|policies|support)\.google\./.test(url)) return null
-  const isYouTube = /youtube\.com|youtu\.be/.test(url) || /youtube/i.test(a.header ?? '')
+  const product = a.header || a.products?.[0] || ''
+  // A News click linking to YouTube is still a News entry, not a watched video.
+  const isYouTube = !/news|discover|nachrichten|actualités/i.test(product) && (/youtube\.com|youtu\.be/.test(url) || /youtube/i.test(product))
 
   if (isYouTube && /\/watch\?v=/.test(url)) {
+    const title = (a.title ?? '').replace(WATCH_PREFIX, '').replace(WATCH_SUFFIX, '').trim()
+    if (!usableContentTitle(title)) return null
     const key = `${/v=([\w-]+)/.exec(url)?.[1] ?? url}|${time ? Math.round(time / 60000) : ''}`
     if (c.seenWatch.has(key)) return null
     c.seenWatch.add(key)
-    const title = (a.title ?? '').replace(WATCH_PREFIX, '').replace(WATCH_SUFFIX, '').trim()
-    if (!title || title.startsWith('https://')) return null
     const channel = a.subtitles?.[0]?.name ?? ''
     const channelId = channelIdFromUrl(a.subtitles?.[0]?.url)
     const group = channelId ?? channel
@@ -241,7 +260,6 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
     c.youtubeSearch.push({ kind: 'search', text: q, label: `«${truncate(q, 140)}»`, weight: 0.6, time })
     return 'search'
   }
-  const product = a.header ?? a.products?.[0] ?? ''
   if (isSearch && /google\./.test(url) && !/maps/i.test(url + product)) {
     c.googleSearch.push({ kind: 'google', text: q, label: `«${truncate(q, 140)}»`, weight: 0.4, time })
     return 'google'
@@ -250,7 +268,7 @@ function addActivity(c: Collected, a: Activity): 'watch' | 'search' | 'google' |
   const kind = otherKind(product, url)
   const title = (a.title ?? '').replace(ACTIVITY_VERB, '').trim()
   if (kind === 'visit' && TRANSACTIONAL.test(title)) return null
-  if (!kind || !title || /^https?:/.test(title) || title.length < 3) return null
+  if (!kind || !usableContentTitle(title) || title.length < 3) return null
   if (!OTHER_WEIGHT[kind]) {
     c.activityCounts[kind] = (c.activityCounts[kind] ?? 0) + 1
     return 'other'
@@ -371,7 +389,7 @@ function parseActivityHtml(c: Collected, path: string, html: string): boolean {
     const parsed = takeoutDate(texts.at(-1)?.textContent ?? '')
     // The URL tells YouTube from Google search; the folder names the product.
     const kind = addActivity(c, {
-      header: /youtube/i.test(product) ? undefined : product,
+      header: /youtube/i.test(product) ? undefined : product || undefined,
       title: first.textContent ?? '',
       titleUrl: first.href,
       subtitles: second ? [{ name: second.textContent ?? '', url: second.href }] : [],
@@ -689,14 +707,16 @@ function buildSummaries(c: Collected, channels?: Map<string, ChannelInfo>, video
         .filter((x): x is string => !!x),
     ),
   ]
+  const googleSummary = summaries.find(s => s.source === 'google-search')
   const contentInput: ContentAnalysisInput = {
     items: [...c.watch, ...subscriptions],
     otherItems: [...c.music, ...c.youtubeSearch, ...c.comments],
     stats: summaries.find((s) => s.source === 'takeout')?.stats ?? {},
+    ...(googleSummary ? { google: { items: [...c.googleSearch, ...c.activity], stats: googleSummary.stats, collectedAt: googleSummary.collectedAt } } : {}),
   }
   return {
     summaries,
-    contentInput: contentInput.items.length ? contentInput : undefined,
+    contentInput: contentInput.items.length || contentInput.google ? contentInput : undefined,
     contentAnalysis: () => prepareContentAnalysis(contentInput),
     topChannelIds,
     recentVideoIds,

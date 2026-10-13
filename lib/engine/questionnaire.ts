@@ -5,7 +5,7 @@ import type { QuestionnaireAnswers } from './types.ts'
 /**
  * The questionnaire fills in what no digital footprint shows: how someone
  * describes themselves, which school subjects they like and are good at, and
- * what they want from a career. All personality items are required for a result.
+ * what they want from a career. Personality items are optional.
  */
 
 export interface LikertItem {
@@ -207,9 +207,9 @@ export function big5Answered(a: QuestionnaireAnswers): number {
   }).length
 }
 
-/** A complete personality questionnaire plus interest scales or a data source. Shared by start and results. */
+/** Imported data or sufficient interest answers suffice; personality is optional. Shared by all result entry points. */
 export function resultsReady(a: QuestionnaireAnswers, sources: number): boolean {
-  return big5Answered(a) === BIG5_ITEMS.length && (sources > 0 || scoreRiasec(a) !== null)
+  return sources > 0 || scoreRiasec(a) !== null
 }
 
 /** Big Five z-scores, or null if fewer than half the items were answered. */

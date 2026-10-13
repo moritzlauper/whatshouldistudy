@@ -126,7 +126,7 @@ test('questionnaire quality: no filling-in, flat profiles, careless answering, o
   // A type with fewer than two answers isn't «neutral»: no profile yet.
   assert.equal(q.scoreRiasec({ riasec: { r1: 5, r2: 5, i1: 1, i2: 1, a1: 3, a2: 3, s1: 4, s2: 4, e1: 2, e2: 2, c1: 3 } }), null)
   assert.equal(q.resultsReady({ riasec: { r1: 5 } }, 0), false)
-  assert.equal(q.resultsReady({}, 1), false)
+  assert.equal(q.resultsReady({}, 1), true)
   // All threes: flat, low confidence, said so; the first places are a tie.
   const flatAnswers = { riasec: Object.fromEntries(q.RIASEC_ITEMS.map((i) => [i.id, 3])) }
   const flat = score({ summaries: [], answers: flatAnswers })
@@ -166,16 +166,20 @@ test('short questionnaire keeps retained IDs and ignores retired answers in scor
   assert.deepEqual(q.questionnaireProgress({ riasec: current }), { done: 25, total: 67 })
   const minimal = Object.fromEntries(['r1', 'r2', 'i1', 'i2', 'a1', 'a2', 's1', 's2', 'e1', 'e2', 'c1', 'c2'].map((id, n) => [id, n % 5 + 1]))
   assert.equal(q.resultsReady({ riasec: minimal, big5 }, 0), true)
+  assert.equal(q.resultsReady({ riasec: minimal }, 0), true)
   delete minimal.c2
   assert.equal(q.resultsReady({ riasec: minimal, big5 }, 0), false)
 })
 
-test('all personality answers are required for questionnaire and imported-data results', async () => {
+test('results require sufficient interests or imported data; personality is optional', async () => {
   const q = await import('../lib/engine/questionnaire.ts')
   const riasec = Object.fromEntries(q.RIASEC_ITEMS.map((i, n) => [i.id, n % 5 + 1]))
   const big5 = Object.fromEntries(q.BIG5_ITEMS.map((i, n) => [i.id, n % 5 + 1]))
-  assert.equal(q.resultsReady({ riasec }, 0), false)
-  assert.equal(q.resultsReady({ riasec }, 3), false)
+  assert.equal(q.resultsReady({ riasec }, 0), true)
+  assert.equal(q.resultsReady({}, 0), false)
+  assert.equal(q.resultsReady({}, 1), true, 'a successful import needs no questionnaire answers')
+  assert.equal(q.resultsReady({ riasec: { r1: 5 } }, 1), true, 'partial interests do not block imported data')
+  assert.equal(q.resultsReady({ riasec }, 3), true)
   assert.equal(q.resultsReady({ big5 }, 0), false, 'personality alone does not replace interests or data')
   assert.equal(q.resultsReady({ big5 }, 1), true)
   assert.equal(q.resultsReady({ riasec, big5 }, 0), true)
@@ -183,13 +187,14 @@ test('all personality answers are required for questionnaire and imported-data r
     const partial = { ...big5 }
     delete partial[item.id]
     assert.equal(q.big5Answered({ big5: partial }), 19)
-    assert.equal(q.resultsReady({ riasec, big5: partial }, 0), false)
-    assert.equal(q.resultsReady({ big5: partial }, 3), false)
+    assert.equal(q.resultsReady({ riasec, big5: partial }, 0), true)
+    assert.equal(q.resultsReady({ big5: partial }, 3), true)
   }
   for (const invalid of [0, 6, 1.5, NaN, Infinity]) {
     const invalidAnswers = { big5: { ...big5, b1: invalid, retired: 3 } }
     assert.equal(q.big5Answered(invalidAnswers), 19)
-    assert.equal(q.resultsReady(invalidAnswers, 1), false)
+    assert.equal(q.resultsReady(invalidAnswers, 1), true)
+    assert.equal(q.resultsReady({ ...invalidAnswers, riasec }, 0), true)
     assert.deepEqual(q.questionnaireProgress(invalidAnswers), { done: 19, total: 67 })
   }
 })
@@ -235,11 +240,14 @@ test('old activity fades and a degree under way stops counting as interest', asy
   const { ageWeight, score } = await import('../lib/engine/scoring.ts')
   const now = 2026
   assert.equal(ageWeight(2026, 'takeout', now), 1)
-  assert.equal(ageWeight(2025, 'takeout', now), 1)
+  assert.equal(ageWeight(2025, 'takeout', now), 2 ** -0.5)
+  assert.equal(ageWeight(2024, 'takeout', now), 0.5)
+  assert.equal(ageWeight(2022, 'takeout', now), 0.25)
+  assert.equal(ageWeight(2020, 'takeout', now), 0)
   assert.ok(ageWeight(2021, 'takeout', now) < 0.5)
   assert.equal(ageWeight(2016, 'takeout', now), 0)
   assert.equal(ageWeight(1961, 'takeout', now), 0)
-  assert.ok(ageWeight(2016, 'youtube', now) > 0)
+  assert.equal(ageWeight(2016, 'youtube', now), 0)
 
   const year = new Date().getFullYear()
   const fields = { psychology: { score: 50, items: 60, months: [`${year}-01`], top: [], terms: {} }, sociology: { score: 20, items: 25, months: [`${year - 2}-01`], top: [], terms: {} } }

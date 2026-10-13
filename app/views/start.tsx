@@ -10,7 +10,7 @@ import { readExports } from '@/lib/sources/exports.ts'
 import { fetchChannels, fetchVideos } from '@/lib/sources/youtube.ts'
 import type { ChannelInfo, VideoResource } from '@/lib/sources/youtube.ts'
 import { collectGitHub } from '@/lib/sources/github.ts'
-import { BIG5_ITEMS, big5Answered, questionnaireProgress, resultsReady } from '@/lib/engine/questionnaire.ts'
+import { questionnaireProgress, resultsReady } from '@/lib/engine/questionnaire.ts'
 import { fmtNumber } from '@/lib/site/labels.ts'
 import { Questionnaire } from '../ui/questionnaire.tsx'
 import { PrefsForm } from '../ui/prefs-form.tsx'
@@ -34,12 +34,34 @@ export function StartView() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [notes, setNotes] = useState<Record<string, string[]>>({})
   const [mounted, setMounted] = useState(false)
+  const [view, setView] = useState<'questionnaire' | 'data'>('questionnaire')
   useEffect(() => setMounted(true), [])
+
+  // Keep existing entry links and browser back/forward working for both views.
+  useEffect(() => {
+    const syncView = () => {
+      const hash = window.location.hash
+      if (hash === `#${r.anchors.sources}`) setView('data')
+      else if (!hash || hash === `#${r.anchors.questionnaire}`) setView('questionnaire')
+    }
+    syncView()
+    window.addEventListener('hashchange', syncView)
+    window.addEventListener('popstate', syncView)
+    return () => {
+      window.removeEventListener('hashchange', syncView)
+      window.removeEventListener('popstate', syncView)
+    }
+  }, [r.anchors.sources, r.anchors.questionnaire])
+
+  function selectView(next: 'questionnaire' | 'data') {
+    setView(next)
+    const hash = `#${next === 'data' ? r.anchors.sources : r.anchors.questionnaire}`
+    if (window.location.hash !== hash) window.history.pushState(null, '', hash)
+  }
 
   const summaries = Object.values(state.summaries).filter(Boolean) as SourceSummary[]
   const signals = summaries.reduce((s, x) => s + x.dataPoints, 0)
   const q = questionnaireProgress(state.answers)
-  const personalityRemaining = BIG5_ITEMS.length - big5Answered(state.answers)
   const ready = resultsReady(state.answers, summaries.length)
   const fail = (id: string, e: unknown) => setErrors((x) => ({ ...x, [id]: t.tr((e as Error).message || t.callback.generic) }))
   const progress = (source: string) => (message: string, count?: number) => setRunning({ source, message: t.tr(message), count })
@@ -84,7 +106,7 @@ export function StartView() {
         throw new Error((result.takeoutProducts ? t.start.emptyTakeout(result.takeoutProducts.filter((x) => x !== '?').join(', ')) : t.start.noHistory) + skipped)
       }
       for (const s of result.summaries) {
-        await setSummary(s, s.source === 'takeout' ? result.contentInput : undefined)
+        await setSummary(s, s.source === 'takeout' || s.source === 'google-search' ? result.contentInput : undefined)
         measureImport(s.source)
       }
       setNotes((n) => ({ ...n, [card]: result.recognised.map(t.tr) }))
@@ -119,56 +141,67 @@ export function StartView() {
 
       <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-2">
         {([
-          { href: `#${r.anchors.questionnaire}`, color: 'var(--sky)', card: t.start.cards.questionnaire },
-          { href: `#${r.anchors.sources}`, color: 'var(--pink)', card: t.start.cards.data },
-        ] as const).map(({ href, color, card }) => (
-          <a
-            key={href}
-            href={href}
-            className="card-sm on-color block p-4 text-left transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-accent"
-            style={{ background: color }}
+          { id: 'questionnaire', anchor: r.anchors.questionnaire, color: 'var(--sky)', card: t.start.cards.questionnaire },
+          { id: 'data', anchor: r.anchors.sources, color: 'var(--pink)', card: t.start.cards.data },
+        ] as const).map(({ id, anchor, color, card }) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={view === id}
+            aria-controls={anchor}
+            onClick={() => selectView(id)}
+            className={`card-sm block p-4 text-left transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-accent ${view === id ? 'on-color ring-2 ring-line ring-offset-4 ring-offset-bg' : 'bg-surface hover:bg-surface-2'}`}
+            style={view === id ? { background: color } : undefined}
           >
             <span className="block text-xs font-extrabold uppercase tracking-wider">{card.step}</span>
             <span className="mt-1 block font-display text-xl">{card.title}</span>
             <span className="mt-1 block text-sm">{card.text}</span>
-          </a>
+          </button>
         ))}
       </div>
 
-      <section id={r.anchors.questionnaire} className="mt-14 scroll-mt-24">
+      <section id={r.anchors.questionnaire} hidden={view !== 'questionnaire'} className="mt-14 scroll-mt-24">
         <StepTitle n={1} color="var(--sky)" title={t.start.step1} sub={t.start.step1sub} />
         <div className="mt-7">
           <Questionnaire />
         </div>
       </section>
 
-      <section id={r.anchors.sources} className="mt-20 scroll-mt-24">
+      <section id={r.anchors.sources} hidden={view !== 'data'} className="mt-14 scroll-mt-24">
         <StepTitle n={2} color="var(--pink)" title={t.start.step2} sub={t.start.step2sub} />
         <a href={`#${r.anchors.prefs}`} className="btn btn-ghost btn-sm mt-5">{t.start.skipData} →</a>
         <div className="card-sm mt-6 flex max-w-3xl flex-col gap-3 bg-surface-2 p-5 sm:flex-row sm:items-center">
           <span className="text-3xl" aria-hidden="true">🔒</span>
           <p className="flex-1 text-sm">
-            <strong>{t.trust.nothingStored}.</strong> {t.trust.startNote} {t.contentAi.localNote}{' '}
+            <strong>{t.trust.startTitle}.</strong> {t.trust.startNote}{' '}
             <a href={SOURCE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-bold text-accent underline">
               <GitHubMark size={14} /> {t.trust.viewCode}
             </a>
           </p>
         </div>
-        <div className="mt-7 grid gap-5 md:grid-cols-2">
+        <div className="mt-7">
           <ExportCard
-            title="YouTube & Google"
+            title={t.start.googleTitle}
             glyph="▶"
             color="var(--pink)"
-            badge={t.start.best}
             text={t.start.yt}
             summaries={[state.summaries.takeout, state.summaries['google-search'], state.summaries.youtube]}
-            requests={[{ href: 'https://takeout.google.com/settings/takeout/custom/my_activity', label: t.start.request.youtube }]}
+            requests={[
+              { href: 'https://takeout.google.com/settings/takeout/custom/my_activity', label: t.start.request.activity },
+            ]}
             hint={t.start.hint.takeout}
             running={running?.source === 'takeout' ? running : null}
             error={errors.takeout || errors.google}
             notes={notes.takeout}
             onFiles={(f) => onFiles(f, 'takeout')}
-            footer={
+          />
+        </div>
+        <details className="mt-4 text-xs text-muted">
+          <summary className="w-fit cursor-pointer py-2 underline-offset-4 hover:underline">{t.start.optionalSources}</summary>
+          <div className="mt-3 max-w-3xl space-y-3">
+            <p>{t.start.optionalYoutube}</p>
+            <a href="https://takeout.google.com/settings/takeout/custom/youtube" target="_blank" rel="noreferrer" className="font-semibold underline">{t.start.request.youtube} ↗</a>
+            {
               mounted && isConfigured('google') ? (
                 <div className="mt-4 grid gap-2 border-t-2 border-soft-line pt-4 text-xs text-muted">
                   {getToken('google') ? (
@@ -184,57 +217,59 @@ export function StartView() {
                 </div>
               ) : null
             }
+          </div>
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            <ExportCard
+              title="Instagram"
+              glyph="📸"
+              color="var(--violet)"
+              text={t.start.instagram}
+              summaries={[state.summaries.instagram]}
+              requests={[{ href: 'https://accountscenter.instagram.com/info_and_permissions/dyi/', label: t.start.request.instagram }]}
+              hint={t.start.hint.instagram}
+              running={running?.source === 'instagram' ? running : null}
+              error={errors.instagram}
+              notes={notes.instagram}
+              onFiles={(f) => onFiles(f, 'instagram')}
+            />
+            <ExportCard
+              title="TikTok"
+              glyph="🎵"
+              color="var(--sky)"
+              text={t.start.tiktok}
+              summaries={[state.summaries.tiktok]}
+              requests={[{ href: 'https://www.tiktok.com/setting/download-your-data', label: t.start.request.tiktok }]}
+              hint={t.start.hint.tiktok}
+              running={running?.source === 'tiktok' ? running : null}
+              error={errors.tiktok}
+              notes={notes.tiktok}
+              onFiles={(f) => onFiles(f, 'tiktok')}
+            />
+            {/* Reddit by its data export: its public API takes no new apps and closes in March 2027. */}
+            <ExportCard
+              title="Reddit"
+              glyph="👽"
+              color="var(--orange)"
+              text={t.start.reddit}
+              summaries={[state.summaries.reddit]}
+              requests={[{ href: 'https://www.reddit.com/settings/data-request', label: t.start.request.reddit }]}
+              hint={t.start.hint.reddit}
+              running={running?.source === 'reddit' ? running : null}
+              error={errors.reddit}
+              notes={notes.reddit}
+              onFiles={(f) => onFiles(f, 'reddit')}
+            />
+            <GitHubCard wide summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
+          </div>
+          <SpotifyRow
+            summaries={[state.summaries['spotify-export'], state.summaries.spotify]}
+            running={running?.source === 'spotify' ? running : null}
+            error={errors.spotify}
+            notes={notes.spotify}
+            onFiles={(f) => onFiles(f, 'spotify')}
+            onConnect={mounted && isConfigured('spotify') ? () => connect('spotify') : undefined}
           />
-          <ExportCard
-            title="Instagram"
-            glyph="📸"
-            color="var(--violet)"
-            text={t.start.instagram}
-            summaries={[state.summaries.instagram]}
-            requests={[{ href: 'https://accountscenter.instagram.com/info_and_permissions/dyi/', label: t.start.request.instagram }]}
-            hint={t.start.hint.instagram}
-            running={running?.source === 'instagram' ? running : null}
-            error={errors.instagram}
-            notes={notes.instagram}
-            onFiles={(f) => onFiles(f, 'instagram')}
-          />
-          <ExportCard
-            title="TikTok"
-            glyph="🎵"
-            color="var(--sky)"
-            text={t.start.tiktok}
-            summaries={[state.summaries.tiktok]}
-            requests={[{ href: 'https://www.tiktok.com/setting/download-your-data', label: t.start.request.tiktok }]}
-            hint={t.start.hint.tiktok}
-            running={running?.source === 'tiktok' ? running : null}
-            error={errors.tiktok}
-            notes={notes.tiktok}
-            onFiles={(f) => onFiles(f, 'tiktok')}
-          />
-          {/* Reddit by its data export: its public API takes no new apps and closes in March 2027. */}
-          <ExportCard
-            title="Reddit"
-            glyph="👽"
-            color="var(--orange)"
-            text={t.start.reddit}
-            summaries={[state.summaries.reddit]}
-            requests={[{ href: 'https://www.reddit.com/settings/data-request', label: t.start.request.reddit }]}
-            hint={t.start.hint.reddit}
-            running={running?.source === 'reddit' ? running : null}
-            error={errors.reddit}
-            notes={notes.reddit}
-            onFiles={(f) => onFiles(f, 'reddit')}
-          />
-          <GitHubCard wide summary={state.summaries.github} running={running?.source === 'github' ? running : null} error={errors.github} onSubmit={github} />
-        </div>
-        <SpotifyRow
-          summaries={[state.summaries['spotify-export'], state.summaries.spotify]}
-          running={running?.source === 'spotify' ? running : null}
-          error={errors.spotify}
-          notes={notes.spotify}
-          onFiles={(f) => onFiles(f, 'spotify')}
-          onConnect={mounted && isConfigured('spotify') ? () => connect('spotify') : undefined}
-        />
+        </details>
       </section>
 
       <section id={r.anchors.prefs} className="mt-20 scroll-mt-24">
@@ -272,7 +307,7 @@ export function StartView() {
               {t.start.seeResult}
             </Link>
           ) : (
-            <span className="max-w-xs text-right text-xs text-muted sm:text-sm">{personalityRemaining ? t.start.needPersonality(personalityRemaining) : t.start.needMore}</span>
+            <span className="max-w-xs text-right text-xs text-muted sm:text-sm">{t.start.needMore}</span>
           )}
         </div>
       </div>
@@ -348,7 +383,7 @@ function Card({ title, text, glyph, color, badge, children, className }: { title
 /** The same screen as after a sign-in, while an export is read in the browser. */
 function ReadingOverlay({ running }: { running: NonNullable<Running> }) {
   const { t, intl } = useSite()
-  const names: Record<string, string> = { takeout: 'YouTube & Google', instagram: 'Instagram', tiktok: 'TikTok', spotify: 'Spotify' }
+  const names: Record<string, string> = { takeout: t.start.googleTitle, instagram: 'Instagram', tiktok: 'TikTok', spotify: 'Spotify' }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/95 px-6 backdrop-blur" role="status" aria-live="polite">
       <div className="max-w-md text-center">
@@ -417,7 +452,7 @@ function ExportCard(props: {
 }) {
   const { t } = useSite()
   // Once the file is in (the first summary), the steps fold away.
-  const done = !!props.summaries[0]
+  const done = props.summaries.some(Boolean)
   const steps = (
     <div className="mt-5 grid gap-4">
       <div className="flex gap-3">

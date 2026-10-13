@@ -2,6 +2,43 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Abschlussprüfung für Push (13.10.2026)
+
+- Takeout-Anleitung in DE/EN/FR/IT: Hinweis zur YouTube-/News-Auswahl entfernt, Wartezeit von ca. 2–3 Minuten auf die E-Mail ergänzt.
+- Gesamter vorbereiteter Stand einschliesslich getrennter Startansichten, freiwilliger Persönlichkeit und My-Activity-Verarbeitung: TypeScript, alle 268 Tests und Webpack-Produktionsbuild erfolgreich.
+- Push auf `main` vom Inhaber angefordert; Deployment separat prüfen.
+
+## Ein My-Activity-Import, Titelqualität und Aktualität (13.10.2026)
+
+- Ersetzt den früheren Einstieg mit zwei gleichwertigen Exportlinks: Landingpage und Datenansicht zeigen einen Hauptlink mit `custom/my_activity`. YouTube-Export, OAuth und alle anderen Quellen stehen klein unter einer geschlossenen optionalen Liste. Texte in DE/EN/FR/IT.
+- My Activity liest YouTube und ergänzend Google-Suche/News. Google News bleibt auch bei YouTube-Zieladressen eine Nachrichtenaktivität. Der Produktname aus HTML wird auch bei einzeln hochgeladenen Dateien ohne Ordnerpfad erhalten. News wird lokal klassifiziert. Nach Präzisierung des Inhabers nutzt die erste KI-Auswahl nur YouTube; erst die ausdrücklich gewählte 1’000er-Analyse ergänzt bis zu 200 News-Titel mit Vorschau und Zustimmung. Google-Suchen bleiben lokal. News-KI ersetzt die passende Google-Zusammenfassung mit deren schwächerem Quellengewicht; Deaktivierung stellt beide Originale wieder her. Separater News-Import ergänzt den vorhandenen YouTube-Import, Entfernen löscht auch die lokalen News-Rohdaten.
+- Videoaufrufe ohne auswertbaren Titel (nur URL, leer, gelöscht/privat/nicht verfügbar) werden vor Zählung, Klassifikation und KI-Kontext entfernt. Ein späterer gültiger Doppeleintrag wird weiterhin akzeptiert. Bereits gespeicherte Summaries brauchen einen Neuimport; Version 7 zeigt den entsprechenden Hinweis.
+- Gewicht halbiert sich pro zwei Kalenderjahre; ab sechs Jahren nur historische Darstellung, keine aktuellen Interessen oder KI-Kontexte. Aktuelle Belege und Themen werden bevorzugt; alte Monate erzeugen keinen Beharrlichkeitsbonus. Google-Suche/News hat Quellengewicht 0.15, YouTube-Takeout 0.85. Produktheuristik, keine psychologische Norm. KI-Lauf-/Vergleichsversionen erhöht.
+- Die bereitgestellten Exporte wurden ausschliesslich lokal geprüft: 4 172 von 4 971 Videoaufrufen mit auswertbarem Titel, 296 Google-News-Artikel. Keine persönlichen Inhalte ausgegeben, gespeichert oder an die KI geschickt.
+- TypeScript und alle 268 Tests grün, einschliesslich Regressionen für alte Daten, fehlende Titel, News erst im Maximum, separate News-Imports, Zustimmung, Wiederherstellung beider Originale und Resultate ohne Fragebogen. Browser-Upload mit synthetischem HTML geprüft: drei gültige Videoaufrufe und ein News-Artikel, URL-only-Video verworfen, Resultatlink bei null Antworten verfügbar; optionale Quellen korrekt eingeklappt. Lokal umgesetzt, nicht veröffentlicht.
+
+## Getrennte Startansichten (13.10.2026)
+
+- Fragebogen und «Mit deinen Daten» sind separate Ansichten. Die beiden Karten schalten um und markieren die aktive Ansicht; der Datenimport steht nicht mehr unter dem Fragebogen.
+- Beide Bereiche bleiben beim Umschalten gemountet, damit der Fragebogen-Tab und laufende Eingaben erhalten bleiben. Studienwünsche und Resultatleiste bleiben gemeinsam verfügbar.
+- Bestehende Ankerlinks, OAuth-Rückkehr sowie Browser-Zurück/Vorwärts wählen die passende Ansicht.
+- TypeScript, alle 266 Tests und Browserprüfung von Wechsel, Tab-Erhalt, Zurück/Vorwärts und Neuladen des Datenlinks erfolgreich. Lokal umgesetzt, noch nicht veröffentlicht.
+
+## Persönlichkeit wieder freiwillig (13.10.2026)
+
+- Upload-Einstieg ausdrücklich ergänzt: Ein erfolgreicher Import von «Meine Aktivitäten» oder YouTube führt ohne Antworten zum Resultat. Einstiegstexte in DE/EN/FR/IT erklären diesen Weg. Die 25-%-Aussage gilt dort ausdrücklich nur bei zusätzlich beantworteten Interessenfragen.
+- Zusätzlicher Regressionstest prüft beide Importarten ohne Antworten, leere und ungültige Dateien sowie den Zustand ohne verbleibende Quelle. TypeScript und alle 261 Tests erfolgreich.
+- Auf ausdrücklichen Wunsch des Inhabers entfällt die Pflicht zu den 20 Persönlichkeitsfragen. Diese Änderung ersetzt die frühere Regel «Persönlichkeit als Pflichtteil» weiter unten.
+- Die gemeinsame Resultatprüfung akzeptiert mindestens zwei Interessenantworten je Bereich oder eine importierte Datenquelle. Fehlende oder teilweise beantwortete Persönlichkeitsfragen blockieren weder Resultat noch Checkout-Rückkehr.
+- Persönlichkeit bleibt als freiwilliger Tab verfügbar. Sperrhinweise entfernt, Texte in DE/EN/FR/IT und README angepasst. Die Fortschrittsanzeige zählt weiterhin alle 67 Einträge, einschliesslich freiwilliger Fragen.
+- Prüfung: TypeScript und alle 260 Tests erfolgreich. Lokal umgesetzt, noch nicht veröffentlicht.
+
+## Datenquellen vereinfacht (13.10.2026)
+
+- Landingpage und Datenimport zeigen «Meine Aktivitäten» und YouTube mit je einem eigenen Takeout-Link. Ein gemeinsames Upload-Feld erlaubt beide Exporte zusammen; die Anleitung erklärt die gemeinsame Auswahl.
+- Instagram, TikTok, Reddit, GitHub und Spotify liegen unter «Optional · weitere Quellen», standardmässig eingeklappt. Der Fragebogen bleibt Schritt 1. Texte in DE/EN/FR/IT angepasst.
+- TypeScript und alle 260 Tests grün; Quellenbereich und Aufklappen im lokalen Browser geprüft. Noch nicht veröffentlicht.
+
 ## Einstieg, Schweizer KI und Hochschulfilter (13.10.2026)
 
 - Ein Ablauf: zuerst der Fragebogen, danach freiwillig eigene Daten. Die zwei farbigen Karten bleiben als Sprunglinks zu Schritt 1 und Schritt 2; der Datenimport lässt sich überspringen.

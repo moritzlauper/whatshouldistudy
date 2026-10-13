@@ -1,6 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readTexts } from '../lib/sources/exports.ts'
+import { resultsReady } from '../lib/engine/questionnaire.ts'
+import { score } from '../lib/engine/scoring.ts'
 
 const watch = [
   {
@@ -50,6 +52,53 @@ test('reads Takeout watch and search history, skipping ads and keeping music apa
   assert.ok(s.fields['aerospace-engineering'].score > 0)
   assert.deepEqual(r.topChannelIds.length, 2)
   assert.equal(r.recognised.length, 1)
+})
+
+test('successful activity and YouTube imports allow results without answers; empty imports do not', async () => {
+  for (const file of [
+    { name: 'Takeout/YouTube/history/watch-history.json', text: JSON.stringify(watch) },
+    { name: 'Takeout/My Activity/Search/MyActivity.json', text: JSON.stringify([{ header: 'Search', title: 'Searched for physics', titleUrl: 'https://www.google.com/search?q=physics', time: '2026-01-01T12:00:00Z' }]) },
+  ]) {
+    const { summaries } = await readTexts([file])
+    assert.equal(resultsReady({}, summaries.length), true, file.name)
+    const result = score({ summaries, answers: {} })
+    assert.ok(result.fields.length > 0)
+    assert.equal(result.quality?.questionnaireLed, false)
+  }
+  for (const text of ['[]', '{invalid']) {
+    const { summaries } = await readTexts([{ name: 'MyActivity.json', text }])
+    assert.equal(resultsReady({}, summaries.length), false)
+  }
+  assert.equal(resultsReady({}, 0), false, 'removing all imports requires interest answers again')
+})
+
+test('unusable YouTube titles cannot contribute signals, channel context or block a later valid duplicate', async () => {
+  const date = new Date().toISOString()
+  const invalid = ['', 'https://www.youtube.com/watch?v=missing1234', 'http://youtu.be/missing1234', '[Deleted video]', '[Private video]', 'Video unavailable', 'Gelöschtes Video']
+  const records = invalid.map((title, i) => ({ title: `Watched ${title}`, titleUrl: `https://www.youtube.com/watch?v=missing000${i}`, time: date, subtitles: [{ name: 'Physics lectures' }] }))
+  const empty = await readTexts([{ name: 'MyActivity.json', text: JSON.stringify(records) }])
+  assert.equal(empty.summaries.length, 0)
+  assert.equal(empty.contentInput, undefined)
+  assert.deepEqual(empty.topChannelIds, [])
+  const result = await readTexts([{ name: 'MyActivity.json', text: JSON.stringify([...records, { ...records[0], title: 'Watched How quantum physics works' }]) }])
+  assert.equal(result.summaries[0].stats.watchedVideos, 1)
+  assert.equal(result.contentInput?.items.length, 1)
+  assert.equal(result.contentAnalysis().items.length, 1)
+})
+
+test('Google News uses readable article titles and never treats a news link as a watched YouTube video', async () => {
+  const records = [
+    { title: 'Read How quantum physics works', titleUrl: 'https://example.org/article' },
+    { title: 'Read How stars form', titleUrl: 'https://www.youtube.com/watch?v=news0000001' },
+    { title: 'https://news.google.com/articles/opaque', titleUrl: 'https://news.google.com/articles/opaque' },
+  ].map(x => ({ ...x, products: ['Google News'], time: new Date().toISOString() }))
+  const result = await readTexts([{ name: 'MyActivity.json', text: JSON.stringify(records) }])
+  assert.equal(result.summaries.length, 1)
+  assert.equal(result.summaries[0].source, 'google-search')
+  assert.equal(result.summaries[0].stats.articles, 2)
+  assert.ok(result.summaries[0].fields.physics)
+  assert.equal(result.contentAnalysis().items.length, 0, 'News never enters the first AI selection')
+  assert.equal(result.contentInput?.google?.items.length, 2, 'News is retained locally for the explicit maximum run')
 })
 
 test('reads German Takeout file names by content', async () => {
