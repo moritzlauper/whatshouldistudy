@@ -752,7 +752,6 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
               {' · '}
               {flag(p.country)} {[p.city, p.region].filter(Boolean).join(', ') || countryLabel(p.country, intl)}
             </div>
-            {personal && !personal.thin && personal.reasons.length > 0 && <p className="mt-2 text-sm">{personal.reasons.join(' ')}</p>}
             {p.focus && p.focus.length > 0 && (
               <div className="mt-1.5 text-xs">
                 <span className="text-muted">{t.programmes.details.focus}: </span>
