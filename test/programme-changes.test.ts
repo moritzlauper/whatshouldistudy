@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { COMPARE_TOP, changeSummary, programmeChanges } from '../lib/engine/programme-changes.ts'
+import { COMPARE_TOP, changeSummary, isCurrentKey, profileKeyOf, programmeChanges } from '../lib/engine/programme-changes.ts'
 
 const entry = (id: string, score: number) => ({ id, name: `Studiengang ${id}`, institution: `Hochschule ${id}`, score })
 
@@ -32,4 +32,20 @@ test('the place before counts the whole list of matches, not only the compared p
   const rows = programmeChanges(before, [{ ...entry('p80', 90), computed: 90, reasons: [] }])
   assert.equal(rows[0].before?.rank, 81)
   assert.equal(rows[0].after.rank, 1)
+})
+
+test('the key ignores filters, follows the answers and the sources', () => {
+  const base = { answers: { riasec: { r1: 5 } }, prefs: { level: 'bachelor', countries: ['CH'], studying: 'Gymnasium' }, summaries: { takeout: { source: 'takeout', collectedAt: '2026-10-01' } } }
+  const key = profileKeyOf(base)
+  assert.equal(profileKeyOf({ ...base, prefs: { ...base.prefs, level: 'master', countries: [] } }), key)
+  assert.notEqual(profileKeyOf({ ...base, answers: { riasec: { r1: 4 } } }), key)
+  assert.notEqual(profileKeyOf({ ...base, summaries: { takeout: { source: 'takeout', collectedAt: '2026-10-02' } } }), key)
+})
+
+test('only a key of the current version counts as stored', () => {
+  assert.equal(isCurrentKey(profileKeyOf({ answers: {}, prefs: {}, summaries: {} })), true)
+  assert.equal(isCurrentKey('{"answers":{},"studying":null,"sources":[]}'), false)
+  assert.equal(isCurrentKey('["fields",[{"id":"energy-engineering","score":87}],"bachelor"]'), false)
+  assert.equal(isCurrentKey('not json'), false)
+  assert.equal(isCurrentKey(undefined), false)
 })

@@ -5,7 +5,7 @@ import { saveCompareRows, update, useAppState } from '@/lib/store.ts'
 import { useSite } from './site-context.tsx'
 import { topicWeights, type UserTopic } from '@/lib/engine/topics.ts'
 import { PERSONAL_REQUEST, orderByNumber, orderedFieldIds, shownScore, type PersonalFit } from '@/lib/engine/programme-fit.ts'
-import { changeSummary, COMPARE_TOP, programmeChanges, profileKeyOf, type ProgrammeCompare, type ProgrammeEntry } from '@/lib/engine/programme-changes.ts'
+import { changeSummary, COMPARE_TOP, isCurrentKey, programmeChanges, profileKeyOf, type ProgrammeCompare, type ProgrammeEntry } from '@/lib/engine/programme-changes.ts'
 import type { Preferences, Results } from '@/lib/engine/types.ts'
 import type { RankedProgramme } from '@/lib/server/rank.ts'
 import { allProgrammes, askPersonal, hasReadings, limitOf, requestFields, useCompareRows, useLocalProfile } from './programmes.tsx'
@@ -50,6 +50,12 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
   const beforeFields = useMemo(() => requestFields(before.results), [before.results])
   const afterFields = useMemo(() => requestFields(after.results), [after.results])
   const ready = readings.status !== 'loading'
+  // A comparison kept by an older version has another key, which no list accepts. It is made again once, here: the consent to the analysis covers it.
+  const outdated = compare?.status === 'done' && !isCurrentKey(compare.key)
+  const analysisOn = !!state.contentAnalysis?.enabled
+  useEffect(() => {
+    if (outdated && analysisOn && unlocked) setCompare({ status: 'pending' })
+  }, [outdated, analysisOn, unlocked])
 
   useEffect(() => {
     if (!pending || !unlocked || !ready || !beforeProfile || !afterProfile) return

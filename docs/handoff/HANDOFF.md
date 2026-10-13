@@ -10,13 +10,20 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
 
+## KI-Vergleich nach dem Neuladen: alte Schlüssel werden erneuert (13.10.2026)
+
+- Ursache, auf die das Verschwinden hinausläuft: Ein gespeicherter Vergleich trägt den Schlüssel der Vorversion. Dieser Schlüssel passt zu keiner Liste. Die Top 5 zeigen dann die Reihenfolge ohne KI und ohne Begründungen, bei jedem Laden. Im Browser reproduziert: Schlüssel im localStorage auf das alte Format setzen, neu laden. Der normale Ablauf (Analyse, Neuladen, Neuladen während des Vergleichs) zeigt das Problem nicht.
+- `profileKeyOf` trägt jetzt eine Version (`KEY_VERSION = 2` in `lib/engine/programme-changes.ts`). `isCurrentKey` prüft sie. Ein gespeicherter Vergleich ohne aktuelle Version gilt als veraltet. Ist die Analyse aktiv und die Person entsperrt, startet `ProgrammeChanges` den Vergleich einmal von selbst neu (`app/ui/programme-changes.tsx`). Es geht dasselbe Profil an Claude wie beim ersten Vergleich, unter der Zustimmung zur Analyse. Ein manuelles «Vergleich wiederholen» ist nicht mehr nötig.
+- Bei jeder Änderung an der Schlüsselbildung die Version erhöhen. Sonst bleiben alte Vergleiche unbemerkt stehen.
+- Prüfungen: TypeScript grün; Tests 230 von 233 (die drei bekannten). Im Browser gegen `next start` und `next dev` mit einer lokalen Kopie des Datenbranchs: Analyse, Neuladen, Neuladen während des Vergleichs, alter Schlüssel (eine automatische Erneuerung, danach keine weiteren Anfragen beim Neuladen).
+
 ## Suche über alle Fächer, KI-Sortierung bleibt nach dem Neuladen (13.10.2026)
 
 - Textsuche und Stadtsuche durchsuchen alle Fächer (`lib/server/rank.ts`). Vorher las der Server nur die Fächer der Person; «psychologie» in «zürich» fand deshalb nichts, obwohl es Master und Bachelor Psychologie an der Universität Zürich gibt. Ohne Suchbegriff bleibt es bei den eigenen Fächern.
 - Der gespeicherte KI-Vergleich hängt an den Antworten, dem Studienfach und den Quellen mit Erhebungszeit (`profileKeyOf` in `lib/engine/programme-changes.ts`). Abgeleitete Punkte und Filter zählen nicht mehr; ein Filterwechsel ändert die Sortierung nicht.
 - Die Zeilen des Vergleichs liegen in IndexedDB (`compare:<Site-Schlüssel>`), nicht mehr in der Zustandsdatei im localStorage. Dort gibt es eine Größenbegrenzung, und ein fehlgeschlagenes Schreiben geht beim Neuladen verloren. Im localStorage bleiben nur Status, Zeitpunkt und Schlüssel. «KI-Analyse löschen» entfernt auch die Zeilen.
-- Nach dem Deploy einmal «Vergleich wiederholen» klicken: Der Schlüssel hat ein neues Format.
-- Prüfungen: TypeScript grün; Tests 228 von 231 (die drei bekannten). Im Browser mit Mock-Antworten: Analyse, Neuladen, kein «Mit KI vergleichen», Sortierung bleibt. Serverfunktion: «psychologie» in «zürich» liefert Master Psychologie. Nicht geprüft: echte Daten und Speichergrenzen auf dem Gerät des Inhabers. Die Ursache des Verschwindens auf dem Gerät ist nicht eindeutig belegt; im Test trat es nicht auf.
+- Der Schlüssel hat seit diesem Deploy eine Version. Ältere Vergleiche werden automatisch erneuert (siehe oben).
+- Prüfungen: TypeScript grün; Tests 228 von 231 (die drei bekannten). Im Browser mit Mock-Antworten: Analyse, Neuladen, kein «Mit KI vergleichen», Sortierung bleibt. Serverfunktion: «psychologie» in «zürich» liefert Master Psychologie. Die Speichergrenzen auf dem Gerät des Inhabers sind nicht geprüft.
 
 ## Karten-Label «Top» nur bei YouTube & Google (13.10.2026)
 

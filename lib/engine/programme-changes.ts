@@ -31,6 +31,9 @@ export type ProgrammeCompare =
   | { status: 'done'; at: string; rows?: ProgrammeChange[]; key?: string }
   | { status: 'failed'; limit?: 'budget' | 'daily' }
 
+/** Version of the key below. A comparison stored under another version was made by an older app, and no list accepts it. */
+const KEY_VERSION = 2
+
 /**
  * What a rating is based on: the questionnaire answers, the field of study and each imported source with its
  * collection time. Filters do not count, and nor do scores derived from them: those can shift between loads.
@@ -40,7 +43,17 @@ export function profileKeyOf(state: { answers: unknown; prefs: unknown; summarie
   const sources = Object.values((state.summaries ?? {}) as Record<string, { source?: string; collectedAt?: string } | undefined>)
     .flatMap((s) => (s ? [`${s.source ?? ''}@${s.collectedAt ?? ''}`] : []))
     .sort()
-  return JSON.stringify({ answers: state.answers, studying, sources })
+  return JSON.stringify({ v: KEY_VERSION, answers: state.answers, studying, sources })
+}
+
+/** Whether a stored comparison was made under the current key version. */
+export function isCurrentKey(key: string | undefined): boolean {
+  if (!key) return false
+  try {
+    return (JSON.parse(key) as { v?: unknown }).v === KEY_VERSION
+  } catch {
+    return false
+  }
 }
 
 /**
