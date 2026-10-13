@@ -2,6 +2,13 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Texte gekürzt: Schritt 2 und Ergebnis (13.10.2026)
+
+- Auf der Startseite war der Upload-Bereich bei 390 px Breite erst nach rund 217 Wörtern Text sichtbar. Jetzt sind es 143 Wörter, der Bereich erscheint auf dem ersten Bildschirm. Gekürzt in allen vier Sprachen: `step2sub`, `yt`, `startNote`.
+- Im Ergebnis gekürzt: `studyingHint`, `careless`, `limits`. Die Frage «Studierst du schon etwas?» bleibt, weil sie die Wertung ändert.
+- Die Meldung «durchgeklickt» kommt nur aus den Fragebogen-Antworten: Kontrollfrage nicht mit 2 beantwortet, oder zehn gleiche Antworten in Folge. Der Export ist nicht beteiligt (`careless()` in `lib/engine/questionnaire.ts`).
+- Lokal freischalten: Ausserhalb der Produktion ist das Freischalten ohne `STRIPE_SECRET_KEY` gratis (`paymentMode()` in `lib/server/token.ts`). Einen Schalter per URL-Suffix gibt es bewusst nicht, AGENTS.md verbietet die Umgehung des Paywalls.
+
 ## KI-Karte nennt «Meine Aktivitäten», nicht mehr einen YouTube-Import (13.10.2026)
 
 - Die KI-Karte (`app/ui/content-analysis.tsx`) liest nur `summaries.takeout`, also die Videos aus «Meine Aktivitäten». Ihre Texte sagten aber «YouTube-Verlauf importieren». Geändert in `lib/site/dict.ts` für de, en, fr und it: `ready`, `ask`, `missing`, `unavailable` der Karte sowie `intro` und `uses` der Einstiegsseite. «Meine Aktivitäten» ist jetzt der einzige Upload, den die Texte nennen. Der optionale separate YouTube-Export bleibt erwähnt.
