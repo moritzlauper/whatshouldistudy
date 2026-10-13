@@ -471,8 +471,8 @@ workflow); the site refuses everything else. No database secret is kept in GitHu
 The site reads the readings through `/api/facts` (paid) and ranks the list in the
 browser against the answers. The optional step «include my answers» (off by default,
 after consent) sends the interest profile, weighted lexical topics and favourite
-school subjects with up to 20 matches to `/api/personal-fit`, including smaller
-lists and programmes without readings. The server
+school subjects with up to 60 matches to `/api/personal-fit`, in requests of up to
+20 matches each, including smaller lists and programmes without readings. The server
 computes the numbers by fixed rules on the same calibrated scale as the browser.
 With a sufficient reading, Claude can adjust that content score by at most 30
 points and explain the connections in up to three sentences. Without one, it uses

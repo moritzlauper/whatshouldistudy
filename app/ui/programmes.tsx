@@ -21,7 +21,7 @@ import type { InstType } from '@/lib/institutions.ts'
 import { CONTACT, withBase } from '@/lib/site.ts'
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
 import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
-import { FACTS_COUNTRIES, shownScore, orderByNumber, orderedFieldIds, programmeFieldMatch, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
+import { FACTS_COUNTRIES, PERSONAL_REQUEST, shownScore, orderByNumber, orderedFieldIds, programmeFieldMatch, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
 import { AiBlock, OwnDataPanel, PERSONAL_POOL, useFitScores, useReadings, type OwnStatus, type PersonalStatus } from './readings.tsx'
 import { officialPageOf } from '@/lib/official-pages.ts'
 import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
@@ -97,7 +97,25 @@ export async function allProgrammes(request: object, token: string | null, signa
  * between them; a failed ask is not kept, so the next one asks again.
  */
 const personalAsks = new Map<string, Promise<PersonalFit[]>>()
+/**
+ * The comparison of a list. A list may hold more programmes than one request carries, so they go in
+ * requests of PERSONAL_REQUEST each, asked together. A limit answer fails the comparison; a request
+ * that fails otherwise is left out, and the others still count.
+ */
 export function askPersonal(programmes: RankedProgramme[], profile: LocalProfile, locale: string, token: string | null, computed: (p: RankedProgramme) => number, fresh = false): Promise<PersonalFit[]> {
+  const chunks = Array.from({ length: Math.ceil(programmes.length / PERSONAL_REQUEST) }, (_, i) => programmes.slice(i * PERSONAL_REQUEST, (i + 1) * PERSONAL_REQUEST))
+  return Promise.allSettled(chunks.map((chunk) => askRequest(chunk, profile, locale, token, computed, fresh))).then((settled) => {
+    const limit = settled.find((s): s is PromiseRejectedResult => s.status === 'rejected' && !!limitOf(s.reason))
+    if (limit) throw limit.reason
+    const answers = settled.flatMap((s) => (s.status === 'fulfilled' ? s.value : []))
+    const failure = settled.find((s): s is PromiseRejectedResult => s.status === 'rejected')
+    if (!answers.length && failure) throw failure.reason
+    return answers
+  })
+}
+
+/** One request, at most PERSONAL_REQUEST programmes. */
+function askRequest(programmes: RankedProgramme[], profile: LocalProfile, locale: string, token: string | null, computed: (p: RankedProgramme) => number, fresh = false): Promise<PersonalFit[]> {
   const body = JSON.stringify({
     programmes: programmes.map((p) => ({ id: p.id, field: p.matchedField, country: p.country, computed: Math.round(computed(p)) })),
     profile: { riasec: profile.riasec, subjects: Object.entries(profile.enjoy).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => k), topics: profile.topics ?? {} },

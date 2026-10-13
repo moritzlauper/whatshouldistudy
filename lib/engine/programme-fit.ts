@@ -204,6 +204,9 @@ export function toFacts(raw: unknown, allowed: ReadonlySet<string>): ProgrammeFa
 export const FACTS_COUNTRIES = ['CH'] as const
 
 /** Computed comparison with reasons selected by Claude, the optional step. */
+/** Most programmes one request to /api/personal-fit may carry; a longer list is asked in several requests. */
+export const PERSONAL_REQUEST = 20
+
 export interface PersonalFit {
   id: string
   /** 1 (little in common) .. 5 (very close). */

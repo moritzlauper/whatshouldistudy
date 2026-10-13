@@ -5,7 +5,7 @@
  */
 
 /** How many of the top programmes Claude compares after the content analysis. */
-export const COMPARE_TOP = 50
+export const COMPARE_TOP = 60
 
 export interface ProgrammeEntry {
   id: string

@@ -1,7 +1,7 @@
 import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import type { StoredFact } from '../../scrapers/lib/facts.ts'
-import { aiPersonalFit, calibrated, fitBand, fitSpread, localFit, type PersonalFit } from '../engine/programme-fit.ts'
+import { PERSONAL_REQUEST, aiPersonalFit, calibrated, fitBand, fitSpread, localFit, type PersonalFit } from '../engine/programme-fit.ts'
 import { factsForLocale } from '../facts-store.ts'
 import { fitReasonText } from '../engine/fit-reason.ts'
 import { dict } from '../site/dict.ts'
@@ -34,7 +34,7 @@ export interface PersonalRequest {
   locale: Locale
 }
 
-export const MAX_PERSONAL = 20
+export const MAX_PERSONAL = PERSONAL_REQUEST
 const BATCH = 5
 const MODEL = 'claude-haiku-5-5'
 

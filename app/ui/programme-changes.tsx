@@ -4,12 +4,12 @@ import { Fragment, useEffect, useMemo } from 'react'
 import { update, useAppState } from '@/lib/store.ts'
 import { useSite } from './site-context.tsx'
 import { topicWeights, type UserTopic } from '@/lib/engine/topics.ts'
-import { orderByNumber, orderedFieldIds, shownScore, type PersonalFit } from '@/lib/engine/programme-fit.ts'
+import { PERSONAL_REQUEST, orderByNumber, orderedFieldIds, shownScore, type PersonalFit } from '@/lib/engine/programme-fit.ts'
 import { changeSummary, COMPARE_TOP, programmeChanges, requestKey, type ProgrammeCompare, type ProgrammeEntry } from '@/lib/engine/programme-changes.ts'
 import type { Preferences, Results } from '@/lib/engine/types.ts'
 import type { RankedProgramme } from '@/lib/server/rank.ts'
 import { allProgrammes, askPersonal, hasReadings, limitOf, requestFields, useLocalProfile } from './programmes.tsx'
-import { PERSONAL_POOL, useFitScores, useReadings } from './readings.tsx'
+import { useFitScores, useReadings } from './readings.tsx'
 
 /** One side of the comparison: the answers as they stood, and the topics they and the data gave. */
 export interface ProgrammeSide {
@@ -31,7 +31,7 @@ function setCompare(compare: ProgrammeCompare) {
 /**
  * The comparison after the content analysis. It starts by itself once the analysis has
  * finished, which the stored status says; the consent of the analysis covers it. Claude rates
- * the COMPARE_TOP best programmes of the new state, in requests of PERSONAL_POOL each.
+ * the COMPARE_TOP best programmes of the new state, in requests of PERSONAL_REQUEST each.
  */
 export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInput; token: string | null }) {
   const { t, locale } = useSite()
@@ -64,8 +64,8 @@ export function ProgrammeChanges({ input, token }: { input: ProgrammeChangesInpu
       if (earlier === 'locked' || now === 'locked') throw new Error('locked')
       const beforeOrder = orderByNumber(earlier.items, shownBefore, orderedFieldIds(beforeFields))
       const top = orderByNumber(now.items, computedAfter, orderedFieldIds(afterFields)).slice(0, COMPARE_TOP)
-      // All requests go out together; each one holds PERSONAL_POOL programmes, the most one request may carry.
-      const chunks = Array.from({ length: Math.ceil(top.length / PERSONAL_POOL) }, (_, i) => top.slice(i * PERSONAL_POOL, (i + 1) * PERSONAL_POOL))
+      // All requests go out together; each one holds PERSONAL_REQUEST programmes, the most one request may carry.
+      const chunks = Array.from({ length: Math.ceil(top.length / PERSONAL_REQUEST) }, (_, i) => top.slice(i * PERSONAL_REQUEST, (i + 1) * PERSONAL_REQUEST))
       // A chunk that fails is asked once more, unless the limit ended it; the other chunks still count.
       const settled = await Promise.allSettled(chunks.map((c) => askPersonal(c, profile, locale, token, computedAfter, fresh).catch((e: Error) => (limitOf(e) ? Promise.reject(e) : askPersonal(c, profile, locale, token, computedAfter, true)))))
       const answers: PersonalFit[] = settled.flatMap((s) => (s.status === 'fulfilled' ? s.value : []))

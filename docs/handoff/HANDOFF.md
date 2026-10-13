@@ -10,6 +10,15 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
 
+## Vergleich mit bis zu 60 Treffern (13.10.2026)
+
+- «Mit KI vergleichen» in den Top 5 und im Browser vergleicht bis zu 60 Treffer statt 20. Der Hinweis nennt die tatsächliche Anzahl (`PERSONAL_POOL` in `app/ui/readings.tsx`, jetzt 60).
+- Der Server nimmt weiterhin höchstens 20 Programme pro Anfrage (`PERSONAL_REQUEST` in `lib/engine/programme-fit.ts`; `MAX_PERSONAL` in `lib/server/personal-fit.ts` nutzt denselben Wert). Die Oberfläche teilt die Liste in Anfragen zu 20 und schickt sie gleichzeitig. Ein Limit bricht den Vergleich ab; eine andere fehlgeschlagene Anfrage lässt die übrigen gelten. Der Grund: 60 in einer Anfrage ergäbe 12 gleichzeitige Modellaufrufe in einer Route mit 60 Sekunden.
+- Der Vergleich nach der Verlaufsanalyse umfasst ebenfalls die 60 besten (`COMPARE_TOP`, vorher 50), damit Top-Liste und Analyse dieselben Treffer haben. Die Texte in DE, EN, FR und IT nennen 60.
+- Kosten: je Vergleich zwölf Modellaufrufe zu je fünf Programmen statt vier. Die Anfrage bleibt bei 20 pro Route-Aufruf.
+
+Prüfungen: TypeScript grün; Tests 231, davon 228 grün (wie zuvor). Im Browser mit Mock-Antworten geprüft: Die Liste schickt 60 Programme in drei Anfragen (20, 20, 20), der Text lautet «bis zu 60 Treffer»; der Vergleich nach der Analyse speichert 60 Zeilen, die Top 5 stehen in der Reihenfolge der Tabelle, keine Seitenfehler. Nicht geprüft: echte Modellantworten und Laufzeiten bei 60.
+
 ## Fortsetzbar, Maximum 1000, Listen nach der Analyse (12.10.2026)
 
 - Maximum umfasst bis zu 1000 Einträge (`CONTENT_MAX`, vorher 2000). Standard bleibt bei 240.

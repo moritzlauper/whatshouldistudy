@@ -14,7 +14,7 @@ import { useSite } from './site-context.tsx'
  */
 
 /** Maximum number of matches compared per click, including those without readings. */
-export const PERSONAL_POOL = 20
+export const PERSONAL_POOL = 60
 
 export type ReadingsStatus = 'off' | 'loading' | 'done' | 'failed'
 /** Where the optional step stands for one programme. */

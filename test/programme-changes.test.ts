@@ -4,8 +4,8 @@ import { COMPARE_TOP, changeSummary, programmeChanges } from '../lib/engine/prog
 
 const entry = (id: string, score: number) => ({ id, name: `Studiengang ${id}`, institution: `Hochschule ${id}`, score })
 
-test('the comparison covers the 50 best programmes', () => {
-  assert.equal(COMPARE_TOP, 50)
+test('the comparison covers the 60 best programmes', () => {
+  assert.equal(COMPARE_TOP, 60)
 })
 
 test('a programme that Claude lifts moves up, keeps its place before, and the rows follow the new order', () => {
