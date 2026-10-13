@@ -51,7 +51,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
         </a>
         <Ring className="float absolute -left-6 bottom-16 hidden md:block" size={86} color="var(--sky)" style={{ ['--r' as string]: '0deg' }} />
         <Sparkle className="float-slow absolute left-[46%] top-8 hidden lg:block" size={44} color="var(--pink)" />
-        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 px-4 pb-20 pt-8 sm:px-6 sm:pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pt-20">
+        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-start gap-14 px-4 pb-20 pt-8 sm:px-6 sm:pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pt-20">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
               <p className="sticker max-w-full" style={{ background: 'var(--lime)' }}>
