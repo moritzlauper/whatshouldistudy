@@ -234,6 +234,23 @@ export function useAnalysisFits(): { fits: Map<string, PersonalFit>; rank: Map<s
   }, [compare, key, rows])
 }
 
+/** The ratings a list shows: the stored comparison's where it covers a programme, otherwise this list's own comparison. */
+function listRatings(own: Map<string, PersonalFit> | null, stored: Map<string, PersonalFit> | undefined): Map<string, PersonalFit> | null {
+  if (!stored) return own
+  return own ? new Map([...own, ...stored]) : stored
+}
+
+/** The programmes the stored comparison does not cover: this list asks the AI about those only. */
+function notCovered<T extends { id: string }>(items: T[], analysis: { rank: Map<string, number> } | null): T[] {
+  return analysis ? items.filter((p) => !analysis.rank.has(p.id)) : items
+}
+
+/** Where a programme's rating comes from: the stored comparison for the programmes it covers, otherwise this list's own comparison. */
+function ratingStatus(id: string, analysis: { fits: Map<string, PersonalFit>; rank: Map<string, number> } | null, own: (id: string) => PersonalStatus): PersonalStatus {
+  if (analysis?.rank.has(id)) return analysis.fits.has(id) ? 'rated' : 'off'
+  return own(id)
+}
+
 /** Programmes the comparison ranked come first, in its order; the others keep the order they had. */
 function withAnalysisOrder<T extends { id: string }>(items: T[], rank?: Map<string, number>): T[] {
   if (!rank) return items
@@ -285,10 +302,12 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
   const computedOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores)
   // Missing readings still allow catalogue-based explanations. Twenty is a maximum, not a minimum.
   const personalPool = useMemo(() => orderByNumber(pool, computedOf, fieldOrder).slice(0, PERSONAL_POOL), [pool, scoreOf, hasScores, fieldOrder])
-  const personal = usePersonalComparison(personalPool, profile, locale, token, JSON.stringify([body, unlocked, shared]), computedOf)
-  // After the content analysis the comparison already ran for this request: its numbers and reasons are shown, and it is not asked again.
+  // After the content analysis its comparison covers these programmes: they keep its numbers and reasons and are not asked again.
   const analysis = useAnalysisFits()
-  const personalMap = analysis?.fits ?? personal.map
+  const asked = useMemo(() => notCovered(personalPool, analysis), [personalPool, analysis])
+  const askedIds = useMemo(() => new Set(asked.map((p) => p.id)), [asked])
+  const personal = usePersonalComparison(asked, profile, locale, token, JSON.stringify([body, unlocked, shared]), computedOf)
+  const personalMap = useMemo(() => listRatings(personal.map, analysis?.fits), [personal.map, analysis])
   // The one number of each programme, best first; the preferred field only breaks a tie.
   const ranked = useMemo(() => {
     const shownOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores, personalMap?.get(p.id))
@@ -310,13 +329,13 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
           {current?.data?.sample && <p className="mb-3 text-sm text-muted">{t.programmes.demo}</p>}
           {!shared && profile && personalPool.length > 0 && (
             <div className="mb-4">
-              {analysis ? <p className="text-sm text-muted">{t.contentAi.afterAnalysis}</p> : <OwnDataPanel count={personalPool.length} on={personal.on} status={personal.status} onChange={personal.onChange} />}
+              {analysis && !personal.on && !best.some((x) => askedIds.has(x.p.id)) ? <p className="text-sm text-muted">{t.contentAi.afterAnalysis}</p> : <OwnDataPanel count={asked.length} on={personal.on} status={personal.status} onChange={personal.onChange} />}
             </div>
           )}
           <ol className="grid gap-4">
             {best.map((x, i) => (
               <li key={x.p.id}>
-                <ProgrammeRow p={x.p} rank={i + 1} fact={readings.byId.get(x.p.id)} fit={local.get(x.p.id)} score={x.score} personal={x.personal} personalStatus={analysis ? (analysis.fits.has(x.p.id) ? 'rated' : 'off') : personal.statusOf(x.p.id)} />
+                <ProgrammeRow p={x.p} rank={i + 1} fact={readings.byId.get(x.p.id)} fit={local.get(x.p.id)} score={x.score} personal={x.personal} personalStatus={ratingStatus(x.p.id, analysis, personal.statusOf)} />
               </li>
             ))}
           </ol>
@@ -880,13 +899,15 @@ function Explorer({
   const readings = useReadings(token, !shared && hasReadings(prefs))
   const { fits, scoreOf, hasScores } = useFitScores(readings.byId, profile)
   const listSort = sort
-  // Search compares its own twenty best results, only after its own button was pressed.
+  // Search compares its best results (up to PERSONAL_POOL), only after its own button was pressed.
   const computedOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores)
   const ownPool = useMemo(() => orderByNumber(data?.items ?? [], computedOf).slice(0, PERSONAL_POOL), [data, scoreOf, hasScores])
-  const personal = usePersonalComparison(ownPool, profile, locale, token, queryKey, computedOf)
-  // After the content analysis the comparison already ran for this request: its numbers and reasons are used, and it is not asked again.
+  // After the content analysis its comparison covers the programmes it ranked: they keep its numbers and reasons, and only the others are asked.
   const analysis = useAnalysisFits()
-  const ownMap = analysis?.fits ?? personal.map
+  const asked = useMemo(() => notCovered(ownPool, analysis), [ownPool, analysis])
+  const askedIds = useMemo(() => new Set(asked.map((p) => p.id)), [asked])
+  const personal = usePersonalComparison(asked, profile, locale, token, queryKey, computedOf)
+  const ownMap = useMemo(() => listRatings(personal.map, analysis?.fits), [personal.map, analysis])
   // The one number of each programme, as in the top list.
   const shownOf = (p: RankedProgramme) => shownScore(p.match, scoreOf(p.id), hasScores, ownMap?.get(p.id))
   // Fetch every match before sorting by its displayed points, then page the complete order here.
@@ -1019,7 +1040,7 @@ function Explorer({
       </div>
       {!shared && profile && readings.status !== 'loading' && byMatch && (
         <div className="mt-3">
-          {analysis ? <p className="text-sm text-muted">{t.contentAi.afterAnalysis}</p> : <OwnDataPanel search count={ownPool.length} on={personal.on} status={personal.status} disabled={loading || !ownPool.length} onChange={(on) => { personal.onChange(on); setPage(0) }} />}
+          {analysis && !personal.on && !pageItems.some((p) => askedIds.has(p.id)) ? <p className="text-sm text-muted">{t.contentAi.afterAnalysis}</p> : <OwnDataPanel search count={asked.length} on={personal.on} status={personal.status} disabled={loading || !asked.length} onChange={(on) => { personal.onChange(on); setPage(0) }} />}
           {ordered.length > 0 && hasScores && (
             <p className="mt-2 text-sm text-muted">
               {t.programmes.ai.listBasis(ordered.filter((p) => scoreOf(p.id) !== undefined).length, ordered.length)}
@@ -1035,7 +1056,7 @@ function Explorer({
       </p>
       <div className="mt-3 grid gap-4">
         {pageItems.map((p) => (
-          <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={shownOf(p)} personal={ownMap?.get(p.id)} personalStatus={analysis ? (analysis.fits.has(p.id) ? 'rated' : 'off') : personal.statusOf(p.id)} />
+          <ProgrammeRow key={p.id} p={p} fact={readings.byId.get(p.id)} fit={fits.get(p.id)} score={shownOf(p)} personal={ownMap?.get(p.id)} personalStatus={ratingStatus(p.id, analysis, personal.statusOf)} />
         ))}
       </div>
       {pages > 1 && (
