@@ -164,15 +164,6 @@ export function ResultsView() {
 
       <QualityNotes results={results} />
 
-      <section className="card-sm mt-6 flex flex-wrap items-center justify-between gap-5 bg-accent-soft p-5 sm:p-6" aria-label={t.work.title}>
-        <div className="max-w-2xl">
-          <span className="sticker bg-lime text-xs">{t.work.free}</span>
-          <h2 className="mt-3 font-display text-2xl">{t.work.title}</h2>
-          <p className="mt-2 text-sm text-muted">{isShared ? t.work.shared : t.work.ctaText}</p>
-        </div>
-        <Link href={r.work} className="btn btn-primary">{t.work.cta}</Link>
-      </section>
-
       {isShared ? (
         <div className="card-sm mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent-soft p-4">
           <p className="text-sm font-semibold">{t.share.banner(new Date((shared as Snapshot).at).toLocaleDateString(intl, { dateStyle: 'medium' }))}</p>
@@ -346,6 +337,17 @@ export function ResultsView() {
       )}
 
       {summaries.some((s) => s.source !== 'questionnaire') && <SourceInsights summaries={summaries} unlocked={unlocked} studying={state.prefs.studying} />}
+
+      <section className="mt-10 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-soft-line p-4" aria-label={t.work.title}>
+        <div className="max-w-2xl">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <h2 className="text-sm font-bold">{t.work.title}</h2>
+            <span className="text-xs text-muted">{t.work.free}</span>
+          </div>
+          <p className="mt-1 text-xs text-muted">{isShared ? t.work.shared : t.work.ctaText}</p>
+        </div>
+        <Link href={r.work} className="btn btn-ghost btn-sm">{t.work.cta}</Link>
+      </section>
     </div>
   )
 }

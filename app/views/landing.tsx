@@ -14,7 +14,7 @@ import { Marquee } from '../ui/marquee.tsx'
 import { Price } from '../ui/price.tsx'
 import { LandingCheckout } from '../ui/landing-checkout.tsx'
 import { Blob, Burst, Pill, Ring, Sparkle, Squiggle } from '../ui/shapes.tsx'
-import { GitHubMark, TrustStickers } from '../ui/trust.tsx'
+import { GitHubMark } from '../ui/trust.tsx'
 import { JsonLd, homeLd } from '../ui/json-ld.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 import { isConfigured } from '@/lib/sources/oauth.ts'
@@ -51,14 +51,15 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
         </a>
         <Ring className="float absolute -left-6 bottom-16 hidden md:block" size={86} color="var(--sky)" style={{ ['--r' as string]: '0deg' }} />
         <Sparkle className="float-slow absolute left-[46%] top-8 hidden lg:block" size={44} color="var(--pink)" />
-        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 px-4 pb-20 pt-12 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pt-20">
+        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 px-4 pb-20 pt-8 sm:px-6 sm:pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pt-20">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
-              <p className="sticker" style={{ background: 'var(--lime)' }}>
-                <span aria-hidden="true">✦</span> {t.landing.badge}
+              <p className="sticker max-w-full" style={{ background: 'var(--lime)' }}>
+                <span aria-hidden="true" className="shrink-0">✦</span> {t.landing.badge}
               </p>
-              <TrustStickers stored={t.trust.nothingStored} openSource={t.trust.openSource} />
-              <a href="#swiss-ai" className="chip-soft text-sm"><span aria-hidden="true">🇨🇭</span> {t.landing.swissAi.badge}</a>
+              <a href="#swiss-ai" className="sticker max-w-full text-left transition-transform hover:-translate-y-0.5" style={{ background: 'var(--pink)', transform: 'rotate(-1.5deg)' }}>
+                <span aria-hidden="true" className="shrink-0">🇨🇭</span> {t.landing.swissAi.badge}
+              </a>
             </div>
             <h1 className="mt-7 font-display text-[2.5rem] sm:text-5xl lg:text-6xl">
               <span className="block text-accent">{t.landing.h1a}</span>
@@ -172,7 +173,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
 
       <section id="swiss-ai" aria-labelledby="swiss-ai-title" className="scroll-mt-20 px-4 py-14 sm:px-6">
         <div className="card mx-auto max-w-6xl bg-surface p-7 sm:p-10">
-          <p className="sticker" style={{ background: 'var(--sky)' }}><span aria-hidden="true">🇨🇭</span> {t.landing.swissAi.badge}</p>
+          <p className="sticker" style={{ background: 'var(--pink)' }}><span aria-hidden="true">🇨🇭</span> {t.landing.swissAi.badge}</p>
           <h2 id="swiss-ai-title" className="mt-5 max-w-3xl font-display text-3xl sm:text-4xl">{t.landing.swissAi.title}</h2>
           <p className="mt-4 max-w-3xl leading-relaxed text-muted">{t.landing.swissAi.intro}</p>
           <ul className="mt-7 grid gap-4 md:grid-cols-3">
