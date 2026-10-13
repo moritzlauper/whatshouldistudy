@@ -10,6 +10,11 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 - Scraper nehmen nur Fakten (Name, Stufe, Sprache, ECTS, Dauer, Namen von Vertiefungen, Link), keine Beschreibungen. robots.txt beachten, 1.5 s zwischen Anfragen.
 - Persönliche Exporte (Takeout usw.) des Inhabers nie ausgeben oder committen.
 
+## Karten-Label «Top» nur bei YouTube & Google (13.10.2026)
+
+- Auf der Startseite trägt nur die Karte «YouTube & Google» das Label «Top». Instagram und TikTok haben keins mehr; Spotify bleibt bei «Optional».
+- Betroffen: `app/views/start.tsx` (drei Karten mit `badge`, nur noch eine) und `lib/site/dict.ts` (`badge` der Quellen in vier Sprachen). Die Landing-Seite liest dieselbe Liste.
+
 ## Vergleich mit bis zu 60 Treffern (13.10.2026)
 
 - «Mit KI vergleichen» in den Top 5 und im Browser vergleicht bis zu 60 Treffer statt 20. Der Hinweis nennt die tatsächliche Anzahl (`PERSONAL_POOL` in `app/ui/readings.tsx`, jetzt 60).
@@ -27,9 +32,9 @@ Prüfungen: TypeScript grün; Tests 231, davon 228 grün (wie zuvor). Im Browser
 - Listen nach der Analyse: Die Top 5 und der Studiengangsbrowser nehmen Punkte, Reihenfolge und Begründungen aus dem gespeicherten Vergleich (`contentAnalysis.compare`), solange die Anfrage dieselbe ist: Felder, Angaben und Themen (`requestKey`). Dann entfällt der Knopf «Mit KI vergleichen» und es erscheint ein Hinweis. Ändern sich Angaben, Filter oder die Verlaufsanalyse, erscheint der Knopf wieder.
 - Begründungen stehen direkt unter jeder Zeile, nicht nur im aufklappbaren Bereich.
 - Der Studiengangsbrowser zeigt 10 Einträge pro Seite (`PAGE_SIZE`); die Serveranfrage nach Stufe, Land oder Stadt sendet dieselbe Seitengröße.
-- Startseite (DE): Der Einstieg nennt den YouTube-Verlauf mit der Zustimmung für Claude und beschreibt die Passung mit Details (Schwerpunkte, Dauer, Sprache, Kosten, Zulassung) im Vergleich mit den persönlichen Angaben. Datenschutzpunkte ergänzt um Zwischenstände und Zustimmung. «Wir speichern nichts: keine Datenbank» ersetzt durch «Deine Angaben speichern wir nicht … auf unserem Server»: Der Server führt Nutzungszähler, daher ist «keine Datenbank» von hier aus nicht prüfbar.
+- Startseite (DE): Der Einstieg nennt den YouTube-Verlauf mit der Zustimmung für Claude und beschreibt die Passung mit Details (Schwerpunkte, Dauer, Sprache, Kosten, Zulassung) im Vergleich mit den persönlichen Angaben. Datenschutzpunkte ergänzt um Zwischenstände und Zustimmung. «Wir speichern nichts: keine Datenbank» bleibt. Der Server führt nur Summenzähler; das hat der Inhaber bestätigt.
 
-Prüfungen: TypeScript grün; Tests 231, davon 228 grün. Die drei Fehlschläge (`content control`, `existing imports`, `personal comparisons`) bestehen auch auf `main`. Im Browser mit Mock-Antworten geprüft: Unterbrechung nach vier Gruppen, Neuladen zeigt «Bereits eingeordnet: 40 von 66», Weiter sendet nur die drei fehlenden Gruppen; danach ist der Zwischenstand gelöscht. Vergleich fertig: Top 5 in derselben Reihenfolge wie die Tabelle, kein Knopf «Mit KI vergleichen», Hinweis sichtbar, Begründungen unter den Zeilen, 10 Zeilen im Browser, keine Seitenfehler. Nicht geprüft: echte Modellantworten und echte Laufzeiten; die Datenschutzaussagen gegen die Nutzungszähler.
+Prüfungen: TypeScript grün; Tests 231, davon 228 grün. Die drei Fehlschläge (`content control`, `existing imports`, `personal comparisons`) bestehen auch auf `main`. Im Browser mit Mock-Antworten geprüft: Unterbrechung nach vier Gruppen, Neuladen zeigt «Bereits eingeordnet: 40 von 66», Weiter sendet nur die drei fehlenden Gruppen; danach ist der Zwischenstand gelöscht. Vergleich fertig: Top 5 in derselben Reihenfolge wie die Tabelle, kein Knopf «Mit KI vergleichen», Hinweis sichtbar, Begründungen unter den Zeilen, 10 Zeilen im Browser, keine Seitenfehler. Nicht geprüft: echte Modellantworten und echte Laufzeiten.
 
 ## Inhaltsanalyse: kleine Gruppen, Teilergebnis, Wiederholung (12.10.2026)
 
