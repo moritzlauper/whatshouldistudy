@@ -201,7 +201,7 @@ export function toFacts(raw: unknown, allowed: ReadonlySet<string>): ProgrammeFa
 }
 
 /** Countries with readings in the facts database; the site asks only for these. */
-export const FACTS_COUNTRIES = ['CH'] as const
+export { PROGRAMME_COUNTRIES as FACTS_COUNTRIES } from '../programme-countries.ts'
 
 /** Computed comparison with reasons selected by the AI, the optional step. */
 /** Most programmes one request to /api/personal-fit may carry; a longer list is asked in several requests. */

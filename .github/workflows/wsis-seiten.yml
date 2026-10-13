@@ -1,13 +1,16 @@
 name: whatshouldistudy find pages
 
 # Looks for the official page of the programmes that the data names without a link.
-# For each institution's domain the sitemap is read; a study page whose title names
-# the programme is printed as a candidate. Nothing is stored: a person checks the
-# candidates before they are listed in lib/official-pages.ts. By hand, on main only.
+# Stores only institution URLs with programme-name and degree evidence.
+# Output is a reviewable artifact; no descriptions or AI readings are published.
 
 on:
   workflow_dispatch:
     inputs:
+      country:
+        description: 'CH, FR, GB (UK), NL, NO, FI, AU, KR or US'
+        default: 'CH'
+        required: false
       hosts:
         description: 'Comma-separated domains to search; empty for all institutions without links'
         required: false
@@ -56,6 +59,12 @@ jobs:
 
       - name: Find the pages
         env:
+          COUNTRY: ${{ inputs.country }}
           HOSTS: ${{ inputs.hosts }}
           MAX_PAGES: ${{ inputs.max_pages }}
-        run: node scrapers/discover-programme-pages.ts --data data-in --country CH --hosts "$HOSTS" --max "$MAX_PAGES"
+        run: node scrapers/discover-programme-pages.ts --data data-in --country "$COUNTRY" --hosts "$HOSTS" --max "$MAX_PAGES" --out page-index/pages.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: programme-pages-${{ inputs.country }}
+          path: page-index

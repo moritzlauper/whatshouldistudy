@@ -17,6 +17,8 @@ import type { Level, Programme } from '../lib/programmes.ts'
 import { OUT, cleanTitle, fetchRetry, fieldsForIsced, fieldsForTitle, getJson, isMain, log, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
 
+import { NO_WEBSITES } from './lib/no-websites.ts'
+
 const DBH = 'https://dbh.hkdir.no/api/Tabeller/hentJSONTabellData'
 const KLASS = 'https://data.ssb.no/api/klass/v1/classifications/36/corresponds?targetClassificationId=141&from='
 
@@ -96,6 +98,7 @@ export function parseDbh(rows: DbhRow[], isced: Map<string, string>, fetchedAt: 
       id: programmeId(['no', s('Institusjonskode'), s('Studieprogramkode')]),
       name,
       institution,
+      institutionUrl: NO_WEBSITES[s('Institusjonskode')],
       country: 'NO',
       city: cityOf(institution),
       level,

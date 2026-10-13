@@ -12,10 +12,12 @@
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { aiConfigured, complete } from '../lib/infomaniak.ts'
+import { factsAiConfigured, completeFacts } from './lib/facts-ai.ts'
 import { exactBatch } from '../lib/ai-batch.ts'
-import { pageText, robotsAllow, sameSite } from '../lib/official-facts.ts'
-import { officialPageOf } from '../lib/official-pages.ts'
+import { robotsAllow } from '../lib/official-facts.ts'
+import { programmeCountry } from '../lib/programme-countries.ts'
+import { emptyPageIndex, programmePage, type PageIndex } from './lib/programme-pages.ts'
+import { programmePageText } from './lib/programme-page-text.ts'
 import { FACTS_SCHEMA, FACTS_SYSTEM, batches, costMicroUsd, hashText, isUnchanged, mergeFacts, normaliseFact, type PageMember, type StoredFact } from './lib/facts.ts'
 import { storedFactProblem } from '../lib/facts-store.ts'
 import { log } from './lib/common.ts'
@@ -30,6 +32,7 @@ interface Row {
   level: string
   country: string
   url?: string
+  source?: string
   focus?: string[]
   languages?: string[]
 }
@@ -49,14 +52,6 @@ function loadRows(dir: string): Row[] {
     .filter((f) => f.endsWith('.json'))
     .flatMap((f) => (JSON.parse(readFileSync(join(folder, f), 'utf8')) as { programmes?: Row[] }).programmes ?? [])
   return [...new Map(rows.map((r) => [r.id, r])).values()]
-}
-
-const isHomepage = (url: string): boolean => {
-  try {
-    return new URL(url).pathname.replace(/\/+$/, '') === ''
-  } catch {
-    return true
-  }
 }
 
 const get = (url: string) => fetchSite(url, 15_000)
@@ -80,28 +75,33 @@ async function main() {
   const dataDir = arg('--data', '')
   const outFile = arg('--out', '')
   const previousFile = arg('--previous', '')
-  const country = arg('--country', 'CH')
-  const limit = Number(arg('--limit', '0')) || Infinity
+  const country = programmeCountry(arg('--country', 'CH'))
+  const pagesFile = arg('--pages', '')
+  const index: PageIndex = pagesFile && existsSync(pagesFile) ? JSON.parse(readFileSync(pagesFile, 'utf8')) : emptyPageIndex()
+  const requestedLimit = Number(arg('--limit', '0'))
+  if (!Number.isInteger(requestedLimit) || requestedLimit < 0) throw new Error('Invalid --limit')
+  const limit = requestedLimit || Infinity
   const maxUsd = Number(arg('--max-usd', '3'))
+  if (!Number.isFinite(maxUsd) || maxUsd <= 0) throw new Error('Invalid --max-usd')
   // Read every page again, also those whose text did not change (after a change to the prompt).
   const reread = process.argv.includes('--reread')
   if (!dataDir || !outFile) throw new Error('usage: --data <dir> --out <file> [--previous <file>] [--country CH] [--limit N] [--max-usd 3]')
-  if (!aiConfigured()) throw new Error('INFOMANIAK_API_TOKEN and INFOMANIAK_PRODUCT_ID are required')
+  if (!factsAiConfigured()) throw new Error('ANTHROPIC_API_KEY is required')
 
   const previous: Record<string, StoredFact> = previousFile && existsSync(previousFile)
     ? (JSON.parse(readFileSync(previousFile, 'utf8')) as { programmes?: Record<string, StoredFact> }).programmes ?? {}
     : {}
   const rows = loadRows(dataDir).filter((r) => r.country === country)
+  if (!rows.length) throw new Error(`No programme data for ${country}; keeping previous readings`)
 
   // A programme gets its own page: the checked one, else the feed's link. A homepage describes no programme.
   const candidates = rows
     .flatMap((r) => {
-      const url = officialPageOf(r) ?? r.url
-      if (!url || isHomepage(url)) return []
-      if (r.institutionUrl && !sameSite(url, r.institutionUrl)) return []
+      const url = programmePage(r, index)
+      if (!url) return []
       return [{ r, url }]
     })
-    .sort((a, b) => (a.r.id < b.r.id ? -1 : a.r.id > b.r.id ? 1 : 0))
+    .sort((a, b) => (index.attempts[a.r.id] ?? '').localeCompare(index.attempts[b.r.id] ?? '') || (previous[a.r.id]?.at ?? '').localeCompare(previous[b.r.id]?.at ?? '') || a.r.id.localeCompare(b.r.id))
     .slice(0, limit)
   log(`${country}: ${candidates.length} programmes with a page of their own, of ${rows.length} in the data`)
 
@@ -113,6 +113,7 @@ async function main() {
   const stats = { pages: 0, unchanged: 0, unreadable: 0, refused: 0, calls: 0, fresh: 0, spendMicro: 0 }
 
   for (const [url, members] of byUrl) {
+    for (const { r } of members) index.attempts[r.id] = new Date().toISOString()
     const origin = new URL(url).origin
     if (!robots.has(origin)) {
       const res = await get(`${origin}/robots.txt`)
@@ -123,9 +124,10 @@ async function main() {
       log(`robots.txt does not allow ${url}`)
       continue
     }
-    const res = await get(url)
+    const discovered = members.find(({ r }) => index.pages[r.id]?.url === url)?.r
+    const res = await programmePageText(url, get, discovered)
     stats.pages++
-    const text = res.status === 200 ? pageText(res.text).slice(0, MAX_CHARS) : ''
+    const text = res.status === 200 ? res.text.slice(0, MAX_CHARS) : ''
     if (text.length < MIN_CHARS) {
       stats.unreadable += members.length
       log(`no readable text at ${url} (HTTP ${res.status || 'error'}, ${text.length} characters)`)
@@ -151,14 +153,16 @@ async function main() {
     const reserveMicro = (FACTS_SYSTEM.length + input.length) * 2 + 16000 * 5
     for (let attempt = 0; attempt < 2; attempt++) {
       if (stats.spendMicro + reserveMicro > maxUsd * 1_000_000) break
+      // Keep the reservation on timeouts: the provider may still have billed a call.
+      stats.spendMicro += reserveMicro
+      stats.calls++
       try {
-        const response = await complete({
+        const response = await completeFacts({
           maxTokens: 16000, schema: FACTS_SCHEMA, timeoutMs: 120_000,
           system: FACTS_SYSTEM,
           input,
         })
-        stats.calls++
-        stats.spendMicro += costMicroUsd(response.usage)
+        stats.spendMicro += costMicroUsd(response.usage) - reserveMicro
         if (!response.complete) throw new Error('Incomplete facts')
         const out = JSON.parse(response.text) as { programmes?: unknown[] }
         const read = exactBatch(out.programmes, new Set(sent.keys())).map((raw) => normaliseFact(raw, sent, at))
@@ -183,6 +187,10 @@ async function main() {
   const merged = Object.fromEntries(Object.entries(mergeFacts(previous, storable)).filter(([id]) => known.has(id)))
   mkdirSync(dirname(outFile), { recursive: true })
   writeFileSync(outFile, `${JSON.stringify({ updated: new Date().toISOString(), country, programmes: merged }, null, 1)}\n`)
+  if (pagesFile) {
+    mkdirSync(dirname(pagesFile), { recursive: true })
+    writeFileSync(pagesFile, JSON.stringify(index))
+  }
   log(
     `done: ${Object.keys(merged).length} readings kept; ${stats.fresh} new, ${stats.unchanged} pages unchanged, ` +
       `${stats.unreadable} unreadable, ${stats.refused} refused by robots.txt; ${stats.calls} model calls, about $${(stats.spendMicro / 1e6).toFixed(3)}`,

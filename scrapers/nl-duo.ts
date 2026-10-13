@@ -78,7 +78,9 @@ export function parseDuo(rows: Array<Record<string, string>>, fetchedAt: string,
     const ects = Number(r.STUDIELAST) || undefined
     const modes = new Set(rs.map((x) => MODE[x.VORM]).filter(Boolean))
     const langs = [...new Set(rs.map((x) => LANG[x.VOERTAAL]).filter(Boolean))]
-    const site = rs.map((x) => x.WEBSITE).find((u) => /^https?:\/\//.test(u))
+    const site = rs.map((x) => x.WEBSITE).find((u) => {
+      try { return /^https?:$/.test(new URL(u).protocol) } catch { return false }
+    })
     const hbo = /^HBO/.test(r.NIVEAU)
     programmes.push({
       id: programmeId(['nl', ...key.split('|')]),
@@ -101,6 +103,9 @@ export function parseDuo(rows: Array<Record<string, string>>, fetchedAt: string,
       ects,
       mode: modes.size > 1 ? 'both' : [...modes][0],
       url: site,
+      // DUO supplies the programme website even when the international directory
+      // has no matching institution name. Keep its origin for detail discovery.
+      institutionUrl: site ? new URL(site).origin : undefined,
       institutionType: hbo ? 'fh' : 'uni',
       // The Dutch name next to the English one, so the programme is found by both.
       focus: english && dutch && english.toLowerCase() !== dutch.toLowerCase() ? [dutch] : undefined,

@@ -505,10 +505,11 @@ ready-made text and HTML link for school websites. That link points to the
 home page; the student link of a plan unlocks reports and belongs on intranets
 and in emails, never on a public page.
 
-## Facts database (Swiss programme pages)
+## Facts database (international programme pages)
 
-`.github/workflows/wsis-fakten.yml` (run by hand, on main only) has Gemma at Infomaniak read
-the official page of every Swiss programme that has one (`scrapers/programme-facts.ts`,
+`.github/workflows/wsis-fakten.yml` (Tuesdays or by hand, on main only) has Claude
+Haiku 5.5 at Anthropic read public programme pages for CH, FR, GB, NL, NO, FI, AU,
+KR and US (`scrapers/programme-facts.ts`,
 rules and prompt in `scrapers/lib/facts.ts`). robots.txt is respected, one request
 goes out every 1.5 seconds, including robots and redirects. A reading is refreshed
 when the page text or the reader version changes: the hash and version are kept,
@@ -547,27 +548,49 @@ instead of the slow sitemap. Empty or sharply shrinking university/level groups
 retain their previous catalogue entries while other universities refresh.
 Programme languages and study modes remain unknown unless their source states them.
 
-Secrets: `INFOMANIAK_API_TOKEN` and `INFOMANIAK_PRODUCT_ID` (GitHub Actions).
+Secret: `ANTHROPIC_API_KEY` (GitHub Actions), already configured in this repository.
+Only public programme information goes to this offline reader, never user profiles.
+
+The workflow accepts `ALL` or one country (`UK` is normalized to `GB`). Each country
+has its own job, cached page index and reading cursor; one failure does not stop the
+others. Defaults: 150 reading attempts and at most USD 1 **per country** (USD 9
+for ALL), weekly. Missing pages are found through institution sitemaps, at most
+five institutions and 100 pages per institution per run; successive runs rotate
+institutions and page batches. This builds coverage incrementally, not a promise
+that every listed programme already has a reading. DE/AT remain excluded.
+
+Discovery stores URLs only when the title identifies the programme and the degree
+level, and rechecks that evidence when reading. Ambiguous matches remain unknown.
+Official Discover Uni and Parcoursup programme records are also accepted; Studyinfo
+uses its public education JSON record because its HTML is a JavaScript shell.
+Norwegian institution codes are joined to HK-dir’s checked website list because
+DBH omits the documented website column. DUO website origins support Dutch discovery.
+
+Local example: `pnpm data:pages -- --data scrapers/dist --country US`, then
+`pnpm data:facts -- --data scrapers/dist --country US --pages scrapers/out/pages-US.json
+--out scrapers/out/facts-US.json --limit 150 --max-usd 1`. Readings stay private;
+the page index contains only public URLs, titles and progress timestamps.
 
 
 ## Infomaniak AI and data processing
 
-All AI calls implemented in this repository use `google/gemma-4-31B-it` at
-Infomaniak: export content classification, personal programme comparisons,
-public description translations, and the offline programme-facts reader.
+Interactive AI calls use `google/gemma-4-31B-it` at Infomaniak: export content
+classification, personal programme comparisons and public description translations.
+The offline reader for public programme pages uses Anthropic on the owner’s request;
+see the facts database section above.
 There is no runtime fallback to another provider. Gemma is a Google-developed model;
 the inference endpoint is Infomaniak, not Google. The separate private blog
 automation described below is outside this migration.
 
 Set `INFOMANIAK_API_TOKEN` and `INFOMANIAK_PRODUCT_ID` in `.env.local` and in
-each Vercel deployment environment that should run AI. Configure the same two
-GitHub Actions secrets for `wsis-fakten.yml`. Local credentials do not configure
+each Vercel deployment environment that should run interactive AI. Local credentials do not configure
 Vercel or GitHub automatically. Never use `NEXT_PUBLIC_` for these values.
-`ANTHROPIC_API_KEY` is only needed for the explicitly invoked benchmark here.
+`ANTHROPIC_API_KEY` is used by the offline public-page reader and the explicitly
+invoked benchmark; it is not used for personal analyses.
 Daily and per-purchase dollar budgets remain in place; Gemma costs are reserved
 at a deliberately conservative 2 USD/CHF, not represented as an actual exchange
-rate. The offline reader's existing $1/$5-per-million-token estimates are also
-conservative. Personal comparison groups get up to 40 seconds, with any retry
+rate. The offline reader reserves conservative $1/$5-per-million-token estimates
+(above Haiku 5.5’s current prices), retaining reservations on failed requests. Personal comparison groups get up to 40 seconds, with any retry
 bounded by a shared 50-second deadline. Offline facts use groups of three and
 a 120-second timeout.
 

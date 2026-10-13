@@ -2,6 +2,16 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Internationale Studiengangsdetails (13.10.2026)
+
+- Die Listen für CH/FR/GB/NL/NO/FI/AU/KR/US liefen bereits erfolgreich; der veröffentlichte Lauf vom 13.10. enthält alle neun Länder. Die Detailfreigabe (`FACTS_COUNTRIES`) war auf CH beschränkt und ist jetzt mit der gemeinsamen Länderliste erweitert. DE/AT bleiben ausgeschlossen; Paywall und OIDC-Regeln unverändert.
+- Öffentliche Studiengangslesungen auf ausdrücklichen Wunsch des Inhabers mit dem vorhandenen GitHub-Secret `ANTHROPIC_API_KEY`, Modell `claude-haiku-5-5`. Diese Entscheidung ersetzt für den Offline-Leser die frühere vollständige Infomaniak-Migration. Persönliche Analysen und Übersetzungen bleiben bei Infomaniak. Keine Infomaniak-Secrets nach GitHub übertragen.
+- Faktenworkflow: wöchentlich am Dienstag und manuell mit ALL oder einem Land, UK wird zu GB. Getrennte Länderjobs, maximal drei gleichzeitig; standardmässig 150 Leseversuche und konservativ USD 1 je Land (ALL höchstens USD 9). Fehlgeschlagene API-Aufrufe behalten ihre Kostenreservierung. Leser-Version 5.
+- Fehlende Programmseiten werden über Hochschul-Sitemaps gesucht. Automatische Zuordnung braucht Programmname im Titel und Abschlussbeleg; mehrdeutige Treffer werden nicht übernommen. Titel wird beim Lesen erneut geprüft. Pro Lauf fünf Hochschulen und höchstens 100 Seiten je Hochschule; Cache speichert URLs, Titelbelege, Seitenpositionen und Leseversuche. Folgeläufe setzen bei weiteren Hochschulen/Seiten/Programmen fort. Keine Garantie vollständiger Detailabdeckung nach dem ersten Lauf.
+- Offizielle Programmrecords von Discover Uni und Parcoursup werden auch ausserhalb der Hochschul-Domain akzeptiert; Opintopolku wird über den öffentlichen JSON-Record gelesen, nicht über die leere JavaScript-Hülle. Beschreibungen werden nicht in der Seitensuche gespeichert. Fakten bleiben im privaten Store.
+- NO: DBH dokumentiert Nettside, liefert die Spalte aber nicht über seine API. Daher geprüfte Zuordnung von DBH-Hochschulcodes zu HK-dirs Hochschul-Websites. Vollständiger Liveabruf: 2’631 Programme, davon 2’614 mit Website. NL übernimmt die Website-Domain aus DUO auch ohne Treffer im englischen Verzeichnis. `data:all` enthält nun alle erlaubten Quellen und meldet Quellenausfälle mit Fehlerstatus.
+- Prüfung: 281 Tests, TypeScript, Webpack-Produktionsbuild und unveränderter Demodaten-Build erfolgreich. Drei öffentliche Live-Lesungen mit Anthropic (GB/FR/FI) vollständig verarbeitet und store-validiert; keine persönlichen Daten. Weitere Länder durch gezielte Parser-/Seitensuche-Regressionen abgedeckt; vollständige internationale Detail-Erstbefüllung steht noch aus.
+
 ## Abschlussprüfung für Push (13.10.2026)
 
 - Takeout-Anleitung in DE/EN/FR/IT: Hinweis zur YouTube-/News-Auswahl entfernt, Wartezeit von ca. 2–3 Minuten auf die E-Mail ergänzt.

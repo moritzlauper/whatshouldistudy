@@ -14,7 +14,7 @@ export const CHECK_LANGUAGES = ['de', 'fr', 'it', 'en'] as const
 export type CheckLanguage = (typeof CHECK_LANGUAGES)[number]
 
 /** Readings use field IDs. User lexical topics are mapped through topicFields when compared. */
-export const FACTS_VERSION = 4
+export const FACTS_VERSION = 5
 export const TOPIC_KEYS: string[] = Object.keys(LEXICON)
 const TOPIC_SET = new Set(TOPIC_KEYS)
 

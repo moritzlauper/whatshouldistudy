@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'
 import { ROOT, log } from './lib/common.ts'
 
-const scrapers = ['us-scorecard', 'fr-parcoursup', 'uk-discoveruni', 'global-openalex', 'global-directory']
+const scrapers = ['us-scorecard', 'fr-parcoursup', 'uk-discoveruni', 'ch-bfs', 'ch-hochschulen', 'ch-salaries', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku', 'nl-duo', 'no-dbh', 'global-openalex', 'global-directory']
 const failed: string[] = []
 for (const s of scrapers) {
   log(`▶ ${s}`)
@@ -17,4 +17,4 @@ for (const s of scrapers) {
 const extra = process.argv.slice(2)
 const b = spawnSync(process.execPath, [join(ROOT, 'scrapers', 'build.ts'), ...extra], { stdio: 'inherit' })
 if (failed.length) log(`Failed: ${failed.join(', ')}`)
-process.exit(b.status ?? 1)
+process.exit((b.status ?? 1) || (failed.length ? 1 : 0))

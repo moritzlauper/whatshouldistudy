@@ -57,8 +57,8 @@ export function requestFields(results: Results) {
 }
 
 /**
- * The readings cover Swiss programmes: they are used only when every country asked
- * for has them. Otherwise the lists stay in the order of the questionnaire.
+ * Readings are enabled for countries with supported programme sources.
+ * Individual programmes can still lack a reading. Otherwise the lists stay in the order of the questionnaire.
  */
 export const hasReadings = (prefs: Preferences) => prefs.countries.length > 0 && prefs.countries.every((c) => (FACTS_COUNTRIES as readonly string[]).includes(c))
 
