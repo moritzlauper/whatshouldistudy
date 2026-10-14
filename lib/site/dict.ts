@@ -348,7 +348,7 @@ const en = {
     lead: 'Explore study options through your answers, interests from your everyday activity, or both. Choose the questionnaire or import your data to get started.',
     cards: {
       questionnaire: { step: 'Step 1', title: 'Questionnaire', text: 'Start here with your interests and personality.' },
-      data: { step: 'Step 2 · optional', title: 'With your data', text: 'Add valuable context to your answers: everyday interests can point to study options you may have overlooked.' },
+      data: { step: 'Step 2', title: 'With your data', text: 'Add valuable context to your answers: everyday interests can point to study options you may have overlooked.' },
     },
     step1: 'A short questionnaire about you',
     step1sub: 'Answer at least two interest questions per area to see your result. Personality questions are optional; school subjects and priorities refine it.',
@@ -1051,7 +1051,7 @@ const deCH: Dict = {
     lead: 'Entdecke Studienmöglichkeiten anhand deiner Antworten, deiner Interessen aus dem Alltag oder beidem zusammen. Starte mit dem Fragebogen oder deinem Datenimport.',
     cards: {
       questionnaire: { step: 'Schritt 1', title: 'Fragebogen', text: 'Starte hier mit deinen Interessen und deiner Persönlichkeit.' },
-      data: { step: 'Schritt 2 · optional', title: 'Mit deinen Daten', text: 'Eine wertvolle Ergänzung zu deinen Antworten: Interessen aus deinem Alltag können auf bisher übersehene Studienmöglichkeiten hinweisen.' },
+      data: { step: 'Schritt 2', title: 'Mit deinen Daten', text: 'Eine wertvolle Ergänzung zu deinen Antworten: Interessen aus deinem Alltag können auf bisher übersehene Studienmöglichkeiten hinweisen.' },
     },
     step1: 'Ein kurzer Fragebogen über dich',
     step1sub: 'Beantworte mindestens zwei Interessenfragen pro Bereich für dein Resultat. Persönlichkeit ist freiwillig; Schulfächer und Prioritäten verfeinern es.',
@@ -1784,7 +1784,7 @@ const frCH = mergeDeep(en, {
     title: 'Trouvons ta filière.', lead: 'Explore des pistes d’études à partir de tes réponses, de tes centres d’intérêt au quotidien ou des deux. Commence par le questionnaire ou l’import de tes données.',
     cards: {
       questionnaire: { step: 'Étape 1', title: 'Questionnaire', text: 'Commence ici avec tes intérêts et ta personnalité.' },
-      data: { step: 'Étape 2 · facultative', title: 'Avec tes données', text: 'Un complément précieux à tes réponses : tes intérêts au quotidien peuvent révéler des pistes d’études encore inexplorées.' },
+      data: { step: 'Étape 2', title: 'Avec tes données', text: 'Un complément précieux à tes réponses : tes intérêts au quotidien peuvent révéler des pistes d’études encore inexplorées.' },
     },
     step1: 'Un bref questionnaire sur toi', step1sub: 'Réponds à au moins deux questions d’intérêts par domaine pour voir ton résultat. La personnalité est facultative ; les matières et les priorités l’affinent.',
     step2: 'Compléter avec tes données (facultatif)', step2sub: '« Mon activité » contient ton historique YouTube. Il révèle des intérêts que le questionnaire laisse de côté. Les activités récentes comptent davantage.',
@@ -2072,7 +2072,7 @@ const itCH = mergeDeep(en, {
     title: 'Troviamo il tuo corso.', lead: 'Esplora percorsi di studio a partire dalle tue risposte, dai tuoi interessi quotidiani o da entrambi. Inizia dal questionario o dall’importazione dei tuoi dati.',
     cards: {
       questionnaire: { step: 'Passo 1', title: 'Questionario', text: 'Inizia qui con i tuoi interessi e la tua personalità.' },
-      data: { step: 'Passo 2 · facoltativo', title: 'Con i tuoi dati', text: 'Un complemento prezioso alle tue risposte: gli interessi quotidiani possono suggerire percorsi di studio che non avevi considerato.' },
+      data: { step: 'Passo 2', title: 'Con i tuoi dati', text: 'Un complemento prezioso alle tue risposte: gli interessi quotidiani possono suggerire percorsi di studio che non avevi considerato.' },
     },
     step1: 'Un breve questionario su di te', step1sub: 'Rispondi ad almeno due domande sugli interessi per area per vedere il risultato. La personalità è facoltativa; materie e priorità lo affinano.',
     step2: 'Aggiungi i tuoi dati (facoltativo)', step2sub: '«Le mie attività» contiene la tua cronologia YouTube. Mostra interessi che il questionario non coglie. Le attività recenti contano di più.',
