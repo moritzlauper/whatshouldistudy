@@ -455,8 +455,8 @@ The privacy page describes exactly what is switched on.
 `/api/checkout` creates a Stripe Checkout session (plain REST, no SDK);
 `/unlocked` exchanges the paid session for an HMAC-signed token
 (`lib/server/token.ts`, valid 12 months) stored in the browser; `/api/programmes`
-and `/api/research` require it. No database. Free tier: `/api/teaser` (counts
-plus up to three examples, excluding the best programme and top field).
+and `/api/research` require it. No database. Free tier: `/api/teaser` (aggregate
+counts and fields only, excluding the top field; no programme records).
 The best programme appears directly below the top field in results; its details
 are fetched through `/api/programmes` only after unlock.
 

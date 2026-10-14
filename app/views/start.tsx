@@ -198,8 +198,14 @@ export function StartView() {
             onFiles={(f) => onFiles(f, 'takeout')}
           />
         </div>
-        <details className="mt-4 text-xs text-muted">
-          <summary className="w-fit cursor-pointer py-2 underline-offset-4 hover:underline">{t.start.optionalSources}</summary>
+        <details className="group mt-5 text-sm text-muted">
+          <summary className="card-sm flex cursor-pointer list-none items-center justify-between gap-4 bg-accent-soft px-5 py-4 text-ink transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
+            <span>
+              <span className="block text-lg font-bold">{t.start.optionalSources}</span>
+              <span className="mt-1 block text-sm text-muted">{t.start.optionalSourcesHint}</span>
+            </span>
+            <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-line bg-lime text-2xl text-on-color transition-transform group-open:rotate-45">+</span>
+          </summary>
           <div className="mt-3 max-w-3xl space-y-3">
             <p>{t.start.optionalYoutube}</p>
             <a href="https://takeout.google.com/settings/takeout/custom/youtube" target="_blank" rel="noreferrer" className="font-semibold underline">{t.start.request.youtube} ↗</a>

@@ -25,7 +25,7 @@ const SAMPLE_FIELDS = ['psychology', 'medicine', 'computer-science', 'law', 'arc
 export async function Landing({ site, base, locale: selectedLocale }: SiteProps) {
   const k = kit(site, base, selectedLocale)
   const { t, r, locale, intl } = k
-  const { meta } = await getMeta()
+  const { meta, sample } = await getMeta()
   const local = isLocal(site)
   const country = k.conf.country
   // A country site counts its own country.
@@ -63,15 +63,9 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
       <JsonLd data={homeLd(site, t.landing.faq)} />
       {/* Hero */}
       <section className="dots relative overflow-hidden border-b-2 border-line">
-        <a href="#pricing" aria-label={SALES_PAUSED[site] ? t.landing.full : undefined} className="absolute right-4 top-10 z-10 hidden text-on-color focus-visible:outline-2 focus-visible:outline-accent md:block">
+        <div aria-hidden="true" className="pointer-events-none absolute right-4 top-10 hidden md:block">
           <Burst className="spin-slow" size={130} color="var(--yellow)" />
-          {!SALES_PAUSED[site] && (
-            <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-center">
-              <span className="font-display text-xl leading-none"><Price site={site} /></span>
-              <span className="max-w-20 text-xs font-extrabold leading-tight">{t.landing.full}</span>
-            </span>
-          )}
-        </a>
+        </div>
         <Ring className="float absolute -left-6 bottom-16 hidden md:block" size={86} color="var(--sky)" style={{ ['--r' as string]: '0deg' }} />
         <Sparkle className="float-slow absolute left-[46%] top-8 hidden lg:block" size={44} color="var(--pink)" />
         <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-start gap-14 px-4 pb-20 pt-8 sm:px-6 sm:pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pt-20">
@@ -94,14 +88,17 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
               <Link href={r.start} className="btn btn-primary btn-lg">
                 {t.landing.cta} <span aria-hidden="true">→</span>
               </Link>
-              <Link href={r.how} className="btn btn-ghost btn-lg">
+              <a href="#swiss-ai" className="btn btn-ghost btn-lg">
                 {t.landing.cta2}
-              </Link>
+              </a>
             </div>
+            {!SALES_PAUSED[site] && <a href="#pricing" className="mt-4 inline-block text-sm font-semibold text-accent underline underline-offset-4">
+              {t.landing.aiReport}: <Price site={site} /> · {t.landing.oneTime}
+            </a>}
             {programmes > 0 && (
               <Link href={r.programmes} className="mt-7 inline-flex items-center gap-2 rounded-full border-2 border-line bg-surface px-4 py-1.5 text-sm font-semibold hover:-translate-y-0.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-good" aria-hidden="true" />
-                {t.landing.totals(fmtNumber(programmes, intl), fmtNumber(institutions, intl))} <span aria-hidden="true">→</span>
+                <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${sample ? 'bg-yellow' : 'bg-good'}`} aria-hidden="true" />
+                {(sample ? t.landing.demoTotals : t.landing.totals)(fmtNumber(programmes, intl), fmtNumber(institutions, intl))} <span aria-hidden="true">→</span>
               </Link>
             )}
           </div>
@@ -130,7 +127,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
         </div>
       </section>
 
-      {/* The optional second step: own data, Swiss AI, then concrete programmes. */}
+      {/* Concrete AI benefits; importing history remains optional. */}
       <section id="swiss-ai" aria-labelledby="swiss-ai-title" className="scroll-mt-20 px-4 py-14 sm:px-6">
         <div className="card relative mx-auto max-w-6xl overflow-hidden bg-accent-soft p-6 sm:p-10 lg:p-12">
           <Sparkle className="absolute right-8 top-10 hidden lg:block" size={64} color="var(--pink)" />
@@ -201,8 +198,14 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
         <div className="mt-10">
           {sources.filter((s) => s.id === 'takeout').map(sourceCard)}
         </div>
-        <details className="mt-4 text-xs text-muted">
-          <summary className="w-fit cursor-pointer py-2 underline-offset-4 hover:underline">{t.start.optionalSources}</summary>
+        <details className="group mt-5 text-sm text-muted">
+          <summary className="card-sm flex cursor-pointer list-none items-center justify-between gap-4 bg-accent-soft px-5 py-4 text-ink transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
+            <span>
+              <span className="block text-lg font-bold">{t.start.optionalSources}</span>
+              <span className="mt-1 block text-sm text-muted">{t.start.optionalSourcesHint}</span>
+            </span>
+            <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-line bg-lime text-2xl text-on-color transition-transform group-open:rotate-45">+</span>
+          </summary>
           <p className="mt-3">{t.start.optionalYoutube}</p>
           <a href="https://takeout.google.com/settings/takeout/custom/youtube" target="_blank" rel="noreferrer" className="mt-2 inline-block font-semibold underline">{t.start.request.youtube} ↗</a>
           <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -326,42 +329,42 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
 function HeroCard({ k }: { k: Kit }) {
   const { t, locale } = k
   return (
-    <div className="relative mx-auto w-full max-w-md">
-      <div className="card absolute inset-0 translate-x-4 translate-y-5 rotate-[5deg] bg-pink" aria-hidden="true" />
-      <div className="card absolute inset-0 -translate-x-3 translate-y-2 rotate-[-4deg] bg-sky" aria-hidden="true" />
-      <div className="card relative rotate-[-1deg] p-6">
-        <div className="flex items-center justify-between text-xs font-semibold text-muted">
+    <div className="relative mx-auto w-full max-w-[26rem] px-2 sm:px-0">
+      <div className="card absolute inset-x-2 inset-y-0 translate-x-2 translate-y-3 rotate-[3deg] bg-pink" aria-hidden="true" />
+      <div className="card absolute inset-x-2 inset-y-0 -translate-x-2 translate-y-1 rotate-[-2deg] bg-sky" aria-hidden="true" />
+      <div className="card relative p-4 sm:rotate-[-1deg] sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-muted">
           <span className="chip-soft">{t.landing.example}</span>
           <span>{t.landing.exampleSignals}</span>
         </div>
-        <div className="mt-5 flex items-center gap-5">
-          <Hexagon profile={[0.92, 0.88, 0.35, 0.12, 0.3, 0.5]} size={124} label={t.misc.profileLabel} />
-          <div>
+        <div className="mt-3 flex items-center gap-3">
+          <Hexagon profile={[0.92, 0.88, 0.35, 0.12, 0.3, 0.5]} size={104} label={t.misc.profileLabel} />
+          <div className="min-w-0">
             <div className="text-xs font-bold uppercase tracking-wider text-muted">{t.landing.code}</div>
-            <div className="font-display text-5xl">RIC</div>
-            <div className="text-sm text-muted">{t.landing.codeSub}</div>
+            <div className="font-display text-4xl">RIC</div>
+            <div className="text-xs text-muted">{t.landing.codeSub}</div>
           </div>
         </div>
-        <div className="mt-6 rounded-2xl border-2 border-line bg-accent-soft p-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted">{t.landing.exampleProgrammeLabel}</p>
-          <p className="mt-1 font-display text-2xl">{t.landing.exampleProgramme}</p>
-          <p className="mt-1 font-semibold">EPFL · Lausanne</p>
+        <div className="mt-3 rounded-xl border-2 border-line bg-accent-soft p-3">
+          <p className="text-xs font-bold text-muted">{t.landing.exampleProgrammeLabel}</p>
+          <p className="mt-1 break-words font-display text-lg leading-snug sm:text-xl">{t.landing.exampleProgramme}</p>
+          <p className="mt-1 text-sm font-semibold">EPFL · Lausanne</p>
         </div>
-        <ol className="mt-6 grid gap-3">
+        <ol className="mt-3 grid gap-2">
           {t.landing.exampleRows.map(([id, score, why], i) => (
-            <li key={id} className="rounded-2xl border-2 border-line p-3.5" style={{ background: i === 0 ? 'var(--accent-soft)' : undefined }}>
-              <div className="flex items-center justify-between gap-3">
-                <span className="flex items-center gap-2 font-bold">
-                  <span className="text-xl" aria-hidden="true">{emoji(id)}</span>
+            <li key={id} className="rounded-xl border-2 border-line px-3 py-2 sm:py-2.5" style={{ background: i === 0 ? 'var(--accent-soft)' : undefined }}>
+              <div className="flex items-center justify-between gap-2">
+                <span className="flex min-w-0 items-center gap-2 text-sm font-bold">
+                  <span className="shrink-0 text-base" aria-hidden="true">{emoji(id)}</span>
                   {fieldName(id, locale)}
                 </span>
-                <span className="on-color rounded-full border-2 border-line bg-lime px-2.5 py-0.5 text-sm font-extrabold">{score}</span>
+                <span className="on-color shrink-0 rounded-full border-2 border-line bg-lime px-2 py-0.5 text-xs font-extrabold">{score}</span>
               </div>
               <p className="mt-1 text-xs text-muted">{why}</p>
             </li>
           ))}
         </ol>
-        <div className="on-color mt-4 rounded-2xl border-2 border-dashed border-line bg-yellow p-3.5 text-sm">
+        <div className="on-color mt-3 rounded-xl border-2 border-dashed border-line bg-yellow p-2.5 text-xs">
           <span className="font-bold">🔮 {t.landing.hiddenLabel}</span> {t.landing.hiddenText}
         </div>
       </div>

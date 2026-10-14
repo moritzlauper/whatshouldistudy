@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { getState, loadCompareRows, studentId, unlockToken, update, useAppState } from '@/lib/store.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
+import { reportOfferText } from '@/lib/site/report-offer.ts'
 import { SALES_PAUSED, isLocal } from '@/lib/site/config.ts'
 import type { FieldMatch, Preferences, Results } from '@/lib/engine/types.ts'
 import { normalize } from '@/lib/engine/text.ts'
@@ -34,7 +35,6 @@ import { measureCheckout } from '@/lib/measure.ts'
 interface Teaser {
   total: number
   facets: RankResult['facets']
-  samples: RankedProgramme[]
   sample: boolean
   updated?: string
 }
@@ -413,6 +413,7 @@ export function Programmes({ results, prefs, topics = [], hideFirst = true, shar
 
 function Locked({ teaser, config, hideFirst, onUnlocked }: { teaser: Teaser | null; config: Config | null; hideFirst: boolean; onUnlocked: (token: string) => void }) {
   const { t, r, site, base, locale, intl } = useSite()
+  const offer = reportOfferText(locale)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const { org } = useAppState()
@@ -479,16 +480,16 @@ function Locked({ teaser, config, hideFirst, onUnlocked }: { teaser: Teaser | nu
                   ))}
               </div>
             </div>
-            {teaser.samples.length > 0 && (
-              <>
-                <p className="mt-7 font-bold">{t.programmes.freeTop(teaser.samples.length, hideFirst)}</p>
-                <div className="mt-3 grid gap-4">
-                  {teaser.samples.map((p) => (
-                    <ProgrammeRow key={p.id} p={p} />
-                  ))}
-                </div>
-              </>
-            )}
+            <div className="card mt-5 bg-accent-soft p-6 sm:p-7">
+              <h3 className="font-display text-2xl">🔒 {offer.lockedTitle}</h3>
+              <p className="mt-2 text-sm text-muted">{offer.lockedText}</p>
+              <ul className="mt-5 grid gap-3">
+                {offer.labels.map((label) => <li key={label} className="flex items-center justify-between gap-3 rounded-xl border-2 border-line bg-surface px-4 py-3 font-semibold">
+                  <span>{label}</span><span aria-hidden="true">🔒</span>
+                </li>)}
+              </ul>
+              <a href={`#${r.anchors.unlock}`} className="btn btn-primary mt-5 max-w-full whitespace-normal text-center">{offer.cta}</a>
+            </div>
           </>
         ) : (
           <div className="card animate-soft p-6 font-semibold text-muted">{t.programmes.loading}</div>
@@ -505,6 +506,13 @@ function Locked({ teaser, config, hideFirst, onUnlocked }: { teaser: Teaser | nu
         )}
         <h3 className="pr-16 font-display text-3xl">{t.programmes.boxTitle}</h3>
         <p className="mt-2 text-sm opacity-85">{t.programmes.boxSub}</p>
+        <div className="on-color mt-5 rounded-2xl bg-lime p-4">
+          <p className="font-display text-xl">{offer.included}</p>
+          <p className="mt-1 text-sm font-semibold">{offer.price(price)}</p>
+          <ul className="mt-3 space-y-2 text-sm">
+            {offer.features.map((feature) => <li key={feature.title}>✓ {feature.title}</li>)}
+          </ul>
+        </div>
         <ul className="mt-5 grid gap-2 text-sm font-medium">
           {t.programmes.boxList(teaser ? fmtNumber(teaser.total, intl) : '').map((x) => (
             <li key={x}>★ {x}</li>

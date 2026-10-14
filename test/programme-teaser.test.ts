@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 
-test('free preview excludes the best programme even when it belongs to a lower field', () => {
+test('free preview exposes no programme records, including when the best belongs to a lower field', () => {
   const env = { ...process.env }
   for (const key of ['WSIS_DATA_URL', 'VERCEL_GIT_REPO_OWNER', 'VERCEL_GIT_REPO_SLUG']) delete env[key]
   const result = spawnSync(process.execPath, ['--conditions=react-server', '--input-type=module', '-e', `
@@ -16,9 +16,9 @@ test('free preview excludes the best programme even when it belongs to a lower f
       assert.ok(paid.items[0]);
       if (score === 1) assert.notEqual(paid.items[0].matchedField, fields[0].id);
       const free = await teaser(req);
-      assert.ok(free.samples.length > 0);
-      assert.ok(free.samples.every(p => p.id !== paid.items[0].id && !p.fields.includes(fields[0].id)));
-      assert.ok(free.samples.every(p => !p.fields.includes(paid.items[0].matchedField)));
+      assert.deepEqual(free.samples, []);
+      assert.ok(free.total > 0);
+      assert.ok(!JSON.stringify(free).includes(paid.items[0].id));
       assert.equal(free.facets.fields[fields[0].id], undefined);
       assert.ok(free.coverage.fields.every(f => f.id !== fields[0].id));
     }
@@ -45,9 +45,8 @@ test('institution type limits ranked and preview programmes without exposing the
       assert.ok(paid.total > 0 && paid.total < all.total, institutionType);
       assert.ok(paid.items.every(p => p.institutionType === institutionType));
       const free = await teaser(req);
-      if (institutionType !== 'ph') assert.ok(free.samples.length > 0);
-      assert.ok(free.samples.every(p => p.institutionType === institutionType));
-      assert.ok(free.samples.every(p => p.id !== paid.items[0].id));
+      assert.deepEqual(free.samples, []);
+      assert.ok(free.total <= paid.total);
     }
     assert.equal(sanitizeRequest({ fields, prefs: { ...prefs, institutionType: 'made-up' } })?.prefs.institutionType, undefined);
   `], { cwd: process.cwd(), env, encoding: 'utf8' })

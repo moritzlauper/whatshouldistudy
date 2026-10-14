@@ -2,6 +2,36 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Lokale Landingpage zeigte Demo-Zahlen (14.10.2026)
+
+- Ursache für «117 Studiengänge an 14 Hochschulen»: lokal weder `WSIS_DATA_URL` noch Vercel-Repo-Variablen gesetzt; `getMeta()` las `data/sample/meta.json`. Keine Reduktion des veröffentlichten Datenbestands.
+- Lokale `.env.local` auf den öffentlichen Datenbranch dieses Repos eingestellt. Metadaten vom 14.10.2026, 08:11 UTC: Schweiz 1’648 Programme an 43 Institutionen. Lokale Statistik-API bestätigt `sample: false` und denselben Datenstand.
+- Landingpage berücksichtigt jetzt das `sample`-Flag: Demo-Zahlen heissen ausdrücklich «Beispieldaten», mit gelbem Punkt und ohne Behauptung wöchentlicher Aktualisierung (vier Sprachen). Typprüfung erfolgreich.
+
+## Kompakte Beispielkarte, Stern ohne Schrift (14.10.2026)
+
+- `HeroCard` auf der Landingpage: weniger Abstand und kleinere Typografie/Diagramm, weniger gedrehte Hintergrundkarten. Auf erneuten Wunsch etwas grösser als die erste kompakte Fassung: maximal 416 px breit, Diagramm 104 px, mehr Innenabstand auf Desktop. Inhalte bleiben sichtbar, lange Programmnamen brechen um.
+- Der obere gelbe Stern enthält keinen Text mehr und ist reine Dekoration. Preis und Kaufmöglichkeiten bleiben an ihren übrigen Stellen.
+- Typprüfung und sieben gezielte Tests erfolgreich. Finale Desktopkarte rund 620 px hoch und im geprüften 823-px-Fenster vollständig sichtbar. Mobile Fassung vor der kleinen Vergrösserung bei 390 × 844 px ohne horizontalen Seitenüberlauf geprüft.
+
+## Ergänzende Quellen deutlicher sichtbar (14.10.2026)
+
+- Landingpage und Importseite behalten Google/YouTube als Hauptquelle. Die ergänzenden Quellen öffnen jetzt über eine grosse, farbige Aufklappfläche mit «Weitere Quellen ergänzen» und «Instagram, TikTok & mehr · freiwillig», statt eines kleinen Textlinks. DE/EN/FR/IT angepasst; standardmässig eingeklappt.
+- Typprüfung erfolgreich. Im lokalen Browser das Aufklappen und die sichtbaren Importkarten für Instagram/TikTok geprüft.
+
+## Landingpage kürzer, KI im Einstieg (14.10.2026)
+
+- Hero-Text in DE/EN/FR/IT auf drei kurze Sätze gekürzt; KI bereits in der Überschrift. Der zweite Knopf führt mit «Was kann die KI?» zur KI-Sektion. Darunter stehen Report inklusive KI, aktueller Checkout-Preis und Gültigkeit.
+- Die KI-Sektion erklärt drei Ergebnisse statt des technischen Ablaufs: Programmvergleich, Inhalte/Vertiefungen und optionale Verlaufseinordnung. Hinweise zu Einwilligung und Datenverarbeitung bleiben bestehen; Länderhinweise für DE/AT bleiben erhalten.
+- Typprüfung erfolgreich; Schweizer Landingpage und Sprung zur KI-Sektion lokal im Browser geprüft.
+
+## Gratisvorschau ohne Studiengangdetails; KI-Angebot sichtbar (14.10.2026)
+
+- Auf Wunsch des Inhabers zeigt die kostenlose Ergebnisvorschau keine konkreten Studiengänge mehr. `/api/teaser` liefert nur Zählungen/Fachgruppen und ein leeres `samples` für ältere Clients. Die bisherigen Vorschau-Nutzungszähler für einzelne Programme entfallen. Bezahlte Endpunkte, Tokenprüfung und Checkout bleiben unverändert.
+- Statt der drei aufklappbaren Gratisprogramme zeigt `app/ui/programmes.tsx` gesperrte Feldbezeichnungen. Fachrichtungen bleiben sichtbar; Platz 1 bleibt wie bisher gesperrt.
+- Direkt unter dem Ergebnistitel erklärt `ReportOffer` den Einmalpreis und drei Funktionen: Profilvergleich, Studieninhalte/Vertiefungen, optionale Einordnung des importierten Verlaufs samt Veränderungen der Empfehlungen. Die Texte nennen verfügbare Hochschulangaben, benötigten Import und Einwilligung. Der Kaufkasten hebt die enthaltene KI-Analyse ebenfalls hervor. Texte in DE/EN/FR/IT, Preis aus derselben Konfiguration wie Checkout.
+- Geprüft: TypeScript und vier gezielte Tests (Teaser, Checkout, Begründungen) erfolgreich. Lokale Browserprüfung mit synthetischen Fragebogenantworten: Angebot, gesperrte Felder und Verlinkung zum Kaufbereich. Kein Kauf und keine persönliche KI-Anfrage ausgelöst.
+
 ## Geschlossene Studiengänge: im Ranking, mit Hinweis (14.10.2026)
 
 - Entscheidung: Ein Studiengang, der keine Neuanmeldungen mehr annimmt (`closedFrom`), bleibt im Ranking, wie er passt. Er wird nicht still ausgeblendet oder herabgestuft. Ein einzelner Seitenwortlaut sollte keine Programme verschwinden lassen.

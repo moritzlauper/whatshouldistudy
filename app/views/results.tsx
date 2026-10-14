@@ -18,6 +18,7 @@ import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes, TopProgrammes } from '../ui/programmes.tsx'
 import { ContentAnalysisPanel } from '../ui/content-analysis.tsx'
+import { ReportOffer } from '../ui/report-offer.tsx'
 import { InstitutionTypeSelect, StudyingControl } from '../ui/prefs-form.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { Contributions } from '../ui/contributions.tsx'
@@ -154,6 +155,8 @@ export function ResultsView() {
           )}
         </div>
       </div>
+
+      {!unlocked && !isShared && <ReportOffer />}
 
       {unlocked && !isShared && (
         <div className="mt-6">

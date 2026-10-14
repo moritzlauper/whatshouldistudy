@@ -227,7 +227,7 @@ export async function rank(req: RankRequest): Promise<RankResult> {
   }
 }
 
-/** What the free tier sees: how much there is, and a few examples. */
+/** Free preview: aggregate counts and fields only, never programme records. */
 export async function teaser(req: RankRequest) {
   // Compute the actual best match with all fields before removing the paid
   // field. Otherwise a programme from field #2 can reveal programme #1.
@@ -242,7 +242,8 @@ export async function teaser(req: RankRequest) {
   return {
     total: full.total,
     facets: full.facets,
-    samples: full.items.filter((p) => p.id !== best.items[0]?.id && !p.fields.includes(req.fields[0].id) && (!bestField || !p.fields.includes(bestField))).slice(0, 3),
+    // Keep the empty array for older clients, without exposing paid details.
+    samples: [],
     sample: full.sample,
     updated: full.updated,
     coverage: {
