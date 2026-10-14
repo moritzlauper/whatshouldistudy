@@ -26,6 +26,28 @@ suggestions or their reasons. Old shared profiles without means are not
 converted into new scores. The personal AI endpoint requires `consent: true`
 in addition to the existing paid access check.
 
+**Separate questionnaire session:** `/beratung` on country sites
+(`/schweiz/beratung` locally), `/counselling` globally. Available from the manual,
+teacher and organisation pages. It starts empty, uses tab memory only and shows
+descriptive profiles after all 24 interest items. It does not mount imports,
+personal AI, measurement or organisation capture, and does not expose the paid
+programme ranking. Entry uses a full page navigation to unload previously loaded
+scripts. Explicit print/JSON copies are personal data; ending a session does not
+delete downloaded files. Page requests and hosting logs still require review.
+
+**Research preparation:** [pilot protocol](docs/validation/PILOT_PROTOCOL.md),
+[research decisions and unresolved rights](docs/validation/RESEARCH_DECISIONS.md),
+and [institutional dossier](docs/validation/INSTITUTIONAL_REVIEW.md).
+`npm run validation:bundle` records exact forms for each language, scoring/source
+checksums and an unreviewed field-profile template. Review version IDs before
+regenerating; `npm run validation:check` (also in tests) detects drift. Keep
+completed independent reviews separately from the generated template.
+Catalogue releases must be archived separately before a study. Result wire
+version 1 is unchanged; new `method` metadata identifies the procedure, while
+old shared links without it remain unversioned. Its locale is the current display
+language, not proof of the language used for older saved responses. No external test items, norms
+or restricted research datasets were adopted, and no study has been launched.
+
 Four sites from one codebase: the global English site and three German-language
 country sites: `wasstudieren` for Switzerland (wasstudieren.ch), `findemeinstudium`
 for Germany (findemeinstudium.de) and `wasstudieren` for Austria (wasstudieren.at).

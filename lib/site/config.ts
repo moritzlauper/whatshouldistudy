@@ -148,6 +148,7 @@ export interface Routes {
   programme: (cc: string, field: string, slug: string) => string
   how: string
   professional: string
+  counselling: string
   /** The free lesson for teachers and the link for school websites. */
   teachers: string
   /** The weekly articles (German and English only). */
@@ -184,6 +185,7 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
       programme: (_cc, field, slug) => `${root}/studiengaenge/${fieldSlugDe(field)}/${slug}`,
       how: `${root}/so-funktionierts`,
       professional: `${root}/fachinformationen`,
+      counselling: `${root}/beratung`,
       teachers: `${root}/lehrpersonen`,
       blog: `${root}/blog`,
       post: (slug) => `${root}/blog/${slug}`,
@@ -210,6 +212,7 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
     programme: (cc, field, slug) => `/programmes/${countrySlug(cc)}/${field}/${slug}`,
     how: '/how-it-works',
     professional: '/professional',
+    counselling: '/counselling',
     teachers: '/teachers',
     blog: '/blog',
     post: (slug) => `/blog/${slug}`,

@@ -5,6 +5,8 @@ import type { SiteProps } from '@/lib/site/config.ts'
 import { kit } from '@/lib/site/kit.ts'
 import { professionalText } from '@/lib/site/professional-text.ts'
 import { PrintButton } from '../ui/print-button.tsx'
+import { CounsellingEntry } from '../ui/counselling-entry.tsx'
+import { ASSESSMENT_VERSION } from '@/lib/engine/assessment-version.ts'
 
 /** A versioned description of implemented behaviour, explicitly separate from evidence still to be collected. */
 export function ProfessionalView({ site, base, locale: lang }: SiteProps) {
@@ -31,7 +33,7 @@ export function ProfessionalView({ site, base, locale: lang }: SiteProps) {
   ]
   return <article id="professional-manual" className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
     <header>
-      <p className="text-sm font-bold text-muted">{de ? 'Dokumentationsstand' : 'Documentation revision'} · 14.10.2026 · 1.0</p>
+      <p className="text-sm font-bold text-muted">{de ? 'Dokumentationsstand' : 'Documentation revision'} · 14.10.2026 · 1.1</p>
       <h1 className="mt-3 font-display text-4xl sm:text-5xl">{text.title}</h1>
       <p className="mt-5 text-lg">{text.notice}</p>
       <p className="mt-3 text-muted">{text.institution}</p>
@@ -39,6 +41,7 @@ export function ProfessionalView({ site, base, locale: lang }: SiteProps) {
         <PrintButton label={de ? 'Manual drucken / als PDF sichern' : 'Print / save manual as PDF'} />
         <Link href={r.privacy} className="btn btn-ghost">{t.footer.privacy}</Link>
       </div>
+      <CounsellingEntry locale={locale} href={r.counselling} />
     </header>
     <div lang={de ? 'de' : 'en'}>
       <nav aria-label={de ? 'Inhalt des Manuals' : 'Manual contents'} className="my-8 rounded-xl border-2 border-line bg-surface p-5 print:hidden">
@@ -57,6 +60,7 @@ export function ProfessionalView({ site, base, locale: lang }: SiteProps) {
         </section>
         <section id="manual-1" className="scroll-mt-24">
           <h2>{headings[1]}</h2>
+          <p>{de ? 'Die separate Fragebogen-Sitzung beginnt ohne vorhandenes Browserprofil. Sie zeigt Antwortmittelwerte und ausdrückliche Wünsche, keine Fächer- oder Studiengangrangliste. Alle 24 Interessenfragen sind dort erforderlich; Persönlichkeit, Schulfächer und Werte bleiben freiwillig. Antworten liegen nur im Arbeitsspeicher des Tabs. Es gibt keine Imports, persönliche KI, automatischen Forschungsuploads oder Analyse-Tags. Ein ausdrücklich ausgelöster Druck oder JSON-Download bleibt bei der Person. Seitenabrufe und Hosting-Protokolle sind davon getrennt. Vor institutionellem Einsatz bleibt eine Prüfung erforderlich.' : 'The separate questionnaire session starts without an existing browser profile. It shows response means and stated preferences, not field or programme rankings. All 24 interest items are required there; personality, school subjects and values remain optional. Answers stay in tab memory. There are no imports, personal AI, automatic research uploads or analytics tags. Explicit printouts or JSON downloads remain with the person. Page requests and hosting logs are separate. Institutional review is still required.'}</p>
           <ol>
             <li>{de ? 'Vor Beginn Zweck, fehlende Validierung und freiwillige Datenquellen erklären. Keine persönlichen Exporte auf einem fremden oder gemeinsam genutzten Beratungsgerät verlangen. Für eine Demonstration fiktive Angaben verwenden.' : 'Explain the purpose, lack of validation and voluntary data sources before starting. Do not require personal exports on an adviser’s or shared device. Use fictitious responses for demonstrations.'}</li>
             <li>{de ? 'Selbstständig und ohne Vorgabe eines erwünschten Ergebnisses antworten. Interessen: 1 = mag ich nicht bis 5 = mag ich sehr. Persönlichkeit: 1 = trifft gar nicht zu bis 5 = trifft sehr zu; das typische eigene Verhalten einschätzen. Keine Zeitbegrenzung; eine standardisierte Bearbeitungsdauer wurde nicht erhoben.' : 'Respond independently without steering towards a desired result. Interests: 1 = dislike to 5 = love. Personality: 1 = very inaccurate to 5 = very accurate, considering typical behaviour. There is no time limit; standardised completion times have not been measured.'}</li>
@@ -99,6 +103,9 @@ export function ProfessionalView({ site, base, locale: lang }: SiteProps) {
         </section>
         <section id="manual-6" className="scroll-mt-24">
           <h2>{headings[6]}</h2>
+          <p>{de ? 'Entscheidung nach dem Recherchebericht vom 14.10.2026: Zuerst die deutsche Interessenfassung und breite Studienfelder prüfen. AIST-3 ist ein Kandidat für eine extern lizenzierte Vergleichsmessung; VIT-2 für eine mögliche Schweizer Kooperation. Beide sind nicht in die App eingebaut und ihre Einbettungsrechte sind nicht geklärt. Mini-IPIP bleibt optional und im Fragebogen-Modus rein beschreibend. Ein Wechsel auf BFI-2 setzt geklärte kommerzielle Rechte voraus; eine O*NET-Übersetzung braucht die passende Lizenz und eine Prüfung vor Einführung.' : 'Decision following the research report dated 14 October 2026: first evaluate the German interest form and broad study fields. AIST-3 is a candidate for a separately licensed comparator; VIT-2 for potential Swiss collaboration. Neither has been embedded in the app and embedding rights remain unresolved. Mini-IPIP remains optional and descriptive in questionnaire mode. Moving to BFI-2 requires clarified commercial rights; an O*NET translation requires the applicable licence and evaluation before introduction.'}</p>
+          <p>{de ? 'TREE, SHP, SOEP, NEPS und öffentliche IPIP-Datensätze werden nicht als Produktnormen oder Trainingsdaten übernommen. Passende Items, Zielgruppe, Messzeitpunkte und ausdrücklich erlaubte Produktnutzung müssten jeweils nachgewiesen werden. Datenzugang, Itemrechte und Rechte an abgeleiteten Modellen sind getrennt zu klären. Keine dieser Klärungen oder Kooperationen wird hier als abgeschlossen dargestellt.' : 'TREE, SHP, SOEP, NEPS and public IPIP datasets are not adopted as product norms or training data. Item compatibility, population, measurement timing and permitted product use must each be established. Data access, item rights and rights to derived models are separate questions. No such clearance or collaboration is represented as completed here.'}</p>
+          <p><a href={`${SOURCE_URL}/blob/main/docs/validation/PILOT_PROTOCOL.md`}>{de ? 'Konkreter Pilotentwurf, noch nicht gestartet' : 'Detailed pilot draft, not yet started'}</a> · <a href={`${SOURCE_URL}/blob/main/docs/validation/INSTITUTIONAL_REVIEW.md`}>{de ? 'Dossier für institutionelle Prüfung: offene Nachweise' : 'Institutional review dossier: outstanding evidence'}</a></p>
           <p><strong>{de ? 'Geplant, nicht durchgeführt. Es werden dadurch keine Forschungsdaten erhoben.' : 'Proposed, not completed. Publishing this plan does not collect research data.'}</strong></p>
           <ol>
             <li>{de ? 'Protokoll vorab festlegen: unabhängige psychometrische Fachperson einbeziehen, Zielgruppe und Anwendung definieren, Software-, Item- und Sprachversion einfrieren. Hypothesen, Auswertung, Ausschlüsse, fehlende Werte und Erfolgskriterien vor der Erhebung registrieren. Stichprobengrösse aus Präzisions- oder Poweranalyse ableiten, nicht nachträglich passend wählen.' : 'Specify the protocol first: involve an independent psychometric expert, define target population and use, and freeze software, item and language versions. Preregister hypotheses, analyses, exclusions, missing-data handling and success criteria. Derive sample size from precision or power analysis, not from favourable results afterwards.'}</li>
@@ -111,11 +118,16 @@ export function ProfessionalView({ site, base, locale: lang }: SiteProps) {
         </section>
         <section id="manual-7" className="scroll-mt-24">
           <h2>{headings[7]}</h2>
+          <p>{de ? 'Revision 1.1: getrennte Fragebogen-Sitzung, Versionsnachweise und Pilotprotokoll ergänzt. Interessenantworten müssen auch beim Einlesen gespeicherter Angaben gültige ganze Werte von 1 bis 5 sein.' : 'Revision 1.1: separate questionnaire session, version records and pilot protocol added. Interest responses must be valid integers from 1 to 5, including when reading saved responses.'}</p>
+          <p><code>{ASSESSMENT_VERSION.interests}</code> · <code>{ASSESSMENT_VERSION.scoring}</code>. <a href={`${SOURCE_URL}/blob/main/docs/validation/release-manifest.json`}>{de ? 'Versionsmanifest mit exakten Sprachfassungen und Dateiprüfsummen' : 'Version manifest with exact language forms and file checksums'}</a></p>
           <p>{de ? 'Revision 1.0 vom 14.10.2026: erste zusammenhängende Fachdokumentation; ungesicherte Persönlichkeitsnormen entfernt; vollständige Persönlichkeitsantworten erforderlich; KI-Einwilligung am Endpunkt geprüft. Frühere Ergebnislinks ohne Antwortmittelwerte werden nicht in neue Normwerte umgerechnet. Modelländerungen erfordern eine erneute Prüfung und Dokumentation.' : 'Revision 1.0, 14 October 2026: first consolidated professional documentation; unsupported personality norms removed; complete personality responses required; AI consent checked at the endpoint. Earlier result links without response means are not converted into new norm scores. Model changes require renewed review and documentation.'}</p>
           <ul>
             <li><a href="https://ipip.ori.org/MiniIPIPKey.htm">Mini-IPIP scoring key · Donnellan, Oswald, Baird &amp; Lucas (2006)</a></li>
             <li><a href="https://ipip.ori.org/newScoringInstructions.htm">IPIP: scoring positive and negative items</a></li>
             <li><a href="https://ipip.ori.org/newNorms.htm">IPIP: norms and datasets</a></li>
+            <li><a href="https://ipip.ori.org/newPermission.htm">IPIP: permission for commercial and non-commercial use</a></li>
+            <li><a href="https://www.onetcenter.org/license_toolsdev.html">O*NET Tools Developer License: adaptation and validation</a></li>
+            <li><a href="https://www.ocf.berkeley.edu/~johnlab/bfi.html">BFI-2: author permissions</a></li>
             <li><a href={`${SOURCE_URL}/blob/main/lib/engine/questionnaire.ts`}>{de ? 'Itemdefinitionen und Skalenberechnung' : 'Item definitions and scale scoring'}</a> · <a href={`${SOURCE_URL}/blob/main/lib/engine/scoring.ts`}>{de ? 'Ranglistenmodell' : 'Ranking model'}</a> · <a href={`${SOURCE_URL}/blob/main/lib/engine/programme-fit.ts`}>{de ? 'Studiengangpassung' : 'Programme fit'}</a></li>
           </ul>
           <div className="rounded-xl border-2 border-soft-line p-4">

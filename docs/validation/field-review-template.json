@@ -1,0 +1,2688 @@
+{
+  "schema": "wsis-field-review-v1",
+  "status": "unreviewed-product-heuristics",
+  "instructions": "Two independent reviewers first; cite curriculum URLs, retrieval dates and relevant content. Record conflicts and disagreements. Do not infer empirical validation from completed reviews.",
+  "fields": [
+    {
+      "id": "mathematics",
+      "name": "Mathematics",
+      "proposed": {
+        "riasec": [
+          0.15,
+          1,
+          0.3,
+          0.2,
+          0.15,
+          0.6
+        ],
+        "subjects": {
+          "math": 1,
+          "phys": 0.4,
+          "cs": 0.4
+        },
+        "values": {
+          "salary": 0.7,
+          "security": 0.7,
+          "creativity": 0.5,
+          "helping": 0.2,
+          "tech": 0.6,
+          "outdoors": 0.05,
+          "autonomy": 0.6,
+          "impact": 0.4
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "statistics-data-science",
+      "name": "Statistics & Data Science",
+      "proposed": {
+        "riasec": [
+          0.15,
+          0.95,
+          0.2,
+          0.15,
+          0.35,
+          0.8
+        ],
+        "subjects": {
+          "math": 0.95,
+          "cs": 0.7,
+          "econ": 0.3
+        },
+        "values": {
+          "salary": 0.85,
+          "security": 0.85,
+          "creativity": 0.4,
+          "helping": 0.3,
+          "tech": 0.85,
+          "outdoors": 0.05,
+          "autonomy": 0.6,
+          "impact": 0.5
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "computer-science",
+      "name": "Computer Science",
+      "proposed": {
+        "riasec": [
+          0.35,
+          0.9,
+          0.3,
+          0.1,
+          0.25,
+          0.65
+        ],
+        "subjects": {
+          "math": 0.8,
+          "cs": 1,
+          "phys": 0.2
+        },
+        "values": {
+          "salary": 0.9,
+          "security": 0.85,
+          "creativity": 0.55,
+          "helping": 0.2,
+          "tech": 1,
+          "outdoors": 0.05,
+          "autonomy": 0.75,
+          "impact": 0.5
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "artificial-intelligence",
+      "name": "Artificial Intelligence & Machine Learning",
+      "proposed": {
+        "riasec": [
+          0.3,
+          1,
+          0.35,
+          0.1,
+          0.3,
+          0.55
+        ],
+        "subjects": {
+          "math": 0.95,
+          "cs": 1,
+          "phys": 0.2,
+          "social": 0.1
+        },
+        "values": {
+          "salary": 0.95,
+          "security": 0.75,
+          "creativity": 0.6,
+          "helping": 0.3,
+          "tech": 1,
+          "outdoors": 0.05,
+          "autonomy": 0.7,
+          "impact": 0.7
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "cybersecurity",
+      "name": "Cybersecurity & IT Networks",
+      "proposed": {
+        "riasec": [
+          0.45,
+          0.85,
+          0.15,
+          0.15,
+          0.3,
+          0.75
+        ],
+        "subjects": {
+          "cs": 1,
+          "math": 0.6
+        },
+        "values": {
+          "salary": 0.85,
+          "security": 0.95,
+          "creativity": 0.35,
+          "helping": 0.4,
+          "tech": 1,
+          "outdoors": 0.05,
+          "autonomy": 0.55,
+          "impact": 0.6
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "information-systems",
+      "name": "Information Systems & Business Informatics",
+      "proposed": {
+        "riasec": [
+          0.2,
+          0.6,
+          0.15,
+          0.25,
+          0.6,
+          0.85
+        ],
+        "subjects": {
+          "cs": 0.8,
+          "math": 0.5,
+          "econ": 0.6
+        },
+        "values": {
+          "salary": 0.8,
+          "security": 0.9,
+          "creativity": 0.3,
+          "helping": 0.3,
+          "tech": 0.85,
+          "outdoors": 0.05,
+          "autonomy": 0.5,
+          "impact": 0.35
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "computer-engineering",
+      "name": "Computer Engineering",
+      "proposed": {
+        "riasec": [
+          0.7,
+          0.85,
+          0.2,
+          0.05,
+          0.2,
+          0.55
+        ],
+        "subjects": {
+          "math": 0.85,
+          "phys": 0.7,
+          "cs": 0.9
+        },
+        "values": {
+          "salary": 0.9,
+          "security": 0.85,
+          "creativity": 0.45,
+          "helping": 0.15,
+          "tech": 1,
+          "outdoors": 0.05,
+          "autonomy": 0.55,
+          "impact": 0.45
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "physics",
+      "name": "Physics",
+      "proposed": {
+        "riasec": [
+          0.4,
+          1,
+          0.3,
+          0.1,
+          0.1,
+          0.4
+        ],
+        "subjects": {
+          "math": 0.95,
+          "phys": 1,
+          "chem": 0.3,
+          "cs": 0.4
+        },
+        "values": {
+          "salary": 0.7,
+          "security": 0.65,
+          "creativity": 0.5,
+          "helping": 0.2,
+          "tech": 0.75,
+          "outdoors": 0.1,
+          "autonomy": 0.6,
+          "impact": 0.55
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "astronomy",
+      "name": "Astronomy & Astrophysics",
+      "proposed": {
+        "riasec": [
+          0.35,
+          1,
+          0.35,
+          0.1,
+          0.1,
+          0.35
+        ],
+        "subjects": {
+          "math": 0.9,
+          "phys": 1,
+          "cs": 0.4
+        },
+        "values": {
+          "salary": 0.55,
+          "security": 0.45,
+          "creativity": 0.5,
+          "helping": 0.15,
+          "tech": 0.7,
+          "outdoors": 0.2,
+          "autonomy": 0.55,
+          "impact": 0.45
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "chemistry",
+      "name": "Chemistry",
+      "proposed": {
+        "riasec": [
+          0.5,
+          1,
+          0.2,
+          0.1,
+          0.1,
+          0.55
+        ],
+        "subjects": {
+          "chem": 1,
+          "math": 0.6,
+          "phys": 0.5,
+          "bio": 0.4
+        },
+        "values": {
+          "salary": 0.7,
+          "security": 0.75,
+          "creativity": 0.4,
+          "helping": 0.3,
+          "tech": 0.6,
+          "outdoors": 0.1,
+          "autonomy": 0.45,
+          "impact": 0.55
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "biology",
+      "name": "Biology",
+      "proposed": {
+        "riasec": [
+          0.4,
+          0.95,
+          0.2,
+          0.3,
+          0.1,
+          0.4
+        ],
+        "subjects": {
+          "bio": 1,
+          "chem": 0.6,
+          "math": 0.35
+        },
+        "values": {
+          "salary": 0.5,
+          "security": 0.6,
+          "creativity": 0.4,
+          "helping": 0.45,
+          "tech": 0.45,
+          "outdoors": 0.45,
+          "autonomy": 0.45,
+          "impact": 0.65
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "molecular-biology",
+      "name": "Biochemistry, Molecular Biology & Biotechnology",
+      "proposed": {
+        "riasec": [
+          0.4,
+          1,
+          0.15,
+          0.25,
+          0.15,
+          0.5
+        ],
+        "subjects": {
+          "bio": 1,
+          "chem": 0.9,
+          "math": 0.45,
+          "cs": 0.25
+        },
+        "values": {
+          "salary": 0.65,
+          "security": 0.7,
+          "creativity": 0.4,
+          "helping": 0.5,
+          "tech": 0.65,
+          "outdoors": 0.05,
+          "autonomy": 0.4,
+          "impact": 0.75
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "neuroscience",
+      "name": "Neuroscience",
+      "proposed": {
+        "riasec": [
+          0.25,
+          1,
+          0.2,
+          0.4,
+          0.1,
+          0.35
+        ],
+        "subjects": {
+          "bio": 1,
+          "chem": 0.6,
+          "math": 0.4,
+          "social": 0.4
+        },
+        "values": {
+          "salary": 0.6,
+          "security": 0.55,
+          "creativity": 0.45,
+          "helping": 0.6,
+          "tech": 0.6,
+          "outdoors": 0.05,
+          "autonomy": 0.45,
+          "impact": 0.75
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "cognitive-science",
+      "name": "Cognitive Science",
+      "proposed": {
+        "riasec": [
+          0.15,
+          0.95,
+          0.45,
+          0.35,
+          0.2,
+          0.3
+        ],
+        "subjects": {
+          "math": 0.5,
+          "cs": 0.55,
+          "bio": 0.4,
+          "social": 0.6,
+          "lang": 0.3
+        },
+        "values": {
+          "salary": 0.65,
+          "security": 0.5,
+          "creativity": 0.55,
+          "helping": 0.45,
+          "tech": 0.75,
+          "outdoors": 0.05,
+          "autonomy": 0.6,
+          "impact": 0.6
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "environmental-science",
+      "name": "Environmental Science & Ecology",
+      "proposed": {
+        "riasec": [
+          0.6,
+          0.85,
+          0.2,
+          0.4,
+          0.25,
+          0.35
+        ],
+        "subjects": {
+          "bio": 0.8,
+          "chem": 0.5,
+          "geo": 0.7,
+          "math": 0.4
+        },
+        "values": {
+          "salary": 0.45,
+          "security": 0.55,
+          "creativity": 0.4,
+          "helping": 0.55,
+          "tech": 0.45,
+          "outdoors": 0.9,
+          "autonomy": 0.45,
+          "impact": 1
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "earth-sciences",
+      "name": "Earth Sciences, Geology & Meteorology",
+      "proposed": {
+        "riasec": [
+          0.65,
+          0.9,
+          0.15,
+          0.15,
+          0.15,
+          0.4
+        ],
+        "subjects": {
+          "geo": 1,
+          "phys": 0.6,
+          "chem": 0.6,
+          "math": 0.5
+        },
+        "values": {
+          "salary": 0.6,
+          "security": 0.6,
+          "creativity": 0.35,
+          "helping": 0.3,
+          "tech": 0.55,
+          "outdoors": 1,
+          "autonomy": 0.45,
+          "impact": 0.6
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "marine-biology",
+      "name": "Marine Biology & Oceanography",
+      "proposed": {
+        "riasec": [
+          0.7,
+          0.85,
+          0.2,
+          0.3,
+          0.1,
+          0.3
+        ],
+        "subjects": {
+          "bio": 0.95,
+          "chem": 0.5,
+          "geo": 0.6,
+          "sport": 0.2
+        },
+        "values": {
+          "salary": 0.4,
+          "security": 0.4,
+          "creativity": 0.35,
+          "helping": 0.45,
+          "tech": 0.4,
+          "outdoors": 1,
+          "autonomy": 0.45,
+          "impact": 0.85
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "zoology",
+      "name": "Zoology & Animal Science",
+      "proposed": {
+        "riasec": [
+          0.7,
+          0.85,
+          0.15,
+          0.4,
+          0.1,
+          0.3
+        ],
+        "subjects": {
+          "bio": 1,
+          "chem": 0.45
+        },
+        "values": {
+          "salary": 0.4,
+          "security": 0.45,
+          "creativity": 0.3,
+          "helping": 0.6,
+          "tech": 0.35,
+          "outdoors": 0.85,
+          "autonomy": 0.4,
+          "impact": 0.75
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "geography",
+      "name": "Geography",
+      "proposed": {
+        "riasec": [
+          0.45,
+          0.8,
+          0.3,
+          0.35,
+          0.3,
+          0.45
+        ],
+        "subjects": {
+          "geo": 1,
+          "hist": 0.4,
+          "math": 0.35,
+          "econ": 0.3
+        },
+        "values": {
+          "salary": 0.45,
+          "security": 0.6,
+          "creativity": 0.4,
+          "helping": 0.4,
+          "tech": 0.55,
+          "outdoors": 0.75,
+          "autonomy": 0.45,
+          "impact": 0.65
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "mechanical-engineering",
+      "name": "Mechanical Engineering",
+      "proposed": {
+        "riasec": [
+          1,
+          0.8,
+          0.3,
+          0.05,
+          0.25,
+          0.55
+        ],
+        "subjects": {
+          "math": 0.85,
+          "phys": 1,
+          "cs": 0.35
+        },
+        "values": {
+          "salary": 0.8,
+          "security": 0.85,
+          "creativity": 0.55,
+          "helping": 0.2,
+          "tech": 0.9,
+          "outdoors": 0.25,
+          "autonomy": 0.45,
+          "impact": 0.5
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "electrical-engineering",
+      "name": "Electrical & Electronic Engineering",
+      "proposed": {
+        "riasec": [
+          0.9,
+          0.85,
+          0.2,
+          0.05,
+          0.2,
+          0.55
+        ],
+        "subjects": {
+          "math": 0.9,
+          "phys": 1,
+          "cs": 0.55
+        },
+        "values": {
+          "salary": 0.85,
+          "security": 0.9,
+          "creativity": 0.45,
+          "helping": 0.2,
+          "tech": 1,
+          "outdoors": 0.2,
+          "autonomy": 0.45,
+          "impact": 0.55
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "civil-engineering",
+      "name": "Civil & Structural Engineering",
+      "proposed": {
+        "riasec": [
+          0.95,
+          0.7,
+          0.3,
+          0.15,
+          0.35,
+          0.65
+        ],
+        "subjects": {
+          "math": 0.85,
+          "phys": 0.85,
+          "geo": 0.3,
+          "art": 0.15
+        },
+        "values": {
+          "salary": 0.75,
+          "security": 0.9,
+          "creativity": 0.45,
+          "helping": 0.35,
+          "tech": 0.7,
+          "outdoors": 0.6,
+          "autonomy": 0.4,
+          "impact": 0.7
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "aerospace-engineering",
+      "name": "Aerospace Engineering",
+      "proposed": {
+        "riasec": [
+          0.95,
+          0.9,
+          0.3,
+          0.05,
+          0.2,
+          0.5
+        ],
+        "subjects": {
+          "math": 0.95,
+          "phys": 1,
+          "cs": 0.4
+        },
+        "values": {
+          "salary": 0.85,
+          "security": 0.75,
+          "creativity": 0.55,
+          "helping": 0.15,
+          "tech": 1,
+          "outdoors": 0.15,
+          "autonomy": 0.45,
+          "impact": 0.55
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "automotive-engineering",
+      "name": "Automotive & Vehicle Engineering",
+      "proposed": {
+        "riasec": [
+          1,
+          0.7,
+          0.3,
+          0.05,
+          0.3,
+          0.5
+        ],
+        "subjects": {
+          "math": 0.8,
+          "phys": 0.95,
+          "cs": 0.3
+        },
+        "values": {
+          "salary": 0.75,
+          "security": 0.75,
+          "creativity": 0.5,
+          "helping": 0.1,
+          "tech": 0.9,
+          "outdoors": 0.2,
+          "autonomy": 0.4,
+          "impact": 0.4
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "chemical-engineering",
+      "name": "Chemical & Process Engineering",
+      "proposed": {
+        "riasec": [
+          0.8,
+          0.9,
+          0.15,
+          0.05,
+          0.25,
+          0.6
+        ],
+        "subjects": {
+          "chem": 1,
+          "math": 0.85,
+          "phys": 0.7
+        },
+        "values": {
+          "salary": 0.85,
+          "security": 0.8,
+          "creativity": 0.35,
+          "helping": 0.2,
+          "tech": 0.8,
+          "outdoors": 0.15,
+          "autonomy": 0.4,
+          "impact": 0.55
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "biomedical-engineering",
+      "name": "Biomedical Engineering",
+      "proposed": {
+        "riasec": [
+          0.75,
+          0.95,
+          0.25,
+          0.35,
+          0.2,
+          0.45
+        ],
+        "subjects": {
+          "math": 0.8,
+          "phys": 0.75,
+          "bio": 0.75,
+          "chem": 0.5
+        },
+        "values": {
+          "salary": 0.8,
+          "security": 0.75,
+          "creativity": 0.5,
+          "helping": 0.7,
+          "tech": 0.9,
+          "outdoors": 0.05,
+          "autonomy": 0.45,
+          "impact": 0.85
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "materials-science",
+      "name": "Materials Science & Engineering",
+      "proposed": {
+        "riasec": [
+          0.75,
+          0.95,
+          0.2,
+          0.05,
+          0.15,
+          0.5
+        ],
+        "subjects": {
+          "chem": 0.9,
+          "phys": 0.9,
+          "math": 0.75
+        },
+        "values": {
+          "salary": 0.8,
+          "security": 0.75,
+          "creativity": 0.45,
+          "helping": 0.2,
+          "tech": 0.85,
+          "outdoors": 0.05,
+          "autonomy": 0.4,
+          "impact": 0.6
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "robotics-mechatronics",
+      "name": "Robotics & Mechatronics",
+      "proposed": {
+        "riasec": [
+          1,
+          0.9,
+          0.35,
+          0.05,
+          0.25,
+          0.45
+        ],
+        "subjects": {
+          "math": 0.85,
+          "phys": 0.9,
+          "cs": 0.85
+        },
+        "values": {
+          "salary": 0.85,
+          "security": 0.8,
+          "creativity": 0.6,
+          "helping": 0.2,
+          "tech": 1,
+          "outdoors": 0.1,
+          "autonomy": 0.5,
+          "impact": 0.55
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "energy-engineering",
+      "name": "Energy & Environmental Engineering",
+      "proposed": {
+        "riasec": [
+          0.85,
+          0.85,
+          0.2,
+          0.25,
+          0.3,
+          0.5
+        ],
+        "subjects": {
+          "phys": 0.9,
+          "math": 0.8,
+          "chem": 0.6,
+          "geo": 0.3
+        },
+        "values": {
+          "salary": 0.75,
+          "security": 0.85,
+          "creativity": 0.45,
+          "helping": 0.4,
+          "tech": 0.85,
+          "outdoors": 0.35,
+          "autonomy": 0.45,
+          "impact": 1
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "industrial-engineering",
+      "name": "Industrial Engineering & Operations",
+      "proposed": {
+        "riasec": [
+          0.6,
+          0.7,
+          0.15,
+          0.2,
+          0.65,
+          0.8
+        ],
+        "subjects": {
+          "math": 0.85,
+          "phys": 0.5,
+          "econ": 0.6,
+          "cs": 0.45
+        },
+        "values": {
+          "salary": 0.85,
+          "security": 0.85,
+          "creativity": 0.35,
+          "helping": 0.25,
+          "tech": 0.75,
+          "outdoors": 0.1,
+          "autonomy": 0.5,
+          "impact": 0.45
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "architecture",
+      "name": "Architecture & Interior Architecture",
+      "proposed": {
+        "riasec": [
+          0.6,
+          0.5,
+          0.95,
+          0.2,
+          0.4,
+          0.4
+        ],
+        "subjects": {
+          "art": 0.95,
+          "math": 0.6,
+          "phys": 0.45,
+          "hist": 0.25
+        },
+        "values": {
+          "salary": 0.6,
+          "security": 0.55,
+          "creativity": 1,
+          "helping": 0.35,
+          "tech": 0.65,
+          "outdoors": 0.25,
+          "autonomy": 0.6,
+          "impact": 0.6
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "urban-planning",
+      "name": "Urban Planning & Transport",
+      "proposed": {
+        "riasec": [
+          0.4,
+          0.7,
+          0.5,
+          0.5,
+          0.6,
+          0.55
+        ],
+        "subjects": {
+          "geo": 0.9,
+          "econ": 0.4,
+          "social": 0.5,
+          "math": 0.4,
+          "art": 0.3
+        },
+        "values": {
+          "salary": 0.55,
+          "security": 0.75,
+          "creativity": 0.6,
+          "helping": 0.6,
+          "tech": 0.5,
+          "outdoors": 0.45,
+          "autonomy": 0.4,
+          "impact": 0.95
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "industrial-design",
+      "name": "Industrial & Product Design",
+      "proposed": {
+        "riasec": [
+          0.75,
+          0.45,
+          0.95,
+          0.15,
+          0.45,
+          0.3
+        ],
+        "subjects": {
+          "art": 1,
+          "phys": 0.4,
+          "math": 0.35,
+          "cs": 0.3
+        },
+        "values": {
+          "salary": 0.6,
+          "security": 0.55,
+          "creativity": 1,
+          "helping": 0.3,
+          "tech": 0.75,
+          "outdoors": 0.1,
+          "autonomy": 0.65,
+          "impact": 0.5
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "game-design",
+      "name": "Game Design & Development",
+      "proposed": {
+        "riasec": [
+          0.45,
+          0.6,
+          0.95,
+          0.15,
+          0.35,
+          0.35
+        ],
+        "subjects": {
+          "cs": 0.8,
+          "art": 0.8,
+          "math": 0.5,
+          "lang": 0.3
+        },
+        "values": {
+          "salary": 0.55,
+          "security": 0.4,
+          "creativity": 1,
+          "helping": 0.15,
+          "tech": 0.95,
+          "outdoors": 0.05,
+          "autonomy": 0.7,
+          "impact": 0.3
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "ux-design",
+      "name": "UX & Interaction Design",
+      "proposed": {
+        "riasec": [
+          0.2,
+          0.6,
+          0.9,
+          0.5,
+          0.45,
+          0.35
+        ],
+        "subjects": {
+          "art": 0.8,
+          "cs": 0.6,
+          "social": 0.5,
+          "lang": 0.3
+        },
+        "values": {
+          "salary": 0.75,
+          "security": 0.7,
+          "creativity": 0.9,
+          "helping": 0.5,
+          "tech": 0.9,
+          "outdoors": 0.05,
+          "autonomy": 0.65,
+          "impact": 0.5
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "medicine",
+      "name": "Medicine",
+      "proposed": {
+        "riasec": [
+          0.45,
+          0.95,
+          0.15,
+          0.9,
+          0.35,
+          0.45
+        ],
+        "subjects": {
+          "bio": 1,
+          "chem": 0.85,
+          "phys": 0.4,
+          "math": 0.4,
+          "social": 0.3
+        },
+        "values": {
+          "salary": 0.95,
+          "security": 1,
+          "creativity": 0.3,
+          "helping": 1,
+          "tech": 0.55,
+          "outdoors": 0.05,
+          "autonomy": 0.5,
+          "impact": 0.9
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "nursing",
+      "name": "Nursing & Midwifery",
+      "proposed": {
+        "riasec": [
+          0.5,
+          0.55,
+          0.1,
+          1,
+          0.25,
+          0.5
+        ],
+        "subjects": {
+          "bio": 0.85,
+          "chem": 0.45,
+          "social": 0.5
+        },
+        "values": {
+          "salary": 0.55,
+          "security": 1,
+          "creativity": 0.15,
+          "helping": 1,
+          "tech": 0.35,
+          "outdoors": 0.05,
+          "autonomy": 0.3,
+          "impact": 0.85
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "pharmacy",
+      "name": "Pharmacy & Pharmacology",
+      "proposed": {
+        "riasec": [
+          0.35,
+          0.9,
+          0.1,
+          0.6,
+          0.35,
+          0.75
+        ],
+        "subjects": {
+          "chem": 1,
+          "bio": 0.85,
+          "math": 0.45
+        },
+        "values": {
+          "salary": 0.85,
+          "security": 0.95,
+          "creativity": 0.2,
+          "helping": 0.75,
+          "tech": 0.55,
+          "outdoors": 0.05,
+          "autonomy": 0.45,
+          "impact": 0.75
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "dentistry",
+      "name": "Dentistry",
+      "proposed": {
+        "riasec": [
+          0.8,
+          0.8,
+          0.3,
+          0.7,
+          0.45,
+          0.5
+        ],
+        "subjects": {
+          "bio": 0.9,
+          "chem": 0.8,
+          "art": 0.2
+        },
+        "values": {
+          "salary": 0.95,
+          "security": 0.95,
+          "creativity": 0.3,
+          "helping": 0.85,
+          "tech": 0.5,
+          "outdoors": 0.05,
+          "autonomy": 0.8,
+          "impact": 0.6
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "veterinary-medicine",
+      "name": "Veterinary Medicine",
+      "proposed": {
+        "riasec": [
+          0.75,
+          0.9,
+          0.1,
+          0.6,
+          0.3,
+          0.4
+        ],
+        "subjects": {
+          "bio": 1,
+          "chem": 0.8,
+          "phys": 0.3
+        },
+        "values": {
+          "salary": 0.7,
+          "security": 0.9,
+          "creativity": 0.2,
+          "helping": 0.9,
+          "tech": 0.45,
+          "outdoors": 0.55,
+          "autonomy": 0.65,
+          "impact": 0.7
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "physiotherapy",
+      "name": "Physiotherapy & Rehabilitation",
+      "proposed": {
+        "riasec": [
+          0.6,
+          0.6,
+          0.15,
+          1,
+          0.3,
+          0.35
+        ],
+        "subjects": {
+          "bio": 0.85,
+          "sport": 0.7,
+          "social": 0.5,
+          "phys": 0.3
+        },
+        "values": {
+          "salary": 0.6,
+          "security": 0.9,
+          "creativity": 0.3,
+          "helping": 1,
+          "tech": 0.3,
+          "outdoors": 0.15,
+          "autonomy": 0.6,
+          "impact": 0.7
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "sports-science",
+      "name": "Sport & Exercise Science",
+      "proposed": {
+        "riasec": [
+          0.8,
+          0.6,
+          0.15,
+          0.7,
+          0.45,
+          0.3
+        ],
+        "subjects": {
+          "sport": 1,
+          "bio": 0.75,
+          "phys": 0.3
+        },
+        "values": {
+          "salary": 0.45,
+          "security": 0.55,
+          "creativity": 0.35,
+          "helping": 0.75,
+          "tech": 0.35,
+          "outdoors": 0.65,
+          "autonomy": 0.6,
+          "impact": 0.5
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "nutrition",
+      "name": "Nutrition & Food Science",
+      "proposed": {
+        "riasec": [
+          0.5,
+          0.85,
+          0.25,
+          0.65,
+          0.35,
+          0.45
+        ],
+        "subjects": {
+          "bio": 0.85,
+          "chem": 0.85
+        },
+        "values": {
+          "salary": 0.5,
+          "security": 0.7,
+          "creativity": 0.4,
+          "helping": 0.8,
+          "tech": 0.45,
+          "outdoors": 0.1,
+          "autonomy": 0.55,
+          "impact": 0.7
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "public-health",
+      "name": "Public & Global Health",
+      "proposed": {
+        "riasec": [
+          0.15,
+          0.8,
+          0.2,
+          0.85,
+          0.55,
+          0.55
+        ],
+        "subjects": {
+          "bio": 0.6,
+          "math": 0.5,
+          "social": 0.75,
+          "econ": 0.3
+        },
+        "values": {
+          "salary": 0.55,
+          "security": 0.75,
+          "creativity": 0.35,
+          "helping": 0.9,
+          "tech": 0.45,
+          "outdoors": 0.1,
+          "autonomy": 0.45,
+          "impact": 1
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "psychology",
+      "name": "Psychology",
+      "proposed": {
+        "riasec": [
+          0.1,
+          0.85,
+          0.35,
+          0.95,
+          0.3,
+          0.35
+        ],
+        "subjects": {
+          "social": 1,
+          "bio": 0.5,
+          "math": 0.4,
+          "lang": 0.35
+        },
+        "values": {
+          "salary": 0.55,
+          "security": 0.65,
+          "creativity": 0.45,
+          "helping": 1,
+          "tech": 0.3,
+          "outdoors": 0.05,
+          "autonomy": 0.55,
+          "impact": 0.8
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "economics",
+      "name": "Economics",
+      "proposed": {
+        "riasec": [
+          0.1,
+          0.9,
+          0.15,
+          0.25,
+          0.7,
+          0.65
+        ],
+        "subjects": {
+          "econ": 1,
+          "math": 0.8,
+          "social": 0.4,
+          "hist": 0.25
+        },
+        "values": {
+          "salary": 0.85,
+          "security": 0.75,
+          "creativity": 0.35,
+          "helping": 0.35,
+          "tech": 0.5,
+          "outdoors": 0.05,
+          "autonomy": 0.55,
+          "impact": 0.65
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "business-management",
+      "name": "Business & Management",
+      "proposed": {
+        "riasec": [
+          0.15,
+          0.4,
+          0.25,
+          0.45,
+          1,
+          0.75
+        ],
+        "subjects": {
+          "econ": 1,
+          "math": 0.45,
+          "forlang": 0.4,
+          "lang": 0.35
+        },
+        "values": {
+          "salary": 0.8,
+          "security": 0.75,
+          "creativity": 0.4,
+          "helping": 0.35,
+          "tech": 0.45,
+          "outdoors": 0.05,
+          "autonomy": 0.65,
+          "impact": 0.35
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "finance-accounting",
+      "name": "Finance & Accounting",
+      "proposed": {
+        "riasec": [
+          0.05,
+          0.6,
+          0.05,
+          0.15,
+          0.75,
+          1
+        ],
+        "subjects": {
+          "math": 0.85,
+          "econ": 1
+        },
+        "values": {
+          "salary": 0.95,
+          "security": 0.8,
+          "creativity": 0.15,
+          "helping": 0.15,
+          "tech": 0.55,
+          "outdoors": 0.05,
+          "autonomy": 0.5,
+          "impact": 0.2
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "marketing",
+      "name": "Marketing & Advertising",
+      "proposed": {
+        "riasec": [
+          0.05,
+          0.4,
+          0.75,
+          0.45,
+          1,
+          0.45
+        ],
+        "subjects": {
+          "econ": 0.75,
+          "lang": 0.6,
+          "art": 0.5,
+          "social": 0.45
+        },
+        "values": {
+          "salary": 0.7,
+          "security": 0.6,
+          "creativity": 0.85,
+          "helping": 0.3,
+          "tech": 0.6,
+          "outdoors": 0.05,
+          "autonomy": 0.6,
+          "impact": 0.3
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "entrepreneurship",
+      "name": "Entrepreneurship & Innovation",
+      "proposed": {
+        "riasec": [
+          0.3,
+          0.5,
+          0.55,
+          0.3,
+          1,
+          0.4
+        ],
+        "subjects": {
+          "econ": 0.9,
+          "cs": 0.35,
+          "lang": 0.35
+        },
+        "values": {
+          "salary": 0.8,
+          "security": 0.2,
+          "creativity": 0.85,
+          "helping": 0.35,
+          "tech": 0.65,
+          "outdoors": 0.1,
+          "autonomy": 1,
+          "impact": 0.55
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "logistics",
+      "name": "Logistics & Supply Chain Management",
+      "proposed": {
+        "riasec": [
+          0.4,
+          0.5,
+          0.1,
+          0.25,
+          0.75,
+          0.9
+        ],
+        "subjects": {
+          "econ": 0.8,
+          "math": 0.6,
+          "geo": 0.45
+        },
+        "values": {
+          "salary": 0.7,
+          "security": 0.85,
+          "creativity": 0.25,
+          "helping": 0.2,
+          "tech": 0.6,
+          "outdoors": 0.2,
+          "autonomy": 0.45,
+          "impact": 0.4
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "hospitality-tourism",
+      "name": "Hospitality & Tourism Management",
+      "proposed": {
+        "riasec": [
+          0.3,
+          0.2,
+          0.35,
+          0.75,
+          0.9,
+          0.55
+        ],
+        "subjects": {
+          "forlang": 0.85,
+          "econ": 0.65,
+          "geo": 0.6
+        },
+        "values": {
+          "salary": 0.5,
+          "security": 0.55,
+          "creativity": 0.45,
+          "helping": 0.6,
+          "tech": 0.3,
+          "outdoors": 0.45,
+          "autonomy": 0.5,
+          "impact": 0.3
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "political-science",
+      "name": "Political Science & International Relations",
+      "proposed": {
+        "riasec": [
+          0.05,
+          0.75,
+          0.3,
+          0.55,
+          0.85,
+          0.4
+        ],
+        "subjects": {
+          "hist": 0.85,
+          "social": 0.9,
+          "lang": 0.6,
+          "forlang": 0.5,
+          "econ": 0.45,
+          "geo": 0.45
+        },
+        "values": {
+          "salary": 0.55,
+          "security": 0.55,
+          "creativity": 0.45,
+          "helping": 0.6,
+          "tech": 0.25,
+          "outdoors": 0.05,
+          "autonomy": 0.5,
+          "impact": 0.95
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "law",
+      "name": "Law",
+      "proposed": {
+        "riasec": [
+          0.05,
+          0.65,
+          0.3,
+          0.45,
+          0.95,
+          0.7
+        ],
+        "subjects": {
+          "lang": 1,
+          "hist": 0.55,
+          "social": 0.6,
+          "forlang": 0.4,
+          "econ": 0.35
+        },
+        "values": {
+          "salary": 0.9,
+          "security": 0.85,
+          "creativity": 0.3,
+          "helping": 0.6,
+          "tech": 0.2,
+          "outdoors": 0.05,
+          "autonomy": 0.55,
+          "impact": 0.75
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "criminology",
+      "name": "Criminology & Criminal Justice",
+      "proposed": {
+        "riasec": [
+          0.35,
+          0.75,
+          0.2,
+          0.7,
+          0.6,
+          0.5
+        ],
+        "subjects": {
+          "social": 0.9,
+          "lang": 0.5,
+          "bio": 0.25
+        },
+        "values": {
+          "salary": 0.5,
+          "security": 0.8,
+          "creativity": 0.25,
+          "helping": 0.75,
+          "tech": 0.3,
+          "outdoors": 0.25,
+          "autonomy": 0.35,
+          "impact": 0.8
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "sociology",
+      "name": "Sociology & Social Sciences",
+      "proposed": {
+        "riasec": [
+          0.05,
+          0.75,
+          0.4,
+          0.8,
+          0.4,
+          0.3
+        ],
+        "subjects": {
+          "social": 1,
+          "hist": 0.5,
+          "lang": 0.55,
+          "math": 0.25
+        },
+        "values": {
+          "salary": 0.4,
+          "security": 0.5,
+          "creativity": 0.45,
+          "helping": 0.8,
+          "tech": 0.2,
+          "outdoors": 0.05,
+          "autonomy": 0.5,
+          "impact": 0.9
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "anthropology",
+      "name": "Anthropology & Cultural Studies",
+      "proposed": {
+        "riasec": [
+          0.2,
+          0.8,
+          0.55,
+          0.6,
+          0.2,
+          0.25
+        ],
+        "subjects": {
+          "social": 0.9,
+          "hist": 0.7,
+          "forlang": 0.55,
+          "geo": 0.5,
+          "bio": 0.2
+        },
+        "values": {
+          "salary": 0.3,
+          "security": 0.35,
+          "creativity": 0.55,
+          "helping": 0.6,
+          "tech": 0.15,
+          "outdoors": 0.55,
+          "autonomy": 0.55,
+          "impact": 0.75
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "social-work",
+      "name": "Social Work",
+      "proposed": {
+        "riasec": [
+          0.2,
+          0.4,
+          0.25,
+          1,
+          0.45,
+          0.4
+        ],
+        "subjects": {
+          "social": 1,
+          "lang": 0.5
+        },
+        "values": {
+          "salary": 0.35,
+          "security": 0.85,
+          "creativity": 0.3,
+          "helping": 1,
+          "tech": 0.1,
+          "outdoors": 0.15,
+          "autonomy": 0.4,
+          "impact": 0.95
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "education",
+      "name": "Education & Teaching",
+      "proposed": {
+        "riasec": [
+          0.2,
+          0.45,
+          0.45,
+          1,
+          0.5,
+          0.45
+        ],
+        "subjects": {
+          "lang": 0.6,
+          "social": 0.7
+        },
+        "values": {
+          "salary": 0.45,
+          "security": 0.95,
+          "creativity": 0.55,
+          "helping": 1,
+          "tech": 0.25,
+          "outdoors": 0.15,
+          "autonomy": 0.45,
+          "impact": 0.9
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "journalism",
+      "name": "Journalism",
+      "proposed": {
+        "riasec": [
+          0.1,
+          0.65,
+          0.8,
+          0.5,
+          0.65,
+          0.3
+        ],
+        "subjects": {
+          "lang": 1,
+          "hist": 0.55,
+          "social": 0.6,
+          "forlang": 0.4
+        },
+        "values": {
+          "salary": 0.4,
+          "security": 0.3,
+          "creativity": 0.85,
+          "helping": 0.5,
+          "tech": 0.4,
+          "outdoors": 0.3,
+          "autonomy": 0.65,
+          "impact": 0.85
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "media-communication",
+      "name": "Media & Communication Studies",
+      "proposed": {
+        "riasec": [
+          0.1,
+          0.5,
+          0.75,
+          0.55,
+          0.75,
+          0.35
+        ],
+        "subjects": {
+          "lang": 0.85,
+          "social": 0.6,
+          "art": 0.4
+        },
+        "values": {
+          "salary": 0.5,
+          "security": 0.45,
+          "creativity": 0.85,
+          "helping": 0.4,
+          "tech": 0.55,
+          "outdoors": 0.05,
+          "autonomy": 0.6,
+          "impact": 0.45
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "history",
+      "name": "History",
+      "proposed": {
+        "riasec": [
+          0.1,
+          0.8,
+          0.55,
+          0.4,
+          0.3,
+          0.4
+        ],
+        "subjects": {
+          "hist": 1,
+          "lang": 0.8,
+          "forlang": 0.4,
+          "geo": 0.4
+        },
+        "values": {
+          "salary": 0.35,
+          "security": 0.45,
+          "creativity": 0.55,
+          "helping": 0.4,
+          "tech": 0.15,
+          "outdoors": 0.15,
+          "autonomy": 0.6,
+          "impact": 0.55
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "archaeology",
+      "name": "Archaeology & Classics",
+      "proposed": {
+        "riasec": [
+          0.55,
+          0.85,
+          0.45,
+          0.2,
+          0.1,
+          0.4
+        ],
+        "subjects": {
+          "hist": 1,
+          "geo": 0.5,
+          "forlang": 0.45,
+          "chem": 0.2
+        },
+        "values": {
+          "salary": 0.25,
+          "security": 0.3,
+          "creativity": 0.5,
+          "helping": 0.25,
+          "tech": 0.3,
+          "outdoors": 0.85,
+          "autonomy": 0.5,
+          "impact": 0.45
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "philosophy",
+      "name": "Philosophy",
+      "proposed": {
+        "riasec": [
+          0.05,
+          0.9,
+          0.6,
+          0.4,
+          0.25,
+          0.25
+        ],
+        "subjects": {
+          "social": 0.9,
+          "lang": 0.85,
+          "math": 0.35,
+          "hist": 0.5
+        },
+        "values": {
+          "salary": 0.35,
+          "security": 0.3,
+          "creativity": 0.6,
+          "helping": 0.45,
+          "tech": 0.1,
+          "outdoors": 0.05,
+          "autonomy": 0.7,
+          "impact": 0.6
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "religious-studies",
+      "name": "Theology & Religious Studies",
+      "proposed": {
+        "riasec": [
+          0.05,
+          0.65,
+          0.45,
+          0.75,
+          0.3,
+          0.35
+        ],
+        "subjects": {
+          "hist": 0.8,
+          "lang": 0.75,
+          "forlang": 0.45,
+          "social": 0.6
+        },
+        "values": {
+          "salary": 0.3,
+          "security": 0.55,
+          "creativity": 0.4,
+          "helping": 0.85,
+          "tech": 0.05,
+          "outdoors": 0.1,
+          "autonomy": 0.45,
+          "impact": 0.6
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "linguistics",
+      "name": "Linguistics",
+      "proposed": {
+        "riasec": [
+          0.05,
+          0.9,
+          0.5,
+          0.35,
+          0.15,
+          0.5
+        ],
+        "subjects": {
+          "lang": 0.9,
+          "forlang": 0.9,
+          "math": 0.35,
+          "cs": 0.3
+        },
+        "values": {
+          "salary": 0.45,
+          "security": 0.4,
+          "creativity": 0.5,
+          "helping": 0.35,
+          "tech": 0.5,
+          "outdoors": 0.05,
+          "autonomy": 0.55,
+          "impact": 0.45
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "languages",
+      "name": "Modern Languages & Translation",
+      "proposed": {
+        "riasec": [
+          0.05,
+          0.55,
+          0.6,
+          0.55,
+          0.35,
+          0.45
+        ],
+        "subjects": {
+          "forlang": 1,
+          "lang": 0.8,
+          "hist": 0.3,
+          "geo": 0.3
+        },
+        "values": {
+          "salary": 0.4,
+          "security": 0.5,
+          "creativity": 0.55,
+          "helping": 0.45,
+          "tech": 0.25,
+          "outdoors": 0.1,
+          "autonomy": 0.7,
+          "impact": 0.4
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "literature",
+      "name": "Literature & Creative Writing",
+      "proposed": {
+        "riasec": [
+          0.05,
+          0.6,
+          1,
+          0.45,
+          0.25,
+          0.25
+        ],
+        "subjects": {
+          "lang": 1,
+          "forlang": 0.45,
+          "hist": 0.45
+        },
+        "values": {
+          "salary": 0.3,
+          "security": 0.3,
+          "creativity": 1,
+          "helping": 0.4,
+          "tech": 0.1,
+          "outdoors": 0.05,
+          "autonomy": 0.8,
+          "impact": 0.45
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "liberal-arts",
+      "name": "Liberal Arts & Interdisciplinary Studies",
+      "proposed": {
+        "riasec": [
+          0.15,
+          0.75,
+          0.6,
+          0.55,
+          0.45,
+          0.3
+        ],
+        "subjects": {
+          "lang": 0.6,
+          "hist": 0.5,
+          "social": 0.6,
+          "math": 0.4,
+          "bio": 0.3
+        },
+        "values": {
+          "salary": 0.45,
+          "security": 0.4,
+          "creativity": 0.65,
+          "helping": 0.5,
+          "tech": 0.3,
+          "outdoors": 0.1,
+          "autonomy": 0.7,
+          "impact": 0.6
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "fine-arts",
+      "name": "Fine Arts & Illustration",
+      "proposed": {
+        "riasec": [
+          0.45,
+          0.3,
+          1,
+          0.3,
+          0.25,
+          0.1
+        ],
+        "subjects": {
+          "art": 1,
+          "hist": 0.25
+        },
+        "values": {
+          "salary": 0.2,
+          "security": 0.15,
+          "creativity": 1,
+          "helping": 0.3,
+          "tech": 0.2,
+          "outdoors": 0.2,
+          "autonomy": 0.95,
+          "impact": 0.4
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "graphic-design",
+      "name": "Graphic & Communication Design",
+      "proposed": {
+        "riasec": [
+          0.3,
+          0.3,
+          1,
+          0.25,
+          0.5,
+          0.35
+        ],
+        "subjects": {
+          "art": 1,
+          "cs": 0.4,
+          "lang": 0.25
+        },
+        "values": {
+          "salary": 0.45,
+          "security": 0.4,
+          "creativity": 1,
+          "helping": 0.25,
+          "tech": 0.65,
+          "outdoors": 0.05,
+          "autonomy": 0.8,
+          "impact": 0.3
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "fashion-design",
+      "name": "Fashion & Textile Design",
+      "proposed": {
+        "riasec": [
+          0.5,
+          0.2,
+          1,
+          0.3,
+          0.65,
+          0.3
+        ],
+        "subjects": {
+          "art": 1,
+          "econ": 0.3
+        },
+        "values": {
+          "salary": 0.4,
+          "security": 0.25,
+          "creativity": 1,
+          "helping": 0.2,
+          "tech": 0.3,
+          "outdoors": 0.05,
+          "autonomy": 0.8,
+          "impact": 0.35
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "film-production",
+      "name": "Film, TV & Video Production",
+      "proposed": {
+        "riasec": [
+          0.5,
+          0.3,
+          1,
+          0.3,
+          0.65,
+          0.25
+        ],
+        "subjects": {
+          "art": 0.85,
+          "lang": 0.6,
+          "music": 0.2,
+          "cs": 0.3
+        },
+        "values": {
+          "salary": 0.4,
+          "security": 0.2,
+          "creativity": 1,
+          "helping": 0.25,
+          "tech": 0.65,
+          "outdoors": 0.3,
+          "autonomy": 0.75,
+          "impact": 0.4
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "animation-vfx",
+      "name": "Animation & Visual Effects",
+      "proposed": {
+        "riasec": [
+          0.45,
+          0.35,
+          1,
+          0.15,
+          0.3,
+          0.35
+        ],
+        "subjects": {
+          "art": 1,
+          "cs": 0.55,
+          "math": 0.2
+        },
+        "values": {
+          "salary": 0.5,
+          "security": 0.3,
+          "creativity": 1,
+          "helping": 0.15,
+          "tech": 0.85,
+          "outdoors": 0.05,
+          "autonomy": 0.7,
+          "impact": 0.25
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "music",
+      "name": "Music Performance & Composition",
+      "proposed": {
+        "riasec": [
+          0.35,
+          0.35,
+          1,
+          0.4,
+          0.35,
+          0.25
+        ],
+        "subjects": {
+          "music": 1,
+          "lang": 0.2,
+          "math": 0.2
+        },
+        "values": {
+          "salary": 0.25,
+          "security": 0.15,
+          "creativity": 1,
+          "helping": 0.4,
+          "tech": 0.2,
+          "outdoors": 0.05,
+          "autonomy": 0.85,
+          "impact": 0.4
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "music-production",
+      "name": "Music Production & Audio Engineering",
+      "proposed": {
+        "riasec": [
+          0.7,
+          0.5,
+          0.95,
+          0.15,
+          0.35,
+          0.35
+        ],
+        "subjects": {
+          "music": 0.9,
+          "phys": 0.45,
+          "cs": 0.5
+        },
+        "values": {
+          "salary": 0.35,
+          "security": 0.2,
+          "creativity": 0.95,
+          "helping": 0.15,
+          "tech": 0.9,
+          "outdoors": 0.05,
+          "autonomy": 0.8,
+          "impact": 0.25
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "performing-arts",
+      "name": "Theatre, Dance & Performing Arts",
+      "proposed": {
+        "riasec": [
+          0.4,
+          0.2,
+          1,
+          0.55,
+          0.6,
+          0.15
+        ],
+        "subjects": {
+          "art": 0.6,
+          "music": 0.6,
+          "sport": 0.45,
+          "lang": 0.55
+        },
+        "values": {
+          "salary": 0.2,
+          "security": 0.1,
+          "creativity": 1,
+          "helping": 0.45,
+          "tech": 0.1,
+          "outdoors": 0.05,
+          "autonomy": 0.75,
+          "impact": 0.4
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "culinary-arts",
+      "name": "Culinary Arts",
+      "proposed": {
+        "riasec": [
+          0.85,
+          0.2,
+          0.75,
+          0.45,
+          0.55,
+          0.4
+        ],
+        "subjects": {
+          "chem": 0.25,
+          "art": 0.5
+        },
+        "values": {
+          "salary": 0.35,
+          "security": 0.45,
+          "creativity": 0.9,
+          "helping": 0.4,
+          "tech": 0.15,
+          "outdoors": 0.05,
+          "autonomy": 0.65,
+          "impact": 0.25
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "agriculture",
+      "name": "Agriculture, Forestry & Horticulture",
+      "proposed": {
+        "riasec": [
+          1,
+          0.6,
+          0.2,
+          0.25,
+          0.45,
+          0.4
+        ],
+        "subjects": {
+          "bio": 0.85,
+          "chem": 0.5,
+          "geo": 0.6,
+          "econ": 0.3
+        },
+        "values": {
+          "salary": 0.45,
+          "security": 0.6,
+          "creativity": 0.35,
+          "helping": 0.4,
+          "tech": 0.5,
+          "outdoors": 1,
+          "autonomy": 0.75,
+          "impact": 0.75
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    },
+    {
+      "id": "aviation",
+      "name": "Aviation & Pilot Training",
+      "proposed": {
+        "riasec": [
+          0.9,
+          0.55,
+          0.1,
+          0.3,
+          0.45,
+          0.7
+        ],
+        "subjects": {
+          "phys": 0.75,
+          "math": 0.6,
+          "geo": 0.45,
+          "forlang": 0.4
+        },
+        "values": {
+          "salary": 0.8,
+          "security": 0.6,
+          "creativity": 0.15,
+          "helping": 0.3,
+          "tech": 0.75,
+          "outdoors": 0.6,
+          "autonomy": 0.35,
+          "impact": 0.25
+        }
+      },
+      "curriculumEvidence": [],
+      "independentReviews": [],
+      "adjudication": null,
+      "status": "unreviewed"
+    }
+  ]
+}

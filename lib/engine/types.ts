@@ -176,6 +176,8 @@ export interface Insight {
 
 export interface Results {
   version: 1
+  /** Procedure IDs, distinct from wire format version. `locale` is display language, not proof of earlier response language. Absent in older shared results. */
+  method?: { interests: string; personality: string; scoring: string; locale?: string }
   generatedAt: string
   dataPoints: number
   sources: Array<{ id: SourceId; label: string; dataPoints: number }>

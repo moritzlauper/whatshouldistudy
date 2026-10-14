@@ -5,6 +5,8 @@
   "type": "module",
   "description": "Find what to study from your real digital footprint (YouTube, Spotify, Reddit, GitHub) plus a short psychometric check, matched against study programmes worldwide.",
   "scripts": {
+    "validation:bundle": "node scripts/validation-bundle.ts",
+    "validation:check": "node scripts/validation-bundle.ts --check",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

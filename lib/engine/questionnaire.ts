@@ -125,10 +125,12 @@ export const BIG5_ITEMS: LikertItem[] = [
 export const LIKERT_INTEREST = ['Dislike', 'Not really', 'Neutral', 'Like', 'Love']
 export const LIKERT_ACCURACY = ['Very inaccurate', 'Inaccurate', 'Neither', 'Accurate', 'Very accurate']
 
+export const isLikert = (value: unknown): value is number => typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 5
+
 /** Share of the interest items answered, 0..1. */
 export function riasecCompleteness(a: QuestionnaireAnswers): number {
   if (!a.riasec) return 0
-  return RIASEC_ITEMS.filter((i) => typeof a.riasec![i.id] === 'number').length / RIASEC_ITEMS.length
+  return RIASEC_ITEMS.filter((i) => isLikert(a.riasec![i.id])).length / RIASEC_ITEMS.length
 }
 
 /** Answers per Holland type needed before its scale counts. Fewer would be noise, and a missing type is not «neutral». */
@@ -141,7 +143,7 @@ export function scoreRiasec(a: QuestionnaireAnswers): Riasec | null {
   for (const k of RIASEC_KEYS) {
     const vals = RIASEC_ITEMS.filter((i) => i.key === k)
       .map((i) => a.riasec![i.id])
-      .filter((v): v is number => typeof v === 'number')
+      .filter(isLikert)
     if (vals.length < MIN_PER_TYPE) return null
     out.push((avg(vals) - 1) / 4)
   }
@@ -169,12 +171,12 @@ export function profileShape(p: Riasec): { elevation: number; differentiation: n
  */
 export function careless(a: QuestionnaireAnswers): boolean {
   const r = a.riasec ?? {}
-  if (typeof r[ATTENTION_ITEM.id] === 'number' && r[ATTENTION_ITEM.id] !== ATTENTION_ANSWER) return true
+  if (isLikert(r[ATTENTION_ITEM.id]) && r[ATTENTION_ITEM.id] !== ATTENTION_ANSWER) return true
   let run = 0
   let last: number | undefined
   for (const it of INTEREST_LIST) {
     const v = r[it.id]
-    if (typeof v !== 'number') {
+    if (!isLikert(v)) {
       last = undefined
       run = 0
       continue
@@ -233,7 +235,7 @@ export function riasecCode(p: Riasec): string {
 export function questionnaireProgress(a: QuestionnaireAnswers): { done: number; total: number } {
   const total = INTEREST_LIST.length + BIG5_ITEMS.length + 14 + 8
   const done =
-    INTEREST_LIST.filter((i) => typeof a.riasec?.[i.id] === 'number').length +
+    INTEREST_LIST.filter((i) => isLikert(a.riasec?.[i.id])).length +
     big5Answered(a) +
     Object.values(a.subjects ?? {}).filter((s) => s && (s.enjoy || s.grade)).length +
     Object.keys(a.values ?? {}).length

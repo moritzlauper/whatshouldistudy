@@ -1,0 +1,2448 @@
+{
+  "schema": "wsis-validation-release-v1",
+  "status": "implementation-record-not-empirical-validation",
+  "version": {
+    "interests": "wsis-riasec24-2026-10-14.1",
+    "personality": "mini-ipip20-wsis-2026-10-14.1",
+    "scoring": "wsis-matching-2026-10-14.2",
+    "description": "wsis-response-means-2026-10-14.1"
+  },
+  "sourceFiles": {
+    "lib/engine/questionnaire.ts": "4e80cd3a8042ab944feea27cca7e6a581b3d502bfeebcaf6f4afacb052edca25",
+    "lib/engine/scoring.ts": "7407d633cdb6e0811e069a64e511b1ca1133112e74d0550ca6e8644f44eed238",
+    "lib/engine/programme-fit.ts": "c5e32fad8bff3b959f0557325eea293d458eeb9e9d511a35e6f468b7204a01f6",
+    "lib/engine/recency.ts": "b09f8d992ea59c21c64bb97f1dea97888104d69613f17f65e9d188e04bdb06d1",
+    "lib/engine/topics.ts": "f4e33c10b99e7e8b80953ab314dc2edffa32fbcab6493ca50b69a91a96f6ee8e",
+    "lib/engine/classifier.ts": "03e9dc7dc29f254cb51a6670bb6612ab3b4e6af02242df549232e30fa05ad451",
+    "lib/engine/text.ts": "fca0b638b3efa81065ecdf200d90536f519cf0eaf4595baa8439835a4527e18f",
+    "lib/engine/accumulate.ts": "054c22248955406b04e6a45c66767eace66b40e36b45c1fe98370bf46a6ebd3b",
+    "lib/engine/music.ts": "7043532e27fb9672840b1b2a2f51624c7402b6210cd7e8628822d0108d625784",
+    "lib/taxonomy/fields.ts": "913544537a9d6edc06dd682d9542f1a9ac2e591c73b6856179fb4af5d7e50574",
+    "lib/assessment.ts": "b5ed467e74e872ec2288134fa499297a61d99b7e1a6ba71c1720a41e61cb8247",
+    "app/ui/questionnaire-form.tsx": "ecdee6824fe0aabb5d588535fbe9aa3b5fd3b34f2ad7d8bd513d26085f30d54b",
+    "app/views/counselling.tsx": "883d3792936f32a285d809ea4884e0776eae04a2d72888bece35b9181a55c6f5",
+    "lib/site/assessment-text.ts": "50e6b786bf6cbdd8b596901b4bba33d5c739cb80f42950049a45c427d6cfdac5",
+    "lib/server/personal-fit.ts": "921d8f1682d2e29705a88237fb57934be0cf54263a17f9f9cc2c5816ab3f9353",
+    "lib/server/content-analysis.ts": "2346175c2a220f57e14d80626303e8b94ce8fd8a88e7d156565d191bd186bcbc",
+    "lib/engine/content-analysis.ts": "7c3abb2cc9124b9d113f3e21b8cee02548406aaa7da7bece23cbe78b019d7bb9",
+    "lib/infomaniak.ts": "0e8dc79a22a718c2d94b5a0991b75e1b58b268e9d92dbfb68246b5e6e8893566",
+    "lib/site/dict.ts": "2f8e225967ee7b9cb1bd0d62cd2478fb606d5ca6435bb9158cb0ed44af84cb6f",
+    "lib/site/regional.ts": "b890842a317d6d2c6803c3cd76248c75a55b16f6538ba5653155854d28b0dcfe"
+  },
+  "instruments": {
+    "de-CH": {
+      "sha256": "5f43ebcb01cbe5fe2b9d6ab50630d08cbee22101d52148de4eb5a318d604934d",
+      "definition": {
+        "version": {
+          "interests": "wsis-riasec24-2026-10-14.1",
+          "personality": "mini-ipip20-wsis-2026-10-14.1",
+          "scoring": "wsis-matching-2026-10-14.2",
+          "description": "wsis-response-means-2026-10-14.1"
+        },
+        "locale": "de-CH",
+        "evidence": "custom-interest-form-and-translations-not-validated",
+        "norms": null,
+        "interests": {
+          "instruction": "Wie gern würdest du …",
+          "labels": [
+            "Gar nicht",
+            "Eher nicht",
+            "Neutral",
+            "Gern",
+            "Sehr gern"
+          ],
+          "items": [
+            {
+              "id": "r1",
+              "key": "R",
+              "text": "Mit den Händen etwas bauen, reparieren oder auseinandernehmen"
+            },
+            {
+              "id": "i1",
+              "key": "I",
+              "text": "Herausfinden, warum etwas in der Natur so funktioniert, wie es funktioniert"
+            },
+            {
+              "id": "a1",
+              "key": "A",
+              "text": "Eine Geschichte, einen Song, ein Drehbuch oder einen Artikel schreiben"
+            },
+            {
+              "id": "s1",
+              "key": "S",
+              "text": "Jemandem etwas beibringen oder erklären"
+            },
+            {
+              "id": "e1",
+              "key": "E",
+              "text": "Eine Gruppe von deiner Idee überzeugen"
+            },
+            {
+              "id": "c1",
+              "key": "C",
+              "text": "Informationen so ordnen, dass alles stimmt"
+            },
+            {
+              "id": "r2",
+              "key": "R",
+              "text": "Mit Maschinen, Werkzeugen oder Fahrzeugen arbeiten"
+            },
+            {
+              "id": "i2",
+              "key": "I",
+              "text": "Ein schwieriges Mathe-, Logik- oder Programmierproblem lösen"
+            },
+            {
+              "id": "a2",
+              "key": "A",
+              "text": "Etwas gestalten, das gut aussieht: ein Plakat, eine App, einen Raum"
+            },
+            {
+              "id": "s2",
+              "key": "S",
+              "text": "Jemandem durch eine schwierige Zeit helfen"
+            },
+            {
+              "id": "e2",
+              "key": "E",
+              "text": "Ein eigenes Projekt oder Business starten und führen"
+            },
+            {
+              "id": "c2",
+              "key": "C",
+              "text": "Den Überblick über Geld, Budgets oder Zahlen behalten"
+            },
+            {
+              "id": "chk",
+              "key": "check",
+              "text": "Damit wir sehen, dass du liest: Wähle hier die 2"
+            },
+            {
+              "id": "r5",
+              "key": "R",
+              "text": "Pflanzen anbauen oder Tiere pflegen"
+            },
+            {
+              "id": "i3",
+              "key": "I",
+              "text": "Ein Experiment durchführen und die Resultate auswerten"
+            },
+            {
+              "id": "a3",
+              "key": "A",
+              "text": "Auftreten: Musik, Theater, Tanz oder Videos machen"
+            },
+            {
+              "id": "s3",
+              "key": "S",
+              "text": "Dich um die Gesundheit oder das Wohl anderer kümmern"
+            },
+            {
+              "id": "e3",
+              "key": "E",
+              "text": "Ein Team führen und für das Resultat geradestehen"
+            },
+            {
+              "id": "c4",
+              "key": "C",
+              "text": "Ein Dokument auf Fehler und Widersprüche prüfen"
+            },
+            {
+              "id": "r6",
+              "key": "R",
+              "text": "Auf einer Baustelle etwas vermessen oder bauen"
+            },
+            {
+              "id": "i6",
+              "key": "I",
+              "text": "In Daten nach Mustern suchen"
+            },
+            {
+              "id": "a5",
+              "key": "A",
+              "text": "Zeichnen, malen oder etwas nach eigenen Ideen gestalten"
+            },
+            {
+              "id": "s4",
+              "key": "S",
+              "text": "Eine Aktivität für Kinder oder Jugendliche organisieren"
+            },
+            {
+              "id": "e4",
+              "key": "E",
+              "text": "Einen guten Deal oder Preis aushandeln"
+            },
+            {
+              "id": "c6",
+              "key": "C",
+              "text": "Termine, Abläufe oder Lager so planen, dass nichts schiefgeht"
+            }
+          ],
+          "score": "(mean of valid answers - 1) / 4; at least 2 of 4 per type; attention item excluded",
+          "sessionMinimum": "all 24 interest items; attention item is not part of any scale",
+          "provenance": "Custom WSIS activity items based on RIASEC theory, not an AIST or O*NET test form"
+        },
+        "personality": {
+          "instruction": "Wie gut beschreibt dich das? «Ich …»",
+          "labels": [
+            "Stimmt gar nicht",
+            "Stimmt eher nicht",
+            "Teils, teils",
+            "Stimmt eher",
+            "Stimmt genau"
+          ],
+          "items": [
+            {
+              "id": "b1",
+              "key": "E",
+              "text": "Bin der Mittelpunkt jeder Party."
+            },
+            {
+              "id": "b2",
+              "key": "A",
+              "text": "Fühle mit, wenn es anderen schlecht geht."
+            },
+            {
+              "id": "b3",
+              "key": "C",
+              "text": "Erledige Aufgaben sofort."
+            },
+            {
+              "id": "b4",
+              "key": "N",
+              "text": "Habe häufig Stimmungsschwankungen."
+            },
+            {
+              "id": "b5",
+              "key": "O",
+              "text": "Habe eine lebhafte Fantasie."
+            },
+            {
+              "id": "b6",
+              "key": "E",
+              "text": "Rede nicht viel.",
+              "reverse": true
+            },
+            {
+              "id": "b7",
+              "key": "A",
+              "text": "Interessiere mich nicht für die Probleme anderer.",
+              "reverse": true
+            },
+            {
+              "id": "b8",
+              "key": "C",
+              "text": "Vergesse oft, Dinge an ihren Platz zurückzulegen.",
+              "reverse": true
+            },
+            {
+              "id": "b9",
+              "key": "N",
+              "text": "Bin die meiste Zeit entspannt.",
+              "reverse": true
+            },
+            {
+              "id": "b10",
+              "key": "O",
+              "text": "Interessiere mich nicht für abstrakte Ideen.",
+              "reverse": true
+            },
+            {
+              "id": "b11",
+              "key": "E",
+              "text": "Rede an Partys mit vielen verschiedenen Leuten."
+            },
+            {
+              "id": "b12",
+              "key": "A",
+              "text": "Spüre die Gefühle anderer."
+            },
+            {
+              "id": "b13",
+              "key": "C",
+              "text": "Mag Ordnung."
+            },
+            {
+              "id": "b14",
+              "key": "N",
+              "text": "Rege mich schnell auf."
+            },
+            {
+              "id": "b15",
+              "key": "O",
+              "text": "Habe Mühe, abstrakte Ideen zu verstehen.",
+              "reverse": true
+            },
+            {
+              "id": "b16",
+              "key": "E",
+              "text": "Halte mich im Hintergrund.",
+              "reverse": true
+            },
+            {
+              "id": "b17",
+              "key": "A",
+              "text": "Interessiere mich nicht wirklich für andere.",
+              "reverse": true
+            },
+            {
+              "id": "b18",
+              "key": "C",
+              "text": "Bringe Dinge durcheinander.",
+              "reverse": true
+            },
+            {
+              "id": "b19",
+              "key": "N",
+              "text": "Bin selten niedergeschlagen.",
+              "reverse": true
+            },
+            {
+              "id": "b20",
+              "key": "O",
+              "text": "Habe keine gute Vorstellungskraft.",
+              "reverse": true
+            }
+          ],
+          "score": "Reverse: 6 - answer. Mean of 4 items per trait; all 20 valid answers required. No norms.",
+          "source": "https://ipip.ori.org/MiniIPIPKey.htm",
+          "rights": "https://ipip.ori.org/newPermission.htm",
+          "languageStatus": "Own translation; not separately validated"
+        },
+        "subjects": {
+          "instruction": "Wie gern hast du das Fach, und wie gut bist du darin?",
+          "enjoymentLabels": [
+            "Gar nicht",
+            "Wenig",
+            "Mittel",
+            "Gern",
+            "Sehr gern"
+          ],
+          "selfRatedStrengthLabels": [
+            "Schwach",
+            "Unter dem Schnitt",
+            "Durchschnitt",
+            "Gut",
+            "Sehr gut"
+          ],
+          "items": [
+            {
+              "id": "math",
+              "text": "Mathematik"
+            },
+            {
+              "id": "phys",
+              "text": "Physik"
+            },
+            {
+              "id": "chem",
+              "text": "Chemie"
+            },
+            {
+              "id": "bio",
+              "text": "Biologie"
+            },
+            {
+              "id": "cs",
+              "text": "Informatik"
+            },
+            {
+              "id": "lang",
+              "text": "Deutsch & Literatur"
+            },
+            {
+              "id": "forlang",
+              "text": "Fremdsprachen"
+            },
+            {
+              "id": "hist",
+              "text": "Geschichte"
+            },
+            {
+              "id": "geo",
+              "text": "Geografie"
+            },
+            {
+              "id": "econ",
+              "text": "Wirtschaft & Recht"
+            },
+            {
+              "id": "art",
+              "text": "Bildnerisches Gestalten"
+            },
+            {
+              "id": "music",
+              "text": "Musik"
+            },
+            {
+              "id": "sport",
+              "text": "Sport"
+            },
+            {
+              "id": "social",
+              "text": "Philosophie, Psychologie & Gesellschaft"
+            }
+          ],
+          "interpretation": "grade is a legacy field name for self-rated strength, not a recorded school grade"
+        },
+        "values": {
+          "instruction": "Wie wichtig ist dir das in deinem künftigen Job?",
+          "labels": [
+            "Unwichtig",
+            "Eher unwichtig",
+            "Mittel",
+            "Wichtig",
+            "Sehr wichtig"
+          ],
+          "items": [
+            {
+              "id": "salary",
+              "text": "Hoher Lohn"
+            },
+            {
+              "id": "security",
+              "text": "Sicherer Job"
+            },
+            {
+              "id": "creativity",
+              "text": "Kreative Arbeit"
+            },
+            {
+              "id": "helping",
+              "text": "Menschen helfen"
+            },
+            {
+              "id": "tech",
+              "text": "Mit Technik arbeiten"
+            },
+            {
+              "id": "outdoors",
+              "text": "Draussen sein"
+            },
+            {
+              "id": "autonomy",
+              "text": "Unabhängigkeit"
+            },
+            {
+              "id": "impact",
+              "text": "Etwas für Gesellschaft oder Planet tun"
+            }
+          ],
+          "interpretation": "Stated preferences, not a validated latent scale"
+        }
+      }
+    },
+    "de-DE": {
+      "sha256": "a5e20dfcc2bedd8cfe730b35a1371baab8f8bb1a75eddc752c96df8bf86bd5d1",
+      "definition": {
+        "version": {
+          "interests": "wsis-riasec24-2026-10-14.1",
+          "personality": "mini-ipip20-wsis-2026-10-14.1",
+          "scoring": "wsis-matching-2026-10-14.2",
+          "description": "wsis-response-means-2026-10-14.1"
+        },
+        "locale": "de-DE",
+        "evidence": "custom-interest-form-and-translations-not-validated",
+        "norms": null,
+        "interests": {
+          "instruction": "Wie gern würdest du …",
+          "labels": [
+            "Gar nicht",
+            "Eher nicht",
+            "Neutral",
+            "Gern",
+            "Sehr gern"
+          ],
+          "items": [
+            {
+              "id": "r1",
+              "key": "R",
+              "text": "Mit den Händen etwas bauen, reparieren oder auseinandernehmen"
+            },
+            {
+              "id": "i1",
+              "key": "I",
+              "text": "Herausfinden, warum etwas in der Natur so funktioniert, wie es funktioniert"
+            },
+            {
+              "id": "a1",
+              "key": "A",
+              "text": "Eine Geschichte, einen Song, ein Drehbuch oder einen Artikel schreiben"
+            },
+            {
+              "id": "s1",
+              "key": "S",
+              "text": "Jemandem etwas beibringen oder erklären"
+            },
+            {
+              "id": "e1",
+              "key": "E",
+              "text": "Eine Gruppe von deiner Idee überzeugen"
+            },
+            {
+              "id": "c1",
+              "key": "C",
+              "text": "Informationen so ordnen, dass alles stimmt"
+            },
+            {
+              "id": "r2",
+              "key": "R",
+              "text": "Mit Maschinen, Werkzeugen oder Fahrzeugen arbeiten"
+            },
+            {
+              "id": "i2",
+              "key": "I",
+              "text": "Ein schwieriges Mathe-, Logik- oder Programmierproblem lösen"
+            },
+            {
+              "id": "a2",
+              "key": "A",
+              "text": "Etwas gestalten, das gut aussieht: ein Plakat, eine App, einen Raum"
+            },
+            {
+              "id": "s2",
+              "key": "S",
+              "text": "Jemandem durch eine schwierige Zeit helfen"
+            },
+            {
+              "id": "e2",
+              "key": "E",
+              "text": "Ein eigenes Projekt oder Business starten und führen"
+            },
+            {
+              "id": "c2",
+              "key": "C",
+              "text": "Den Überblick über Geld, Budgets oder Zahlen behalten"
+            },
+            {
+              "id": "chk",
+              "key": "check",
+              "text": "Damit wir sehen, dass du liest: Wähle hier die 2"
+            },
+            {
+              "id": "r5",
+              "key": "R",
+              "text": "Pflanzen anbauen oder Tiere pflegen"
+            },
+            {
+              "id": "i3",
+              "key": "I",
+              "text": "Ein Experiment durchführen und die Ergebnisse auswerten"
+            },
+            {
+              "id": "a3",
+              "key": "A",
+              "text": "Auftreten: Musik, Theater, Tanz oder Videos machen"
+            },
+            {
+              "id": "s3",
+              "key": "S",
+              "text": "Dich um die Gesundheit oder das Wohl anderer kümmern"
+            },
+            {
+              "id": "e3",
+              "key": "E",
+              "text": "Ein Team führen und für das Ergebnis geradestehen"
+            },
+            {
+              "id": "c4",
+              "key": "C",
+              "text": "Ein Dokument auf Fehler und Widersprüche prüfen"
+            },
+            {
+              "id": "r6",
+              "key": "R",
+              "text": "Auf einer Baustelle etwas vermessen oder bauen"
+            },
+            {
+              "id": "i6",
+              "key": "I",
+              "text": "In Daten nach Mustern suchen"
+            },
+            {
+              "id": "a5",
+              "key": "A",
+              "text": "Zeichnen, malen oder etwas nach eigenen Ideen gestalten"
+            },
+            {
+              "id": "s4",
+              "key": "S",
+              "text": "Eine Aktivität für Kinder oder Jugendliche organisieren"
+            },
+            {
+              "id": "e4",
+              "key": "E",
+              "text": "Einen guten Deal oder Preis aushandeln"
+            },
+            {
+              "id": "c6",
+              "key": "C",
+              "text": "Termine, Abläufe oder Lager so planen, dass nichts schiefgeht"
+            }
+          ],
+          "score": "(mean of valid answers - 1) / 4; at least 2 of 4 per type; attention item excluded",
+          "sessionMinimum": "all 24 interest items; attention item is not part of any scale",
+          "provenance": "Custom WSIS activity items based on RIASEC theory, not an AIST or O*NET test form"
+        },
+        "personality": {
+          "instruction": "Wie gut beschreibt dich das? „Ich …“",
+          "labels": [
+            "Stimmt gar nicht",
+            "Stimmt eher nicht",
+            "Teils, teils",
+            "Stimmt eher",
+            "Stimmt genau"
+          ],
+          "items": [
+            {
+              "id": "b1",
+              "key": "E",
+              "text": "Bin der Mittelpunkt jeder Party."
+            },
+            {
+              "id": "b2",
+              "key": "A",
+              "text": "Fühle mit, wenn es anderen schlecht geht."
+            },
+            {
+              "id": "b3",
+              "key": "C",
+              "text": "Erledige Aufgaben sofort."
+            },
+            {
+              "id": "b4",
+              "key": "N",
+              "text": "Habe häufig Stimmungsschwankungen."
+            },
+            {
+              "id": "b5",
+              "key": "O",
+              "text": "Habe eine lebhafte Fantasie."
+            },
+            {
+              "id": "b6",
+              "key": "E",
+              "text": "Rede nicht viel.",
+              "reverse": true
+            },
+            {
+              "id": "b7",
+              "key": "A",
+              "text": "Interessiere mich nicht für die Probleme anderer.",
+              "reverse": true
+            },
+            {
+              "id": "b8",
+              "key": "C",
+              "text": "Vergesse oft, Dinge an ihren Platz zurückzulegen.",
+              "reverse": true
+            },
+            {
+              "id": "b9",
+              "key": "N",
+              "text": "Bin die meiste Zeit entspannt.",
+              "reverse": true
+            },
+            {
+              "id": "b10",
+              "key": "O",
+              "text": "Interessiere mich nicht für abstrakte Ideen.",
+              "reverse": true
+            },
+            {
+              "id": "b11",
+              "key": "E",
+              "text": "Rede an Partys mit vielen verschiedenen Leuten."
+            },
+            {
+              "id": "b12",
+              "key": "A",
+              "text": "Spüre die Gefühle anderer."
+            },
+            {
+              "id": "b13",
+              "key": "C",
+              "text": "Mag Ordnung."
+            },
+            {
+              "id": "b14",
+              "key": "N",
+              "text": "Rege mich schnell auf."
+            },
+            {
+              "id": "b15",
+              "key": "O",
+              "text": "Habe Mühe, abstrakte Ideen zu verstehen.",
+              "reverse": true
+            },
+            {
+              "id": "b16",
+              "key": "E",
+              "text": "Halte mich im Hintergrund.",
+              "reverse": true
+            },
+            {
+              "id": "b17",
+              "key": "A",
+              "text": "Interessiere mich nicht wirklich für andere.",
+              "reverse": true
+            },
+            {
+              "id": "b18",
+              "key": "C",
+              "text": "Bringe Dinge durcheinander.",
+              "reverse": true
+            },
+            {
+              "id": "b19",
+              "key": "N",
+              "text": "Bin selten niedergeschlagen.",
+              "reverse": true
+            },
+            {
+              "id": "b20",
+              "key": "O",
+              "text": "Habe keine gute Vorstellungskraft.",
+              "reverse": true
+            }
+          ],
+          "score": "Reverse: 6 - answer. Mean of 4 items per trait; all 20 valid answers required. No norms.",
+          "source": "https://ipip.ori.org/MiniIPIPKey.htm",
+          "rights": "https://ipip.ori.org/newPermission.htm",
+          "languageStatus": "Own translation; not separately validated"
+        },
+        "subjects": {
+          "instruction": "Wie gern hast du das Fach, und wie gut bist du darin?",
+          "enjoymentLabels": [
+            "Gar nicht",
+            "Wenig",
+            "Mittel",
+            "Gern",
+            "Sehr gern"
+          ],
+          "selfRatedStrengthLabels": [
+            "Schwach",
+            "Unter dem Schnitt",
+            "Durchschnitt",
+            "Gut",
+            "Sehr gut"
+          ],
+          "items": [
+            {
+              "id": "math",
+              "text": "Mathematik"
+            },
+            {
+              "id": "phys",
+              "text": "Physik"
+            },
+            {
+              "id": "chem",
+              "text": "Chemie"
+            },
+            {
+              "id": "bio",
+              "text": "Biologie"
+            },
+            {
+              "id": "cs",
+              "text": "Informatik"
+            },
+            {
+              "id": "lang",
+              "text": "Deutsch & Literatur"
+            },
+            {
+              "id": "forlang",
+              "text": "Fremdsprachen"
+            },
+            {
+              "id": "hist",
+              "text": "Geschichte"
+            },
+            {
+              "id": "geo",
+              "text": "Geografie"
+            },
+            {
+              "id": "econ",
+              "text": "Wirtschaft & Recht"
+            },
+            {
+              "id": "art",
+              "text": "Kunst"
+            },
+            {
+              "id": "music",
+              "text": "Musik"
+            },
+            {
+              "id": "sport",
+              "text": "Sport"
+            },
+            {
+              "id": "social",
+              "text": "Philosophie, Psychologie & Gesellschaft"
+            }
+          ],
+          "interpretation": "grade is a legacy field name for self-rated strength, not a recorded school grade"
+        },
+        "values": {
+          "instruction": "Wie wichtig ist dir das in deinem künftigen Job?",
+          "labels": [
+            "Unwichtig",
+            "Eher unwichtig",
+            "Mittel",
+            "Wichtig",
+            "Sehr wichtig"
+          ],
+          "items": [
+            {
+              "id": "salary",
+              "text": "Hohes Gehalt"
+            },
+            {
+              "id": "security",
+              "text": "Sicherer Job"
+            },
+            {
+              "id": "creativity",
+              "text": "Kreative Arbeit"
+            },
+            {
+              "id": "helping",
+              "text": "Menschen helfen"
+            },
+            {
+              "id": "tech",
+              "text": "Mit Technik arbeiten"
+            },
+            {
+              "id": "outdoors",
+              "text": "Draußen sein"
+            },
+            {
+              "id": "autonomy",
+              "text": "Unabhängigkeit"
+            },
+            {
+              "id": "impact",
+              "text": "Etwas für Gesellschaft oder Planet tun"
+            }
+          ],
+          "interpretation": "Stated preferences, not a validated latent scale"
+        }
+      }
+    },
+    "de-AT": {
+      "sha256": "9385c132419299c7cc08098d54a8bfcc3311d1a925def5b00b2d9c255a08395e",
+      "definition": {
+        "version": {
+          "interests": "wsis-riasec24-2026-10-14.1",
+          "personality": "mini-ipip20-wsis-2026-10-14.1",
+          "scoring": "wsis-matching-2026-10-14.2",
+          "description": "wsis-response-means-2026-10-14.1"
+        },
+        "locale": "de-AT",
+        "evidence": "custom-interest-form-and-translations-not-validated",
+        "norms": null,
+        "interests": {
+          "instruction": "Wie gern würdest du …",
+          "labels": [
+            "Gar nicht",
+            "Eher nicht",
+            "Neutral",
+            "Gern",
+            "Sehr gern"
+          ],
+          "items": [
+            {
+              "id": "r1",
+              "key": "R",
+              "text": "Mit den Händen etwas bauen, reparieren oder auseinandernehmen"
+            },
+            {
+              "id": "i1",
+              "key": "I",
+              "text": "Herausfinden, warum etwas in der Natur so funktioniert, wie es funktioniert"
+            },
+            {
+              "id": "a1",
+              "key": "A",
+              "text": "Eine Geschichte, einen Song, ein Drehbuch oder einen Artikel schreiben"
+            },
+            {
+              "id": "s1",
+              "key": "S",
+              "text": "Jemandem etwas beibringen oder erklären"
+            },
+            {
+              "id": "e1",
+              "key": "E",
+              "text": "Eine Gruppe von deiner Idee überzeugen"
+            },
+            {
+              "id": "c1",
+              "key": "C",
+              "text": "Informationen so ordnen, dass alles stimmt"
+            },
+            {
+              "id": "r2",
+              "key": "R",
+              "text": "Mit Maschinen, Werkzeugen oder Fahrzeugen arbeiten"
+            },
+            {
+              "id": "i2",
+              "key": "I",
+              "text": "Ein schwieriges Mathe-, Logik- oder Programmierproblem lösen"
+            },
+            {
+              "id": "a2",
+              "key": "A",
+              "text": "Etwas gestalten, das gut aussieht: ein Plakat, eine App, einen Raum"
+            },
+            {
+              "id": "s2",
+              "key": "S",
+              "text": "Jemandem durch eine schwierige Zeit helfen"
+            },
+            {
+              "id": "e2",
+              "key": "E",
+              "text": "Ein eigenes Projekt oder Business starten und führen"
+            },
+            {
+              "id": "c2",
+              "key": "C",
+              "text": "Den Überblick über Geld, Budgets oder Zahlen behalten"
+            },
+            {
+              "id": "chk",
+              "key": "check",
+              "text": "Damit wir sehen, dass du liest: Wähle hier die 2"
+            },
+            {
+              "id": "r5",
+              "key": "R",
+              "text": "Pflanzen anbauen oder Tiere pflegen"
+            },
+            {
+              "id": "i3",
+              "key": "I",
+              "text": "Ein Experiment durchführen und die Ergebnisse auswerten"
+            },
+            {
+              "id": "a3",
+              "key": "A",
+              "text": "Auftreten: Musik, Theater, Tanz oder Videos machen"
+            },
+            {
+              "id": "s3",
+              "key": "S",
+              "text": "Dich um die Gesundheit oder das Wohl anderer kümmern"
+            },
+            {
+              "id": "e3",
+              "key": "E",
+              "text": "Ein Team führen und für das Ergebnis geradestehen"
+            },
+            {
+              "id": "c4",
+              "key": "C",
+              "text": "Ein Dokument auf Fehler und Widersprüche prüfen"
+            },
+            {
+              "id": "r6",
+              "key": "R",
+              "text": "Auf einer Baustelle etwas vermessen oder bauen"
+            },
+            {
+              "id": "i6",
+              "key": "I",
+              "text": "In Daten nach Mustern suchen"
+            },
+            {
+              "id": "a5",
+              "key": "A",
+              "text": "Zeichnen, malen oder etwas nach eigenen Ideen gestalten"
+            },
+            {
+              "id": "s4",
+              "key": "S",
+              "text": "Eine Aktivität für Kinder oder Jugendliche organisieren"
+            },
+            {
+              "id": "e4",
+              "key": "E",
+              "text": "Einen guten Deal oder Preis aushandeln"
+            },
+            {
+              "id": "c6",
+              "key": "C",
+              "text": "Termine, Abläufe oder Lager so planen, dass nichts schiefgeht"
+            }
+          ],
+          "score": "(mean of valid answers - 1) / 4; at least 2 of 4 per type; attention item excluded",
+          "sessionMinimum": "all 24 interest items; attention item is not part of any scale",
+          "provenance": "Custom WSIS activity items based on RIASEC theory, not an AIST or O*NET test form"
+        },
+        "personality": {
+          "instruction": "Wie gut beschreibt dich das? „Ich …“",
+          "labels": [
+            "Stimmt gar nicht",
+            "Stimmt eher nicht",
+            "Teils, teils",
+            "Stimmt eher",
+            "Stimmt genau"
+          ],
+          "items": [
+            {
+              "id": "b1",
+              "key": "E",
+              "text": "Bin der Mittelpunkt jeder Party."
+            },
+            {
+              "id": "b2",
+              "key": "A",
+              "text": "Fühle mit, wenn es anderen schlecht geht."
+            },
+            {
+              "id": "b3",
+              "key": "C",
+              "text": "Erledige Aufgaben sofort."
+            },
+            {
+              "id": "b4",
+              "key": "N",
+              "text": "Habe häufig Stimmungsschwankungen."
+            },
+            {
+              "id": "b5",
+              "key": "O",
+              "text": "Habe eine lebhafte Fantasie."
+            },
+            {
+              "id": "b6",
+              "key": "E",
+              "text": "Rede nicht viel.",
+              "reverse": true
+            },
+            {
+              "id": "b7",
+              "key": "A",
+              "text": "Interessiere mich nicht für die Probleme anderer.",
+              "reverse": true
+            },
+            {
+              "id": "b8",
+              "key": "C",
+              "text": "Vergesse oft, Dinge an ihren Platz zurückzulegen.",
+              "reverse": true
+            },
+            {
+              "id": "b9",
+              "key": "N",
+              "text": "Bin die meiste Zeit entspannt.",
+              "reverse": true
+            },
+            {
+              "id": "b10",
+              "key": "O",
+              "text": "Interessiere mich nicht für abstrakte Ideen.",
+              "reverse": true
+            },
+            {
+              "id": "b11",
+              "key": "E",
+              "text": "Rede an Partys mit vielen verschiedenen Leuten."
+            },
+            {
+              "id": "b12",
+              "key": "A",
+              "text": "Spüre die Gefühle anderer."
+            },
+            {
+              "id": "b13",
+              "key": "C",
+              "text": "Mag Ordnung."
+            },
+            {
+              "id": "b14",
+              "key": "N",
+              "text": "Rege mich schnell auf."
+            },
+            {
+              "id": "b15",
+              "key": "O",
+              "text": "Habe Mühe, abstrakte Ideen zu verstehen.",
+              "reverse": true
+            },
+            {
+              "id": "b16",
+              "key": "E",
+              "text": "Halte mich im Hintergrund.",
+              "reverse": true
+            },
+            {
+              "id": "b17",
+              "key": "A",
+              "text": "Interessiere mich nicht wirklich für andere.",
+              "reverse": true
+            },
+            {
+              "id": "b18",
+              "key": "C",
+              "text": "Bringe Dinge durcheinander.",
+              "reverse": true
+            },
+            {
+              "id": "b19",
+              "key": "N",
+              "text": "Bin selten niedergeschlagen.",
+              "reverse": true
+            },
+            {
+              "id": "b20",
+              "key": "O",
+              "text": "Habe keine gute Vorstellungskraft.",
+              "reverse": true
+            }
+          ],
+          "score": "Reverse: 6 - answer. Mean of 4 items per trait; all 20 valid answers required. No norms.",
+          "source": "https://ipip.ori.org/MiniIPIPKey.htm",
+          "rights": "https://ipip.ori.org/newPermission.htm",
+          "languageStatus": "Own translation; not separately validated"
+        },
+        "subjects": {
+          "instruction": "Wie gern hast du das Fach, und wie gut bist du darin?",
+          "enjoymentLabels": [
+            "Gar nicht",
+            "Wenig",
+            "Mittel",
+            "Gern",
+            "Sehr gern"
+          ],
+          "selfRatedStrengthLabels": [
+            "Schwach",
+            "Unter dem Schnitt",
+            "Durchschnitt",
+            "Gut",
+            "Sehr gut"
+          ],
+          "items": [
+            {
+              "id": "math",
+              "text": "Mathematik"
+            },
+            {
+              "id": "phys",
+              "text": "Physik"
+            },
+            {
+              "id": "chem",
+              "text": "Chemie"
+            },
+            {
+              "id": "bio",
+              "text": "Biologie"
+            },
+            {
+              "id": "cs",
+              "text": "Informatik"
+            },
+            {
+              "id": "lang",
+              "text": "Deutsch & Literatur"
+            },
+            {
+              "id": "forlang",
+              "text": "Fremdsprachen"
+            },
+            {
+              "id": "hist",
+              "text": "Geschichte"
+            },
+            {
+              "id": "geo",
+              "text": "Geografie"
+            },
+            {
+              "id": "econ",
+              "text": "Wirtschaft & Recht"
+            },
+            {
+              "id": "art",
+              "text": "Bildnerische Erziehung"
+            },
+            {
+              "id": "music",
+              "text": "Musik"
+            },
+            {
+              "id": "sport",
+              "text": "Sport"
+            },
+            {
+              "id": "social",
+              "text": "Philosophie, Psychologie & Gesellschaft"
+            }
+          ],
+          "interpretation": "grade is a legacy field name for self-rated strength, not a recorded school grade"
+        },
+        "values": {
+          "instruction": "Wie wichtig ist dir das in deinem künftigen Job?",
+          "labels": [
+            "Unwichtig",
+            "Eher unwichtig",
+            "Mittel",
+            "Wichtig",
+            "Sehr wichtig"
+          ],
+          "items": [
+            {
+              "id": "salary",
+              "text": "Hohes Gehalt"
+            },
+            {
+              "id": "security",
+              "text": "Sicherer Job"
+            },
+            {
+              "id": "creativity",
+              "text": "Kreative Arbeit"
+            },
+            {
+              "id": "helping",
+              "text": "Menschen helfen"
+            },
+            {
+              "id": "tech",
+              "text": "Mit Technik arbeiten"
+            },
+            {
+              "id": "outdoors",
+              "text": "Draußen sein"
+            },
+            {
+              "id": "autonomy",
+              "text": "Unabhängigkeit"
+            },
+            {
+              "id": "impact",
+              "text": "Etwas für Gesellschaft oder Planet tun"
+            }
+          ],
+          "interpretation": "Stated preferences, not a validated latent scale"
+        }
+      }
+    },
+    "en": {
+      "sha256": "d4e1982070708130500bb1312bef54f82482e56614ef3c1f5e3135ae7c283e40",
+      "definition": {
+        "version": {
+          "interests": "wsis-riasec24-2026-10-14.1",
+          "personality": "mini-ipip20-wsis-2026-10-14.1",
+          "scoring": "wsis-matching-2026-10-14.2",
+          "description": "wsis-response-means-2026-10-14.1"
+        },
+        "locale": "en",
+        "evidence": "custom-interest-form-and-translations-not-validated",
+        "norms": null,
+        "interests": {
+          "instruction": "How much would you enjoy …",
+          "labels": [
+            "Dislike",
+            "Not really",
+            "Neutral",
+            "Like",
+            "Love"
+          ],
+          "items": [
+            {
+              "id": "r1",
+              "key": "R",
+              "text": "Build, fix or take apart things with your hands"
+            },
+            {
+              "id": "i1",
+              "key": "I",
+              "text": "Figure out why something in nature works the way it does"
+            },
+            {
+              "id": "a1",
+              "key": "A",
+              "text": "Write a story, song, script or article"
+            },
+            {
+              "id": "s1",
+              "key": "S",
+              "text": "Teach or explain something to others"
+            },
+            {
+              "id": "e1",
+              "key": "E",
+              "text": "Convince a group to back your idea"
+            },
+            {
+              "id": "c1",
+              "key": "C",
+              "text": "Organise information so that everything is accurate"
+            },
+            {
+              "id": "r2",
+              "key": "R",
+              "text": "Work with machines, tools or vehicles"
+            },
+            {
+              "id": "i2",
+              "key": "I",
+              "text": "Solve a hard maths, logic or coding problem"
+            },
+            {
+              "id": "a2",
+              "key": "A",
+              "text": "Design something that looks good: a poster, an app, a room"
+            },
+            {
+              "id": "s2",
+              "key": "S",
+              "text": "Help someone through a difficult time"
+            },
+            {
+              "id": "e2",
+              "key": "E",
+              "text": "Start and run your own project or business"
+            },
+            {
+              "id": "c2",
+              "key": "C",
+              "text": "Keep track of money, budgets or numbers"
+            },
+            {
+              "id": "chk",
+              "key": "check",
+              "text": "To show you are reading: choose 2 here"
+            },
+            {
+              "id": "r5",
+              "key": "R",
+              "text": "Grow plants or look after animals"
+            },
+            {
+              "id": "i3",
+              "key": "I",
+              "text": "Run an experiment and analyse the results"
+            },
+            {
+              "id": "a3",
+              "key": "A",
+              "text": "Perform: music, theatre, dance or making videos"
+            },
+            {
+              "id": "s3",
+              "key": "S",
+              "text": "Look after people's health or wellbeing"
+            },
+            {
+              "id": "e3",
+              "key": "E",
+              "text": "Lead a team and take responsibility for the result"
+            },
+            {
+              "id": "c4",
+              "key": "C",
+              "text": "Check a document for mistakes and inconsistencies"
+            },
+            {
+              "id": "r6",
+              "key": "R",
+              "text": "Measure or build something on a construction site"
+            },
+            {
+              "id": "i6",
+              "key": "I",
+              "text": "Look for patterns in data"
+            },
+            {
+              "id": "a5",
+              "key": "A",
+              "text": "Draw, paint or make something from your own ideas"
+            },
+            {
+              "id": "s4",
+              "key": "S",
+              "text": "Organise an activity for children or young people"
+            },
+            {
+              "id": "e4",
+              "key": "E",
+              "text": "Negotiate a good deal or price"
+            },
+            {
+              "id": "c6",
+              "key": "C",
+              "text": "Plan schedules, routes or stock so that nothing goes wrong"
+            }
+          ],
+          "score": "(mean of valid answers - 1) / 4; at least 2 of 4 per type; attention item excluded",
+          "sessionMinimum": "all 24 interest items; attention item is not part of any scale",
+          "provenance": "Custom WSIS activity items based on RIASEC theory, not an AIST or O*NET test form"
+        },
+        "personality": {
+          "instruction": "How accurately does this describe you? «I …»",
+          "labels": [
+            "Very inaccurate",
+            "Inaccurate",
+            "Neither",
+            "Accurate",
+            "Very accurate"
+          ],
+          "items": [
+            {
+              "id": "b1",
+              "key": "E",
+              "text": "Am the life of the party."
+            },
+            {
+              "id": "b2",
+              "key": "A",
+              "text": "Sympathize with others' feelings."
+            },
+            {
+              "id": "b3",
+              "key": "C",
+              "text": "Get chores done right away."
+            },
+            {
+              "id": "b4",
+              "key": "N",
+              "text": "Have frequent mood swings."
+            },
+            {
+              "id": "b5",
+              "key": "O",
+              "text": "Have a vivid imagination."
+            },
+            {
+              "id": "b6",
+              "key": "E",
+              "text": "Don't talk a lot.",
+              "reverse": true
+            },
+            {
+              "id": "b7",
+              "key": "A",
+              "text": "Am not interested in other people's problems.",
+              "reverse": true
+            },
+            {
+              "id": "b8",
+              "key": "C",
+              "text": "Often forget to put things back in their proper place.",
+              "reverse": true
+            },
+            {
+              "id": "b9",
+              "key": "N",
+              "text": "Am relaxed most of the time.",
+              "reverse": true
+            },
+            {
+              "id": "b10",
+              "key": "O",
+              "text": "Am not interested in abstract ideas.",
+              "reverse": true
+            },
+            {
+              "id": "b11",
+              "key": "E",
+              "text": "Talk to a lot of different people at parties."
+            },
+            {
+              "id": "b12",
+              "key": "A",
+              "text": "Feel others' emotions."
+            },
+            {
+              "id": "b13",
+              "key": "C",
+              "text": "Like order."
+            },
+            {
+              "id": "b14",
+              "key": "N",
+              "text": "Get upset easily."
+            },
+            {
+              "id": "b15",
+              "key": "O",
+              "text": "Have difficulty understanding abstract ideas.",
+              "reverse": true
+            },
+            {
+              "id": "b16",
+              "key": "E",
+              "text": "Keep in the background.",
+              "reverse": true
+            },
+            {
+              "id": "b17",
+              "key": "A",
+              "text": "Am not really interested in others.",
+              "reverse": true
+            },
+            {
+              "id": "b18",
+              "key": "C",
+              "text": "Make a mess of things.",
+              "reverse": true
+            },
+            {
+              "id": "b19",
+              "key": "N",
+              "text": "Seldom feel blue.",
+              "reverse": true
+            },
+            {
+              "id": "b20",
+              "key": "O",
+              "text": "Do not have a good imagination.",
+              "reverse": true
+            }
+          ],
+          "score": "Reverse: 6 - answer. Mean of 4 items per trait; all 20 valid answers required. No norms.",
+          "source": "https://ipip.ori.org/MiniIPIPKey.htm",
+          "rights": "https://ipip.ori.org/newPermission.htm",
+          "languageStatus": "Original English items; overall product not validated"
+        },
+        "subjects": {
+          "instruction": "How much do you enjoy each subject, and how good are you at it?",
+          "enjoymentLabels": [
+            "Not at all",
+            "A little",
+            "Somewhat",
+            "A lot",
+            "Love it"
+          ],
+          "selfRatedStrengthLabels": [
+            "Weak",
+            "Below average",
+            "Average",
+            "Good",
+            "Excellent"
+          ],
+          "items": [
+            {
+              "id": "math",
+              "text": "Mathematics"
+            },
+            {
+              "id": "phys",
+              "text": "Physics"
+            },
+            {
+              "id": "chem",
+              "text": "Chemistry"
+            },
+            {
+              "id": "bio",
+              "text": "Biology"
+            },
+            {
+              "id": "cs",
+              "text": "Computer science"
+            },
+            {
+              "id": "lang",
+              "text": "Native language & literature"
+            },
+            {
+              "id": "forlang",
+              "text": "Foreign languages"
+            },
+            {
+              "id": "hist",
+              "text": "History"
+            },
+            {
+              "id": "geo",
+              "text": "Geography"
+            },
+            {
+              "id": "econ",
+              "text": "Economics & business"
+            },
+            {
+              "id": "art",
+              "text": "Art & design"
+            },
+            {
+              "id": "music",
+              "text": "Music"
+            },
+            {
+              "id": "sport",
+              "text": "Sports"
+            },
+            {
+              "id": "social",
+              "text": "Philosophy, psychology & social studies"
+            }
+          ],
+          "interpretation": "grade is a legacy field name for self-rated strength, not a recorded school grade"
+        },
+        "values": {
+          "instruction": "How important is this to you in a future job?",
+          "labels": [
+            "Unimportant",
+            "Slightly",
+            "Moderately",
+            "Very",
+            "Essential"
+          ],
+          "items": [
+            {
+              "id": "salary",
+              "text": "High salary"
+            },
+            {
+              "id": "security",
+              "text": "Job security"
+            },
+            {
+              "id": "creativity",
+              "text": "Creative work"
+            },
+            {
+              "id": "helping",
+              "text": "Helping people"
+            },
+            {
+              "id": "tech",
+              "text": "Working with technology"
+            },
+            {
+              "id": "outdoors",
+              "text": "Being outdoors"
+            },
+            {
+              "id": "autonomy",
+              "text": "Independence"
+            },
+            {
+              "id": "impact",
+              "text": "Impact on society or the planet"
+            }
+          ],
+          "interpretation": "Stated preferences, not a validated latent scale"
+        }
+      }
+    },
+    "fr-CH": {
+      "sha256": "b7ec4aacea8305190372e908097ee878e7fe19cf81c220f59c80b8dbb6b964b5",
+      "definition": {
+        "version": {
+          "interests": "wsis-riasec24-2026-10-14.1",
+          "personality": "mini-ipip20-wsis-2026-10-14.1",
+          "scoring": "wsis-matching-2026-10-14.2",
+          "description": "wsis-response-means-2026-10-14.1"
+        },
+        "locale": "fr-CH",
+        "evidence": "custom-interest-form-and-translations-not-validated",
+        "norms": null,
+        "interests": {
+          "instruction": "À quel point aimerais-tu…",
+          "labels": [
+            "Je n’aime pas",
+            "Pas vraiment",
+            "Neutre",
+            "J’aime",
+            "J’adore"
+          ],
+          "items": [
+            {
+              "id": "r1",
+              "key": "R",
+              "text": "Construire, réparer ou démonter des objets avec ses mains"
+            },
+            {
+              "id": "i1",
+              "key": "I",
+              "text": "Comprendre le fonctionnement d’un phénomène naturel"
+            },
+            {
+              "id": "a1",
+              "key": "A",
+              "text": "Écrire une histoire, une chanson, un scénario ou un article"
+            },
+            {
+              "id": "s1",
+              "key": "S",
+              "text": "Enseigner ou expliquer quelque chose à d’autres personnes"
+            },
+            {
+              "id": "e1",
+              "key": "E",
+              "text": "Convaincre un groupe de soutenir une idée"
+            },
+            {
+              "id": "c1",
+              "key": "C",
+              "text": "Organiser des informations avec précision"
+            },
+            {
+              "id": "r2",
+              "key": "R",
+              "text": "Travailler avec des machines, des outils ou des véhicules"
+            },
+            {
+              "id": "i2",
+              "key": "I",
+              "text": "Résoudre un problème difficile de maths, de logique ou de code"
+            },
+            {
+              "id": "a2",
+              "key": "A",
+              "text": "Concevoir un objet esthétique : affiche, application ou pièce"
+            },
+            {
+              "id": "s2",
+              "key": "S",
+              "text": "Aider quelqu’un à traverser une période difficile"
+            },
+            {
+              "id": "e2",
+              "key": "E",
+              "text": "Lancer et gérer un projet ou une entreprise"
+            },
+            {
+              "id": "c2",
+              "key": "C",
+              "text": "Suivre de l’argent, un budget ou des chiffres"
+            },
+            {
+              "id": "chk",
+              "key": "check",
+              "text": "Pour montrer que tu lis : choisis 2 ici"
+            },
+            {
+              "id": "r5",
+              "key": "R",
+              "text": "Cultiver des plantes ou s’occuper d’animaux"
+            },
+            {
+              "id": "i3",
+              "key": "I",
+              "text": "Réaliser une expérience et analyser les résultats"
+            },
+            {
+              "id": "a3",
+              "key": "A",
+              "text": "Se produire sur scène : musique, théâtre, danse ou vidéo"
+            },
+            {
+              "id": "s3",
+              "key": "S",
+              "text": "Prendre soin de la santé ou du bien-être d’autrui"
+            },
+            {
+              "id": "e3",
+              "key": "E",
+              "text": "Diriger une équipe et assumer la responsabilité du résultat"
+            },
+            {
+              "id": "c4",
+              "key": "C",
+              "text": "Relire un document pour trouver erreurs et incohérences"
+            },
+            {
+              "id": "r6",
+              "key": "R",
+              "text": "Mesurer ou construire quelque chose sur un chantier"
+            },
+            {
+              "id": "i6",
+              "key": "I",
+              "text": "Chercher des tendances dans des données"
+            },
+            {
+              "id": "a5",
+              "key": "A",
+              "text": "Dessiner, peindre ou créer quelque chose selon tes idées"
+            },
+            {
+              "id": "s4",
+              "key": "S",
+              "text": "Organiser une activité pour des enfants ou des jeunes"
+            },
+            {
+              "id": "e4",
+              "key": "E",
+              "text": "Négocier un bon accord ou un bon prix"
+            },
+            {
+              "id": "c6",
+              "key": "C",
+              "text": "Planifier des horaires, des trajets ou des stocks pour que rien ne cloche"
+            }
+          ],
+          "score": "(mean of valid answers - 1) / 4; at least 2 of 4 per type; attention item excluded",
+          "sessionMinimum": "all 24 interest items; attention item is not part of any scale",
+          "provenance": "Custom WSIS activity items based on RIASEC theory, not an AIST or O*NET test form"
+        },
+        "personality": {
+          "instruction": "À quel point cette phrase te décrit-elle ? « Je… »",
+          "labels": [
+            "Pas du tout vrai",
+            "Peu vrai",
+            "Ni vrai ni faux",
+            "Plutôt vrai",
+            "Tout à fait vrai"
+          ],
+          "items": [
+            {
+              "id": "b1",
+              "key": "E",
+              "text": "Suis le centre d’attention lors d’une fête."
+            },
+            {
+              "id": "b2",
+              "key": "A",
+              "text": "Comprends les sentiments des autres."
+            },
+            {
+              "id": "b3",
+              "key": "C",
+              "text": "Fais les tâches ménagères sans tarder."
+            },
+            {
+              "id": "b4",
+              "key": "N",
+              "text": "Ai souvent des changements d’humeur."
+            },
+            {
+              "id": "b5",
+              "key": "O",
+              "text": "Ai une imagination vive."
+            },
+            {
+              "id": "b6",
+              "key": "E",
+              "text": "Ne parle pas beaucoup.",
+              "reverse": true
+            },
+            {
+              "id": "b7",
+              "key": "A",
+              "text": "Ne m’intéresse pas aux problèmes des autres.",
+              "reverse": true
+            },
+            {
+              "id": "b8",
+              "key": "C",
+              "text": "Oublie souvent de remettre les choses à leur place.",
+              "reverse": true
+            },
+            {
+              "id": "b9",
+              "key": "N",
+              "text": "Suis généralement détendu.",
+              "reverse": true
+            },
+            {
+              "id": "b10",
+              "key": "O",
+              "text": "Ne m’intéresse pas aux idées abstraites.",
+              "reverse": true
+            },
+            {
+              "id": "b11",
+              "key": "E",
+              "text": "Parle à beaucoup de personnes différentes lors de fêtes."
+            },
+            {
+              "id": "b12",
+              "key": "A",
+              "text": "Ressens les émotions des autres."
+            },
+            {
+              "id": "b13",
+              "key": "C",
+              "text": "Aime l’ordre."
+            },
+            {
+              "id": "b14",
+              "key": "N",
+              "text": "Suis facilement contrarié."
+            },
+            {
+              "id": "b15",
+              "key": "O",
+              "text": "Ai du mal à comprendre les idées abstraites.",
+              "reverse": true
+            },
+            {
+              "id": "b16",
+              "key": "E",
+              "text": "Reste en retrait.",
+              "reverse": true
+            },
+            {
+              "id": "b17",
+              "key": "A",
+              "text": "Ne m’intéresse pas vraiment aux autres.",
+              "reverse": true
+            },
+            {
+              "id": "b18",
+              "key": "C",
+              "text": "Mets les choses en désordre.",
+              "reverse": true
+            },
+            {
+              "id": "b19",
+              "key": "N",
+              "text": "Me sens rarement triste.",
+              "reverse": true
+            },
+            {
+              "id": "b20",
+              "key": "O",
+              "text": "N’ai pas beaucoup d’imagination.",
+              "reverse": true
+            }
+          ],
+          "score": "Reverse: 6 - answer. Mean of 4 items per trait; all 20 valid answers required. No norms.",
+          "source": "https://ipip.ori.org/MiniIPIPKey.htm",
+          "rights": "https://ipip.ori.org/newPermission.htm",
+          "languageStatus": "Own translation; not separately validated"
+        },
+        "subjects": {
+          "instruction": "Aimes-tu cette matière et quel est ton niveau ?",
+          "enjoymentLabels": [
+            "Pas du tout",
+            "Un peu",
+            "Moyennement",
+            "Beaucoup",
+            "J’adore"
+          ],
+          "selfRatedStrengthLabels": [
+            "Faible",
+            "Sous la moyenne",
+            "Moyen",
+            "Bon",
+            "Excellent"
+          ],
+          "items": [
+            {
+              "id": "math",
+              "text": "Mathématiques"
+            },
+            {
+              "id": "phys",
+              "text": "Physique"
+            },
+            {
+              "id": "chem",
+              "text": "Chimie"
+            },
+            {
+              "id": "bio",
+              "text": "Biologie"
+            },
+            {
+              "id": "cs",
+              "text": "Informatique"
+            },
+            {
+              "id": "lang",
+              "text": "Langue et littérature"
+            },
+            {
+              "id": "forlang",
+              "text": "Langues étrangères"
+            },
+            {
+              "id": "hist",
+              "text": "Histoire"
+            },
+            {
+              "id": "geo",
+              "text": "Géographie"
+            },
+            {
+              "id": "econ",
+              "text": "Économie et gestion"
+            },
+            {
+              "id": "art",
+              "text": "Arts visuels"
+            },
+            {
+              "id": "music",
+              "text": "Musique"
+            },
+            {
+              "id": "sport",
+              "text": "Sport"
+            },
+            {
+              "id": "social",
+              "text": "Philosophie, psychologie et société"
+            }
+          ],
+          "interpretation": "grade is a legacy field name for self-rated strength, not a recorded school grade"
+        },
+        "values": {
+          "instruction": "Quelle importance cela aurait-il dans ton futur travail ?",
+          "labels": [
+            "Sans importance",
+            "Peu",
+            "Assez",
+            "Très",
+            "Essentiel"
+          ],
+          "items": [
+            {
+              "id": "salary",
+              "text": "Salaire élevé"
+            },
+            {
+              "id": "security",
+              "text": "Emploi stable"
+            },
+            {
+              "id": "creativity",
+              "text": "Travail créatif"
+            },
+            {
+              "id": "helping",
+              "text": "Aider les autres"
+            },
+            {
+              "id": "tech",
+              "text": "Travailler avec la technologie"
+            },
+            {
+              "id": "outdoors",
+              "text": "Travailler dehors"
+            },
+            {
+              "id": "autonomy",
+              "text": "Autonomie"
+            },
+            {
+              "id": "impact",
+              "text": "Agir pour la société ou la planète"
+            }
+          ],
+          "interpretation": "Stated preferences, not a validated latent scale"
+        }
+      }
+    },
+    "it-CH": {
+      "sha256": "8f06c9eb740df279b4c1a3885193002bd6f22a4b7f8416c2bff1059cc0894400",
+      "definition": {
+        "version": {
+          "interests": "wsis-riasec24-2026-10-14.1",
+          "personality": "mini-ipip20-wsis-2026-10-14.1",
+          "scoring": "wsis-matching-2026-10-14.2",
+          "description": "wsis-response-means-2026-10-14.1"
+        },
+        "locale": "it-CH",
+        "evidence": "custom-interest-form-and-translations-not-validated",
+        "norms": null,
+        "interests": {
+          "instruction": "Quanto ti piacerebbe…",
+          "labels": [
+            "Non mi piace",
+            "Non molto",
+            "Neutrale",
+            "Mi piace",
+            "Mi piace molto"
+          ],
+          "items": [
+            {
+              "id": "r1",
+              "key": "R",
+              "text": "Costruire, riparare o smontare oggetti con le mani"
+            },
+            {
+              "id": "i1",
+              "key": "I",
+              "text": "Capire perché un fenomeno naturale funziona in un certo modo"
+            },
+            {
+              "id": "a1",
+              "key": "A",
+              "text": "Scrivere una storia, una canzone, una sceneggiatura o un articolo"
+            },
+            {
+              "id": "s1",
+              "key": "S",
+              "text": "Insegnare o spiegare qualcosa ad altre persone"
+            },
+            {
+              "id": "e1",
+              "key": "E",
+              "text": "Convincere un gruppo a sostenere una tua idea"
+            },
+            {
+              "id": "c1",
+              "key": "C",
+              "text": "Organizzare informazioni con precisione"
+            },
+            {
+              "id": "r2",
+              "key": "R",
+              "text": "Lavorare con macchine, utensili o veicoli"
+            },
+            {
+              "id": "i2",
+              "key": "I",
+              "text": "Risolvere un problema difficile di matematica, logica o programmazione"
+            },
+            {
+              "id": "a2",
+              "key": "A",
+              "text": "Progettare qualcosa di bello: un manifesto, un’app o una stanza"
+            },
+            {
+              "id": "s2",
+              "key": "S",
+              "text": "Aiutare qualcuno in un momento difficile"
+            },
+            {
+              "id": "e2",
+              "key": "E",
+              "text": "Avviare e gestire un progetto o un’attività"
+            },
+            {
+              "id": "c2",
+              "key": "C",
+              "text": "Tenere sotto controllo denaro, budget o cifre"
+            },
+            {
+              "id": "chk",
+              "key": "check",
+              "text": "Per mostrare che stai leggendo: scegli 2 qui"
+            },
+            {
+              "id": "r5",
+              "key": "R",
+              "text": "Coltivare piante o prendersi cura di animali"
+            },
+            {
+              "id": "i3",
+              "key": "I",
+              "text": "Fare un esperimento e analizzarne i risultati"
+            },
+            {
+              "id": "a3",
+              "key": "A",
+              "text": "Esibirsi: musica, teatro, danza o video"
+            },
+            {
+              "id": "s3",
+              "key": "S",
+              "text": "Prendersi cura della salute o del benessere delle persone"
+            },
+            {
+              "id": "e3",
+              "key": "E",
+              "text": "Guidare un gruppo e assumersi la responsabilità del risultato"
+            },
+            {
+              "id": "c4",
+              "key": "C",
+              "text": "Controllare un documento per trovare errori e incoerenze"
+            },
+            {
+              "id": "r6",
+              "key": "R",
+              "text": "Misurare o costruire qualcosa in un cantiere"
+            },
+            {
+              "id": "i6",
+              "key": "I",
+              "text": "Cercare schemi nei dati"
+            },
+            {
+              "id": "a5",
+              "key": "A",
+              "text": "Disegnare, dipingere o creare qualcosa secondo le tue idee"
+            },
+            {
+              "id": "s4",
+              "key": "S",
+              "text": "Organizzare un’attività per bambini o ragazzi"
+            },
+            {
+              "id": "e4",
+              "key": "E",
+              "text": "Negoziare un buon accordo o un buon prezzo"
+            },
+            {
+              "id": "c6",
+              "key": "C",
+              "text": "Pianificare orari, percorsi o scorte perché nulla vada storto"
+            }
+          ],
+          "score": "(mean of valid answers - 1) / 4; at least 2 of 4 per type; attention item excluded",
+          "sessionMinimum": "all 24 interest items; attention item is not part of any scale",
+          "provenance": "Custom WSIS activity items based on RIASEC theory, not an AIST or O*NET test form"
+        },
+        "personality": {
+          "instruction": "Quanto ti descrive questa frase? «Io…»",
+          "labels": [
+            "Per niente vero",
+            "Poco vero",
+            "Né vero né falso",
+            "Abbastanza vero",
+            "Molto vero"
+          ],
+          "items": [
+            {
+              "id": "b1",
+              "key": "E",
+              "text": "Sono il centro dell’attenzione alle feste."
+            },
+            {
+              "id": "b2",
+              "key": "A",
+              "text": "Comprendo i sentimenti degli altri."
+            },
+            {
+              "id": "b3",
+              "key": "C",
+              "text": "Sbrigo subito le faccende."
+            },
+            {
+              "id": "b4",
+              "key": "N",
+              "text": "Il mio umore cambia spesso."
+            },
+            {
+              "id": "b5",
+              "key": "O",
+              "text": "Ho una fervida immaginazione."
+            },
+            {
+              "id": "b6",
+              "key": "E",
+              "text": "Non parlo molto.",
+              "reverse": true
+            },
+            {
+              "id": "b7",
+              "key": "A",
+              "text": "Non mi interessano i problemi degli altri.",
+              "reverse": true
+            },
+            {
+              "id": "b8",
+              "key": "C",
+              "text": "Spesso non rimetto le cose al loro posto.",
+              "reverse": true
+            },
+            {
+              "id": "b9",
+              "key": "N",
+              "text": "Sono rilassato per la maggior parte del tempo.",
+              "reverse": true
+            },
+            {
+              "id": "b10",
+              "key": "O",
+              "text": "Non mi interessano le idee astratte.",
+              "reverse": true
+            },
+            {
+              "id": "b11",
+              "key": "E",
+              "text": "Parlo con molte persone diverse alle feste."
+            },
+            {
+              "id": "b12",
+              "key": "A",
+              "text": "Percepisco le emozioni degli altri."
+            },
+            {
+              "id": "b13",
+              "key": "C",
+              "text": "Mi piace l’ordine."
+            },
+            {
+              "id": "b14",
+              "key": "N",
+              "text": "Mi agito facilmente."
+            },
+            {
+              "id": "b15",
+              "key": "O",
+              "text": "Faccio fatica a capire idee astratte.",
+              "reverse": true
+            },
+            {
+              "id": "b16",
+              "key": "E",
+              "text": "Resto in disparte.",
+              "reverse": true
+            },
+            {
+              "id": "b17",
+              "key": "A",
+              "text": "Non mi interessano molto gli altri.",
+              "reverse": true
+            },
+            {
+              "id": "b18",
+              "key": "C",
+              "text": "Creo disordine.",
+              "reverse": true
+            },
+            {
+              "id": "b19",
+              "key": "N",
+              "text": "Mi sento raramente triste.",
+              "reverse": true
+            },
+            {
+              "id": "b20",
+              "key": "O",
+              "text": "Non ho molta immaginazione.",
+              "reverse": true
+            }
+          ],
+          "score": "Reverse: 6 - answer. Mean of 4 items per trait; all 20 valid answers required. No norms.",
+          "source": "https://ipip.ori.org/MiniIPIPKey.htm",
+          "rights": "https://ipip.ori.org/newPermission.htm",
+          "languageStatus": "Own translation; not separately validated"
+        },
+        "subjects": {
+          "instruction": "Quanto ti piace ogni materia e quanto sei bravo?",
+          "enjoymentLabels": [
+            "Per niente",
+            "Un po’",
+            "Abbastanza",
+            "Molto",
+            "Mi piace molto"
+          ],
+          "selfRatedStrengthLabels": [
+            "Scarso",
+            "Sotto la media",
+            "Nella media",
+            "Buono",
+            "Ottimo"
+          ],
+          "items": [
+            {
+              "id": "math",
+              "text": "Matematica"
+            },
+            {
+              "id": "phys",
+              "text": "Fisica"
+            },
+            {
+              "id": "chem",
+              "text": "Chimica"
+            },
+            {
+              "id": "bio",
+              "text": "Biologia"
+            },
+            {
+              "id": "cs",
+              "text": "Informatica"
+            },
+            {
+              "id": "lang",
+              "text": "Lingua e letteratura"
+            },
+            {
+              "id": "forlang",
+              "text": "Lingue straniere"
+            },
+            {
+              "id": "hist",
+              "text": "Storia"
+            },
+            {
+              "id": "geo",
+              "text": "Geografia"
+            },
+            {
+              "id": "econ",
+              "text": "Economia e gestione"
+            },
+            {
+              "id": "art",
+              "text": "Arti visive"
+            },
+            {
+              "id": "music",
+              "text": "Musica"
+            },
+            {
+              "id": "sport",
+              "text": "Sport"
+            },
+            {
+              "id": "social",
+              "text": "Filosofia, psicologia e società"
+            }
+          ],
+          "interpretation": "grade is a legacy field name for self-rated strength, not a recorded school grade"
+        },
+        "values": {
+          "instruction": "Quanto conta per te in un futuro lavoro?",
+          "labels": [
+            "Irrilevante",
+            "Poco",
+            "Abbastanza",
+            "Molto",
+            "Essenziale"
+          ],
+          "items": [
+            {
+              "id": "salary",
+              "text": "Stipendio elevato"
+            },
+            {
+              "id": "security",
+              "text": "Sicurezza del posto di lavoro"
+            },
+            {
+              "id": "creativity",
+              "text": "Lavoro creativo"
+            },
+            {
+              "id": "helping",
+              "text": "Aiutare le persone"
+            },
+            {
+              "id": "tech",
+              "text": "Lavorare con la tecnologia"
+            },
+            {
+              "id": "outdoors",
+              "text": "Stare all’aperto"
+            },
+            {
+              "id": "autonomy",
+              "text": "Autonomia"
+            },
+            {
+              "id": "impact",
+              "text": "Contribuire alla società o al pianeta"
+            }
+          ],
+          "interpretation": "Stated preferences, not a validated latent scale"
+        }
+      }
+    }
+  },
+  "catalogue": "External changing dataset: archive its release and checksum separately before any study; not included here.",
+  "ai": "Source checksums identify prompts and configured model. Provider model updates can still occur. No participant AI requests recorded."
+}

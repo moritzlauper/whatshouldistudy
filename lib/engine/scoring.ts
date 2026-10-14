@@ -6,6 +6,7 @@ import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, Source
 import { isGenericTopic } from './classifier.ts'
 import { isStudyInfo } from './text.ts'
 import { activityAgeWeight } from './recency.ts'
+import { ASSESSMENT_VERSION } from './assessment-version.ts'
 
 /**
  * The matching model. Five components per field, each in 0..1:
@@ -136,6 +137,7 @@ export interface FieldStats {
 }
 
 export interface ScoreInput {
+  locale?: string
   summaries: SourceSummary[]
   answers?: QuestionnaireAnswers
   fieldStats?: Record<string, FieldStats>
@@ -512,6 +514,7 @@ export function score(input: ScoreInput): Results {
 
   return {
     version: 1,
+    method: { interests: ASSESSMENT_VERSION.interests, personality: ASSESSMENT_VERSION.personality, scoring: ASSESSMENT_VERSION.scoring, ...(input.locale ? { locale: input.locale } : {}) },
     generatedAt: new Date().toISOString(),
     dataPoints,
     sources: summaries.map((s) => ({ id: s.source, label: s.label, dataPoints: s.dataPoints })),

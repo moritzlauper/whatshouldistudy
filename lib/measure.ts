@@ -1,3 +1,4 @@
+import { isCounsellingPath } from './counselling.ts'
 import type { Price } from './pricing.ts'
 import { SITE_URL } from './site.ts'
 import { CH_FR_IT_URL, LOCAL_SITES, SITES } from './site/config.ts'
@@ -163,7 +164,7 @@ export function cleanUrl(href: string): string {
 }
 
 /** Sign-in callbacks carry OAuth codes and tokens in the address: never measured. */
-export const unmeasured = (path: string) => /\/callback\//.test(path)
+export const unmeasured = (path: string) => /\/callback\//.test(path) || isCounsellingPath(path)
 
 export function pageView() {
   const g = window.gtag

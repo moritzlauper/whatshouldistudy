@@ -73,7 +73,7 @@ export function ResultsView() {
     if (!mounted || shared === undefined || isShared) return null
     const swiss = k.site === 'ch' || (k.site === 'global' && state.prefs.countries.includes('CH'))
     const fieldStats = Object.fromEntries(Object.entries(stats).map(([id, s]) => [id, { salaryPercentile: swiss ? (s.chSalaryPercentile ?? s.salaryPercentile) : s.salaryPercentile }]))
-    const input = { answers: state.answers, fieldStats, studying: state.prefs.studying }
+    const input = { answers: state.answers, fieldStats, studying: state.prefs.studying, locale }
     const current = score({ ...input, summaries })
     const ai = state.contentAnalysis
     if (!ai || ai.baseCollectedAt !== state.summaries.takeout?.collectedAt) return { current }
@@ -88,7 +88,7 @@ export function ResultsView() {
     }
     return { current, comparison: { before: original.fields, after: enhanced.fields }, programmes }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, state, stats, shared])
+  }, [mounted, state, stats, shared, locale])
   const own = calculated?.current ?? null
   const results = isShared ? (shared as Snapshot).results : own
   const topics = useMemo(() => (own ? userTopics(summaries, state.prefs.studying) : []),
@@ -168,6 +168,7 @@ export function ResultsView() {
       )}
 
       <QualityNotes results={results} />
+      {results.method && <p className="mt-3 break-words text-xs text-muted">{results.method.scoring} · {results.method.locale ?? locale}</p>}
 
       {isShared ? (
         <div className="card-sm mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent-soft p-4">

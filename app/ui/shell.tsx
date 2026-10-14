@@ -5,6 +5,7 @@ import { SITES } from '@/lib/site/config.ts'
 import type { SiteId, SiteProps } from '@/lib/site/config.ts'
 import { Logo, Wordmark } from './logo.tsx'
 import { SiteProvider } from './site-context.tsx'
+import { SessionBoundary } from './session-boundary.tsx'
 import { SiteFlag, Sparkle } from './shapes.tsx'
 import { GitHubMark } from './trust.tsx'
 import { ConsentLink, Measurement } from './measurement.tsx'
@@ -45,6 +46,7 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
   const blog = lang && postsFor(site, lang).length ? blogText(k.locale) : null
   return (
     <SiteProvider site={site} base={base} locale={locale}>
+      <SessionBoundary session={children}>
       <header className="sticky top-0 z-30 border-b-2 border-line bg-bg/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link href={r.home} className="flex min-w-0 items-center gap-2" aria-label={t.misc.home(conf.name)}>
@@ -125,6 +127,7 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
       </footer>
       <Measurement />
       <OrgCapture />
+      </SessionBoundary>
     </SiteProvider>
   )
 }
