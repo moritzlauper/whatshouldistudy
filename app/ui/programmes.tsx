@@ -841,6 +841,12 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
         {p.capacity && <Item k={p.source === 'ch-bfs' ? t.programmes.row.students : t.programmes.row.places} v={fmtNumber(p.capacity, intl)} />}
         {p.languages?.length ? <Item k={t.programmes.row.language} v={p.languages.map((l) => l.toUpperCase()).join(', ')} /> : null}
       </dl>
+      {/* Closed to new students: stays in the ranking, with the institution's notice in plain view. */}
+      {p.closedFrom && (
+        <p className="on-color mt-3 rounded-xl border-2 border-line bg-yellow px-3 py-2 text-sm font-semibold">
+          ⚠ {catalogueText(locale).detail.closed(p.closedFrom.term, p.closedFrom.year, p.successor)}
+        </p>
+      )}
       {p.admission && (
         <p className="mt-2 text-xs text-muted">
           🎟️ {t.programmes.row.entry}: {admissionText(p.country, type, lang) ?? p.admission}

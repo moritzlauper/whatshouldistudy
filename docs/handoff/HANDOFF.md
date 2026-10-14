@@ -2,6 +2,13 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Geschlossene Studiengänge: im Ranking, mit Hinweis (14.10.2026)
+
+- Entscheidung: Ein Studiengang, der keine Neuanmeldungen mehr annimmt (`closedFrom`), bleibt im Ranking, wie er passt. Er wird nicht still ausgeblendet oder herabgestuft. Ein einzelner Seitenwortlaut sollte keine Programme verschwinden lassen.
+- Sichtbar ist der Hinweis in der eingeklappten Zeile der Rangliste (gelber Kasten, `app/ui/programmes.tsx`, `ProgrammeRow`), ausserdem auf der Detailseite und im Katalog.
+- Umkehren: Wer ausblenden will, filtert in `app/ui/programmes.tsx` die Liste nach `!p.closedFrom`. Das ist eine Zeile.
+- Gilt erst, wenn Daten mit `closedFrom` veröffentlicht sind; siehe den Abschnitt zu Bern.
+
 ## Programmliste zeigt bis Top 60 (14.10.2026)
 
 - Der Knopf «Top 20 anzeigen» stoppte bei 20. Jetzt folgen die Stufen 10, 20, 40, 60 (`app/ui/programmes.tsx`, `more`). Ab 60 gibt es keinen Knopf mehr.
