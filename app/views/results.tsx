@@ -587,7 +587,8 @@ function StudyInfoNote({ summaries }: { summaries: SourceSummary[] }) {
   const { t, r, locale, intl } = useSite()
   const s = t.studyInfo
   const data = summaries.filter((x) => x.source !== 'questionnaire')
-  const stale = data.some((x) => (x.v ?? 0) < SUMMARY_VERSION)
+  // Only the sources read with an older version are named; a fresh upload clears its own name.
+  const stale = data.filter((x) => (x.v ?? 0) < SUMMARY_VERSION)
   let n = 0
   const fields = new Map<string, number>()
   const ex: string[] = []
@@ -597,7 +598,7 @@ function StudyInfoNote({ summaries }: { summaries: SourceSummary[] }) {
     for (const [id, c] of Object.entries(x.studyInfo.fields)) fields.set(id, (fields.get(id) ?? 0) + c)
     for (const e of x.studyInfo.ex) if (ex.length < 6 && !ex.includes(e)) ex.push(e)
   }
-  if (!n && !stale) return null
+  if (!n && !stale.length) return null
   const top = [...fields]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
@@ -605,9 +606,9 @@ function StudyInfoNote({ summaries }: { summaries: SourceSummary[] }) {
     .join(', ')
   return (
     <div className="card-sm mt-4 grid gap-3 p-4 text-sm">
-      {stale && (
+      {stale.length > 0 && (
         <div className="on-color flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-line bg-yellow px-3 py-2">
-          <p className="max-w-2xl font-semibold">⚠ {s.stale}</p>
+          <p className="max-w-2xl font-semibold">⚠ {s.stale(stale.map((x) => t.sourceNames[x.source] ?? x.label).join(', '))}</p>
           <Link href={`${r.start}#${r.anchors.sources}`} className="btn btn-primary btn-sm">
             {s.staleCta}
           </Link>

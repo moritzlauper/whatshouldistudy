@@ -2,6 +2,13 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Veraltet-Hinweis nennt die Quellen; KI-Karte kürzer (14.10.2026)
+
+- Der gelbe Hinweis «mit einer älteren Version gelesen» zählte jede gespeicherte Quelle mit einer alten Version, auch solche, die nicht neu hochgeladen wurden (etwa ein YouTube-Konto oder Instagram aus einer früheren Sitzung). Er nennt jetzt diese Quellen mit Namen und verschwindet, sobald keine mehr alt ist (`app/views/results.tsx`, `StudyInfoNote`).
+- Warum nicht nur My Activity geprüft wird: Version 7 (Commit 45003cb) hat alle Zählungen betroffen, nicht nur den Takeout-Import. Ein Hinweis nur auf Takeout würde also echte alte Daten verstecken.
+- Offen: Welche Quelle bei dir veraltet ist, ist nicht bekannt. Nennt der Hinweis «Meine Aktivitäten», hat der neue Upload den alten Stand nicht ersetzt, zum Beispiel weil er kein YouTube-Video lieferte.
+- KI-Karte («Verlauf mit KI verstehen») und Einstiegstexte in vier Sprachen gekürzt: `lead`, `active`, `sample`, `contextNote`, `consent`, `compareNote`, `afterAnalysis`, `changed`, `unchanged`, `localNote`, `ready`. Der Hinweis zur Einwilligung bleibt inhaltlich, nur kürzer.
+
 ## Texte gekürzt: Schritt 2 und Ergebnis (13.10.2026)
 
 - Auf der Startseite war der Upload-Bereich bei 390 px Breite erst nach rund 217 Wörtern Text sichtbar. Jetzt sind es 143 Wörter, der Bereich erscheint auf dem ersten Bildschirm. Gekürzt in allen vier Sprachen: `step2sub`, `yt`, `startNote`.
