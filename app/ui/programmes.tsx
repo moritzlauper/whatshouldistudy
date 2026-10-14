@@ -314,6 +314,8 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
     return withAnalysisOrder(orderByNumber(pool, shownOf, fieldOrder), analysis?.rank).map((p) => ({ p, score: shownOf(p), personal: personalMap?.get(p.id) }))
   }, [pool, scoreOf, personalMap, hasScores, fieldOrder, analysis])
   const best = ranked.slice(0, shown)
+  // Each press shows the next step, up to the top 60; there is no button after that.
+  const more = [10, 20, 40, 60].find((n) => n > shown)
   return (
     <section className="mt-8" aria-label={t.programmes.topTitle}>
       <h2 className="mb-4 font-display text-3xl">{t.programmes.topTitle.replace('5', String(Math.min(shown, Math.max(5, ranked.length))))}</h2>
@@ -339,9 +341,9 @@ export function TopProgrammes({ results, prefs, topics = [], token, unlocked, sh
               </li>
             ))}
           </ol>
-          {ranked.length > shown && (
-            <button type="button" onClick={() => setShown(shown < 10 ? 10 : 20)} className="btn btn-ghost btn-sm mt-3">
-              ▾ {t.programmes.ai.showTop(shown < 10 ? 10 : 20)}
+          {more && ranked.length > shown && (
+            <button type="button" onClick={() => setShown(more)} className="btn btn-ghost btn-sm mt-3">
+              ▾ {t.programmes.ai.showTop(more)}
             </button>
           )}
           <p className="mt-2 text-sm text-muted">{t.programmes.topNote}</p>

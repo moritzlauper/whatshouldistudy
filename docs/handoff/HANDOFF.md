@@ -2,6 +2,11 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Programmliste zeigt bis Top 60 (14.10.2026)
+
+- Der Knopf «Top 20 anzeigen» stoppte bei 20. Jetzt folgen die Stufen 10, 20, 40, 60 (`app/ui/programmes.tsx`, `more`). Ab 60 gibt es keinen Knopf mehr.
+- Nur typgeprüft und mit der Testsuite geprüft; im Browser nicht durchgeklickt.
+
 ## Schliessung zur Anmeldung wird gelesen: Master Soziologie Bern (14.10.2026)
 
 - Ursache: Der Bern-Leser las nur die A–Z-Liste der Studiengänge, nie die Studiengangsseite. Ein Hinweis wie «Neuanmeldungen … ab dem Herbstsemester 2026 nicht mehr möglich» blieb deshalb unsichtbar.
