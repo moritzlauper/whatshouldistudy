@@ -128,6 +128,7 @@ export function askPersonal(programmes: RankedProgramme[], profile: LocalProfile
 /** One request, at most PERSONAL_REQUEST programmes. */
 function askRequest(programmes: RankedProgramme[], profile: LocalProfile, locale: string, token: string | null, computed: (p: RankedProgramme) => number, fresh = false): Promise<PersonalFit[]> {
   const body = JSON.stringify({
+    consent: true,
     programmes: programmes.map((p) => ({ id: p.id, field: p.matchedField, country: p.country, computed: Math.round(computed(p)) })),
     profile: { riasec: profile.riasec, subjects: Object.entries(profile.enjoy).filter(([, v]) => (v ?? 0) >= 4).map(([k]) => k), topics: profile.topics ?? {} },
     locale,

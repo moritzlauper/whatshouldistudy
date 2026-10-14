@@ -2,6 +2,7 @@
 
 import { withBase } from '@/lib/site.ts'
 import Link from 'next/link'
+import { professionalText } from '@/lib/site/professional-text.ts'
 import { useEffect, useMemo, useState } from 'react'
 import { effectiveSummaries, useAppState } from '@/lib/store.ts'
 import { decodeSnapshot, encodeSnapshot, sharedParam } from '@/lib/share.ts'
@@ -132,6 +133,8 @@ export function ResultsView() {
   }
 
   const [first, ...rest] = results.fields
+  const personalityMeans = results.big5?.means
+  const hasPersonalityMeans = personalityMeans && BIG5_KEYS.every(key => Number.isFinite(personalityMeans[key]) && personalityMeans[key] >= 1 && personalityMeans[key] <= 5)
   const top = rest.slice(0, 9)
   // Place 1 belongs to the paid report; the other places stay free. Without
   // payments set up on this deployment there is nothing to pay, so it's open.
@@ -260,30 +263,30 @@ export function ResultsView() {
         </div>
         <div className="card p-6 sm:p-8">
           <h2 className="font-display text-3xl">{t.results.big5Title}</h2>
-          {results.big5 && results.big5.from.includes('questionnaire') ? (
+          {hasPersonalityMeans && results.big5?.from.includes('questionnaire') ? (
             <>
               <p className="mt-1 text-sm text-muted">
-                {t.results.big5Sub} {results.big5.from.includes('questionnaire') ? t.results.big5Q : t.results.big5Music}
+                {t.results.big5Sub} {t.results.big5Q}
               </p>
               <ul className="mt-6 grid gap-5">
                 {BIG5_KEYS.map((key) => {
-                  const z = results.big5!.z[key] ?? 0
-                  const pct = Math.round(100 / (1 + Math.exp(-1.7 * z)))
+                  const mean = personalityMeans![key]
+                  const pct = (mean - 1) / 4 * 100
                   const lab = big5Label(key, locale)
                   return (
                     <li key={key}>
                       <div className="flex justify-between text-sm">
                         <span className="font-bold">{lab.name}</span>
-                        <span className="text-muted">{t.results.percentile(pct)}</span>
+                        <span className="text-muted">{t.results.scaleMean(mean)}</span>
                       </div>
-                      <div className="bar mt-1.5">
+                      <div className="bar mt-1.5" aria-hidden="true">
                         <span style={{ width: `${pct}%`, background: BIG5_COLORS[key] }} />
                       </div>
-                      <div className="mt-1 text-xs text-muted">{z > 0.5 ? lab.high : z < -0.5 ? lab.low : t.results.middle}</div>
                     </li>
                   )
                 })}
               </ul>
+              <p className="mt-4 text-xs text-muted">{t.results.meanNote}</p>
             </>
           ) : (
             <p className="mt-3 text-muted">
@@ -365,7 +368,8 @@ export function ResultsView() {
 
 /** What the result can say: notes on how the questionnaire was answered, and its limits. */
 function QualityNotes({ results }: { results: Results }) {
-  const { t } = useSite()
+  const { t, r, locale } = useSite()
+  const professional = professionalText(locale)
   const q = results.quality
   const tq = t.results.quality
   const notes = [
@@ -374,7 +378,6 @@ function QualityNotes({ results }: { results: Results }) {
     q?.careless && tq.careless,
     q?.topTie && !q.flat && tq.topTie,
   ].filter(Boolean) as string[]
-  if (!notes.length) return null
   return (
     <div className="mt-6 grid gap-3">
       {notes.map((n) => (
@@ -383,7 +386,8 @@ function QualityNotes({ results }: { results: Results }) {
         </p>
       ))}
       <p className="text-sm text-muted">
-        {tq.limits}
+        {professional.notice} {tq.limits}{' '}
+        <Link href={r.professional} className="font-semibold text-accent underline">{professional.link}</Link>
         {tq.counselling && (
           <>
             {' '}

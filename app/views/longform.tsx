@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { ProfessionalNotice } from '../ui/professional-notice.tsx'
+import { professionalText } from '@/lib/site/professional-text.ts'
 import { USAGE_STATS } from '@/lib/usage-stats.ts'
 import { productMeasureText } from '@/lib/site/product-measure-text.ts'
 import { cloneElement, isValidElement } from 'react'
@@ -106,6 +108,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
   if (k.locale === 'fr-CH') {
     return (
       <Page title="Comment ça marche" lead={`Nous analysons tes activités numériques, les comparons à ${FIELDS.length} domaines d’études et les mettons en regard de tes réponses. Voici les étapes et les limites du résultat.`}>
+        <ProfessionalNotice locale={k.locale} href={k.r.professional} />
         <h2>1. Tes sources restent dans ton navigateur</h2>
         <p>Lorsque tu connectes YouTube, Spotify ou Reddit, tu t’authentifies directement auprès du service. Le jeton de lecture reste dans ton navigateur et les données sont récupérées depuis ton appareil. Les fichiers Google Takeout, Spotify, Instagram et TikTok sont également lus localement. Ils ne sont pas envoyés à notre serveur.</p>
         <ul>
@@ -140,6 +143,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
   if (k.locale === 'it-CH') {
     return (
       <Page title="Come funziona" lead={`Analizziamo le tue attività digitali, le confrontiamo con ${FIELDS.length} aree di studio e le mettiamo in relazione con le tue risposte. Ecco i passaggi e i limiti del risultato.`}>
+        <ProfessionalNotice locale={k.locale} href={k.r.professional} />
         <h2>1. Le tue fonti restano nel browser</h2>
         <p>Quando colleghi YouTube, Spotify o Reddit, accedi direttamente al servizio. Il token di sola lettura resta nel browser e i dati vengono richiesti dal tuo dispositivo. Anche i file di Google Takeout, Spotify, Instagram e TikTok vengono letti localmente, senza essere caricati sul nostro server.</p>
         <ul>
@@ -174,6 +178,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
   if (k.locale !== 'en') {
     return rz(
       <Page title="So funktioniert’s" lead={HOW_DE.lead(FIELDS.length)}>
+        <ProfessionalNotice locale={k.locale} href={k.r.professional} />
         <h2>{HOW_DE.questionnaireTitle}</h2>
         <p>{HOW_DE.questionnaireIntro}</p>
         <ul>
@@ -264,6 +269,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
   }
   return (
     <Page title="How it works" lead={`Three steps: read what you consume and make, describe it in terms of ${FIELDS.length} fields of study, then combine it with what you tell us about yourself. Here is every step, including what it can’t do.`}>
+        <ProfessionalNotice locale={k.locale} href={k.r.professional} />
       <h2>1. Reading your sources, in your browser</h2>
       <p>
         When you connect YouTube, Spotify or Reddit, you sign in with the service itself and grant read-only access. The access token stays in your browser tab; your browser calls the service directly. When you drop an export from Google Takeout, Spotify, Instagram or TikTok, the file is unpacked on your device. Our server is never involved.
@@ -323,7 +329,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
           <strong>Interests (RIASEC):</strong> John Holland’s six interest types (Realistic, Investigative, Artistic, Social, Enterprising, Conventional) underpin most career guidance. Every field has a RIASEC profile; yours comes from 24 activity questions and from the fields you engage with. Congruence between the two is one of the best-replicated predictors of satisfaction and persistence in a major.
         </li>
         <li>
-          <strong>Personality (Big Five):</strong> the Mini-IPIP (Donnellan et al., 2006), a validated 20-item public-domain scale. This part is optional; you can view your result without answering it. This part does not change the field ranking in questionnaire mode. It adds a personality profile to the result and can inform the optional AI comparison. Without the questionnaire, music taste gives a weak estimate, clearly labelled as such.
+          <strong>Personality (Big Five):</strong> 20 items from the published Mini-IPIP (Donnellan et al., 2006). Our translations and the complete procedure have not been empirically validated; representative norms are unavailable. This part is optional; you can view your result without answering it. This part does not change the field ranking in questionnaire mode. It shows descriptive response means; the AI comparison does not receive this personality profile. Music taste may contribute a weak heuristic internally, but is not reported as a personality assessment.
         </li>
         <li>
           <strong>School subjects and values:</strong> what you enjoy and are good at, and what you want from work (salary, security, creativity, helping, impact), compared with what each field draws on and offers. For salary, US graduate earnings data is mixed in.
@@ -366,7 +372,8 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
   const k = kit(site, base, locale)
   if (k.locale === 'fr-CH') {
     return (
-      <Page title="Confidentialité" lead="Nous ne conservons pas ton historique. L’analyse se déroule dans ton navigateur et les résumés restent sur ton appareil.">
+      <Page title="Confidentialité" lead="Questionnaires et exports sont analysés dans ton navigateur. La recherche transmet un profil ; les fonctions personnelles d’IA transmettent en plus des contenus sélectionnés à Infomaniak après ton accord.">
+        <p><Link href={`${k.r.professional}#manual-3`}>{professionalText(k.locale).link} →</Link></p>
         <p><strong>Traduction :</strong> en cas de divergence, la version allemande fait foi.</p>
         <h2>Responsable</h2>
         <p>{OPERATOR ? `${OPERATOR}. ` : ''}Contact : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Le droit suisse de la protection des données s’applique. Le RGPD s’applique également lorsque la législation européenne le prévoit.</p>
@@ -375,13 +382,13 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <h2>Sources connectées et fichiers</h2>
         <p>Pour YouTube, Spotify et Reddit, tu t’authentifies directement auprès du service. Le jeton de lecture reste dans la mémoire de session de l’onglet et disparaît lorsque tu le fermes. Ton navigateur récupère les données auprès du service. Les exports de Google Takeout, Spotify, Instagram et TikTok sont lus et décompressés sur ton appareil. Nous ne recevons ni ces fichiers ni les jetons.</p>
         <h2>Recherche de formations</h2>
-        <p>Pour rechercher des formations, ton navigateur transmet les identifiants et scores de tes domaines principaux, jusqu’à 80 thèmes pondérés et tes filtres de recherche. Il ne transmet ni titres consultés, ni recherches, ni chaînes, ni noms permettant de t’identifier. Nous ne conservons pas cette requête.</p>
+        <p>Pour rechercher des formations, ton navigateur transmet les identifiants et scores de tes domaines principaux, jusqu’à 80 thèmes pondérés et tes filtres de recherche. Il ne transmet ni titres individuels, ni recherches, ni chaînes. Ces profils peuvent néanmoins constituer des données personnelles. Nous ne conservons pas cette requête.</p>
         <h2>{k.t.contentAi.title}</h2>
         <p>{k.t.contentAi.localNote}</p>
         <p>{k.t.contentAi.consent}</p>
         <AiDataNotice k={k} />
         <h2>Évaluation des formations par l’IA</h2>
-        <p>Régulièrement, Infomaniak lit les pages publiques des formations suisses et note à quel point chacune touche aux types d’intérêts et quelles matières scolaires elle demande. Seule la page d’une formation part chez Infomaniak (Suisse), sans profil, sans nom ni compte. Nous conservons les résultats dans notre propre base de données ; ils ne contiennent rien sur toi. Le classement se calcule dans ton navigateur, à partir de tes réponses. L’option « Trier avec l’IA » est désactivée par défaut. Si tu l’actives, Infomaniak reçoit en plus ton profil d’intérêts, tes thèmes avec leur pondération et les matières que tu aimes, avec les résultats des 20 meilleures correspondances. Nous te demandons d’abord ton accord, et tu peux le retirer à tout moment.</p>
+        <p>Régulièrement, Anthropic lit les pages publiques des formations des pays couverts et note à quel point chacune touche aux types d’intérêts et quelles matières scolaires elle demande. Seule la page publique d’une formation part chez Anthropic, sans profil, sans nom ni compte. Nous conservons les résultats dans notre propre base de données ; ils ne contiennent rien sur toi. Le classement se calcule dans ton navigateur, à partir de tes réponses. L’option « Trier avec l’IA » est désactivée par défaut. Si tu l’actives, Infomaniak reçoit en plus ton profil d’intérêts, tes thèmes avec leur pondération et les matières que tu aimes, avec les résultats des 20 meilleures correspondances. Nous te demandons d’abord ton accord, et tu peux le retirer à tout moment.</p>
         <h2>Paiements et hébergement</h2>
         <p>Stripe traite le paiement et nous indique s’il a abouti, sans nous transmettre les données de ta carte. Le site est hébergé par Vercel, qui peut enregistrer temporairement l’adresse IP, l’heure et la page consultée. Nous utilisons l’adresse IP uniquement pour déterminer le pays et afficher la devise correspondante.</p>
         <h2>Données Google et YouTube</h2>
@@ -407,13 +414,14 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
           </>
         )}
         <h2>Tes droits et les mineurs</h2>
-        <p>Nous ne détenons pas de données personnelles issues de l’analyse et ne pouvons donc pas exporter ou supprimer des données que nous ne possédons pas. Tu gères les données dans ton navigateur. Tu peux saisir l’autorité de protection des données de ton pays, en Suisse le Préposé fédéral à la protection des données et à la transparence. Pour toute question : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Si tu as moins de 16 ans, parles-en à tes parents avant de connecter des comptes ou d’effectuer un achat. En Autriche, cet âge est de 14 ans.</p>
+        <p>Tu peux supprimer les réponses et imports locaux dans le navigateur. Nous examinons les demandes concernant les profils transmis, journaux techniques, identifiants de coûts et paiements avec les prestataires concernés. La suppression locale ne les efface pas automatiquement. Tu peux saisir l’autorité de protection des données de ton pays, en Suisse le Préposé fédéral à la protection des données et à la transparence. Pour toute question : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Si tu as moins de 16 ans, parles-en à tes parents avant de connecter des comptes ou d’effectuer un achat. En Autriche, cet âge est de 14 ans.</p>
       </Page>
     )
   }
   if (k.locale === 'it-CH') {
     return (
-      <Page title="Privacy" lead="Non conserviamo la tua cronologia. L’analisi avviene nel browser e i riepiloghi restano sul tuo dispositivo.">
+      <Page title="Privacy" lead="Questionari ed esportazioni vengono analizzati nel browser. La ricerca invia dati del profilo; le funzioni personali di IA inviano inoltre contenuti selezionati a Infomaniak dopo il tuo consenso.">
+        <p><Link href={`${k.r.professional}#manual-3`}>{professionalText(k.locale).link} →</Link></p>
         <p><strong>Traduzione:</strong> in caso di differenze, fa fede la versione tedesca.</p>
         <h2>Titolare del trattamento</h2>
         <p>{OPERATOR ? `${OPERATOR}. ` : ''}Contatto: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Si applica la legge svizzera sulla protezione dei dati. Il GDPR si applica inoltre quando previsto dalla normativa europea.</p>
@@ -422,13 +430,13 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <h2>Account collegati e file</h2>
         <p>Per YouTube, Spotify e Reddit accedi direttamente al servizio. Il token di sola lettura resta nella memoria di sessione della scheda e scompare quando la chiudi. Il browser recupera i dati dal servizio. Gli export di Google Takeout, Spotify, Instagram e TikTok vengono letti e decompressi sul tuo dispositivo. Non riceviamo i file né i token.</p>
         <h2>Ricerca dei corsi</h2>
-        <p>Per cercare i corsi, il browser invia gli identificativi e i punteggi delle tue aree principali, fino a 80 temi con il relativo peso e i filtri di ricerca. Non invia titoli consultati, ricerche, canali o nomi che possano identificarti. Non conserviamo la richiesta.</p>
+        <p>Per cercare i corsi, il browser invia gli identificativi e i punteggi delle tue aree principali, fino a 80 temi con il relativo peso e i filtri di ricerca. Non invia singoli titoli, ricerche o canali. Questi profili possono comunque essere dati personali. Non conserviamo la richiesta.</p>
         <h2>{k.t.contentAi.title}</h2>
         <p>{k.t.contentAi.localNote}</p>
         <p>{k.t.contentAi.consent}</p>
         <AiDataNotice k={k} />
         <h2>Valutazione dei corsi con l’IA</h2>
-        <p>Regolarmente Infomaniak legge le pagine pubbliche dei corsi svizzeri e annota quanto ciascuno tocca i tipi di interesse e quali materie scolastiche richiede. Verso Infomaniak (Svizzera) va soltanto la pagina di un corso: nessun profilo, nessun nome, nessun account. I risultati li conserviamo in una nostra banca dati; non contengono nulla su di te. La classifica viene calcolata nel tuo browser, a partire dalle tue risposte. L’opzione «Ordina con l’IA» è disattivata di default. Se la attivi, Infomaniak riceve anche il tuo profilo di interessi, i tuoi temi con il loro peso e le materie che ti piacciono, insieme ai risultati dei 20 migliori abbinamenti. Ti chiediamo prima il consenso, che puoi ritirare in qualsiasi momento.</p>
+        <p>Regolarmente Anthropic legge le pagine pubbliche dei corsi dei Paesi coperti e annota quanto ciascuno tocca i tipi di interesse e quali materie scolastiche richiede. Verso Anthropic va soltanto la pagina pubblica di un corso: nessun profilo, nessun nome, nessun account. I risultati li conserviamo in una nostra banca dati; non contengono nulla su di te. La classifica viene calcolata nel tuo browser, a partire dalle tue risposte. L’opzione «Ordina con l’IA» è disattivata di default. Se la attivi, Infomaniak riceve anche il tuo profilo di interessi, i tuoi temi con il loro peso e le materie che ti piacciono, insieme ai risultati dei 20 migliori abbinamenti. Ti chiediamo prima il consenso, che puoi ritirare in qualsiasi momento.</p>
         <h2>Pagamenti e hosting</h2>
         <p>Stripe gestisce il pagamento e ci comunica se è andato a buon fine, senza trasmetterci i dati della carta. Il sito è ospitato da Vercel, che può registrare temporaneamente indirizzo IP, ora e pagina visitata. Usiamo l’indirizzo IP solo per determinare il Paese e mostrare la valuta corretta.</p>
         <h2>Dati Google e YouTube</h2>
@@ -454,19 +462,20 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
           </>
         )}
         <h2>Diritti e minori</h2>
-        <p>Non deteniamo dati personali derivati dall’analisi e quindi non possiamo esportare o cancellare dati che non possediamo. Gestisci tutto nel browser. Puoi rivolgerti all’autorità per la protezione dei dati del tuo Paese; in Svizzera, all’Incaricato federale della protezione dei dati e della trasparenza. Per domande: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Se hai meno di 16 anni, parlane con i tuoi genitori prima di collegare account o acquistare. In Austria l’età è 14 anni.</p>
+        <p>Puoi eliminare risposte e importazioni locali nel browser. Esaminiamo le richieste su profili trasmessi, log tecnici, identificativi dei costi e pagamenti con i fornitori coinvolti. La cancellazione locale non li elimina automaticamente. Puoi rivolgerti all’autorità per la protezione dei dati del tuo Paese; in Svizzera, all’Incaricato federale della protezione dei dati e della trasparenza. Per domande: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Se hai meno di 16 anni, parlane con i tuoi genitori prima di collegare account o acquistare. In Austria l’età è 14 anni.</p>
       </Page>
     )
   }
   if (k.locale !== 'en') {
     return rz(
-      <Page title="Datenschutz" lead="Dein Verlauf kommt nie bei uns an, die Analyse läuft in deinem Browser, und was sie behält, bleibt dort. Der ganze Code ist Open Source.">
+      <Page title="Datenschutz" lead="Fragebogen und Exporte werden im Browser ausgewertet. Für die Studiengangsuche werden Profilangaben übertragen; persönliche KI-Funktionen senden nach deiner Zustimmung zusätzlich ausgewählte Inhalte an Infomaniak.">
+        <p><Link href={`${k.r.professional}#manual-3`}>{professionalText(k.locale).link} →</Link></p>
         <h2>Wer verantwortlich ist</h2>
         <p>
           {OPERATOR ? `${OPERATOR}. ` : ''}Erreichbar unter <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. {k.site === 'ch' ? 'Massgebend ist das Schweizer Datenschutzgesetz (DSG). Für Nutzer:innen aus der EU gilt zusätzlich die DSGVO.' : 'Massgebend ist die Datenschutz-Grundverordnung (DSGVO), dazu das Schweizer Datenschutzgesetz (DSG).'}
         </p>
 
-        <h2>Was wir speichern: nichts</h2>
+        <h2>Lokale Daten, Serveranfragen und Anbieter</h2>
         <p>
           Wir führen keine Datenbank mit deinen Antworten und speichern keine Kopie deiner Exportdateien. Zusammenfassungen und eingelesene YouTube-Exporte liegen im Speicher deines Browsers. Ein Klick auf «Alle meine Daten löschen» entfernt sie. Der Hoster Vercel führt technische Protokolle, und wenn du bezahlst, speichert Stripe die Zahlung. Die freiwillige KI-Verarbeitung bei Infomaniak ist unten beschrieben.
           {GOOGLE_TAG && ' Dazu bekommt Google Messdaten zu unserer Werbung, wie unten unter «Cookies und Messung» beschrieben.'}
@@ -489,7 +498,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
             <strong>Was gespeichert bleibt:</strong> pro Quelle eine Zusammenfassung (wie viel deiner Inhalte zu welchem Fach gehört, ein paar Beispieltitel als Beleg, Zahlen), dazu deine Antworten im Fragebogen und deine Einstellungen. Alles im lokalen Speicher deines Browsers, nur auf deinem Gerät. «Alle meine Daten löschen» auf der Startseite entfernt es.
           </li>
           <li>
-            <strong>Was wir bekommen:</strong> Für die Suche nach Studiengängen schickt dein Browser die Kennungen und Werte deiner Top-Fächer, bis zu 80 Themenwörter mit einer Gewichtung (etwa «theater» 0.8, damit einzelne Studiengänge nach deinen Themen sortiert werden) und deine Filter (Stufe, Länder, Budget, Herkunft), im Inhalt der Anfrage, nicht in der Adresse. Keine Titel, keine Suchanfragen, keine Kanäle, nichts, was dich identifiziert. Wir speichern die Anfrage nicht.
+            <strong>Was wir bekommen:</strong> Für die Suche nach Studiengängen schickt dein Browser die Kennungen und Werte deiner Top-Fächer, bis zu 80 Themenwörter mit einer Gewichtung (etwa «theater» 0.8, damit einzelne Studiengänge nach deinen Themen sortiert werden) und deine Filter (Stufe, Länder, Budget, Herkunft), im Inhalt der Anfrage, nicht in der Adresse. Keine einzelnen Titel, Suchanfragen oder Kanäle. Auch diese Themenprofile können jedoch personenbezogen sein. Wir speichern die Anfrage nicht.
           </li>
           <li>
             <strong>Bezahlung:</strong> läuft über Stripe. Wir erfahren, ob eine Zahlung erfolgt ist, nicht deine Kartendaten. Für die Zahlung gilt die Datenschutzerklärung von Stripe. Stripe kann Daten in die USA übermitteln.
@@ -570,15 +579,16 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
 
         <h2>Deine Rechte</h2>
         <p>
-          Über deine Nutzung der Analyse halten wir keine Personendaten. Es gibt bei uns also nichts herauszugeben oder zu löschen, du steuerst alles in deinem Browser. Du kannst dich bei einer Aufsichtsbehörde beschweren: in der Schweiz beim EDÖB, in der EU bei der Datenschutzbehörde deines Landes. Für Zahlungsbelege oder Fragen: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
+          Deine lokal gespeicherten Antworten und Importdaten löschst du im Browser. Anfragen zu übertragenen Profilangaben, technischen Protokollen, Kostenkennungen oder Zahlungen prüfen wir mit den beteiligten Anbietern; die lokale Löschfunktion entfernt diese Daten nicht automatisch. Du kannst dich bei einer Aufsichtsbehörde beschweren: in der Schweiz beim EDÖB, in der EU bei der Datenschutzbehörde deines Landes. Für Zahlungsbelege oder Fragen: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
         </p>
       </Page>,
       k.locale,
     )
   }
   return (
-    <Page title="Privacy" lead="Your history never reaches us, the analysis runs in your browser, and what it keeps stays there. All of the code is open source.">
-      <h2>What we store: nothing</h2>
+    <Page title="Privacy" lead="Questionnaires and exports are analysed in your browser. Programme search sends profile information; personal AI features additionally send selected content to Infomaniak after your consent.">
+        <p><Link href={`${k.r.professional}#manual-3`}>{professionalText(k.locale).link} →</Link></p>
+      <h2>Local data, server requests and providers</h2>
       <p>
         We do not keep a database of your answers or copies of your export files. Summaries and parsed YouTube exports live in your browser’s storage, and «Delete all my data» removes them. Our host Vercel keeps technical logs, and if you pay, Stripe stores the payment. Optional AI processing at Infomaniak is described below.
         {GOOGLE_TAG && ' Google also receives measurement data about our ads, as described under «Cookies and measurement» below.'}
@@ -601,7 +611,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
           <strong>What is kept:</strong> a summary per source (how much of your content relates to each field, a few example titles as evidence, counts), your questionnaire answers and preferences. These are stored in your browser’s local storage, on your device only. “Delete all my data” on the start page removes them.
         </li>
         <li>
-          <strong>What we receive:</strong> to look up programmes, your browser sends us the ids and scores of your top fields, up to 80 topic words with a weight (say “theatre” 0.8, so single programmes can be sorted by your topics) and your filters (level, countries, budget, citizenship category). No titles, no searches, no channels, nothing that identifies you. We don’t store the request.
+          <strong>What we receive:</strong> to look up programmes, your browser sends us the ids and scores of your top fields, up to 80 topic words with a weight (say “theatre” 0.8, so single programmes can be sorted by your topics) and your filters (level, countries, budget, citizenship category). No individual titles, searches or channels. These topic profiles may nevertheless be personal data. We don’t store the request.
         </li>
         <li>
           <strong>Payments:</strong> handled by Stripe. We receive whether a checkout session was paid, not your card details. Stripe’s privacy policy applies to the payment.
@@ -659,7 +669,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
 
       <h2>Your rights</h2>
       <p>
-        Because we don’t hold personal data about your use of the analysis, there is nothing for us to export or delete: you control it in your browser. For payment records, contact us at <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
+        You can delete local responses and imports in your browser. We review requests about transmitted profiles, technical logs, cost identifiers and payments with the relevant providers; local deletion does not automatically remove these. Contact us at <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
         {OPERATOR ? `. Controller: ${OPERATOR}.` : '.'}
       </p>
     </Page>

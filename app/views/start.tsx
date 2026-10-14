@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { professionalText } from '@/lib/site/professional-text.ts'
 import { useEffect, useRef, useState } from 'react'
 import { clearAll, removeSummary, setSummary, useAppState } from '@/lib/store.ts'
 import type { SourceId, SourceSummary } from '@/lib/engine/types.ts'
@@ -140,6 +141,7 @@ export function StartView() {
         <span className="hl">{t.start.title}</span>
       </h1>
       <p className="mt-5 max-w-2xl text-lg text-muted">{t.start.lead}</p>
+      <p className="mt-3 max-w-2xl text-sm text-muted">{professionalText(locale).notice}{' '}<Link href={r.professional} className="text-accent underline">{professionalText(locale).link}</Link></p>
 
       <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-2">
         {([

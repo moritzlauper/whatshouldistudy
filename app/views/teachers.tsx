@@ -1,3 +1,4 @@
+import { ProfessionalNotice } from '../ui/professional-notice.tsx'
 import Link from 'next/link'
 import { formatPrice, priceFor } from '@/lib/pricing.ts'
 import { kit } from '@/lib/site/kit.ts'
@@ -26,6 +27,7 @@ export function TeachersView({ site, base, locale: lang }: SiteProps) {
           <span className="chip on-color bg-lime">{tt.free}</span>
           <h1 className="mt-4 font-display text-5xl sm:text-6xl">{tt.title}</h1>
           <p className="mt-5 text-xl text-muted">{tt.lead}</p>
+          <ProfessionalNotice locale={locale} href={r.professional} institution />
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#worksheet" className="btn btn-primary btn-lg">
               {tt.sheetTitle}

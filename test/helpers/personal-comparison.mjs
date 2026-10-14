@@ -82,6 +82,7 @@ assert.equal(calls.length, 1)
 assert.equal(search().status, 'loading')
 assert.equal(top().on, false)
 assert.equal(calls[0].url, '/api/personal-fit')
+assert.equal(calls[0].body.consent, true)
 assert.deepEqual(calls[0].body.profile.subjects, ['hist'])
 
 // Even with identical programme IDs, changing a filter requires another click.

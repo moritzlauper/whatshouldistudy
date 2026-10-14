@@ -1,5 +1,5 @@
 import { BIG5_KEYS, RIASEC_KEYS } from '../taxonomy/fields.ts'
-import type { Big5, Big5Key, Riasec, RiasecKey } from '../taxonomy/fields.ts'
+import type { Big5, Riasec, RiasecKey } from '../taxonomy/fields.ts'
 import type { QuestionnaireAnswers } from './types.ts'
 
 /**
@@ -122,19 +122,6 @@ export const BIG5_ITEMS: LikertItem[] = [
   { id: 'b20', key: 'O', text: 'Do not have a good imagination.', reverse: true },
 ]
 
-/**
- * Approximate item-mean norms (mean, SD) for the Mini-IPIP scales in young
- * adult samples (Donnellan et al. 2006; Baldasaro et al. 2013), used to turn
- * answers into z-scores. Rough by design: we compare fields, not people.
- */
-const BIG5_NORMS: Record<Big5Key, [number, number]> = {
-  E: [3.0, 0.85],
-  A: [3.9, 0.7],
-  C: [3.4, 0.8],
-  N: [2.7, 0.8],
-  O: [3.7, 0.7],
-}
-
 export const LIKERT_INTEREST = ['Dislike', 'Not really', 'Neutral', 'Like', 'Love']
 export const LIKERT_ACCURACY = ['Very inaccurate', 'Inaccurate', 'Neither', 'Accurate', 'Very accurate']
 
@@ -212,23 +199,27 @@ export function resultsReady(a: QuestionnaireAnswers, sources: number): boolean 
   return sources > 0 || scoreRiasec(a) !== null
 }
 
-/** Big Five z-scores, or null if fewer than half the items were answered. */
-export function scoreBig5(a: QuestionnaireAnswers): Big5 | null {
+/** Descriptive item means (1..5), not population norms. All four items per trait are required. */
+export function big5Means(a: QuestionnaireAnswers): Big5 | null {
   if (!a.big5) return null
-  const z = {} as Big5
-  let answered = 0
+  const means = {} as Big5
   for (const k of BIG5_KEYS) {
     const vals = BIG5_ITEMS.filter((i) => i.key === k)
       .map((i) => {
         const v = a.big5![i.id]
-        return typeof v === 'number' ? (i.reverse ? 6 - v : v) : null
+        return Number.isInteger(v) && v >= 1 && v <= 5 ? (i.reverse ? 6 - v : v) : null
       })
       .filter((v): v is number => v !== null)
-    answered += vals.length
-    const [m, sd] = BIG5_NORMS[k]
-    z[k] = vals.length ? clamp((avg(vals) - m) / sd, -2.5, 2.5) : 0
+    if (vals.length !== 4) return null
+    means[k] = avg(vals)
   }
-  return answered >= 10 ? z : null
+  return means
+}
+
+/** Internally centre on the response midpoint; this is not a z-score or an age comparison. */
+export function scoreBig5(a: QuestionnaireAnswers): Big5 | null {
+  const means = big5Means(a)
+  return means ? Object.fromEntries(BIG5_KEYS.map(k => [k, means[k] - 3])) as Big5 : null
 }
 
 export function riasecCode(p: Riasec): string {
@@ -251,8 +242,4 @@ export function questionnaireProgress(a: QuestionnaireAnswers): { done: number; 
 
 function avg(xs: number[]): number {
   return xs.reduce((s, x) => s + x, 0) / xs.length
-}
-
-function clamp(x: number, lo: number, hi: number): number {
-  return Math.min(hi, Math.max(lo, x))
 }

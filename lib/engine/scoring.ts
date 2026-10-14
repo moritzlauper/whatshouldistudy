@@ -25,14 +25,12 @@ import { activityAgeWeight } from './recency.ts'
  *   values       What you want from work against what the field offers.
  *
  * Two modes. With the interest scales answered (the standard), the
- * questionnaire decides: interest fit 60 %, school subjects 28 %, values
- * 12 %, and data from exports moves a field by at most a quarter. Interest
- * questionnaires have decades of evidence for predicting study fit; viewing
- * and search histories have little (they agree with self-reports at about
- * r .30 and partly reflect what a platform recommends). Personality is shown
- * but not weighted: it adds little once interests are known. Without the
- * interest scales, the data lead as before and the result is an exploration
- * with low confidence.
+ * questionnaire decides: interest fit 50 %, school subjects 36 %, values
+ * 14 %, and data from exports moves a field by at most a quarter. These are
+ * product heuristics, not empirically calibrated weights or reliability
+ * estimates for this procedure. Personality is descriptive only in this
+ * mode. Without the interest scales, the data lead and the result is an
+ * exploration with low confidence.
  */
 
 // Product weights: YouTube leads My Activity; situational Google searches and News remain supplementary.
@@ -255,7 +253,7 @@ export function score(input: ScoreInput): Results {
   // Big Five: questionnaire, else music taste (weak).
   const qBig5 = scoreBig5(answers)
   let big5: Big5 | null = qBig5
-  // Four items per trait (Mini-IPIP): a reliable but rough picture, so not full confidence.
+  // Heuristic weight only; not an empirically established reliability estimate.
   let big5Conf = qBig5 ? 0.6 : 0
   const big5From: string[] = qBig5 ? ['questionnaire'] : []
   const musicSource = summaries.find((s) => s.music)
@@ -319,11 +317,12 @@ export function score(input: ScoreInput): Results {
       comp.riasec = questionnaireLed ? 0.7 * ((cos + 1) / 2) + 0.3 * (1 - dist / Math.sqrt(6)) : (cos + 1) / 2
       w.riasec = questionnaireLed ? Q_WEIGHTS.riasec : 0.12
     }
-    if (big5) {
+    // In questionnaire mode personality is descriptive only, including hidden suggestions and reasons.
+    if (big5 && !questionnaireLed) {
       let dot = 0
       for (const k of BIG5_KEYS) dot += (big5[k] ?? 0) * (f.big5[k] ?? 0)
       comp.personality = 0.5 + 0.5 * Math.tanh(dot)
-      w.personality = questionnaireLed ? Q_WEIGHTS.personality : BASE_WEIGHTS.personality * big5Conf
+      w.personality = BASE_WEIGHTS.personality * big5Conf
     }
     if (hasSubjects) {
       let num = 0
@@ -523,7 +522,7 @@ export function score(input: ScoreInput): Results {
       ? { profile: riasec.map((x) => Math.round(x * 100) / 100) as Riasec, code: riasecCode(riasec), from: riasecFrom }
       : { profile: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5], code: '', from: [] },
     quality: { flat, careless: isCareless, topTie, differentiation: shape?.differentiation ?? 0, elevation: shape?.elevation ?? 0, questionnaireLed },
-    big5: big5 ? { z: big5, from: big5From, confidence: big5Conf } : undefined,
+    big5: big5 ? { z: big5, ...(qBig5 ? { means: Object.fromEntries(BIG5_KEYS.map(k => [k, qBig5[k] + 3])) as Big5 } : {}), from: big5From, confidence: big5Conf } : undefined,
     insights: insights(footprint, interest, sorted),
     timeline: timeline(footprint, studying),
   }

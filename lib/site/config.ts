@@ -147,6 +147,7 @@ export interface Routes {
   /** One programme, under its main field; `slug` from programmeSlug. */
   programme: (cc: string, field: string, slug: string) => string
   how: string
+  professional: string
   /** The free lesson for teachers and the link for school websites. */
   teachers: string
   /** The weekly articles (German and English only). */
@@ -182,6 +183,7 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
       countryField: (_cc, id) => `${root}/studiengaenge/${fieldSlugDe(id)}`,
       programme: (_cc, field, slug) => `${root}/studiengaenge/${fieldSlugDe(field)}/${slug}`,
       how: `${root}/so-funktionierts`,
+      professional: `${root}/fachinformationen`,
       teachers: `${root}/lehrpersonen`,
       blog: `${root}/blog`,
       post: (slug) => `${root}/blog/${slug}`,
@@ -207,6 +209,7 @@ export function routes(site: SiteId, base = '', locale = SITES[site].locale): Ro
     countryField: (cc, id) => `/programmes/${countrySlug(cc)}/${id}`,
     programme: (cc, field, slug) => `/programmes/${countrySlug(cc)}/${field}/${slug}`,
     how: '/how-it-works',
+    professional: '/professional',
     teachers: '/teachers',
     blog: '/blog',
     post: (slug) => `/blog/${slug}`,

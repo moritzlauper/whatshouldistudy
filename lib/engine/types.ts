@@ -189,7 +189,8 @@ export interface Results {
    * the first places are closer than the measurement can tell apart.
    */
   quality?: { flat: boolean; careless: boolean; topTie: boolean; differentiation: number; elevation: number; questionnaireLed: boolean }
-  big5?: { z: Big5; from: string[]; confidence: number }
+  /** `z` is a legacy wire name: new scores are centred on 3, not standardised against a population. */
+  big5?: { z: Big5; means?: Big5; from: string[]; confidence: number }
   insights: Insight[]
   timeline: Array<{ year: string; fields: Array<{ id: string; share: number }> }>
 }

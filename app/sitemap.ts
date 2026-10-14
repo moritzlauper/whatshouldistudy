@@ -16,6 +16,7 @@ const PAGES: Page[] = [
   (r) => r.home,
   (r) => r.start,
   (r) => r.how,
+  (r) => r.professional,
   (r) => r.fields,
   ...FIELDS.map((f): Page => (r) => r.field(f.id)),
   (r) => r.teachers,

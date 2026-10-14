@@ -2,6 +2,15 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Fachliche Rückmeldung: Manual, Normwerte und Datenschutz (14.10.2026)
+
+- Öffentliches Verfahrensmanual unter `/fachinformationen` (lokal `/schweiz/fachinformationen`), global `/professional`. Deutsch und Englisch; FR/IT verweisen ausdrücklich auf die englische Dokumentation. Enthält Durchführung, reale Auswertung/Item-Schlüssel, Evidenzstatus, Datenflüsse/Löschfristen, institutionell noch zu prüfende Punkte, Selbstlern-Einführung und einen ausdrücklich noch nicht durchgeführten Validierungsplan. Über Footer, Methodik, Datenschutz, Start, Resultat und Schulangebote erreichbar; druckbar.
+- Keine erfundene Reliabilität, Validität oder Normstichprobe. Ungefähre Mini-IPIP-Normkonstanten und die daraus erzeugten Perzentile entfernt. Neue Resultate zeigen umgepolte Antwortmittelwerte 1–5; alle vier gültigen Items je Merkmal erforderlich. `big5.means` ist neu; `z` bleibt aus Kompatibilitätsgründen als interner, jetzt am Skalenmittelpunkt zentrierter Wert bestehen. Alte geteilte Resultate ohne Mittelwerte zeigen keine Norminterpretation. Im Fragebogen-Modus beeinflusst Persönlichkeit auch versteckte Vorschläge und Begründungen nicht mehr.
+- Sichtbare Aussagen «verglichen mit deinem Alter», «wir speichern nichts» und «keine persönlichen Daten» bei Ergebnislinks korrigiert. Profile können personenbezogen sein; lokales Löschen entfernt weder weitergegebene Links noch Anbieterprotokolle/Zahlungsunterlagen. Die Datenschutzerklärung verweist auf das Dateninventar; englische, französische und italienische Texte mitgezogen.
+- `/api/personal-fit` verlangt zusätzlich ausdrücklich `consent: true`, begrenzt den Body auf 128 kB und liefert auch Fehler mit `private, no-store`. Browser sendet Zustimmung nur im vorhandenen, aktiv ausgelösten Vergleichsablauf. Kein Big-Five-Profil an die persönliche KI. Tokenprüfung/Checkout unverändert.
+- Geprüft: 26 gezielte Tests (Engine, Share, Personal Comparison, Checkout, Teaser) erfolgreich; Typprüfung erfolgreich. Browser: Manual/Sprunglinks und fiktives, nicht freigeschaltetes Ergebnis mit 4.50/5 statt Perzentil. Chrome-Erweiterung verursacht bekannte Hydration-Warnung durch `webcrx`-Attribute. Kein Kauf und keine echte persönliche KI-Anfrage ausgelöst.
+- Noch erforderlich für professionelle diagnostische Anerkennung: reale unabhängige Studien, passende dokumentierte Normierung (falls Normvergleiche gewünscht), produktive Anbieter-/Vertrags-/Sicherheitsnachweise und institutionelle Freigaben. Diese Arbeiten sind nicht durch das Manual erledigt. Keine Forschungsdaten erhoben, keine Nachricht an die Beratungsstelle versandt.
+
 ## Lokale Landingpage zeigte Demo-Zahlen (14.10.2026)
 
 - Ursache für «117 Studiengänge an 14 Hochschulen»: lokal weder `WSIS_DATA_URL` noch Vercel-Repo-Variablen gesetzt; `getMeta()` las `data/sample/meta.json`. Keine Reduktion des veröffentlichten Datenbestands.

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { topFields } from '../lib/engine/classifier.ts'
 import { accumulate } from '../lib/engine/accumulate.ts'
 import { score } from '../lib/engine/scoring.ts'
-import { scoreBig5, scoreRiasec, riasecCode } from '../lib/engine/questionnaire.ts'
+import { RIASEC_ITEMS, big5Means, scoreBig5, scoreRiasec, riasecCode } from '../lib/engine/questionnaire.ts'
 import { genresToProfile, musicBig5 } from '../lib/engine/music.ts'
 import { FIELDS } from '../lib/taxonomy/fields.ts'
 import { LEXICON } from '../lib/taxonomy/lexicon.ts'
@@ -220,6 +220,32 @@ test('Mini-IPIP scoring handles reverse-keyed items', () => {
   for (const k of ['E', 'A', 'C', 'N'] as const) assert.ok(Math.abs(z5[k] - z1[k]) < 1e-9, k)
   const open = scoreBig5({ big5: { ...all5, b10: 1, b15: 1, b20: 1 } })!
   assert.ok(open.O > 1)
+})
+
+test('personality reports response means without an assumed norm or imputed missing traits', () => {
+  const neutral = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`b${i + 1}`, 3]))
+  assert.deepEqual(big5Means({ big5: neutral }), { O: 3, C: 3, E: 3, A: 3, N: 3 })
+  assert.deepEqual(scoreBig5({ big5: neutral }), { O: 0, C: 0, E: 0, A: 0, N: 0 })
+  const example = { ...neutral, b1: 5, b6: 1, b11: 4, b16: 2 }
+  assert.equal(big5Means({ big5: example })?.E, 4.5)
+  assert.equal(score({ summaries: [], answers: { big5: example } }).big5?.means?.E, 4.5)
+  const partial = { ...neutral }
+  delete partial.b20
+  assert.equal(big5Means({ big5: partial }), null)
+  assert.equal(scoreBig5({ big5: Object.fromEntries(Object.entries(neutral).slice(0, 10)) }), null)
+  for (const invalid of [NaN, Infinity, -1, 0, 2.5, 6]) {
+    assert.equal(big5Means({ big5: { ...neutral, b20: invalid } }), null)
+  }
+})
+
+test('personality is descriptive only in questionnaire rankings, hidden suggestions and reasons', () => {
+  const riasec = Object.fromEntries(RIASEC_ITEMS.map(i => [i.id, i.key === 'I' ? 5 : i.key === 'R' ? 4 : 2]))
+  const big5 = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`b${i + 1}`, i % 5 + 1]))
+  const without = score({ summaries: [], answers: { riasec } })
+  const withPersonality = score({ summaries: [], answers: { riasec, big5 } })
+  assert.deepEqual(withPersonality.fields, without.fields)
+  assert.deepEqual(withPersonality.hidden, without.hidden)
+  assert.ok(withPersonality.big5?.means)
 })
 
 test('music taste gives small, bounded nudges', () => {

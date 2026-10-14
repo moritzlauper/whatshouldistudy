@@ -1,8 +1,8 @@
 /**
  * Shareable results without a server: the aggregated result (fields,
  * percentages, profile, timeline) goes compressed into the URL fragment,
- * which browsers never send to a server. Nothing personal goes in: no video
- * titles, searches, channels or topics, only what the report computes.
+ * which browsers never send to a server. No video titles, searches, channels or topics are included. The computed
+ * profile can still be personal data; anyone holding the link can read it.
  */
 import { deflateSync, inflateSync, strFromU8, strToU8 } from 'fflate'
 import type { FieldMatch, Preferences, Results } from './engine/types.ts'

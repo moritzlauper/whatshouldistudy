@@ -13,6 +13,19 @@ link to official programme searches; their own programme readers are pending.
 The paid report reveals the best field and programme and offers an optional AI
 comparison of programme pages with the person's profile.
 
+**Professional documentation:** `/fachinformationen` on country sites
+(`/schweiz/fachinformationen` locally), `/professional` on the global site.
+The manual covers administration, scoring, item keys, evidence status, data
+flows and retention, adviser self-study, and a proposed validation protocol.
+It does not claim psychometric validation or institutional approval.
+No representative German-speaking norms have been established for this
+implementation. Big Five results therefore show reverse-keyed item means
+(1–5), requiring all 20 valid responses, rather than approximate percentiles.
+In questionnaire mode personality affects neither the field ranking nor hidden
+suggestions or their reasons. Old shared profiles without means are not
+converted into new scores. The personal AI endpoint requires `consent: true`
+in addition to the existing paid access check.
+
 Four sites from one codebase: the global English site and three German-language
 country sites: `wasstudieren` for Switzerland (wasstudieren.ch), `findemeinstudium`
 for Germany (findemeinstudium.de) and `wasstudieren` for Austria (wasstudieren.at).

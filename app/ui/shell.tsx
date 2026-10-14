@@ -1,3 +1,4 @@
+import { professionalText } from '@/lib/site/professional-text.ts'
 import Link from 'next/link'
 import { kit, siteHref } from '@/lib/site/kit.ts'
 import { SITES } from '@/lib/site/config.ts'
@@ -95,6 +96,7 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
           </div>
           <div className="flex flex-col gap-2.5">
             <Link href={r.how} className="opacity-80 hover:opacity-100">{t.nav.how}</Link>
+            <Link href={r.professional} className="opacity-80 hover:opacity-100">{professionalText(k.locale).title}</Link>
             <Link href={r.fields} className="opacity-80 hover:opacity-100">{t.footer.allFields}</Link>
             <Link href={r.programmes} className="opacity-80 hover:opacity-100">{ct.nav}</Link>
             <Link href={`${r.how}#${r.anchors.data}`} className="opacity-80 hover:opacity-100">{t.footer.sources}</Link>

@@ -422,6 +422,19 @@ html {
 
 /* Teachers' page: printing gives the worksheet alone, black on white. */
 @media print {
+  body:has(#professional-manual) > :is(header, footer),
+  body:has(#professional-manual) [role="dialog"] {
+    display: none !important;
+  }
+  #professional-manual {
+    max-width: none;
+    padding: 0;
+    color: #000;
+    background: #fff;
+  }
+  #professional-manual h2, #professional-manual h3 {
+    break-after: avoid;
+  }
   body:has(#worksheet) :is(header, footer, [role="dialog"]),
   body:has(#worksheet) main > :not(#worksheet) {
     display: none !important;

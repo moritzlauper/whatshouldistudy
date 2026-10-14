@@ -1,3 +1,4 @@
+import { ProfessionalNotice } from '../ui/professional-notice.tsx'
 import Link from 'next/link'
 import { CONTACT } from '@/lib/site.ts'
 import { kit } from '@/lib/site/kit.ts'
@@ -18,6 +19,7 @@ export function OrgsView({ site, base, locale: lang }: SiteProps) {
           <Sparkle className="float-slow absolute -right-10 -top-4 hidden sm:block" size={56} color="var(--pink)" />
           <h1 className="font-display text-5xl sm:text-6xl">{o.title}</h1>
           <p className="mt-5 text-xl text-muted">{o.lead}</p>
+          <ProfessionalNotice locale={locale} href={r.professional} institution />
           <p className="mt-4 font-semibold">
             {o.teachers.teaser}{' '}
             <Link href={r.teachers} className="text-accent underline-offset-2 hover:underline">

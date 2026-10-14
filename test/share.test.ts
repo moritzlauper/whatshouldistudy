@@ -4,7 +4,7 @@ import { readTexts } from '../lib/sources/exports.ts'
 import { score } from '../lib/engine/scoring.ts'
 import { decodeSnapshot, encodeSnapshot, sharedParam } from '../lib/share.ts'
 
-test('a shared link carries the result but nothing personal', async () => {
+test('a shared link carries the personal profile but excludes raw history and topics', async () => {
   const watch = Array.from({ length: 30 }, (_, i) => ({
     header: 'YouTube',
     title: `Watched Geheimes Video über Bourdieu und soziale Ungleichheit ${i}`,
@@ -23,7 +23,18 @@ test('a shared link carries the result but nothing personal', async () => {
   const filtered = decodeSnapshot(encodeSnapshot(res, { level: 'bachelor', countries: ['CH'], institutionType: 'fh', maxTuitionEur: 0, origin: 'ch', englishOnly: false }))!
   assert.equal(filtered.prefs.institutionType, 'fh')
   const text = JSON.stringify(snap)
-  assert.ok(!/Geheimes|Privater|bourdieu/i.test(text), 'personal data leaked into the link')
+  assert.ok(!/Geheimes|Privater|bourdieu/i.test(text), 'raw history or topics leaked into the link')
   assert.equal(sharedParam(`#s=${code}`), code)
   assert.equal(decodeSnapshot('broken'), null)
+})
+
+
+test('shared personality results preserve response means and leave legacy norms uninterpreted', () => {
+  const answers = { big5: Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`b${i + 1}`, 3])) }
+  const result = score({ summaries: [], answers })
+  const prefs = { level: 'bachelor' as const, countries: ['CH'], maxTuitionEur: 0, origin: 'ch' as const, englishOnly: false }
+  const restored = decodeSnapshot(encodeSnapshot(result, prefs))!
+  assert.deepEqual(restored.results.big5?.means, { O: 3, C: 3, E: 3, A: 3, N: 3 })
+  const legacy = { ...result, big5: { z: { O: 1, C: 0, E: 0, A: 0, N: 0 }, from: ['questionnaire'], confidence: .6 } }
+  assert.equal(decodeSnapshot(encodeSnapshot(legacy, prefs))!.results.big5?.means, undefined)
 })
