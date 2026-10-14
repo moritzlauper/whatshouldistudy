@@ -38,6 +38,10 @@ export interface Listed {
   provisional?: boolean
   /** Where it is taught, where that is not the institution's main seat. */
   city?: string
+  /** Closed to new students from this term on, as the page says. */
+  closedFrom?: Programme['closedFrom']
+  /** The programme that takes new students instead. */
+  successor?: string
 }
 
 /** Cantons of the campus towns of multi-site universities. */
@@ -526,6 +530,29 @@ export function unibeList(html: string, base: string, level: Level): Listed[] {
   return dedupe(out)
 }
 
+const SEMESTER = /\b(fall|autumn|spring)\s+semester\s+(\d{4})\b|\b(herbst|frühjahrs|frühling)semester\s+(\d{4})\b/i
+
+/**
+ * A page that closes its programme to new students, in the institution's words: «new registrations … will
+ * no longer be possible from fall semester 2026» (en), «Neuanmeldungen … ab dem Herbstsemester 2026 nicht
+ * mehr möglich» (de). It may name the programme that takes new students instead: «Instead, the new Research
+ * Master … is offered», «Stattdessen wird der neue … angeboten».
+ */
+export function closureOf(page: string): Pick<Listed, 'closedFrom' | 'successor'> | undefined {
+  const t = text(page)
+  const sentence = t
+    .split(/(?<=[.!?])\s+/)
+    .find((s) => /new (?:registrations?|admissions?)|neuanmeldung/i.test(s) && /no longer|nicht mehr/i.test(s) && SEMESTER.test(s))
+  const m = sentence && SEMESTER.exec(sentence)
+  if (!sentence || !m) return undefined
+  const word = (m[1] ?? m[3]).toLowerCase()
+  const closedFrom = { term: /fall|autumn|herbst/.test(word) ? ('autumn' as const) : ('spring' as const), year: Number(m[2] ?? m[4]) }
+  const en = /\bInstead,? (?:the )?(?:new )?(.{3,120}?) (?:is|are) (?:now )?offered\b/i.exec(t)?.[1]
+  const de = /\bStattdessen wird (?:der |die |das )?(?:neue[nr]? )?(.{3,120}?) angeboten\b/i.exec(t)?.[1]
+  const successor = (en ?? de)?.replace(/[.,;:]+$/, '').trim()
+  return successor ? { closedFrom, successor } : { closedFrom }
+}
+
 // BFH and its art school HKB: the sitemap lists every programme page; each page has a fact sheet («Steckbrief»).
 export function bfhList(xml: string, _base: string, level: Level): Listed[] {
   const out: Listed[] = []
@@ -592,6 +619,8 @@ interface Source {
   institution: string
   lists: Array<{ url: string; level: Level; read: (html: string, base: string, level: Level) => Listed[]; load?: (url: string) => Promise<string | null> }>
   detail?: (html: string) => Partial<Listed>
+  /** Reads a closure notice from the programme's page; the page is read once for both. */
+  closure?: (html: string) => Partial<Listed> | undefined
   /** Only these levels get their own page read. */
   detailLevels?: Level[]
 }
@@ -644,6 +673,7 @@ export const SOURCES: Source[] = [
       { url: 'https://www.unibe.ch/studium/studienangebote/bachelor/studienprogramme/index_ger.html', level: 'bachelor', read: unibeList },
       { url: 'https://www.unibe.ch/studium/studienangebote/master/studienprogramme/index_ger.html', level: 'master', read: unibeList },
     ],
+    closure: closureOf,
   },
   {
     institution: 'Universität Luzern',
@@ -818,6 +848,8 @@ export function toProgramme(x: Listed, inst: ChInstitution, fetchedAt: string): 
     languages: x.languages,
     durationYears: x.durationYears,
     ects: x.ects,
+    closedFrom: x.closedFrom,
+    successor: x.successor,
     focus: x.focus?.length ? x.focus : undefined,
     mode: x.mode,
     url: x.url,
@@ -877,15 +909,15 @@ async function main() {
       log(`${inst.name}: ${found.length} ${l.level} programmes listed`)
       listed.push(...found)
     }
-    if (src.detail) {
-      const read = src.detail
+    if (src.detail || src.closure) {
+      const defined = (o: Partial<Listed> | undefined) => Object.fromEntries(Object.entries(o ?? {}).filter(([, v]) => v !== undefined)) as Partial<Listed>
       for (const [i, x] of listed.entries()) {
         if (src.detailLevels && !src.detailLevels.includes(x.level)) continue
         const html = await page(x.url)
         // Programme-page facts override list defaults; retain named focus areas from both.
         if (!html) continue
-        const found = { ...studyFacts(html), ...Object.fromEntries(Object.entries(read(html)).filter(([, v]) => v !== undefined)) }
-        const merged = { ...x, ...Object.fromEntries(Object.entries(found).filter(([, v]) => v !== undefined)) } as Listed
+        const found = { ...(src.detail ? defined(studyFacts(html)) : {}), ...defined(src.detail?.(html)), ...defined(src.closure?.(html)) }
+        const merged = { ...x, ...defined(found) } as Listed
         merged.focus = [...new Set([...(x.focus ?? []), ...(found.focus ?? [])])]
         if (x.provisional && found.name) merged.name = degreeName(x.level, found.name)
         delete merged.provisional

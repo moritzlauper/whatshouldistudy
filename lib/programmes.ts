@@ -50,6 +50,10 @@ export interface Programme {
   ects?: number
   /** Application deadline as the institution writes it («30. April»). */
   deadline?: string
+  /** Closed to new students from this term on: the institution's own notice. */
+  closedFrom?: { term: 'autumn' | 'spring'; year: number }
+  /** The programme that takes new students instead, as the institution names it. */
+  successor?: string
   /** The programme's own admission rule, beyond the general one in `admission`. */
   requirements?: string
   /** Prior degrees that admit to a master's. */
@@ -78,7 +82,7 @@ export interface Programme {
  * admission rates, capacity) and without the institutions' own descriptions.
  * One file per country, for search and the programme pages.
  */
-export const CATALOGUE_KEYS = ['id', 'name', 'institution', 'city', 'region', 'level', 'fields', 'languages', 'durationYears', 'mode', 'url', 'institutionUrl', 'institutionType', 'public', 'parent', 'admission', 'focus', 'degreeTitle', 'ects', 'deadline', 'requirements', 'priorStudies', 'department', 'partners', 'otherLanguages', 'regulationsUrl'] as const
+export const CATALOGUE_KEYS = ['id', 'name', 'institution', 'city', 'region', 'level', 'fields', 'languages', 'durationYears', 'mode', 'url', 'institutionUrl', 'institutionType', 'public', 'parent', 'admission', 'focus', 'degreeTitle', 'ects', 'deadline', 'closedFrom', 'successor', 'requirements', 'priorStudies', 'department', 'partners', 'otherLanguages', 'regulationsUrl'] as const
 export type CatalogueEntry = Pick<Programme, (typeof CATALOGUE_KEYS)[number]>
 
 export interface CatalogueShard {

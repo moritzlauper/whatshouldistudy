@@ -42,7 +42,7 @@ export function catalogueFacts(p: CatalogueEntry, country: string, locale: Local
     [d.admission, admission],
     [d.requirements, p.requirements],
     [d.prior, p.priorStudies?.length ? p.priorStudies.join(', ') : null],
-    [d.deadline, p.deadline],
+    [d.deadline, p.closedFrom ? d.closed(p.closedFrom.term, p.closedFrom.year, p.successor) : p.deadline],
     [
       d.fields,
       p.fields.map((f, i) => (

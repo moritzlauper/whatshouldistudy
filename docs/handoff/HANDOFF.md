@@ -2,6 +2,15 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Schliessung zur Anmeldung wird gelesen: Master Soziologie Bern (14.10.2026)
+
+- Ursache: Der Bern-Leser las nur die A–Z-Liste der Studiengänge, nie die Studiengangsseite. Ein Hinweis wie «Neuanmeldungen … ab dem Herbstsemester 2026 nicht mehr möglich» blieb deshalb unsichtbar.
+- `closureOf` in `scrapers/ch-hochschulen.ts` liest den Hinweis von der Seite: einen Satz mit «Neuanmeldung» oder «new registrations», «nicht mehr» oder «no longer» und einem Semester. Dazu den Nachfolger («Stattdessen wird … angeboten» oder «Instead, the new … is offered»). Gespeichert als `closedFrom` und `successor` (`lib/programmes.ts`), im Katalog mitgeführt.
+- Anzeige: Auf der Detailseite und in der Zeile steht der Hinweis anstelle des Anmeldeschlusses (`app/ui/programmes.tsx`, `app/ui/catalogue-row.tsx`, `lib/site/catalogue-text.ts` in vier Sprachen).
+- Geprüft: Vier Tests in `test/ch-closure.test.ts`, mit dem Wortlaut aus der Mitteilung des Inhabers (englisch) und einer deutschen Entsprechung. Die volle Suite läuft bis auf die drei bekannten Fehlschläge durch.
+- Nicht geprüft: unibe.ch ist aus der Entwicklungsumgebung gesperrt (Proxy 403). Der echte Wortlaut der Seite ist deshalb nicht gelesen. Ein Lauf des Workflows «ch» zeigt, ob die Erkennung greift.
+- Offen: Der Nachfolger «Research Master in Sociology and Communication» erscheint in den Daten erst, wenn er auf der A–Z-Liste steht. Die Bern-Seiten werden jetzt bei jedem Lauf einzeln gelesen.
+
 ## Veraltet-Hinweis nennt die Quellen; KI-Karte kürzer (14.10.2026)
 
 - Der gelbe Hinweis «mit einer älteren Version gelesen» zählte jede gespeicherte Quelle mit einer alten Version, auch solche, die nicht neu hochgeladen wurden (etwa ein YouTube-Konto oder Instagram aus einer früheren Sitzung). Er nennt jetzt diese Quellen mit Namen und verschwindet, sobald keine mehr alt ist (`app/views/results.tsx`, `StudyInfoNote`).

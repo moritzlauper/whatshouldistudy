@@ -727,7 +727,7 @@ function ProgrammeDetails({ p, aiBlock }: { p: RankedProgramme; aiBlock?: ReactN
           <Item k={cd.department} v={p.department} />
           <Item k={cd.partners} v={p.partners} />
           <Item k={cd.otherLanguages} v={p.otherLanguages?.join(', ')} />
-          <Item k={cd.deadline} v={p.deadline} />
+          <Item k={cd.deadline} v={p.closedFrom ? cd.closed(p.closedFrom.term, p.closedFrom.year, p.successor) : p.deadline} />
           <Item k={cd.prior} v={p.priorStudies?.join(', ')} />
           {/* The institution's own fee wording (paid list only). */}
           {p.tuition?.note?.startsWith('Laut Hochschule') && <Item k={t.programmes.row.fee} v={p.tuition.note.replace(/^Laut Hochschule:\s*/, '')} />}
