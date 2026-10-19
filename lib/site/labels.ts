@@ -5,6 +5,7 @@ import type { Level } from '../programmes.ts'
 import { FIELDS_DE } from './fields-de.ts'
 import { FIELDS_FR } from './fields-fr.ts'
 import { FIELDS_IT } from './fields-it.ts'
+import { translatedCareers } from './careers-fr-it.ts'
 import type { Locale } from './config.ts'
 import { regionalize } from './regional.ts'
 
@@ -108,7 +109,8 @@ export function fieldBlurb(id: string, locale: Locale): string {
 }
 
 export function fieldCareers(id: string, locale: Locale): string[] {
-  if (locale === 'fr-CH' || locale === 'it-CH' || locale === 'en') return FIELD_BY_ID[id]?.careers ?? []
+  if (locale === 'fr-CH' || locale === 'it-CH') return translatedCareers(id, locale)
+  if (locale === 'en') return FIELD_BY_ID[id]?.careers ?? []
   return (FIELDS_DE[id]?.careers ?? []).map((c) => regionalize(c, locale))
 }
 

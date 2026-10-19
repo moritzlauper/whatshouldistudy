@@ -383,7 +383,7 @@ export function Programmes({ results, prefs, topics = [], hideFirst = true, shar
   const where = prefs.countries.length
     ? prefs.countries.length > 4
       ? t.programmes.inCountries(prefs.countries.length)
-      : t.programmes.inList(prefs.countries.map((c) => (locale !== 'en' ? (DE_DATIVE[c] ?? countryLabel(c, intl)) : countryLabel(c, intl))))
+      : t.programmes.inList(prefs.countries.map((c) => (locale.startsWith('de-') ? (DE_DATIVE[c] ?? countryLabel(c, intl)) : countryLabel(c, intl))))
     : t.programmes.anywhere
 
   return (

@@ -12,6 +12,7 @@ test('general similarities neither claim a very good subject fit nor appear twic
     const root = pathToFileURL(process.cwd() + '/');
     registerHooks({
       resolve(specifier, context, next) {
+        if (specifier === 'next/link') return next('next/link.js', context);
         return next(specifier.startsWith('@/') ? new URL(specifier.slice(2), root).href : specifier, context);
       },
       load(url, context, next) {
@@ -27,6 +28,13 @@ test('general similarities neither claim a very good subject fit nor appear twic
     const { renderToStaticMarkup } = await import('react-dom/server');
     const { SiteProvider } = await import('./app/ui/site-context.tsx');
     const { AiBlock, OwnDataPanel } = await import('./app/ui/readings.tsx');
+    const { Programmes } = await import('./app/ui/programmes.tsx');
+    for (const [locale, country] of [['it-CH', 'Svizzera'], ['fr-CH', 'Suisse'], ['de-CH', 'der Schweiz']]) {
+      const html = renderToStaticMarkup(React.createElement(SiteProvider, { site: 'ch', base: '', locale },
+        React.createElement(Programmes, { results: { fields: [] }, prefs: { countries: ['CH'], level: 'any' } })));
+      assert.ok(html.includes(country), locale);
+      if (!locale.startsWith('de-')) assert.ok(!html.includes('der Schweiz'), locale);
+    }
     const { factsForLocale } = await import('./lib/facts-store.ts');
     const source = {
       id: 'law', distinctive: ['Der Studiengang verbindet Recht und Wirtschaft.'],

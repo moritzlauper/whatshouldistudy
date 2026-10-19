@@ -178,7 +178,7 @@ export function factsForLocale(f: StoredFact, locale: Locale): ProgrammeFacts {
     topics: f.topics ?? [],
     specialisations: f.specialisations ?? [],
     distinctive: validDistinctiveTranslations(f.distinctiveTranslations, f.distinctive?.length ?? 0) ? f.distinctiveTranslations[LANGUAGE[locale]] : [],
-    check: f.checks[LANGUAGE[locale]] || f.checks.en,
+    check: f.checks[LANGUAGE[locale]] || '',
     enough: f.enough,
   }
 }

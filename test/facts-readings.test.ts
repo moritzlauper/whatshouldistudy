@@ -14,12 +14,14 @@ const reading: StoredFact = {
   checks: { de: 'Zulassung prüfen.', fr: 'Vérifier l’admission.', it: 'Verificare l’ammissione.', en: 'Check admission.' },
 }
 
-test('a reading is shown in the reader’s language, English when that language is empty', () => {
+test('a reading is shown in the reader’s language, with missing checks omitted', () => {
   assert.equal(factsForLocale(reading, 'de-CH').check, 'Zulassung prüfen.')
   assert.equal(factsForLocale(reading, 'de-AT').check, 'Zulassung prüfen.')
   assert.equal(factsForLocale(reading, 'fr-CH').check, 'Vérifier l’admission.')
   assert.equal(factsForLocale(reading, 'it-CH').check, 'Verificare l’ammissione.')
-  assert.equal(factsForLocale({ ...reading, checks: { de: '', fr: '', it: '', en: 'Check.' } }, 'de-CH').check, 'Check.')
+  for (const locale of ['de-CH', 'fr-CH', 'it-CH'] as const) {
+    assert.equal(factsForLocale({ ...reading, checks: { de: '', fr: '', it: '', en: 'Check.' } }, locale).check, '')
+  }
   assert.deepEqual(factsForLocale(reading, 'en'), {
     id: 'p1', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], topics: ['sociology'],
     specialisations: [{ name: 'Data Analytics', topics: ['statistics-data-science'] }], distinctive: reading.distinctiveTranslations!.en,

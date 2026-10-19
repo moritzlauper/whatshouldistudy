@@ -604,7 +604,10 @@ pnpm data:facts --translate-only --previous facts-prev/facts.json --out facts-ou
 ```
 
 Do not commit either readings file. The existing authenticated workflow stores
-the output privately. Other running server instances may retain cached readings
+the output privately and reads it back to verify all fields and translations.
+Its Vercel automation header uses the repository secret
+`VERCEL_AUTOMATION_BYPASS_SECRET`; GitHub OIDC authentication remains required.
+Other running server instances may retain cached readings
 for an hour; paid API responses are cached in the browser for up to ten minutes.
 
 The readings are never published. The job writes them to the site's private

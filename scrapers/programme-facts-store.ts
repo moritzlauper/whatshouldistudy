@@ -13,6 +13,8 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { log, sleep } from './lib/common.ts'
 import type { StoredFact } from './lib/facts.ts'
+import { validDistinctiveTranslations } from './lib/facts.ts'
+import { validStoredFact } from '../lib/facts-store.ts'
 
 const AUDIENCE = 'wasstudieren-facts'
 const PART = 100
@@ -92,19 +94,30 @@ async function main() {
     mkdirSync(dirname(out), { recursive: true })
     writeFileSync(out, `${JSON.stringify({ country, programmes })}\n`)
     log(`${country}: ${Object.keys(programmes).length} readings stored`)
-  } else if (mode === 'push') {
+  } else if (mode === 'push' || mode === 'verify') {
     const file = arg('--in', '')
     if (!file) throw new Error('usage: push --country CH --in <file>')
     const data = JSON.parse(readFileSync(file, 'utf8')) as { country?: string; programmes?: Record<string, StoredFact> }
     if (data.country && data.country !== country) throw new Error(`${file} holds ${data.country}, not ${country}`)
     const list = Object.values(data.programmes ?? {})
-    if (!list.length) throw new Error(`nothing to store for ${country}: the stored readings are kept`)
-    await must({ action: 'begin', country })
-    for (let i = 0; i < list.length; i += PART) await must({ action: 'part', country, programmes: list.slice(i, i + PART) })
-    const done = await must({ action: 'commit', country })
-    log(`${country}: ${done.stored} readings stored`)
+    if (mode === 'push') {
+      if (!list.length) throw new Error(`nothing to store for ${country}: the stored readings are kept`)
+      await must({ action: 'begin', country })
+      for (let i = 0; i < list.length; i += PART) await must({ action: 'part', country, programmes: list.slice(i, i + PART) })
+      const done = await must({ action: 'commit', country })
+      log(`${country}: ${done.stored} readings stored`)
+    }
+    // Read back through the authenticated ingestion API; never print private readings.
+    const { programmes } = await must({ action: 'read', country }) as { programmes: Record<string, StoredFact> }
+    if (Object.keys(programmes).length !== list.length || list.some((f) =>
+      !validStoredFact(f) || JSON.stringify(validStoredFact(f)) !== JSON.stringify(validStoredFact(programmes[f.id])))) {
+      throw new Error(`stored readings differ from the uploaded file for ${country}`)
+    }
+    const points = list.filter((f) => f.distinctive?.length)
+    const translated = points.filter((f) => validDistinctiveTranslations(f.distinctiveTranslations, f.distinctive.length)).length
+    log(`${country}: verified ${list.length} readings; ${translated}/${points.length} with all four translations`)
   } else {
-    throw new Error('usage: node scrapers/programme-facts-store.ts ping|pull|push --country CH')
+    throw new Error('usage: node scrapers/programme-facts-store.ts ping|pull|push|verify --country CH')
   }
 }
 
