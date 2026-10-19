@@ -453,6 +453,15 @@ Read a report locally (set `USAGE_REPORT_URL` to your deployed site and
 pnpm usage:report 2026-10
 ```
 
+If Vercel Bot Protection is enabled, also set `VERCEL_AUTOMATION_BYPASS_SECRET`
+in `.env.local` to the project's **Settings → Deployment Protection → Protection
+Bypass for Automation** secret. The script sends it in the
+`x-vercel-protection-bypass` header, alongside the separate admin authorization.
+Vercel's browser challenge otherwise returns HTTP 429 before `/api/usage` runs;
+retrying cannot solve that challenge. See
+[Vercel's automation access documentation](https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation).
+Keep both secrets private and out of URLs. This requires no app deployment.
+
 The protected `GET /api/usage?month=YYYY-MM` returns JSON with monthly counts,
 ordered by frequency. It requires the admin secret as a Bearer header; it must
 not be placed in URLs or browser code. The script prints event, source and programme

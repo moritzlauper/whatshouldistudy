@@ -14,11 +14,18 @@ if (url.protocol !== 'https:' && !['localhost', '127.0.0.1'].includes(url.hostna
 }
 url.searchParams.set('month', month)
 try {
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}` }
+  if (process.env.VERCEL_AUTOMATION_BYPASS_SECRET) {
+    headers['x-vercel-protection-bypass'] = process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+  }
   const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers,
     redirect: 'error',
     signal: AbortSignal.timeout(10000),
   })
+  if (response.headers.get('x-vercel-mitigated') === 'challenge') {
+    throw new Error('Report blocked by Vercel bot protection. Set or refresh VERCEL_AUTOMATION_BYPASS_SECRET in .env.local using this project’s Protection Bypass for Automation secret; USAGE_ADMIN_TOKEN is still required.')
+  }
   if (!response.ok) throw new Error(`Report failed (HTTP ${response.status})`)
   const { rows } = await response.json() as { rows: Array<Record<string, unknown>> }
   console.log(`Usage totals: ${month} (UTC)`)
