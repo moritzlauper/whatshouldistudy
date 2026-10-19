@@ -37,6 +37,11 @@ on:
         required: false
         default: false
         type: boolean
+      translate_only:
+        description: 'Translate existing distinctive points only; preserve readings and scores. Reruns resume missing translations.'
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: wsis-fakten
@@ -74,6 +79,8 @@ jobs:
           '
   read:
     needs: countries
+    env:
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -104,6 +111,7 @@ jobs:
         run: node scrapers/programme-facts-store.ts ping --country "$COUNTRY"
 
       - name: Programme data
+        if: ${{ !inputs.translate_only }}
         run: |
           git fetch -q --depth 1 origin "${DATA_BRANCH}"
           mkdir -p data-in
@@ -116,6 +124,7 @@ jobs:
         run: node scrapers/programme-facts-store.ts pull --country "$COUNTRY" --out facts-prev/facts.json
 
       - name: Restore page discovery and reading progress
+        if: ${{ !inputs.translate_only }}
         uses: actions/cache/restore@v4
         with:
           path: page-index
@@ -123,6 +132,7 @@ jobs:
           restore-keys: programme-pages-v1-${{ matrix.country }}-
 
       - name: Find missing programme pages
+        if: ${{ !inputs.translate_only }}
         env:
           COUNTRY: ${{ matrix.country }}
         run: node scrapers/discover-programme-pages.ts --data data-in --country "$COUNTRY" --out page-index/pages.json --max-hosts 5 --max 100
@@ -134,9 +144,11 @@ jobs:
           LIMIT: ${{ inputs.limit || '150' }}
           MAX_USD: ${{ inputs.max_usd || '1' }}
           REREAD: ${{ inputs.reread }}
+          TRANSLATE_ONLY: ${{ inputs.translate_only }}
         run: |
           EXTRA=""
           if [ "$REREAD" = "true" ]; then EXTRA="--reread"; fi
+          if [ "$TRANSLATE_ONLY" = "true" ]; then EXTRA="--translate-only"; fi
           node scrapers/programme-facts.ts --data data-in --previous facts-prev/facts.json \
             --out facts-out/facts.json --country "$COUNTRY" --limit "$LIMIT" --max-usd "$MAX_USD" --pages page-index/pages.json $EXTRA
 
@@ -146,7 +158,7 @@ jobs:
         run: node scrapers/programme-facts-store.ts push --country "$COUNTRY" --in facts-out/facts.json
 
       - name: Save page discovery and reading progress
-        if: always()
+        if: ${{ always() && !inputs.translate_only }}
         uses: actions/cache/save@v4
         with:
           path: page-index

@@ -587,6 +587,26 @@ the page text is not. Named specialisations and distinctive statements require
 literal source evidence; incomplete or duplicate response batches are retried
 once and otherwise retain previous readings. Spending is capped per run (`--max-usd`).
 
+Distinctive points are translated into DE/FR/IT/EN, and `/api/facts` selects the
+reader's language. Source-language statements remain private for evidence and
+the optional personal comparison. Legacy points without translations are omitted
+from the display until backfilled; they never silently fall back to another language.
+Deploy the updated ingestion code before running the facts workflow with
+`translate_only: true` (start with `country: CH`, `limit: 0`, `max_usd: 1`). This
+translates stored statements without fetching university pages or changing scores,
+source hashes or reading dates. The same per-country spending cap applies; rerun
+until the log reports zero remaining. Failed batches keep their previous readings,
+and successful translations are skipped on subsequent runs. Apply to the other
+countries as well. The local equivalent, using a private readings file, is:
+
+```sh
+pnpm data:facts --translate-only --previous facts-prev/facts.json --out facts-out/facts.json --country CH --limit 0 --max-usd 1
+```
+
+Do not commit either readings file. The existing authenticated workflow stores
+the output privately. Other running server instances may retain cached readings
+for an hour; paid API responses are cached in the browser for up to ten minutes.
+
 The readings are never published. The job writes them to the site's private
 database (`lib/facts-store.ts`: `FACTS_REDIS_REST_*`, or the counter database
 `USAGE_*` if that is all there is) through `/api/facts/ingest`. The job proves who it

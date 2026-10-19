@@ -1,12 +1,16 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { factsForLocale, validStoredFact } from '../lib/facts-store.ts'
+import { factsForLocale, storedFactProblem, validStoredFact } from '../lib/facts-store.ts'
 import { toPersonalFit } from '../lib/engine/programme-fit.ts'
 import type { StoredFact } from '../scrapers/lib/facts.ts'
 
 const reading: StoredFact = {
   id: 'p1', url: 'https://www.unibe.ch/p1', hash: 'h', at: '2026-10-01', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], topics: ['sociology'],
   specialisations: [{ name: 'Data Analytics', topics: ['statistics-data-science'] }], distinctive: ['Gemeinsamer Master mit der Hochschule Luzern.'], enough: true,
+  distinctiveTranslations: {
+    de: ['Gemeinsamer Master mit der Hochschule Luzern.'], fr: ['Master conjoint avec la Haute école de Lucerne.'],
+    it: ['Master congiunto con la Scuola universitaria professionale di Lucerna.'], en: ['Joint master’s with Lucerne University of Applied Sciences and Arts.'],
+  },
   checks: { de: 'Zulassung prüfen.', fr: 'Vérifier l’admission.', it: 'Verificare l’ammissione.', en: 'Check admission.' },
 }
 
@@ -18,9 +22,30 @@ test('a reading is shown in the reader’s language, English when that language 
   assert.equal(factsForLocale({ ...reading, checks: { de: '', fr: '', it: '', en: 'Check.' } }, 'de-CH').check, 'Check.')
   assert.deepEqual(factsForLocale(reading, 'en'), {
     id: 'p1', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], topics: ['sociology'],
-    specialisations: [{ name: 'Data Analytics', topics: ['statistics-data-science'] }], distinctive: ['Gemeinsamer Master mit der Hochschule Luzern.'],
+    specialisations: [{ name: 'Data Analytics', topics: ['statistics-data-science'] }], distinctive: reading.distinctiveTranslations!.en,
     check: 'Check admission.', enough: true,
   })
+})
+
+test('distinctive points follow all six display locales and never fall back to the source language', () => {
+  for (const [locale, language] of [['en', 'en'], ['de-CH', 'de'], ['de-DE', 'de'], ['de-AT', 'de'], ['fr-CH', 'fr'], ['it-CH', 'it']] as const) {
+    assert.deepEqual(factsForLocale(reading, locale).distinctive, reading.distinctiveTranslations![language])
+    assert.deepEqual(factsForLocale({ ...reading, distinctiveTranslations: undefined }, locale).distinctive, [])
+  }
+  assert.notDeepEqual(factsForLocale(reading, 'it-CH').distinctive, reading.distinctive)
+})
+
+test('translations survive ingestion only with every language and every source point', () => {
+  const valid = { ...reading, version: 6, hash: 'a'.repeat(64) }
+  assert.deepEqual(validStoredFact(valid), valid)
+  assert.equal(storedFactProblem(valid), null)
+  for (const distinctiveTranslations of [undefined, null, [], { ...reading.distinctiveTranslations, it: [] },
+    { ...reading.distinctiveTranslations, it: ['   '] }, { ...reading.distinctiveTranslations, it: ['x'.repeat(301)] },
+    { ...reading.distinctiveTranslations, it: ['Uno.', 'Due.'] }]) {
+    const broken = { ...valid, distinctiveTranslations }
+    assert.equal(validStoredFact(broken), null)
+    assert.equal(storedFactProblem(broken), 'distinctiveTranslations')
+  }
 })
 
 test('a personal reply is kept only for the programmes asked about, with scores in range', () => {

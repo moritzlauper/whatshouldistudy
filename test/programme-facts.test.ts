@@ -80,7 +80,7 @@ test('specialisations keep the page’s names and known topics, and distinctive 
       { name: 'Data Analytics', topics: [] },
       { name: 'Religion und Gesellschaft', topics: ['religious-studies', 'sociology', 'philosophy', 'history'], quote: 'Religion und Gesellschaft' },
     ],
-    distinctive: ['Partner A.', '', 'Partner A.', 'Zwei.', 'Drei.', 'Vier.'].map((statement) => ({ statement, quote: 'Partner A. Zwei. Drei. Vier.' })),
+    distinctive: ['Partner A.', '', 'Partner A.', 'Zwei.', 'Drei.', 'Vier.'].map((statement) => ({ statement, quote: 'Partner A. Zwei. Drei. Vier.', translations: { de: statement, fr: 'Partenariat.', it: 'Collaborazione.', en: 'Partnership.' } })),
   }, sent, '2026-03-01')
   assert.ok(f)
   assert.deepEqual(f.topics, ['statistics-data-science'])

@@ -12,9 +12,18 @@ import { LEXICON } from '../../lib/taxonomy/lexicon.ts'
 
 export const CHECK_LANGUAGES = ['de', 'fr', 'it', 'en'] as const
 export type CheckLanguage = (typeof CHECK_LANGUAGES)[number]
+export type DistinctiveTranslations = Record<CheckLanguage, string[]>
+
+/** Full translations, in source order; never accept missing points or cut a translated sentence. */
+export function validDistinctiveTranslations(raw: unknown, count: number): raw is DistinctiveTranslations {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw) || count > 3) return false
+  const x = raw as Record<string, unknown>
+  return CHECK_LANGUAGES.every((l) => Array.isArray(x[l]) && x[l].length === count &&
+    x[l].every((s: unknown) => typeof s === 'string' && s.trim().length > 0 && s.length <= 300))
+}
 
 /** Readings use field IDs. User lexical topics are mapped through topicFields when compared. */
-export const FACTS_VERSION = 5
+export const FACTS_VERSION = 6
 export const TOPIC_KEYS: string[] = Object.keys(LEXICON)
 const TOPIC_SET = new Set(TOPIC_KEYS)
 
@@ -38,6 +47,8 @@ export interface StoredFact {
   specialisations: Specialisation[]
   /** What the page says sets the programme apart from others in its field, in the page's own language. */
   distinctive: string[]
+  /** Same points in each supported display language; absent on older readings. */
+  distinctiveTranslations?: DistinctiveTranslations
   /** False when the page says too little to judge the content. */
   enough: boolean
   checks: Record<CheckLanguage, string>
@@ -103,7 +114,16 @@ export function normaliseFact(raw: unknown, sent: ReadonlyMap<string, PageMember
   const topics = enough && Array.isArray(x.topics) ? [...new Set(x.topics.filter((t): t is string => typeof t === 'string' && TOPIC_SET.has(t)))].slice(0, 6) : []
   const specialisations = enough && Array.isArray(x.specialisations) ? normaliseSpecialisations(x.specialisations, page.text) : []
   const distinctive = enough && Array.isArray(x.distinctive) ? normaliseDistinctive(x.distinctive, page.text) : []
-  return { version: FACTS_VERSION, id: x.id, url: page.url, hash: page.hash, at, riasec, subjects, topics, specialisations, distinctive, enough, checks }
+  // Select translations only for the source statements that passed the evidence check.
+  const translated = Object.fromEntries(CHECK_LANGUAGES.map((l) => [l, distinctive.map((statement) => {
+    const item = (x.distinctive as Array<Record<string, unknown>>).find((d) =>
+      d && typeof d.statement === 'string' && completeSentence(d.statement, 160) === statement && supportedQuote(d.quote, page.text))
+    const translations = item?.translations as Record<string, unknown> | undefined
+    return typeof translations?.[l] === 'string' ? translations[l].trim() : null
+  })]))
+  // Invalid new translations retry the batch rather than marking untranslated text as current.
+  if (!validDistinctiveTranslations(translated, distinctive.length)) return null
+  return { version: FACTS_VERSION, id: x.id, url: page.url, hash: page.hash, at, riasec, subjects, topics, specialisations, distinctive, distinctiveTranslations: translated, enough, checks }
 }
 
 /** The page's own names of its specialisations, each with up to three topic keys; a name counts once, at most eight. */
@@ -164,12 +184,12 @@ For each programme give:
 - "subjects": the school subjects from this list that the programme clearly relies on, most important first; an empty list if none is clearly needed: ${SUBJECT_KEYS.join(', ')}. Use only these keys.
 - "topics": up to six topic keys from the list below that the programme's content clearly covers (its focus areas and main subject matter), most central first; an empty list if none is clearly covered. Use only these keys: ${TOPIC_KEYS.join(', ')}. Describe the programme only; assume nothing about any person.
 - "specialisations": the specialisations the programme offers, as the page names them (Vertiefungen, Schwerpunkte, Studienrichtungen, Profile, majors or tracks), up to eight. For each give "name", exactly as on the page, "quote": a short verbatim passage that identifies it as a formal specialisation, and "topics": up to three keys from the topic list above that this specialisation covers. Do not turn individual modules, subject areas or admission specialisms into tracks. An empty list if the page names none, for example for a programme with one fixed course of study.
-- "distinctive": up to three objects, each with "statement" (a complete sentence under 160 characters) and "quote" (a verbatim supporting passage). Statements are in your own words and in the language of the page, on what sets this programme apart from others in its field: a named partner, institute or placement, a required project or practical phase, an unusual format or location, a particular focus. Only what the page says; an empty list if it says nothing beyond the programme's name and content.
+- "distinctive": up to three objects, each with "statement" (a complete sentence under 160 characters), "quote" (a verbatim supporting passage), and "translations" (de, fr, it, en: faithful translations of that same statement, each a complete sentence under 300 characters). Statements are in your own words and in the language of the page, on what sets this programme apart from others in its field: a named partner, institute or placement, a required project or practical phase, an unusual format or location, a particular focus. Preserve proper names, qualifications and uncertainty in every translation; add no claims. Only what the page says; an empty list if it says nothing beyond the programme's name and content.
 - "checks": one sentence each in German (Swiss standard, never «ß», quotes «»), French, Italian and English under 300 characters on what the person should look into before deciding, for example admission requirements, the language of teaching, how much maths, or whether a track is really offered.
 - "checks_quote": one contiguous verbatim source passage behind the checks. Never join, reorder or translate source sentences; only ask about facts supported by this single passage. Phrase checks as questions to verify, never as an assertion that the person is eligible.
 - "enough_info": false when the page and the focus areas say too little about the content to judge. Then give 0 for every type, empty lists of subjects, topics, specialisations and distinctive sentences, and empty checks.
 
-Rules: base every statement on the page text or the listed focus areas. On an overview page, only use information explicitly belonging to the requested programme and level; ignore other degrees and continuing education. Write the checks and the distinctive sentences in your own words and never copy sentences from the page. Determine each programme page's language independently: its distinctive statements must use that language, never the language of a neighbouring programme in this batch. Only checks have four translations. Address the person informally: «du» in German, «tu» in French and Italian, «you» in English. Never «Sie», «vous» or «Lei».`
+Rules: base every statement on the page text or the listed focus areas. On an overview page, only use information explicitly belonging to the requested programme and level; ignore other degrees and continuing education. Write the checks and the distinctive sentences in your own words and never copy sentences from the page. Determine each programme page's language independently for the source statement. Both checks and distinctive translations must use all four requested languages, irrespective of the page language. German uses Swiss standard spelling, never «ß». Address the person informally: «du» in German, «tu» in French and Italian, «you» in English. Never «Sie», «vous» or «Lei».`
 
 export const FACTS_SCHEMA = {
   type: 'object',
@@ -203,7 +223,10 @@ export const FACTS_SCHEMA = {
               additionalProperties: false,
             },
           },
-          distinctive: { type: 'array', items: { type: 'object', properties: { statement: { type: 'string' }, quote: { type: 'string' } }, required: ['statement', 'quote'], additionalProperties: false } },
+          distinctive: { type: 'array', items: { type: 'object', properties: {
+            statement: { type: 'string' }, quote: { type: 'string' },
+            translations: { type: 'object', properties: Object.fromEntries(CHECK_LANGUAGES.map((l) => [l, { type: 'string' }])), required: [...CHECK_LANGUAGES], additionalProperties: false },
+          }, required: ['statement', 'quote', 'translations'], additionalProperties: false } },
           checks: {
             type: 'object',
             properties: Object.fromEntries(CHECK_LANGUAGES.map((l) => [l, { type: 'string' }])),

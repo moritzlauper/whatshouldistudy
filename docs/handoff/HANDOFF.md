@@ -2,6 +2,14 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Sprache der Studiengang-Besonderheiten (19.10.2026, lokal)
+
+- Ursache für deutsche Texte unter «Cosa lo distingue»: Der Reader verlangte ausdrücklich Aussagen in der Sprache der Hochschulseite; `factsForLocale` gab diese für jede Anzeigesprache unverändert aus.
+- Reader-Version 6 erzeugt zusätzlich DE/FR/IT/EN-Übersetzungen je belegter Aussage. Speicherung prüft Vollständigkeit, Anzahl und Länge; die bezahlte API wählt die Anzeigesprache. Alte Aussagen ohne Übersetzung werden bis zur Migration ausgeblendet, nicht in einer fremden Sprache angezeigt. Originaltexte bleiben für den persönlichen Vergleich erhalten. Spezialisierungsnamen bleiben die offiziellen Namen.
+- `translate_only` im bestehenden Fakten-Workflow ergänzt Übersetzungen gespeicherter Aussagen, ohne erneutes Crawling oder Änderungen an Scores, Quelldatum und Hash. Budget und Limit gelten pro Land; Wiederholungen überspringen bereits übersetzte Einträge. Fehler behalten die bisherigen Daten. Keine Kundendaten an die Übersetzung.
+- Prüfung: 314 Tests erfolgreich (einschliesslich italienischer React-Ausgabe, aller sechs Locales, Ingest-Validierung, Quellenbelegen, Migration/Wiederholung und Budgetgrenze), TypeScript erfolgreich. Release-Manifest wegen der geänderten Typdokumentation erneuert; Instrument und Scoring unverändert. Keine echte KI-Anfrage für die Tests.
+- Veröffentlichung/Migration noch ausstehend: zuerst Anwendung mit neuer Ingest-Validierung deployen, dann Workflow mit `translate_only: true`, `country: CH`, `limit: 0`, `max_usd: 1` ausführen und bis «0 remaining» wiederholen; weitere Länder ebenso. Anleitung in README. Keine Live-Daten gelesen oder geändert, kein Deployment ausgelöst. Paywall und Checkout unverändert.
+
 ## Zahlungsbestätigung per E-Mail und Sprachfehler (19.10.2026)
 
 - `Locked.checkout` auf der Ergebnisseite übergab bisher keine Sprache. FR/IT-Checkouts erhielten deshalb `/freigeschaltet` statt `/fr/freigeschaltet` bzw. `/it/freigeschaltet`. Auf whatshouldistudy.ch führte der alte Pfad auf wasstudieren.ch, dessen Browser-Speicher nicht das ursprüngliche Profil enthält. Sprache wird jetzt mitgegeben; Checkout speichert zusätzlich Produkt und Locale in Stripe-Metadaten. Alte Schweizer Rückkehrlinks bleiben bei FR/IT-Browsersprache auf derselben Domain. Zahlung/Tokenprüfung unverändert.

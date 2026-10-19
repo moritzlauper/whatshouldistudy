@@ -27,6 +27,21 @@ test('general similarities neither claim a very good subject fit nor appear twic
     const { renderToStaticMarkup } = await import('react-dom/server');
     const { SiteProvider } = await import('./app/ui/site-context.tsx');
     const { AiBlock, OwnDataPanel } = await import('./app/ui/readings.tsx');
+    const { factsForLocale } = await import('./lib/facts-store.ts');
+    const source = {
+      id: 'law', distinctive: ['Der Studiengang verbindet Recht und Wirtschaft.'],
+      distinctiveTranslations: {
+        de: ['Der Studiengang verbindet Recht und Wirtschaft.'],
+        fr: ['Le cursus associe droit et économie.'],
+        it: ['Il corso unisce diritto ed economia.'],
+        en: ['The course combines law and economics.'],
+      }, riasec: [0, 1, 0, 1, 1, 1], subjects: [], enough: true, checks: {},
+    };
+    const italian = renderToStaticMarkup(React.createElement(SiteProvider, { site: 'ch', base: '', locale: 'it-CH' },
+      React.createElement(AiBlock, { fact: factsForLocale(source, 'it-CH'), personalStatus: 'off' })));
+    assert.ok(italian.includes('Cosa lo distingue'));
+    assert.ok(italian.includes('Il corso unisce diritto ed economia.'));
+    assert.ok(!italian.includes('Der Studiengang'));
     const fact = { id: 'theology', enough: true, riasec: [0, 5, 2, 5, 1, 2], subjects: ['lang', 'hist'], topics: ['religious-studies'], check: '' };
     const fit = { score: 85, reasons: [{ kind: 'riasec', types: ['S', 'I'] }, { kind: 'subjects', subjects: ['lang', 'hist'] }] };
     const personal = { id: 'theology', fit: 5, score: 85, thin: false, reasons: [

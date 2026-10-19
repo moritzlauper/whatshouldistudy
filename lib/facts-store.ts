@@ -1,4 +1,4 @@
-import { CHECK_LANGUAGES, TOPIC_KEYS, type CheckLanguage, type Specialisation, type StoredFact } from '../scrapers/lib/facts.ts'
+import { CHECK_LANGUAGES, TOPIC_KEYS, validDistinctiveTranslations, type CheckLanguage, type Specialisation, type StoredFact } from '../scrapers/lib/facts.ts'
 import type { ProgrammeFacts } from './engine/programme-fit.ts'
 import type { Locale } from './site/config.ts'
 import { SUBJECT_KEYS } from './taxonomy/fields.ts'
@@ -107,13 +107,15 @@ export function validStoredFact(raw: unknown): StoredFact | null {
   const specialisations = optional<Specialisation>(x.specialisations, validSpecialisation, 8)
   const distinctive = optional<string>(x.distinctive, (d) => typeof d === 'string' && d.length > 0 && d.length <= 160, 3)
   if (!id || !url || !hash || !at || !riasec || !subjects || !topics || !specialisations || !distinctive || enough === null || !given) return null
+  if ((x.distinctiveTranslations !== undefined || Number(x.version) >= 6) && !validDistinctiveTranslations(x.distinctiveTranslations, distinctive.length)) return null
   const checks = {} as Record<CheckLanguage, string>
   for (const l of CHECK_LANGUAGES) {
     const c = given[l]
     if (typeof c !== 'string' || c.length > 300) return null
     checks[l] = c
   }
-  return { ...(Number.isInteger(x.version) && Number(x.version) > 0 ? { version: Number(x.version) } : {}), id, url, hash, at, riasec, subjects, topics, specialisations, distinctive, enough, checks }
+  return { ...(Number.isInteger(x.version) && Number(x.version) > 0 ? { version: Number(x.version) } : {}), id, url, hash, at, riasec, subjects, topics, specialisations, distinctive,
+    ...(x.distinctiveTranslations !== undefined ? { distinctiveTranslations: x.distinctiveTranslations as StoredFact['distinctiveTranslations'] } : {}), enough, checks }
 }
 
 /**
@@ -134,6 +136,7 @@ export function storedFactProblem(raw: unknown): string | null {
   if (!(x.topics === undefined || (Array.isArray(x.topics) && x.topics.length <= 6 && x.topics.every((t) => typeof t === 'string' && TOPIC_KEYS.includes(t))))) return 'topics'
   if (!(x.specialisations === undefined || (Array.isArray(x.specialisations) && x.specialisations.length <= 8 && x.specialisations.every(validSpecialisation)))) return 'specialisations'
   if (!(x.distinctive === undefined || (Array.isArray(x.distinctive) && x.distinctive.length <= 3 && x.distinctive.every((d) => typeof d === 'string' && d.length > 0 && d.length <= 160)))) return 'distinctive'
+  if ((x.distinctiveTranslations !== undefined || Number(x.version) >= 6) && !validDistinctiveTranslations(x.distinctiveTranslations, (x.distinctive as string[] | undefined)?.length ?? 0)) return 'distinctiveTranslations'
   const given = x.checks as Record<string, unknown>
   for (const l of CHECK_LANGUAGES) if (typeof given[l] !== 'string' || (given[l] as string).length > 300) return `checks.${l}`
   return null
@@ -166,7 +169,7 @@ const LANGUAGE: Record<Locale, CheckLanguage> = {
   'it-CH': 'it',
 }
 
-/** A reading as the site shows it: the interest profile, the subjects, and the check in the reader's language. */
+/** A reading in the reader's language. Untranslated legacy points wait for the offline backfill. */
 export function factsForLocale(f: StoredFact, locale: Locale): ProgrammeFacts {
   return {
     id: f.id,
@@ -174,7 +177,7 @@ export function factsForLocale(f: StoredFact, locale: Locale): ProgrammeFacts {
     subjects: f.subjects,
     topics: f.topics ?? [],
     specialisations: f.specialisations ?? [],
-    distinctive: f.distinctive ?? [],
+    distinctive: validDistinctiveTranslations(f.distinctiveTranslations, f.distinctive?.length ?? 0) ? f.distinctiveTranslations[LANGUAGE[locale]] : [],
     check: f.checks[LANGUAGE[locale]] || f.checks.en,
     enough: f.enough,
   }

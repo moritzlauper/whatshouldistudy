@@ -20,6 +20,7 @@ import { emptyPageIndex, programmePage, type PageIndex } from './lib/programme-p
 import { programmePageText } from './lib/programme-page-text.ts'
 import { FACTS_SCHEMA, FACTS_SYSTEM, batches, costMicroUsd, hashText, isUnchanged, mergeFacts, normaliseFact, type PageMember, type StoredFact } from './lib/facts.ts'
 import { storedFactProblem } from '../lib/facts-store.ts'
+import { translateStoredFacts } from './lib/facts-translations.ts'
 import { log } from './lib/common.ts'
 import { fetchSite } from './lib/site-fetch.ts'
 
@@ -85,12 +86,22 @@ async function main() {
   if (!Number.isFinite(maxUsd) || maxUsd <= 0) throw new Error('Invalid --max-usd')
   // Read every page again, also those whose text did not change (after a change to the prompt).
   const reread = process.argv.includes('--reread')
-  if (!dataDir || !outFile) throw new Error('usage: --data <dir> --out <file> [--previous <file>] [--country CH] [--limit N] [--max-usd 3]')
+  const translateOnly = process.argv.includes('--translate-only')
+  if (!outFile || (translateOnly ? !previousFile : !dataDir)) throw new Error('usage: --data <dir> --out <file> [--previous <file>] [--country CH] [--limit N] [--max-usd 3]; or --translate-only --previous <file> --out <file>')
   if (!factsAiConfigured()) throw new Error('ANTHROPIC_API_KEY is required')
 
   const previous: Record<string, StoredFact> = previousFile && existsSync(previousFile)
     ? (JSON.parse(readFileSync(previousFile, 'utf8')) as { programmes?: Record<string, StoredFact> }).programmes ?? {}
     : {}
+  if (translateOnly) {
+    const source = JSON.parse(readFileSync(previousFile, 'utf8')) as { country?: string }
+    if (source.country && source.country !== country) throw new Error('Previous readings belong to another country')
+    const result = await translateStoredFacts(previous, maxUsd, limit)
+    mkdirSync(dirname(outFile), { recursive: true })
+    writeFileSync(outFile, `${JSON.stringify({ updated: new Date().toISOString(), country, programmes: result.programmes })}\n`)
+    log(`${country}: ${result.translated} translated, ${result.failed} failed, ${result.remaining} remaining; about $${(result.spendMicro / 1e6).toFixed(3)}`)
+    return
+  }
   const rows = loadRows(dataDir).filter((r) => r.country === country)
   if (!rows.length) throw new Error(`No programme data for ${country}; keeping previous readings`)
 

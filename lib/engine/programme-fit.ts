@@ -19,7 +19,7 @@ export interface ProgrammeFacts {
   topics?: string[]
   /** The specialisations the page names, with the topics each one covers. */
   specialisations?: Array<{ name: string; topics: string[] }>
-  /** What sets the programme apart, in the page's own language. */
+  /** What sets the programme apart, in the reader's language. */
   distinctive?: string[]
   /** One sentence on what to look into before deciding. */
   check: string

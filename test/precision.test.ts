@@ -75,7 +75,7 @@ test('AI facts require literal evidence for content, specialisations and distinc
   const sent = new Map([['a', { url: 'https://x.ch/a', hash: 'h', text }]])
   const raw = { id: 'a', enough_info: true, content_quote: 'Studium mit zwei Vertiefungen', checks_quote: 'Ein Projekt gehört zum Studium.', riasec: { I: 5 }, subjects: ['cs'], topics: ['computer-science'], checks: { en: 'Check the project requirements.' },
     specialisations: [{ name: 'Data Analytics', topics: ['statistics-data-science'], quote: 'Vertiefungen: Data Analytics und Software Engineering.' }, { name: 'Quantum AI', topics: ['artificial-intelligence'], quote: 'Studium mit zwei Vertiefungen' }],
-    distinctive: [{ statement: 'Das Studium enthält ein Projekt.', quote: 'Ein Projekt gehört zum Studium.' }, { statement: 'Ein Praktikum bei Google ist garantiert.', quote: 'Google offers internships' }] }
+    distinctive: [{ statement: 'Das Studium enthält ein Projekt.', quote: 'Ein Projekt gehört zum Studium.', translations: { de: 'Das Studium enthält ein Projekt.', fr: 'Le cursus comprend un projet.', it: 'Il corso comprende un progetto.', en: 'The course includes a project.' } }, { statement: 'Ein Praktikum bei Google ist garantiert.', quote: 'Google offers internships' }] }
   const fact = normaliseFact(raw, sent, '2026-10-12')!
   assert.equal(fact.version, FACTS_VERSION)
   assert.deepEqual(normaliseFact({ ...raw, specialisations: [{ name: 'Software', topics: [], quote: 'Studium mit zwei Vertiefungen' }] }, sent, '2026-10-12')?.specialisations, [])

@@ -41,7 +41,10 @@ async function identity(): Promise<string> {
 async function post(token: string, body: Record<string, unknown>): Promise<{ status: number; json: Record<string, unknown> }> {
   const res = await fetch(endpoint(), {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: `Bearer ${token}`, 'Content-Type': 'application/json',
+      ...(process.env.VERCEL_AUTOMATION_BYPASS_SECRET ? { 'x-vercel-protection-bypass': process.env.VERCEL_AUTOMATION_BYPASS_SECRET } : {}),
+    },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(60_000),
   })
