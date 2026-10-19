@@ -1,0 +1,6 @@
+# Local scraper output is published separately to the data branch.
+scrapers/out/
+scrapers/cache/
+*.tsbuildinfo
+.env*
+!.env.example

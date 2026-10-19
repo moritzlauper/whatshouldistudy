@@ -20,18 +20,20 @@ export const PAGE_SIZE = 25
 
 /** What a programme is found by: its name, institution, place and its fields in English and the page's language. */
 type Index = { shard: CatalogueShard; text: string[]; names: string[] }
-const indexes = new Map<string, Index>()
+// Indexes must not keep catalogues alive after the data LRU evicts them.
+const indexes = new WeakMap<CatalogueShard, Map<Locale, Index>>()
 
 function index(shard: CatalogueShard, locale: Locale): Index {
-  const key = `${shard.country}|${locale}`
-  const hit = indexes.get(key)
-  if (hit?.shard === shard) return hit
+  let locales = indexes.get(shard)
+  const hit = locales?.get(locale)
+  if (hit) return hit
   const names = shard.programmes.map((p) => normalizeSearch(p.name))
   const text = shard.programmes.map((p, i) =>
     [names[i], normalizeSearch([p.institution, p.city, p.region, ...p.fields.flatMap((f) => [FIELD_BY_ID[f]?.name, fieldName(f, locale)])].filter(Boolean).join(' '))].join(' '),
   )
   const built = { shard, text, names }
-  indexes.set(key, built)
+  if (!locales) { locales = new Map(); indexes.set(shard, locales) }
+  locales.set(locale, built)
   return built
 }
 

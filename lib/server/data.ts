@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { get as httpGet } from 'node:http'
 import { get as httpsGet } from 'node:https'
 import { join } from 'node:path'
+import { DataCache } from './data-cache.ts'
 import type { CatalogueShard, DataMeta, FieldStat, ProgrammeShard, ResearchShard } from '../programmes.ts'
 import type { DirectoryEntry } from '../../scrapers/global-directory.ts'
 
@@ -25,7 +26,12 @@ function remoteBase(): string | null {
   return null
 }
 
-const cache = new Map<string, { at: number; value: unknown; sample: boolean }>()
+type Loaded<T> = { value: T | null; sample: boolean }
+// A warm function must not retain every field and country a crawler visits.
+// Parsed objects use more memory than their JSON; this caps retained source
+// bytes at 32 MiB, not the function's total RSS.
+const cache = new DataCache<Loaded<unknown>>(32 * 1024 * 1024, TTL)
+const pending = new Map<string, Promise<Loaded<unknown>>>()
 
 /**
  * Programme shards and catalogues exceed the 2 MB limit of Next's fetch cache,
@@ -47,24 +53,34 @@ function getUntracked(url: string): Promise<{ status: number; body: string }> {
 }
 
 /** One file from the data branch; a server error counts as a failure, a 404 as an answer. */
-async function fetchRemote<T>(url: string, big: boolean): Promise<{ status: number; value?: T }> {
+async function fetchRemote<T>(url: string, big: boolean): Promise<{ status: number; value?: T; bytes: number }> {
   if (big) {
     const res = await getUntracked(url)
     if (res.status >= 500) throw new Error(`HTTP ${res.status}`)
-    return { status: res.status, value: res.status === 200 ? (JSON.parse(res.body) as T) : undefined }
+    return { status: res.status, value: res.status === 200 ? (JSON.parse(res.body) as T) : undefined, bytes: Buffer.byteLength(res.body) }
   }
   const res = await fetch(url, { next: { revalidate: TTL / 1000 } })
   if (res.status >= 500) throw new Error(`HTTP ${res.status}`)
-  return { status: res.status, value: res.ok ? ((await res.json()) as T) : undefined }
+  const body = res.ok ? await res.text() : ''
+  return { status: res.status, value: res.ok ? (JSON.parse(body) as T) : undefined, bytes: Buffer.byteLength(body) }
 }
 
-async function load<T>(path: string): Promise<{ value: T | null; sample: boolean }> {
+async function load<T>(path: string): Promise<Loaded<T>> {
   const hit = cache.get(path)
-  if (hit && Date.now() - hit.at < TTL) return { value: hit.value as T, sample: hit.sample }
+  if (hit) return hit as Loaded<T>
+  const underway = pending.get(path)
+  if (underway) return underway as Promise<Loaded<T>>
+  // Metadata, the page and concurrent requests share one download and parse.
+  const promise = loadFresh<T>(path).finally(() => pending.delete(path))
+  pending.set(path, promise)
+  return promise
+}
+
+async function loadFresh<T>(path: string): Promise<Loaded<T>> {
   const base = remoteBase()
   if (base) {
     const big = path.startsWith('programmes/') || path.startsWith('catalogue/')
-    let res: { status: number; value?: T } | undefined
+    let res: { status: number; value?: T; bytes: number } | undefined
     let error: unknown
     for (let attempt = 0; attempt < 3 && !res; attempt++) {
       try {
@@ -77,24 +93,25 @@ async function load<T>(path: string): Promise<{ value: T | null; sample: boolean
     // Unreachable data must not quietly become the demo data: the error keeps the previous page or deployment.
     if (!res) throw new Error(`Data: ${path} unreachable (${(error as Error).message})`)
     if (res.value !== undefined) {
-      cache.set(path, { at: Date.now(), value: res.value, sample: false })
+      cache.set(path, { value: res.value, sample: false }, res.bytes)
       return { value: res.value, sample: false }
     }
     if (res.status === 404) {
       // The data branch exists but doesn't have this file (e.g. no research for a field).
-      const meta = cache.get('meta.json')
+      const meta = path === 'meta.json' ? undefined : await getMeta()
       if (meta && !meta.sample) {
-        cache.set(path, { at: Date.now(), value: null, sample: false })
+        cache.set(path, { value: null, sample: false }, 0)
         return { value: null, sample: false }
       }
     }
   }
   try {
-    const value = JSON.parse(await readFile(join(SAMPLE_DIR, path), 'utf8')) as T
-    cache.set(path, { at: Date.now(), value, sample: true })
+    const body = await readFile(join(SAMPLE_DIR, path), 'utf8')
+    const value = JSON.parse(body) as T
+    cache.set(path, { value, sample: true }, Buffer.byteLength(body))
     return { value, sample: true }
   } catch {
-    cache.set(path, { at: Date.now(), value: null, sample: true })
+    cache.set(path, { value: null, sample: true }, 0)
     return { value: null, sample: true }
   }
 }

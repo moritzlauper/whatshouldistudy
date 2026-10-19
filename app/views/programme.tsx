@@ -75,7 +75,7 @@ function Related({ k, cc, title, items, showInstitution, more }: { k: Kit; cc: s
       <ul className="mt-5 grid gap-3 sm:grid-cols-2">
         {items.map((q) => (
           <li key={q.id}>
-            <Link href={href(k, cc, q)} className="card-sm card-pop block h-full p-4">
+            <Link href={href(k, cc, q)} prefetch={false} className="card-sm card-pop block h-full p-4">
               <span className="block font-bold leading-snug">{q.name}</span>
               <span className="mt-0.5 block text-xs text-muted">{[levelLabel(q.level, k.locale), showInstitution ? q.institution : null, q.city].filter(Boolean).join(' · ')}</span>
             </Link>

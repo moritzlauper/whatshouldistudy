@@ -99,7 +99,7 @@ export function CatalogueRow({
   if (href)
     return (
       <li className="border-b border-line/15 last:border-0">
-        <Link href={href} className="group flex items-baseline justify-between gap-x-4 py-2.5">
+        <Link href={href} prefetch={false} className="group flex items-baseline justify-between gap-x-4 py-2.5">
           <span className="min-w-0 flex-1">
             <span className="font-bold group-hover:text-accent">{p.name}</span>
             <span className="block text-xs text-muted">{summary.join(' · ')}</span>
