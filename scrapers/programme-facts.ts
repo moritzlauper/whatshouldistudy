@@ -96,7 +96,9 @@ async function main() {
   if (translateOnly) {
     const source = JSON.parse(readFileSync(previousFile, 'utf8')) as { country?: string }
     if (source.country && source.country !== country) throw new Error('Previous readings belong to another country')
-    const result = await translateStoredFacts(previous, maxUsd, limit)
+    const result = await translateStoredFacts(previous, maxUsd, limit, undefined, ({ translated, failed, remaining }) => {
+      if ((translated + failed) % 25 === 0 || remaining === 0) log(`${country}: ${translated} translated, ${failed} failed, ${remaining} remaining`)
+    })
     mkdirSync(dirname(outFile), { recursive: true })
     writeFileSync(outFile, `${JSON.stringify({ updated: new Date().toISOString(), country, programmes: result.programmes })}\n`)
     log(`${country}: ${result.translated} translated, ${result.failed} failed, ${result.remaining} remaining; about $${(result.spendMicro / 1e6).toFixed(3)}`)

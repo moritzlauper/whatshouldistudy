@@ -72,3 +72,27 @@ test('backfill honours the cap and retains reservations after a transport failur
   assert.ok(failed.spendMicro > 40000 && failed.spendMicro <= 60000)
   assert.deepEqual(failed.programmes, previous)
 })
+
+test('parallel translations reserve one shared budget and never repeat a programme', async () => {
+  const previous = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`p${i}`, { ...original, id: `p${i}` }]))
+  for (const [budget, expectedPeak] of [[1, 4], [0.11, 2]]) {
+    let active = 0, peak = 0
+    const asked: string[] = []
+    const complete = async (request: CompletionRequest) => {
+      active++
+      peak = Math.max(peak, active)
+      const ids = JSON.parse(request.input).programmes.map((p: { id: string }) => p.id) as string[]
+      asked.push(...ids)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      active--
+      return reply(ids.map((id) => ({ id, translations })))
+    }
+    const result = await translateStoredFacts(previous, budget, Infinity, complete)
+    assert.equal(peak, expectedPeak)
+    assert.equal(asked.length, 20)
+    assert.equal(new Set(asked).size, 20)
+    assert.equal(result.translated, 20)
+    assert.equal(result.remaining, 0)
+    assert.equal(result.spendMicro, 4400)
+  }
+})
