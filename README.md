@@ -588,8 +588,8 @@ literal source evidence; incomplete or duplicate response batches are retried
 once and otherwise retain previous readings. Spending is capped per run (`--max-usd`).
 
 Distinctive points are translated into DE/FR/IT/EN, and `/api/facts` selects the
-reader's language. Source-language statements remain private for evidence and
-the optional personal comparison. Legacy points without translations are omitted
+reader's language. Original statements remain private alongside their translations.
+Legacy points without translations are omitted
 from the display until backfilled; they never silently fall back to another language.
 Deploy the updated ingestion code before running the facts workflow with
 `translate_only: true` (start with `country: CH`, `limit: 0`, `max_usd: 1`). This

@@ -32,7 +32,8 @@ function loadReadings(locale: string, token: string | null): Promise<Reading | n
   const key = `${FACTS_COUNTRIES.join(',')}|${locale}|${token ?? ''}`
   const hit = cache.get(key)
   if (hit) return hit
-  const request = fetch(withBase(`/api/facts?countries=${FACTS_COUNTRIES.join(',')}&locale=${encodeURIComponent(locale)}`), {
+  // New display schema: do not reuse a browser response cached before translations existed.
+  const request = fetch(withBase(`/api/facts?v=6&countries=${FACTS_COUNTRIES.join(',')}&locale=${encodeURIComponent(locale)}`), {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
     .then(async (res) => (res.ok ? ((await res.json()) as Reading) : null))
