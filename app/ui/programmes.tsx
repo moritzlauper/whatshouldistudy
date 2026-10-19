@@ -30,6 +30,7 @@ import { Price, useConfig } from './price.tsx'
 import type { Config } from './price.tsx'
 import { useSite } from './site-context.tsx'
 import { Burst } from './shapes.tsx'
+import { PayWithTwint } from './twint.tsx'
 import { measureCheckout } from '@/lib/measure.ts'
 
 interface Teaser {
@@ -540,6 +541,7 @@ function Locked({ teaser, config, hideFirst, onUnlocked }: { teaser: Teaser | nu
           </button>
         )}
         {error && <p className="mt-3 rounded-xl bg-surface p-2 text-sm font-semibold text-bad">{error}</p>}
+        {!org && !SALES_PAUSED[site] && <PayWithTwint className="mt-3 justify-center" />}
         {!org && !SALES_PAUSED[site] && config?.payments === 'stripe' && <p className="mt-3 text-center text-sm font-semibold">{t.programmes.boxNote}</p>}
         {config?.payments !== 'off' && !(SALES_PAUSED[site] && !org) && (
           <p className="mt-2 text-center text-xs opacity-80">

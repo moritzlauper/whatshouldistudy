@@ -9,6 +9,7 @@ import { useAppState } from '@/lib/store.ts'
 import { resultsReady } from '@/lib/engine/questionnaire.ts'
 import { useConfig } from './price.tsx'
 import { useSite } from './site-context.tsx'
+import { PayWithTwint } from './twint.tsx'
 
 /** Buy before completing the analysis, through the same checkout as the report. */
 export function LandingCheckout() {
@@ -49,6 +50,7 @@ export function LandingCheckout() {
         {busy ? t.programmes.opening : config?.payments === 'free' ? t.programmes.unlockFree : t.programmes.unlock(formatPrice(price, intl))}
       </button>
       {error && <p role="alert" className="mt-3 rounded-xl bg-surface p-3 text-sm font-semibold text-bad">{error}</p>}
+      <PayWithTwint className="mt-3 justify-center" />
       <p className="mt-3 text-center text-sm">{t.landing.buyNote}</p>
       {config?.payments === 'stripe' && <p className="mt-2 text-center text-sm font-semibold">{t.programmes.boxNote}</p>}
       <p className="mt-2 text-center text-xs opacity-80">{t.programmes.minors}{' '}<Link href={r.terms} className="underline">{t.footer.terms}</Link></p>

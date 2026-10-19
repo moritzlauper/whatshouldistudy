@@ -13,6 +13,7 @@ import { Hexagon } from '../ui/hexagon.tsx'
 import { Marquee } from '../ui/marquee.tsx'
 import { Price } from '../ui/price.tsx'
 import { LandingCheckout } from '../ui/landing-checkout.tsx'
+import { PayWithTwint } from '../ui/twint.tsx'
 import { Blob, Burst, Pill, Ring, Sparkle, Squiggle } from '../ui/shapes.tsx'
 import { GitHubMark } from '../ui/trust.tsx'
 import { JsonLd, homeLd } from '../ui/json-ld.tsx'
@@ -95,6 +96,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
             {!SALES_PAUSED[site] && <a href="#pricing" className="mt-4 inline-block text-sm font-semibold text-accent underline underline-offset-4">
               {t.landing.aiReport}: <Price site={site} /> · {t.landing.oneTime}
             </a>}
+            {!SALES_PAUSED[site] && <PayWithTwint className="mt-3" />}
             {programmes > 0 && (
               <Link href={r.programmes} className="mt-7 inline-flex items-center gap-2 rounded-full border-2 border-line bg-surface px-4 py-1.5 text-sm font-semibold hover:-translate-y-0.5">
                 <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${sample ? 'bg-yellow' : 'bg-good'}`} aria-hidden="true" />
