@@ -4,6 +4,8 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 
 ## Usage-Report und Bot Protection (19.10.2026)
 
+Hinweis Outreach (19.10.2026): Auf ausdrücklichen Wunsch des Inhabers komplett gestoppt. Im separaten Repository `moritzlauper/whatshouldistudy-outreach` sind die GitHub-Actions-Workflows «Outreach prüfen» (377367573) und «Einzelmails verschicken» (379790874) serverseitig `disabled_manually`. Nach der Deaktivierung keine laufenden oder wartenden Actions-Aufträge vorhanden; lokal keine zugehörigen Versandprozesse oder Zeitpläne gefunden. Nicht ohne erneuten Auftrag aktivieren. Die separate Blog-Automation bleibt aktiv.
+
 - `pnpm usage:report 2026-10` scheiterte vor der App an Vercels Bot-Challenge (HTTP 429, `x-vercel-mitigated: challenge`).
 - Das Skript sendet jetzt optional `VERCEL_AUTOMATION_BYPASS_SECRET` als Header neben der weiterhin erforderlichen Admin-Autorisierung und erklärt Challenge-Fehler. Vorhandenen Projekt-Automation-Schlüssel lokal in `.env.local` ergänzt; keine Schlüssel ausgegeben oder eingecheckt. README und `.env.example` dokumentieren die Einrichtung.
 - Live-Aufruf erfolgreich (Exit 0): Oktober bisher 414 Ergebnisansichten und 3 Freischaltungen. Acht gezielte Tests und TypeScript erfolgreich. Keine Änderung an Firewallregeln, Paywall oder Checkout; kein Deployment erforderlich.
