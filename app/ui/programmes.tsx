@@ -443,7 +443,8 @@ function Locked({ teaser, config, hideFirst, onUnlocked }: { teaser: Teaser | nu
     setError('')
     measureCheckout(config?.price ?? priceForSite(site))
     try {
-      const res = await fetch(withBase(`/api/checkout?site=${site}&back=${encodeURIComponent(base)}&o=${encodeURIComponent(window.location.origin)}`), { method: 'POST' })
+      const query = new URLSearchParams({ site, back: base, locale, o: window.location.origin })
+      const res = await fetch(withBase(`/api/checkout?${query}`), { method: 'POST' })
       const j = (await res.json()) as { url?: string; error?: string }
       if (!j.url) throw new Error(j.error ?? t.programmes.checkoutFailed)
       window.location.assign(j.url)

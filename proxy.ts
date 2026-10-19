@@ -49,6 +49,16 @@ export function proxy(req: NextRequest) {
     const c = SITES[local]
     const frIt = local === 'ch' && CH_LANGUAGES.some((l) => under(path, `/${l}`))
     if (local === 'ch' && frItHosts().includes(host)) {
+      // Older result-page checkouts omitted the locale. Keep their paid return
+      // on the French/Italian origin where the buyer's browser profile lives.
+      if (path === '/freigeschaltet' && url.searchParams.has('session_id')) {
+        const lang = swissLanguage(req)
+        if (lang !== 'de') {
+          const to = url.clone()
+          to.pathname = `/${lang}/freigeschaltet`
+          return NextResponse.redirect(to, 307)
+        }
+      }
       // The German pages live on the Swiss domain. Sign-ins come back to the domain they started on, whose storage holds the verifier.
       if (path === '/') {
         // Temporary (307): the answer depends on the browser's language.

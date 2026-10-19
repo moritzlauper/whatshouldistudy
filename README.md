@@ -504,6 +504,32 @@ counts and fields only, excluding the top field; no programme records).
 The best programme appears directly below the top field in results; its details
 are fetched through `/api/programmes` only after unlock.
 
+After payment, `/api/stripe/webhook` emails the buyer a personal access link using
+the Checkout email address and the existing Infomaniak SMTP settings. This runs
+independently of the browser redirect. The email does not contain questionnaire
+answers: it explains how to reopen the report in the original browser or complete
+the questionnaire if no profile is present. Checkout records the interface locale
+for German, English, French or Italian email copy.
+
+Register a Stripe webhook for `checkout.session.completed` and
+`checkout.session.async_payment_succeeded`, pointing to the canonical HTTPS
+`/api/stripe/webhook` URL. Set its `STRIPE_WEBHOOK_SECRET` in the deployment.
+The endpoint verifies the raw-body signature and timestamp, ignores unpaid,
+subscription and unrelated-site sessions, and preserves the existing paid-session
+check on the access link. SMTP or Redis failures return 503 so Stripe retries.
+The existing USAGE Redis stores only a SHA-256 session identifier and a sent marker
+for 400 days, plus a short concurrent-delivery lock. SMTP cannot guarantee exactly
+once delivery if a process stops after the mail is accepted but before the marker
+is saved; retries prefer a possible duplicate over a missing access email.
+Ensure Vercel Bot Protection allows Stripe to reach this signed endpoint. Test
+deliveries must reach the handler, not a browser challenge.
+
+Owner recovery: `POST /api/stripe/recover-email` with the existing
+`Authorization: Bearer <USAGE_ADMIN_TOKEN>` and JSON `{ "session_id": "cs_…",
+"locale": "it-CH" }` rechecks the actual session in Stripe and sends to its
+recorded buyer only. The optional locale corrects old Swiss language redirects.
+It uses the same duplicate protection; it cannot grant access to an unpaid session.
+
 Price: country sites always use their own currency (Germany/Austria EUR 9,
 Switzerland CHF 9), for both the displayed price and checkout, including
 organisation plans. The global site uses the visitor's currency

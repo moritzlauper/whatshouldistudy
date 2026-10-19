@@ -26,6 +26,8 @@ test('landing checkout preserves the site, language, fixed price and safe return
       ['site=ch&from=landing', '/#pricing', '/freigeschaltet', 'chf'],
       ['site=ch&locale=fr-CH&from=landing', '/fr#pricing', '/fr/freigeschaltet', 'chf'],
       ['site=ch&locale=it-CH&from=landing', '/it#pricing', '/it/freigeschaltet', 'chf'],
+      ['site=ch&locale=it-CH', '/it/resultat#corsi', '/it/freigeschaltet', 'chf'],
+      ['site=ch&locale=fr-CH', '/fr/resultat#programmes', '/fr/freigeschaltet', 'chf'],
       ['site=global&from=landing', '/#pricing', '/unlocked', 'usd'],
       ['site=ch&back=/schweiz', '/schweiz/resultat#studiengaenge', '/schweiz/freigeschaltet', 'chf'],
       ['site=ch&from=landing&o=https://evil.example&back=https://evil.example', '/#pricing', '/freigeschaltet', 'chf'],
@@ -38,6 +40,8 @@ test('landing checkout preserves the site, language, fixed price and safe return
       assert.equal(form.get('line_items[0][price_data][unit_amount]'), '900');
       assert.equal(form.get('line_items[0][price_data][currency]'), currency);
       assert.equal(form.get('mode'), 'payment');
+      assert.equal(form.get('metadata[product]'), 'wsis_report');
+      if(query.includes('it-CH')) {assert.equal(form.get('metadata[locale]'),'it-CH');assert.equal(form.get('locale'),'it');}
     }
   `], {
     encoding: 'utf8',

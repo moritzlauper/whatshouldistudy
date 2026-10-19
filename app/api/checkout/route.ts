@@ -27,13 +27,17 @@ export async function POST(req: Request) {
 
   const price = priceForSite(site, visitorCountry(req))
   const local = isLocal(site)
+  const requestedLocale = new URL(req.url).searchParams.get('locale')
+  const locale = site === 'ch' && ['fr-CH', 'it-CH'].includes(requestedLocale ?? '') ? requestedLocale! : conf.locale
   const form = new URLSearchParams({
     mode: 'payment',
     success_url: `${unlocked}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: cancel,
-    locale: local ? 'de' : 'auto',
+    locale: local ? locale.split('-')[0] : 'auto',
     'line_items[0][quantity]': '1',
     'metadata[site]': site,
+    'metadata[product]': 'wsis_report',
+    'metadata[locale]': locale,
   })
   const stripePrice = await reportPriceId(price).catch(() => null)
   if (stripePrice) {
