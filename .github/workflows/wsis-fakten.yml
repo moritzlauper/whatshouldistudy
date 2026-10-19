@@ -155,7 +155,15 @@ jobs:
       - name: Store the readings
         env:
           COUNTRY: ${{ matrix.country }}
-        run: node scrapers/programme-facts-store.ts push --country "$COUNTRY" --in facts-out/facts.json
+          TRANSLATE_ONLY: ${{ inputs.translate_only }}
+        run: |
+          MODE="$(node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const data = JSON.parse(readFileSync("facts-out/facts.json", "utf8"));
+            const empty = Object.keys(data.programmes ?? {}).length === 0;
+            console.log(process.env.TRANSLATE_ONLY === "true" && empty ? "verify" : "push");
+          ')"
+          node scrapers/programme-facts-store.ts "$MODE" --country "$COUNTRY" --in facts-out/facts.json
 
       - name: Save page discovery and reading progress
         if: ${{ always() && !inputs.translate_only }}
