@@ -2,6 +2,14 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Google-Indexierung wasstudieren.ch (19.10.2026)
+
+- Priorität laut Inhaber: `https://wasstudieren.ch/` als Hauptseite; andere Domains sind für diesen Auftrag nicht relevant.
+- Search Console meldete beim Crawl vom 08.10. noch `https://whatshouldistudy.com/` als deklarierten und von Google gewählten Canonical der Schweizer Startseite. Der aktuelle Google-Live-Test vom 19.10., 12:06 Uhr bestätigt dagegen `https://wasstudieren.ch/`, erfolgreichen Abruf und erlaubte Indexierung. Keine weitere Code-/Deploymentänderung erforderlich.
+- Indexierung der HTTPS-Startseite erfolgreich beantragt (Priority Crawl Queue); Validierung des Canonical-Ausschlusses gestartet. Das ist noch keine bestätigte Aufnahme in den Google-Index.
+- Zuvor keine Sitemaps eingereicht. Jetzt beide erfolgreich verarbeitet: `/sitemap.xml` mit 162 Seiten und `/sitemaps/ch-ch-0.xml` mit 1’611 Seiten. Der kurz angezeigte Abruffehler der zweiten Sitemap war nach Verarbeitung verschwunden.
+- Der separate Weiterleitungsausschluss betrifft `http://wasstudieren.ch/`; der korrekte 308 auf HTTPS bleibt bestehen. Auch www leitet auf die Hauptadresse weiter. Keine Firewall-, Paywall- oder Checkoutänderung.
+
 ## Usage-Report und Bot Protection (19.10.2026)
 
 Hinweis Outreach (19.10.2026): Auf ausdrücklichen Wunsch des Inhabers komplett gestoppt. Im separaten Repository `moritzlauper/whatshouldistudy-outreach` sind die GitHub-Actions-Workflows «Outreach prüfen» (377367573) und «Einzelmails verschicken» (379790874) serverseitig `disabled_manually`. Nach der Deaktivierung keine laufenden oder wartenden Actions-Aufträge vorhanden; lokal keine zugehörigen Versandprozesse oder Zeitpläne gefunden. Nicht ohne erneuten Auftrag aktivieren. Die separate Blog-Automation bleibt aktiv.
