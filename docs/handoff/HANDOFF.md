@@ -2,6 +2,12 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Usage-Report und Bot Protection (19.10.2026)
+
+- `pnpm usage:report 2026-10` scheiterte vor der App an Vercels Bot-Challenge (HTTP 429, `x-vercel-mitigated: challenge`).
+- Das Skript sendet jetzt optional `VERCEL_AUTOMATION_BYPASS_SECRET` als Header neben der weiterhin erforderlichen Admin-Autorisierung und erklärt Challenge-Fehler. Vorhandenen Projekt-Automation-Schlüssel lokal in `.env.local` ergänzt; keine Schlüssel ausgegeben oder eingecheckt. README und `.env.example` dokumentieren die Einrichtung.
+- Live-Aufruf erfolgreich (Exit 0): Oktober bisher 414 Ergebnisansichten und 3 Freischaltungen. Acht gezielte Tests und TypeScript erfolgreich. Keine Änderung an Firewallregeln, Paywall oder Checkout; kein Deployment erforderlich.
+
 ## Origin-Transfer und Serverspeicher (18.10.2026)
 
 - Beide Programm-Detailrouten waren bereits ISR (`generateStaticParams() => []`, `revalidate = 86400`). Vor der Änderung produktiv geprüft: Schweizer Detailseite `X-Vercel-Cache: HIT`, internationale Entsprechung `STALE` mit `x-nextjs-prerender: 1`. Die geprüften HTML-Antworten waren 67’626 bzw. 66’112 Bytes gross. Kein vollständiger Datensatz im Seiteninhalt; bei einer Neugenerierung liest der Server allerdings den weltweiten Fach-Shard.
