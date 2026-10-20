@@ -2,6 +2,15 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Google-Ads-Paywall: A/B-Test mit automatischer Auswahl (20.10.2026)
+
+- Auftrag: direkte Zahlung im Hero gegen Gratis-Einstieg mit späterem Kauf testen, 50/50 für Google Ads. Nach Rückfrage ausdrücklich **nach 14 Tagen die höhere Kaufquote übernehmen, auch bei wenig Daten**; keine Verlängerung bis statistische Signifikanz. Gleichstand/keine Käufe → `direct`.
+- `google-ads-paywall-v1`: pro Site 14 Tage ab erstem Teilnehmer, automatische atomare Auswahl beim nächsten berechtigten Besuch nach Frist. Käufer innerhalb des festen Testfensters geteilt durch zugewiesene Browser; weniger Verkäufe können bei weniger Besuchern gewinnen. Gespeicherter Gewinner bleibt fest, neue Besucher bekommen ihn. Alte Teilnehmer behalten ihre Variante bis zum Ablauf nach 14 Tagen. Gewinner-Rollout zählt nicht weiter in Testkohorten.
+- Browserzuordnung nur bei erlaubter bestehender Messung, Google-Tag und funktionierendem Speicher/Usage-Redis; bereits freigeschaltete Käufer werden nicht neu zugeteilt. Organische Besucher bleiben normal, zurückkehrende Testteilnehmer behalten die Variante ohne UTM. Bei Ablehnung keine weitere Zuordnung. Keine Antworten/Verläufe im Test; Datenschutz DE/EN/FR/IT ergänzt. Individuelle Redis-Kennungen maximal 90 Tage, Gewinner samt aggregiertem Entscheidungsstand bleibt gespeichert.
+- Bestehender Stripe-Checkout bekommt serverseitig geprüfte Testmetadaten. Signierte Stripe-Webhooks zählen bezahlte Käufe atomar, auch ohne Browser-Rückkehr; Wiederholungen doppeln weder Käufer noch Zahlungen. Pro Browser Kaufzuordnung 14 Tage; nach der Entscheidung eingehende Käufe erscheinen separat und ändern den Gewinner nicht. Preis, Freischaltung und Tokenprüfung unverändert. TWINT-Logo und KI-Angebot bleiben erhalten.
+- `pnpm experiment:report` nutzt bestehende Usage-Admin-Konfiguration und zeigt Start/Frist je Site, beide Kaufquoten, Checkouts, Zahlungen, Umsatz und Entscheidungssnapshot. Kein Zusatzsetup in GA4. Bei wenig Traffic ist die gewünschte automatische Auswahl ausdrücklich keine Signifikanzbehauptung; durch das feste Zeitfenster können schneller bezahlende Abläufe profitieren.
+- Geprüft: 329 Tests inklusive echter atomarer Lua-Ausführung in isoliertem lokalen Redis, Zahlungswiederholungen, Widerruf/Rennen, 14-Tage-Grenze, Gewinner nach Quote statt Anzahl, unveränderlicher Gewinner und API-Adminschutz; Typprüfung, Validierungsmanifest und Webpack-Produktionsbuild mit 1’612 Seiten erfolgreich. Beide Varianten mit lokalem Test-Redis im Browser bestätigt, TWINT sichtbar; Navigation ohne Ads-Parameter behält Variante. Keine synthetischen Teilnehmer in Produktion und keine echte Zahlung erzeugt.
+
 ## Tageswerte im Usage-Report (20.10.2026)
 
 - Auf ausdrücklichen Auftrag ab jetzt täglich zählen: `pnpm usage:report YYYY-MM-DD`, API `GET /api/usage?day=YYYY-MM-DD`, Kalenderzeit Europe/Zurich mit Sommer-/Winterzeit. Bisherige Monatssummen und `?month=YYYY-MM` bleiben UTC und behalten ihre Redis-Keys.

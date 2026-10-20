@@ -3,6 +3,7 @@ import { ProfessionalNotice } from '../ui/professional-notice.tsx'
 import { professionalText } from '@/lib/site/professional-text.ts'
 import { USAGE_STATS } from '@/lib/usage-stats.ts'
 import { productMeasureText } from '@/lib/site/product-measure-text.ts'
+import { experimentPrivacyText } from '@/lib/site/experiment-text.ts'
 import { cloneElement, isValidElement } from 'react'
 import type { ReactNode } from 'react'
 import { regionalize } from '@/lib/site/regional.ts'
@@ -397,7 +398,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <h2>Liens partagés</h2>
         <p>Le résultat partagé est placé après le caractère « # » dans le lien. Cette partie n’est pas envoyée aux serveurs. Toute personne disposant du lien peut voir les domaines, les scores et le profil qu’il contient. Le partage est facultatif.</p>
         <h2>Cookies et mesure</h2>
-      {USAGE_STATS && <p>{productMeasureText(k.locale)}</p>}
+      {USAGE_STATS && <><p>{productMeasureText(k.locale)}</p>{GOOGLE_TAG && <p>{experimentPrivacyText(k.locale)}</p>}</>}
         {!GOOGLE_TAG && !VERCEL_ANALYTICS && !USAGE_STATS && <p>Nous n’utilisons ni cookies de suivi ni outil d’analyse d’audience.</p>}
         {VERCEL_ANALYTICS && (
           <p>Vercel Web Analytics compte les pages vues sans cookies et sans identifiant qui te reconnaîtrait d’un jour à l’autre. Vercel reçoit pour cela la page consultée, la page de provenance, ton pays et le type d’appareil. Nous retirons auparavant de l’adresse les éléments comme les codes de connexion ou les numéros de paiement. Base juridique : notre intérêt légitime à savoir comment le site est utilisé (art. 6, al. 1, let. f RGPD).</p>
@@ -446,7 +447,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         <h2>Link condivisi</h2>
         <p>Il risultato condiviso si trova dopo il carattere «#» nel link. Questa parte non viene inviata ai server. Chiunque abbia il link può vedere aree, punteggi e profilo inclusi. La condivisione è facoltativa.</p>
         <h2>Cookie e misurazione</h2>
-      {USAGE_STATS && <p>{productMeasureText(k.locale)}</p>}
+      {USAGE_STATS && <><p>{productMeasureText(k.locale)}</p>{GOOGLE_TAG && <p>{experimentPrivacyText(k.locale)}</p>}</>}
         {!GOOGLE_TAG && !VERCEL_ANALYTICS && !USAGE_STATS && <p>Non usiamo cookie di tracciamento né strumenti di analisi.</p>}
         {VERCEL_ANALYTICS && (
           <p>Vercel Web Analytics conta le pagine visitate senza cookie e senza un identificativo che ti riconosca da un giorno all’altro. Per farlo Vercel riceve la pagina visitata, la pagina di provenienza, il tuo Paese e il tipo di dispositivo. Prima togliamo dall’indirizzo parti come codici di accesso o numeri di pagamento. Base giuridica: il nostro interesse legittimo a sapere come viene usato il sito (art. 6 par. 1 lett. f GDPR).</p>
@@ -534,7 +535,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
         </p>
 
         <h2>Cookies und Messung</h2>
-      {USAGE_STATS && <p>{productMeasureText(k.locale)}</p>}
+      {USAGE_STATS && <><p>{productMeasureText(k.locale)}</p>{GOOGLE_TAG && <p>{experimentPrivacyText(k.locale)}</p>}</>}
         {!GOOGLE_TAG && !VERCEL_ANALYTICS && !USAGE_STATS && <p>Wir setzen keine Tracking-Cookies und nutzen keine Analyse-Tools.</p>}
         {VERCEL_ANALYTICS && (
           <p>
@@ -642,7 +643,7 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
       </p>
 
       <h2>Cookies and measurement</h2>
-      {USAGE_STATS && <p>{productMeasureText(k.locale)}</p>}
+      {USAGE_STATS && <><p>{productMeasureText(k.locale)}</p>{GOOGLE_TAG && <p>{experimentPrivacyText(k.locale)}</p>}</>}
       {!GOOGLE_TAG && !VERCEL_ANALYTICS && !USAGE_STATS && <p>We set no tracking cookies and use no analytics tools.</p>}
       {VERCEL_ANALYTICS && (
         <p>

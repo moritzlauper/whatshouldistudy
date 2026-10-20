@@ -10,6 +10,7 @@ import { CONSENT_MODE, GOOGLE_TAG, TAG_ID, VERCEL_ANALYTICS, cleanUrl, clearGoog
 import type { Consent, ConsentRule } from '@/lib/measure.ts'
 import { useConfig } from './price.tsx'
 import { useSite } from './site-context.tsx'
+import { clearPaywallAssignment } from '@/lib/paywall-experiment-client.ts'
 
 /** The stored choice; 'none' before one is made, 'unknown' while rendering on the server. */
 function useStoredConsent(): Consent | 'none' | 'unknown' {
@@ -44,6 +45,9 @@ export function Measurement() {
   useEffect(() => {
     if (ready) updateConsent(consent)
   }, [ready, consent])
+  useEffect(() => {
+    if (stored === 'denied') clearPaywallAssignment(site)
+  }, [stored, site])
   useEffect(() => {
     if (load) pageView()
   }, [load, path])

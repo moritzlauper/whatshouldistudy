@@ -416,14 +416,64 @@ under *Measurement* in `.env.example`; without them nothing loads.
 - **Vercel Web Analytics** for cookieless page counts of every visitor
   (`NEXT_PUBLIC_VERCEL_ANALYTICS=1`).
 
-The landing hero offers checkout first for Google Ads arrivals, with the local
-one-time price and AI analysis explicitly included. Detection uses nonempty
+The landing hero recognises Google Ads arrivals using nonempty
 `gclid`, `gbraid`, `wbraid`, or `utm_source=google` with a paid medium (`cpc`,
-`ppc`, `paidsearch`, `paid_search`, `paid-search`, `cpm`, `display`). It reads
-only the current URL, stores nothing, and does not depend on analytics consent.
-Other arrivals keep the free-start hero; sales-paused sites keep their normal
-entry. Both variants use the existing checkout and paid unlock flow.
+`ppc`, `paidsearch`, `paid_search`, `paid-search`, `cpm`, `display`).
+Other arrivals keep the free-start hero unless they are returning participants.
+Sales-paused sites retain their normal entry.
 Preview locally at `/schweiz?utm_source=google&utm_medium=cpc`.
+
+### Google Ads paywall A/B test
+
+`google-ads-paywall-v1` randomly assigns eligible unpaid Ads visitors 50/50:
+`direct` shows the buy-first hero (local one-time price, AI analysis and TWINT
+logo), `late` shows the usual free-start hero with payment on the results page.
+Only the hero/badge change; other free entry links remain available. Prices,
+Stripe payment and signed unlock checks remain the same.
+
+Each site runs for **14 days from its first participant**. On the first eligible
+visit after that deadline, one atomic Redis operation chooses the higher
+**unique buyer / assigned browser** rate, using purchases made during that
+14-day test and confirmed by webhook before selection. On the owner's explicit
+request, selection happens even with small samples: this is an automatic
+business rule, **not a statistically established winner**. Ties, including zero
+sales, select `direct`. The saved winner is permanent for this experiment and
+new eligible Ads visitors receive it; returning participants retain their
+original assignment until its 14-day expiry. Rollout visitors do not enter the
+randomised test totals. Later purchases cannot change the saved winner.
+
+Assignment requires the existing measurement choice to permit it, a configured
+Google tag, working browser storage and the production usage Redis connection.
+A random browser UUID and variant persist for up to 14 days; the server stores
+only its hash, site, variant, assignment time and checkout/purchase flags.
+Checkout sends the validated hash/variant as Stripe metadata. Only verified,
+paid Stripe webhook sessions count as purchases, deduplicated atomically;
+repeat payments add revenue but not a second buyer. Attribution expires after
+14 days per participant. Later purchases inside that window appear separately
+from buyers within the fixed test window. Refusing measurement clears local
+assignment and stops future attribution; existing aggregate counts remain.
+Individual Redis identifiers expire within 90 days; the aggregate winner and
+decision snapshot persist. Privacy notices describe this in DE/EN/FR/IT.
+
+Without measurement permission or storage, tagged arrivals retain the direct
+hero and are outside the experiment. Existing buyers are not newly enrolled.
+The denominator is assigned browsers, not unique people or button clicks.
+Cleared storage, bots, request failures and blockers affect coverage. Conversion
+latency can favour the faster flow near the deadline; this fixed-window rule
+does not wait an additional 14 days before choosing. Compare sites separately.
+Revenue is gross paid revenue before refunds.
+
+```sh
+pnpm experiment:report
+```
+
+Uses the same `USAGE_REPORT_URL`, `USAGE_ADMIN_TOKEN` and optional Vercel bypass
+as `usage:report`. The protected `GET /api/paywall-experiment` reports each site's
+start/deadline, saved winner and decision snapshot, assigned visitors, unique
+checkouts/buyers, payments and revenue. No GA4 custom dimensions are required.
+Do not use synthetic production arrivals to test assignment: they affect
+conversion denominators. The actual Redis/Lua integration test runs against a
+disposable local Redis with `REDIS_TEST_CLI` and `REDIS_TEST_PORT`.
 
 ### Free aggregate usage statistics
 

@@ -11,6 +11,7 @@ import { reportOfferText } from '@/lib/site/report-offer.ts'
 import { useConfig } from './price.tsx'
 import { useSite } from './site-context.tsx'
 import { PayWithTwint } from './twint.tsx'
+import { paywallParticipant } from '@/lib/paywall-experiment-client.ts'
 
 /** Buy before completing the analysis, through the same checkout as the report. */
 export function LandingCheckout({ entry = false }: { entry?: boolean }) {
@@ -34,6 +35,8 @@ export function LandingCheckout({ entry = false }: { entry?: boolean }) {
     measureCheckout(price)
     try {
       const query = new URLSearchParams({ site, back: base, locale, o: window.location.origin, from: 'landing' })
+      const participant = paywallParticipant(site, config.consent)
+      if (participant) query.set('ab', participant)
       const res = await fetch(withBase(`/api/checkout?${query}`), { method: 'POST' })
       const result = await res.json() as { url?: string; error?: string }
       if (!res.ok || !result.url) throw new Error(result.error ?? t.programmes.checkoutFailed)

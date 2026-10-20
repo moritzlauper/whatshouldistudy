@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server'
+import { after, NextResponse } from 'next/server'
 import { priceForSite, stripeAmount } from '@/lib/pricing.ts'
 import { returnTo } from '@/lib/server/origin.ts'
 import { reportPriceId } from '@/lib/server/stripe.ts'
 import { paymentMode, visitorCountry } from '@/lib/server/token.ts'
 import { SITES, isLocal } from '@/lib/site/config.ts'
+import { checkoutExperiment, countExperimentCheckout } from '@/lib/server/paywall-experiment.ts'
 
 /**
  * Starts a Stripe Checkout session in the site's currency (or, without
@@ -39,6 +40,8 @@ export async function POST(req: Request) {
     'metadata[product]': 'wsis_report',
     'metadata[locale]': locale,
   })
+  const experiment = await checkoutExperiment(site, new URL(req.url).searchParams.get('ab')).catch(() => null)
+  if (experiment) for (const [key, value] of Object.entries(experiment)) form.set(`metadata[${key}]`, value)
   const stripePrice = await reportPriceId(price).catch(() => null)
   if (stripePrice) {
     form.set('line_items[0][price]', stripePrice)
@@ -59,5 +62,9 @@ export async function POST(req: Request) {
   })
   const session = (await res.json()) as { url?: string; error?: { message?: string } }
   if (!res.ok || !session.url) return NextResponse.json({ error: session.error?.message ?? 'Could not start checkout.' }, { status: 502 })
+  if (experiment) after(async () => {
+    try { await countExperimentCheckout(site, experiment) }
+    catch { console.warn('Experiment checkout count unavailable') }
+  })
   return NextResponse.json({ url: session.url })
 }

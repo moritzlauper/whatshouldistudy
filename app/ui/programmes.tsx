@@ -32,6 +32,7 @@ import { useSite } from './site-context.tsx'
 import { Burst } from './shapes.tsx'
 import { PayWithTwint } from './twint.tsx'
 import { measureCheckout } from '@/lib/measure.ts'
+import { paywallParticipant } from '@/lib/paywall-experiment-client.ts'
 
 interface Teaser {
   total: number
@@ -445,6 +446,8 @@ function Locked({ teaser, config, hideFirst, onUnlocked }: { teaser: Teaser | nu
     measureCheckout(config?.price ?? priceForSite(site))
     try {
       const query = new URLSearchParams({ site, back: base, locale, o: window.location.origin })
+      const participant = paywallParticipant(site, config?.consent)
+      if (participant) query.set('ab', participant)
       const res = await fetch(withBase(`/api/checkout?${query}`), { method: 'POST' })
       const j = (await res.json()) as { url?: string; error?: string }
       if (!j.url) throw new Error(j.error ?? t.programmes.checkoutFailed)
