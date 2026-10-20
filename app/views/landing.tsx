@@ -119,17 +119,32 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
         </div>
       </section>
 
-      {/* Answer the questionnaire, find programmes, compare their content. */}
+      {/* Answer the questionnaire, then what the report gives you: programmes and the AI comparison. */}
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="grid gap-5 md:grid-cols-3">
-          {t.landing.cols.map(([title, text], i) => (
-            <div key={title} className="card card-pop on-color p-7" style={{ background: ['var(--yellow)', 'var(--pink)', 'var(--sky)'][i], transform: `rotate(${[-1.2, 0.8, -0.6][i]}deg)` }}>
-              <div className="font-display text-5xl opacity-30">0{i + 1}</div>
-              <h2 className="mt-2 font-display text-3xl">{title}</h2>
-              <p className="mt-3 leading-relaxed text-muted">{text}</p>
+          {t.landing.cols.map((step, i) => (
+            <div key={step.title} className="card card-pop on-color flex flex-col p-7" style={{ background: ['var(--yellow)', 'var(--pink)', 'var(--sky)'][i], transform: `rotate(${[-1.2, 0.8, -0.6][i]}deg)` }}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="font-display text-5xl opacity-30">0{i + 1}</div>
+                <span className="mt-1 rounded-full border-2 border-line bg-surface px-3 py-0.5 text-right text-xs font-extrabold text-ink">{step.tag}</span>
+              </div>
+              <h2 className="mt-2 font-display text-3xl">{step.title}</h2>
+              <p className="mt-3 leading-relaxed text-muted">{step.text}</p>
+              <ul className="mt-5 grid gap-2.5 border-t-2 border-on-color/20 pt-5 text-sm leading-relaxed">
+                {step.points.map((point) => (
+                  <li key={point} className="flex gap-2.5">
+                    <span className="font-extrabold" aria-hidden="true">✓</span> {point}
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
+        {!SALES_PAUSED[site] && (
+          <p className="mt-8 text-center font-semibold">
+            {t.landing.colsNote[0]} <a href="#pricing" className="text-accent underline underline-offset-4"><Price site={site} /></a> {t.landing.colsNote[1]}
+          </p>
+        )}
       </section>
 
       {/* Concrete AI benefits; importing history remains optional. */}

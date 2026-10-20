@@ -109,6 +109,8 @@ const WORK_IT: typeof WORK_EN = {
 
 /** A source card on the landing page; Reddit only shows where its sign-in is set up. */
 export type LandingSource = { id: string; glyph: string; name: string; how: string; what: string; n: string; color: string; badge?: 'best' | 'optional' }
+/** One of the three steps under the hero: what you do, and what the report gives you. */
+export type LandingStep = { tag: string; title: string; text: string; points: string[] }
 
 /** German long-form explanation; DE/AT spelling is applied by the view. */
 export const HOW_DE = {
@@ -282,10 +284,26 @@ const en = {
     totals: (p: string, i: string) => `${p} programmes at ${i} institutions, refreshed every week.`,
     marquee: 'fields to discover',
     cols: [
-      ['Answer the questionnaire', 'Start with your interests, personality, school subjects and priorities. Add your own data afterwards if you like.'],
-      ['Find programmes', 'See which fields fit, then unlock programmes at specific universities, ranked for your profile and filters.'],
-      ['Compare the details', 'In the full report, ask AI to read the official programme pages and compare them with your interests, subjects and priorities.'],
-    ] as Array<[string, string]>,
+      {
+        tag: 'About 10 minutes',
+        title: 'Fill in the questionnaire',
+        text: 'You answer questions about activities you enjoy and see straight away which fields of study suit you.',
+        points: ['24 interest questions based on the RIASEC model used in study counselling', '20 optional personality questions (Big Five)', 'Your favourite school subjects and what matters to you in a degree', 'Optional: Google My Activity, Instagram or TikTok on top'],
+      },
+      {
+        tag: 'In the full report',
+        title: 'Your #1 field and every matching programme',
+        text: 'The report ranks programmes at specific universities for your profile and explains each match.',
+        points: ['Your best field with all the evidence, plus your top 5 programmes', 'Per programme: the fee for your citizenship, admission and a link to the official page', 'Programmes in the US, UK, France, Switzerland, the Netherlands, Australia and more, plus research-strong universities in 60+ countries', 'Filter by city, level and country, search and CSV export'],
+      },
+      {
+        tag: 'In the full report · AI',
+        title: 'AI compares the content',
+        text: 'If you want, AI compares up to 60 of your matches with your answers, based on the official programme pages. It runs at Infomaniak in Swiss data centres.',
+        points: ['What you would study and which specialisations match your topics', 'How well each programme fits, from “Little in common” to “Very close”, with reasons', 'What to look into before you apply'],
+      },
+    ] as LandingStep[],
+    colsNote: ['Steps 2 and 3 are part of the full report:', 'once, valid for 12 months, no subscription.'],
     sourcesTitle: 'Your interests from one export.',
     sourcesSub: 'Google My Activity is enough to get started. Other sources are optional.',
     explore: {
@@ -988,10 +1006,26 @@ const deCH: Dict = {
     totals: (p: string, i: string) => `${p} Studiengänge an ${i} Hochschulen, jede Woche aktualisiert.`,
     marquee: 'Fächer zum Entdecken',
     cols: [
-      ['Beantworte den Fragebogen', 'Starte mit deinen Interessen, deiner Persönlichkeit, Schulfächern und Werten. Eigene Daten kannst du danach freiwillig ergänzen.'],
-      ['Finde Studiengänge', 'Sieh, welche Fächer passen. Im vollen Report findest du Studiengänge an konkreten Hochschulen, nach deinem Profil und deinen Filtern sortiert.'],
-      ['Vergleiche die Inhalte', 'Auf Wunsch liest die KI im vollen Report die offiziellen Studiengangseiten und vergleicht sie mit deinen Interessen, Schulfächern und Werten.'],
-    ] as Array<[string, string]>,
+      {
+        tag: 'Etwa 10 Minuten',
+        title: 'Fragebogen ausfüllen',
+        text: 'Du beantwortest Fragen zu Tätigkeiten, die dir Freude machen, und siehst danach sofort, welche Studienfächer zu dir passen.',
+        points: ['24 Interessenfragen nach dem RIASEC-Modell der Studienberatung', '20 freiwillige Persönlichkeitsfragen (Big Five)', 'Deine Lieblingsfächer und was dir im Studium wichtig ist', 'Freiwillig als Ergänzung: Google «Meine Aktivitäten», Instagram oder TikTok'],
+      },
+      {
+        tag: 'Im vollen Report',
+        title: 'Dein Platz 1 und alle passenden Studiengänge',
+        text: 'Der Report sortiert die Studiengänge an Schweizer Hochschulen nach deinem Profil und begründet jeden Treffer.',
+        points: ['Dein bestes Fach mit allen Belegen und deine Top 5 Studiengänge', 'Pro Studiengang: Gebühren, Dauer, Sprache und Zulassung (Matura, BM, Passerelle), mit Link zur offiziellen Seite', 'Uni, ETH, FH und PH im Vergleich, dazu Frankreich, UK, USA und 60 weitere Länder', 'Filter nach Ort, Stufe und Land, Suche und CSV-Export'],
+      },
+      {
+        tag: 'Im vollen Report · KI',
+        title: 'Die KI vergleicht die Inhalte',
+        text: 'Auf Wunsch vergleicht die KI bis zu 60 deiner Treffer mit deinen Antworten. Grundlage sind die offiziellen Seiten der Studiengänge. Sie läuft bei Infomaniak in Schweizer Rechenzentren.',
+        points: ['Was du dort lernst und welche Vertiefungen zu deinen Themen passen', 'Wie gut jeder Studiengang zu dir passt, von «Wenig gemeinsam» bis «Passt sehr gut», mit Begründung', 'Was du vor der Bewerbung abklären solltest'],
+      },
+    ] as LandingStep[],
+    colsNote: ['Schritt 2 und 3 gehören zum vollen Report:', 'einmalig, 12 Monate gültig, kein Abo.'],
     sourcesTitle: 'Deine Interessen aus einem Export.',
     sourcesSub: 'Google «Meine Aktivitäten» genügt für den Einstieg. Weitere Quellen sind freiwillig.',
     explore: {
@@ -1628,7 +1662,17 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
   landing: {
     lead: (n: number) =>
       `Finde deinen Weg zu einem passenden Studiengang: mit einem kurzen Fragebogen oder zusätzlich deinen eigenen Daten. Du erhältst passende Fächer aus ${n} Studienfeldern. Für Studiengänge in Deutschland verlinken wir pro Fach auf die Studiensuche der Bundesagentur für Arbeit. Der kostenpflichtige Report ergänzt dein bestes Fach mit Belegen und passende Studiengänge in den abgedeckten Auslandsländern.`,
-    fullList: ['Dein bestes Fach, mit allen Belegen', 'Deine Fächer, für dich sortiert, je mit Link zur Studiensuche der Bundesagentur für Arbeit', 'Passende Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studiengänge markiert'],
+    cols: [
+      deCH.landing.cols[0],
+      {
+        tag: 'Im vollen Report',
+        title: 'Dein Platz 1 und passende Studiengänge',
+        text: 'Der Report sortiert deine Fächer und die Studiengänge aus unserer Datenbank nach deinem Profil. Für Deutschland verlinken wir pro Fach auf die Studiensuche der Bundesagentur für Arbeit.',
+        points: ['Dein bestes Fach mit allen Belegen und deine Top 5 Studiengänge', 'Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform, Ort und Link, wo die Quelle sie nennt', 'Filter nach Ort, Stufe und Land, Suche und CSV-Export'],
+      },
+      deCH.landing.cols[2],
+    ],
+    fullList: ['Dein bestes Fach, mit allen Belegen', 'Deine Fächer, für dich sortiert, je mit Link zur Studiensuche der Bundesagentur für Arbeit','Passende Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studiengänge markiert'],
     faq: [
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Die Daten gelangen direkt auf dein Gerät. Zusammenfassungen und eingelesene Exporte aus Meine Aktivitäten und YouTube bleiben in diesem Browser, bis du die Quelle oder alle deine Daten löschst. Nur wenn du die KI-Inhaltsanalyse ausdrücklich aktivierst, gehen ausgewählte Exporttitel und Kanalnamen über unseren Server an Infomaniak. Wir speichern diese Anfrage nicht.'],
       ['Ist das ein richtiger psychologischer Test?', 'Er baut auf gesicherter Forschung auf, ist aber kein geprüfter Test. Die Interessenfragen folgen dem RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, mit vier Tätigkeiten pro Bereich. Die Fragen sind unsere eigenen und noch nicht in einer Studie geprüft. Der Teil zur Persönlichkeit ist der Mini-IPIP, eine veröffentlichte Big-Five-Skala mit 20 Fragen, in eigener Übersetzung. Die Analyse deiner Daten ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
@@ -1670,7 +1714,17 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
   landing: {
     lead: (n: number) =>
       `Finde deinen Weg zu einem passenden Studiengang: mit einem kurzen Fragebogen oder zusätzlich deinen eigenen Daten. Du erhältst passende Fächer aus ${n} Studienfeldern. Für Studiengänge in Österreich verlinken wir pro Fach auf studienwahl.at. Der kostenpflichtige Report ergänzt dein bestes Fach mit Belegen und passende Studiengänge in den abgedeckten Auslandsländern.`,
-    fullList: ['Dein bestes Fach, mit allen Belegen', 'Deine Fächer, für dich sortiert, je mit Link zu studienwahl.at', 'Passende Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studien markiert'],
+    cols: [
+      deCH.landing.cols[0],
+      {
+        tag: 'Im vollen Report',
+        title: 'Dein Platz 1 und passende Studien',
+        text: 'Der Report sortiert deine Fächer und die Studien aus unserer Datenbank nach deinem Profil. Für Österreich verlinken wir pro Fach auf studienwahl.at.',
+        points: ['Dein bestes Fach mit allen Belegen und deine Top 5 Studien', 'Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform, Ort und Link, wo die Quelle sie nennt', 'Filter nach Ort, Stufe und Land, Suche und CSV-Export'],
+      },
+      deCH.landing.cols[2],
+    ],
+    fullList: ['Dein bestes Fach, mit allen Belegen', 'Deine Fächer, für dich sortiert, je mit Link zu studienwahl.at','Passende Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studien markiert'],
     faq: [
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Die Daten gelangen direkt auf dein Gerät. Zusammenfassungen und eingelesene Exporte aus Meine Aktivitäten und YouTube bleiben in diesem Browser, bis du die Quelle oder alle deine Daten löschst. Nur wenn du die KI-Inhaltsanalyse ausdrücklich aktivierst, gehen ausgewählte Exporttitel und Kanalnamen über unseren Server an Infomaniak. Wir speichern diese Anfrage nicht.'],
       ['Ist das ein richtiger psychologischer Test?', 'Er baut auf gesicherter Forschung auf, ist aber kein geprüfter Test. Die Interessenfragen folgen dem RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, mit vier Tätigkeiten pro Bereich. Die Fragen sind unsere eigenen und noch nicht in einer Studie geprüft. Der Teil zur Persönlichkeit ist der Mini-IPIP, eine veröffentlichte Big-Five-Skala mit 20 Fragen, in eigener Übersetzung. Die Analyse deiner Daten ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
@@ -1749,10 +1803,26 @@ const frCH = mergeDeep(en, {
     cta: 'Trouver ma filière', cta2: "Que fait l’IA ?", marquee: 'domaines à découvrir',
     totals: (p: string, i: string) => `${p} formations dans ${i} hautes écoles, actualisées chaque semaine.`,
     cols: [
-      ['Réponds au questionnaire', 'Commence par tes intérêts, ta personnalité, tes matières et tes priorités. Tu peux ensuite ajouter tes données si tu le souhaites.'],
-      ['Trouve des filières', 'Découvre les domaines qui te conviennent, puis débloque les filières de hautes écoles précises, classées selon ton profil et tes filtres.'],
-      ['Compare les contenus', 'Dans le rapport complet, demande à l’IA de lire les pages officielles des filières et de les comparer à tes intérêts, matières et priorités.'],
-    ] as Array<[string, string]>,
+      {
+        tag: 'Environ 10 minutes',
+        title: 'Remplis le questionnaire',
+        text: 'Tu réponds à des questions sur les activités qui te plaisent et tu vois tout de suite quels domaines d’études te correspondent.',
+        points: ['24 questions d’intérêts selon le modèle RIASEC utilisé en orientation', '20 questions de personnalité facultatives (Big Five)', 'Tes matières préférées et ce qui compte pour toi dans tes études', 'En complément, si tu veux : Google « Mon activité », Instagram ou TikTok'],
+      },
+      {
+        tag: 'Dans le rapport complet',
+        title: 'Ton premier domaine et toutes les filières qui te correspondent',
+        text: 'Le rapport classe les filières des hautes écoles suisses selon ton profil et explique chaque correspondance.',
+        points: ['Ton meilleur domaine avec tous les éléments à l’appui et tes 5 meilleures filières', 'Pour chaque filière : frais, durée, langue et admission (maturité gymnasiale, maturité professionnelle, passerelle), avec lien vers la page officielle', 'Université, EPF, HES et HEP comparées, plus la France, le Royaume-Uni, les États-Unis et 60 autres pays', 'Filtres par lieu, niveau et pays, recherche et export CSV'],
+      },
+      {
+        tag: 'Dans le rapport complet · IA',
+        title: 'L’IA compare les contenus',
+        text: 'Si tu le souhaites, l’IA compare jusqu’à 60 de tes résultats avec tes réponses, à partir des pages officielles des filières. Elle tourne chez Infomaniak, dans des centres de données en Suisse.',
+        points: ['Ce que tu y apprends et quelles spécialisations correspondent à tes thèmes', 'À quel point chaque filière te correspond, de « Peu de points communs » à « Très proche », avec explication', 'Ce que tu dois vérifier avant de postuler'],
+      },
+    ] as LandingStep[],
+    colsNote: ['Les étapes 2 et 3 font partie du rapport complet :', 'en une fois, valable 12 mois, sans abonnement.'],
     sourcesTitle: 'Tes intérêts à partir d’un seul export.', sourcesSub: 'Google « Mon activité » suffit pour commencer. Les autres sources sont facultatives.',
     explore: { title: 'Envie d’explorer par toi-même ?', sub: 'Sans historique ni questionnaire : parcours les domaines ou va directement aux formations.', fieldsTitle: 'Explorer les domaines', fieldsText: (n: number) => `${n} domaines d’études, chacun avec sa page : pour qui il est fait, quelles branches scolaires aident et où il mène.`, fieldsCta: 'Voir les domaines', programmesTitle: 'Parcourir les formations', programmesText: (p: string, i: string) => `${p} formations dans ${i} hautes écoles, classées par domaine.`, programmesCta: 'Voir les formations' },
     sources: [
@@ -2037,10 +2107,26 @@ const itCH = mergeDeep(en, {
     cta: 'Trova il mio corso', cta2: "Cosa fa l’IA?", marquee: 'aree da scoprire', sourcesTitle: 'I tuoi interessi da un solo export.',
     totals: (p: string, i: string) => `${p} corsi in ${i} scuole universitarie, aggiornati ogni settimana.`,
     cols: [
-      ['Rispondi al questionario', 'Inizia con interessi, personalità, materie e priorità. Se vuoi, puoi aggiungere i tuoi dati in seguito.'],
-      ['Trova i corsi', 'Scopri le aree adatte a te, poi sblocca i corsi in istituti precisi, ordinati secondo il tuo profilo e i tuoi filtri.'],
-      ['Confronta i contenuti', 'Nel report completo puoi chiedere all’IA di leggere le pagine ufficiali dei corsi e confrontarle con interessi, materie e priorità.'],
-    ] as Array<[string, string]>,
+      {
+        tag: 'Circa 10 minuti',
+        title: 'Compila il questionario',
+        text: 'Rispondi a domande sulle attività che ti piacciono e vedi subito quali aree di studio fanno per te.',
+        points: ['24 domande sugli interessi secondo il modello RIASEC usato nell’orientamento', '20 domande facoltative sulla personalità (Big Five)', 'Le tue materie preferite e ciò che conta per te negli studi', 'Se vuoi, in aggiunta: Google «Le mie attività», Instagram o TikTok'],
+      },
+      {
+        tag: 'Nel report completo',
+        title: 'La tua prima area e tutti i corsi adatti',
+        text: 'Il report ordina i corsi delle scuole universitarie svizzere secondo il tuo profilo e spiega ogni corrispondenza.',
+        points: ['La tua area migliore con tutte le prove e i tuoi 5 corsi migliori', 'Per ogni corso: tasse, durata, lingua e ammissione (maturità liceale, maturità professionale, passerella), con link alla pagina ufficiale', 'Università, Politecnici, SUP e ASP a confronto, più Francia, Regno Unito, Stati Uniti e altri 60 Paesi', 'Filtri per luogo, livello e Paese, ricerca ed export CSV'],
+      },
+      {
+        tag: 'Nel report completo · IA',
+        title: 'L’IA confronta i contenuti',
+        text: 'Se vuoi, l’IA confronta fino a 60 dei tuoi risultati con le tue risposte, partendo dalle pagine ufficiali dei corsi. Funziona presso Infomaniak, in centri dati in Svizzera.',
+        points: ['Cosa impari e quali specializzazioni corrispondono ai tuoi temi', 'Quanto ogni corso fa per te, da «Poco in comune» a «Molto vicino», con motivazione', 'Cosa verificare prima della candidatura'],
+      },
+    ] as LandingStep[],
+    colsNote: ['I passi 2 e 3 fanno parte del report completo:', 'una tantum, valido 12 mesi, nessun abbonamento.'],
     sourcesSub: 'Google «Le mie attività» basta per iniziare. Le altre fonti sono facoltative.', privacyTitle: 'I tuoi dati restano tuoi.',
     explore: { title: 'Preferisci esplorare da solo?', sub: 'Senza cronologia né questionario: sfoglia le aree di studio o vai direttamente ai corsi.', fieldsTitle: 'Esplora le aree', fieldsText: (n: number) => `${n} aree di studio, ognuna con la sua pagina: per chi è adatta, quali materie scolastiche aiutano e dove porta.`, fieldsCta: 'Vedi le aree', programmesTitle: 'Sfoglia i corsi', programmesText: (p: string, i: string) => `${p} corsi in ${i} scuole universitarie, ordinati per area.`, programmesCta: 'Vedi i corsi' },
     sources: [
