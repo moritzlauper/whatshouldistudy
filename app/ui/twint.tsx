@@ -35,7 +35,7 @@ export function PayWithTwint({ className = '', compact = false }: { className?: 
   const price = config?.price ?? priceForSite(site)
   if ((config && config.payments !== 'stripe') || price.currency !== 'CHF') return null
   const [before, after] = t.programmes.payTwint
-  if (compact) return <span className={className}>TWINT {after}</span>
+  if (compact) return <span className={`inline-flex items-center gap-2 ${className}`}><TwintLogo /> {after}</span>
   return (
     <p className={`flex flex-wrap items-center gap-2 text-sm font-semibold ${className}`}>
       {before} <TwintLogo /> {after}
