@@ -145,6 +145,40 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
             {t.landing.colsNote[0]} <a href="#pricing" className="text-accent underline underline-offset-4"><Price site={site} /></a> {t.landing.colsNote[1]}
           </p>
         )}
+
+        {/* Optional upload after step 1: what it reads and what it adds. */}
+        <div className="card card-pop on-color mt-10 grid gap-8 p-7 sm:p-9 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]" style={{ background: 'var(--lime)', transform: 'rotate(0.4deg)' }}>
+          <div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="font-display text-5xl opacity-30" aria-hidden="true">01+</div>
+              <span className="mt-1 rounded-full border-2 border-line bg-surface px-3 py-0.5 text-right text-xs font-extrabold text-ink">{t.landing.upload.tag}</span>
+            </div>
+            <h2 className="mt-2 font-display text-3xl sm:text-4xl">{t.landing.upload.title}</h2>
+            <p className="mt-3 leading-relaxed text-muted">{t.landing.upload.text}</p>
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
+              <span className="font-semibold">{t.landing.upload.also}</span>
+              {sources.filter((s) => s.id !== 'takeout').map((s) => (
+                <span key={s.id} className="rounded-full border-2 border-line bg-surface px-3 py-1 font-semibold text-ink">
+                  <span aria-hidden="true">{s.glyph}</span> {s.name}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <div className="rounded-2xl border-2 border-line bg-surface p-6 text-ink">
+              <p className="font-display text-xl">{t.landing.upload.pointsTitle}</p>
+              <ul className="mt-4 grid gap-2.5 text-sm leading-relaxed">
+                {t.landing.upload.points.map((point) => (
+                  <li key={point} className="flex gap-2.5">
+                    <span className="font-extrabold text-accent" aria-hidden="true">✓</span> {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="mt-4 text-sm leading-relaxed text-muted">🔒 {t.landing.upload.privacy}</p>
+            <a href="#sources" className="mt-3 font-semibold underline underline-offset-4">{t.landing.upload.cta} →</a>
+          </div>
+        </div>
       </section>
 
       {/* Concrete AI benefits; importing history remains optional. */}
@@ -210,7 +244,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
       </section>
 
       {/* Sources */}
-      <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+      <section id="sources" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-14 sm:px-6">
         <div className="max-w-3xl">
           <h2 className="font-display text-4xl sm:text-5xl">{t.landing.sourcesTitle}</h2>
           <p className="mt-4 text-lg text-muted">{t.landing.sourcesSub}</p>

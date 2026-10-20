@@ -288,7 +288,7 @@ const en = {
         tag: 'About 10 minutes',
         title: 'Fill in the questionnaire',
         text: 'You answer questions about activities you enjoy and see straight away which fields of study suit you.',
-        points: ['24 interest questions based on the RIASEC model used in study counselling', '20 optional personality questions (Big Five)', 'Your favourite school subjects and what matters to you in a degree', 'Optional: Google My Activity, Instagram or TikTok on top'],
+        points: ['24 interest questions based on the RIASEC model used in study counselling', '20 optional personality questions (Big Five)', 'Your favourite school subjects and what matters to you in a degree'],
       },
       {
         tag: 'In the full report',
@@ -304,6 +304,16 @@ const en = {
       },
     ] as LandingStep[],
     colsNote: ['Steps 2 and 3 are part of the full report:', 'once, valid for 12 months, no subscription.'],
+    upload: {
+      tag: 'Optional, after step 1',
+      title: 'Upload your data',
+      text: 'In the questionnaire you describe yourself. Your history shows what you actually spend your time on. The Google My Activity export helps most: we mainly read your YouTube history from it, plus Google searches and news titles. You request the export from Google and the email arrives after about 2–3 minutes.',
+      pointsTitle: 'What it tells you',
+      points: ['Which topics and channels have kept you busy for months', 'How your interests have shifted over the years', 'Pointers to fields you would not have thought of yourself', 'In the full report: AI sorts your video titles by content if you want'],
+      also: 'Also possible:',
+      privacy: 'Files are unpacked and analysed in your browser. Selected titles only go to the AI if you agree.',
+      cta: 'How to get your export',
+    },
     sourcesTitle: 'Your interests from one export.',
     sourcesSub: 'Google My Activity is enough to get started. Other sources are optional.',
     explore: {
@@ -1010,7 +1020,7 @@ const deCH: Dict = {
         tag: 'Etwa 10 Minuten',
         title: 'Fragebogen ausfüllen',
         text: 'Du beantwortest Fragen zu Tätigkeiten, die dir Freude machen, und siehst danach sofort, welche Studienfächer zu dir passen.',
-        points: ['24 Interessenfragen nach dem RIASEC-Modell der Studienberatung', '20 freiwillige Persönlichkeitsfragen (Big Five)', 'Deine Lieblingsfächer und was dir im Studium wichtig ist', 'Freiwillig als Ergänzung: Google «Meine Aktivitäten», Instagram oder TikTok'],
+        points: ['24 Interessenfragen nach dem RIASEC-Modell der Studienberatung', '20 freiwillige Persönlichkeitsfragen (Big Five)', 'Deine Lieblingsfächer und was dir im Studium wichtig ist'],
       },
       {
         tag: 'Im vollen Report',
@@ -1026,6 +1036,16 @@ const deCH: Dict = {
       },
     ] as LandingStep[],
     colsNote: ['Schritt 2 und 3 gehören zum vollen Report:', 'einmalig, 12 Monate gültig, kein Abo.'],
+    upload: {
+      tag: 'Freiwillig, nach Schritt 1',
+      title: 'Lade deine Daten hoch',
+      text: 'Im Fragebogen beschreibst du dich selbst. Dein Verlauf zeigt, womit du deine Zeit tatsächlich verbringst. Am meisten bringt der Export von Google «Meine Aktivitäten»: Daraus werten wir vor allem deinen YouTube-Verlauf aus, dazu Google-Suchen und News-Titel. Den Export forderst du bei Google an, das E-Mail kommt nach etwa 2–3 Minuten.',
+      pointsTitle: 'Was du daraus erfährst',
+      points: ['Welche Themen und Kanäle dich seit Monaten beschäftigen', 'Wie sich deine Interessen über die Jahre verschoben haben', 'Hinweise auf Fächer, an die du selbst nicht gedacht hättest', 'Im vollen Report: Die KI ordnet deine Videotitel auf Wunsch nach Inhalt ein'],
+      also: 'Auch möglich:',
+      privacy: 'Die Dateien werden in deinem Browser entpackt und ausgewertet. Ausgewählte Titel gehen nur an die KI, wenn du einwilligst.',
+      cta: 'So kommst du zu deinem Export',
+    },
     sourcesTitle: 'Deine Interessen aus einem Export.',
     sourcesSub: 'Google «Meine Aktivitäten» genügt für den Einstieg. Weitere Quellen sind freiwillig.',
     explore: {
@@ -1807,7 +1827,7 @@ const frCH = mergeDeep(en, {
         tag: 'Environ 10 minutes',
         title: 'Remplis le questionnaire',
         text: 'Tu réponds à des questions sur les activités qui te plaisent et tu vois tout de suite quels domaines d’études te correspondent.',
-        points: ['24 questions d’intérêts selon le modèle RIASEC utilisé en orientation', '20 questions de personnalité facultatives (Big Five)', 'Tes matières préférées et ce qui compte pour toi dans tes études', 'En complément, si tu veux : Google « Mon activité », Instagram ou TikTok'],
+        points: ['24 questions d’intérêts selon le modèle RIASEC utilisé en orientation', '20 questions de personnalité facultatives (Big Five)', 'Tes matières préférées et ce qui compte pour toi dans tes études'],
       },
       {
         tag: 'Dans le rapport complet',
@@ -1823,6 +1843,16 @@ const frCH = mergeDeep(en, {
       },
     ] as LandingStep[],
     colsNote: ['Les étapes 2 et 3 font partie du rapport complet :', 'en une fois, valable 12 mois, sans abonnement.'],
+    upload: {
+      tag: 'Facultatif, après l’étape 1',
+      title: 'Importe tes données',
+      text: 'Dans le questionnaire, tu te décris toi-même. Ton historique montre à quoi tu passes vraiment ton temps. L’export Google « Mon activité » est le plus utile : nous y lisons surtout ton historique YouTube, ainsi que tes recherches Google et des titres d’actualité. Tu demandes l’export à Google et l’e-mail arrive après environ 2 à 3 minutes.',
+      pointsTitle: 'Ce que tu y apprends',
+      points: ['Les thèmes et chaînes qui t’occupent depuis des mois', 'Comment tes intérêts ont évolué au fil des ans', 'Des pistes vers des domaines auxquels tu n’aurais pas pensé', 'Dans le rapport complet : l’IA classe tes titres de vidéos par contenu, si tu le souhaites'],
+      also: 'Aussi possible :',
+      privacy: 'Les fichiers sont décompressés et analysés dans ton navigateur. Des titres choisis ne vont à l’IA qu’avec ton accord.',
+      cta: 'Comment obtenir ton export',
+    },
     sourcesTitle: 'Tes intérêts à partir d’un seul export.', sourcesSub: 'Google « Mon activité » suffit pour commencer. Les autres sources sont facultatives.',
     explore: { title: 'Envie d’explorer par toi-même ?', sub: 'Sans historique ni questionnaire : parcours les domaines ou va directement aux formations.', fieldsTitle: 'Explorer les domaines', fieldsText: (n: number) => `${n} domaines d’études, chacun avec sa page : pour qui il est fait, quelles branches scolaires aident et où il mène.`, fieldsCta: 'Voir les domaines', programmesTitle: 'Parcourir les formations', programmesText: (p: string, i: string) => `${p} formations dans ${i} hautes écoles, classées par domaine.`, programmesCta: 'Voir les formations' },
     sources: [
@@ -2111,7 +2141,7 @@ const itCH = mergeDeep(en, {
         tag: 'Circa 10 minuti',
         title: 'Compila il questionario',
         text: 'Rispondi a domande sulle attività che ti piacciono e vedi subito quali aree di studio fanno per te.',
-        points: ['24 domande sugli interessi secondo il modello RIASEC usato nell’orientamento', '20 domande facoltative sulla personalità (Big Five)', 'Le tue materie preferite e ciò che conta per te negli studi', 'Se vuoi, in aggiunta: Google «Le mie attività», Instagram o TikTok'],
+        points: ['24 domande sugli interessi secondo il modello RIASEC usato nell’orientamento', '20 domande facoltative sulla personalità (Big Five)', 'Le tue materie preferite e ciò che conta per te negli studi'],
       },
       {
         tag: 'Nel report completo',
@@ -2127,6 +2157,16 @@ const itCH = mergeDeep(en, {
       },
     ] as LandingStep[],
     colsNote: ['I passi 2 e 3 fanno parte del report completo:', 'una tantum, valido 12 mesi, nessun abbonamento.'],
+    upload: {
+      tag: 'Facoltativo, dopo il passo 1',
+      title: 'Carica i tuoi dati',
+      text: 'Nel questionario parli di te. La tua cronologia mostra a cosa dedichi davvero il tuo tempo. L’export di Google «Le mie attività» è il più utile: ne leggiamo soprattutto la cronologia YouTube, oltre alle ricerche Google e ai titoli delle notizie. Richiedi l’export a Google e l’e-mail arriva dopo circa 2–3 minuti.',
+      pointsTitle: 'Cosa scopri',
+      points: ['Quali temi e canali ti accompagnano da mesi', 'Come sono cambiati i tuoi interessi negli anni', 'Indizi su aree a cui non avresti pensato', 'Nel report completo: se vuoi, l’IA classifica i titoli dei video in base al contenuto'],
+      also: 'Possibile anche:',
+      privacy: 'I file vengono decompressi e analizzati nel tuo browser. I titoli selezionati vanno all’IA solo con il tuo consenso.',
+      cta: 'Come ottenere il tuo export',
+    },
     sourcesSub: 'Google «Le mie attività» basta per iniziare. Le altre fonti sono facoltative.', privacyTitle: 'I tuoi dati restano tuoi.',
     explore: { title: 'Preferisci esplorare da solo?', sub: 'Senza cronologia né questionario: sfoglia le aree di studio o vai direttamente ai corsi.', fieldsTitle: 'Esplora le aree', fieldsText: (n: number) => `${n} aree di studio, ognuna con la sua pagina: per chi è adatta, quali materie scolastiche aiutano e dove porta.`, fieldsCta: 'Vedi le aree', programmesTitle: 'Sfoglia i corsi', programmesText: (p: string, i: string) => `${p} corsi in ${i} scuole universitarie, ordinati per area.`, programmesCta: 'Vedi i corsi' },
     sources: [

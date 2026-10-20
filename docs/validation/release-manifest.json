@@ -26,7 +26,7 @@
     "lib/server/content-analysis.ts": "2346175c2a220f57e14d80626303e8b94ce8fd8a88e7d156565d191bd186bcbc",
     "lib/engine/content-analysis.ts": "7c3abb2cc9124b9d113f3e21b8cee02548406aaa7da7bece23cbe78b019d7bb9",
     "lib/infomaniak.ts": "0e8dc79a22a718c2d94b5a0991b75e1b58b268e9d92dbfb68246b5e6e8893566",
-    "lib/site/dict.ts": "bc80c3edff89ede9975e637fb5a7ef258b2b61f1d9a9bad8c74ac019abf33826",
+    "lib/site/dict.ts": "a29f093641f7ba4366e5f92dcc7f67f5362460d1a8689f4cd81859e0027fe416",
     "lib/site/regional.ts": "b890842a317d6d2c6803c3cd76248c75a55b16f6538ba5653155854d28b0dcfe"
   },
   "instruments": {
