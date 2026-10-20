@@ -2,6 +2,13 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Google-Ads-Einstieg mit Kauf vor der Analyse (20.10.2026, lokal)
+
+- Auf Wunsch des Inhabers zeigt der Landing-Hero bei Google-Ads-Parametern direkt den bestehenden Checkout: «Los geht’s – CHF 9 einmalig», Report inklusive KI-Analyse, Platz 1 und passende Studiengänge; kein Abo/keine weiteren Kosten. Texte auch EN/FR/IT, Preis weiterhin aus der bestehenden Länder-/Besucherkonfiguration. Oberes Gratis-Label für diese Variante ersetzt.
+- Anschliessend auf Wunsch gestrafft: unter dem Hero-Kaufbutton nur «KI inklusive · Kein Abo | TWINT oder Karte» als dezente Zeile. Ablauf, Gültigkeit, E-Mail-Zugang und Minderjährigen-/AGB-Hinweis bleiben im ausführlichen Preisangebot weiter unten. Andere Checkout-Darstellungen behalten ihre bisherigen Hinweise.
+- Erkennung ausschliesslich aus der aktuellen URL: nichtleere `gclid`/`gbraid`/`wbraid` oder Google-UTMs mit bezahltem Medium (siehe README). Kein Cookie, keine Speicherung, unabhängig von Analytics-Einwilligung. Andere Besucher und verkaufspausierte Länder behalten den bisherigen Hero. Weitere kostenlose Einstiege bleiben erreichbar. Keine Änderung an Paywall, Tokenprüfung, Stripe-Endpunkten oder Messdiensten.
+- Acht gezielte Tests und Typprüfung erfolgreich. Ads- und organischen Einstieg lokal im Browser geprüft, Kaufbutton aktiv; schmale Darstellung ohne horizontalen Überlauf. Keine echte Zahlung ausgelöst. Standardbuild scheitert lokal an Turbopacks Port-Bind-Berechtigung; `next build --webpack` erfolgreich mit 1’611 statischen Seiten. Noch nicht veröffentlicht.
+
 ## Sprache der Studiengang-Besonderheiten (19.10.2026, produktiv abgeschlossen)
 
 - Ursache für deutsche Texte unter «Cosa lo distingue»: Der Reader verlangte ausdrücklich Aussagen in der Sprache der Hochschulseite; `factsForLocale` gab diese für jede Anzeigesprache unverändert aus.

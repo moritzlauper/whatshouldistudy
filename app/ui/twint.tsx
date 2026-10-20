@@ -28,13 +28,14 @@ export function TwintLogo() {
 }
 
 /** «Bezahlen mit TWINT oder Karte» wherever checkout charges CHF, the currency Stripe offers TWINT for. */
-export function PayWithTwint({ className = '' }: { className?: string }) {
+export function PayWithTwint({ className = '', compact = false }: { className?: string; compact?: boolean }) {
   const { site, t } = useSite()
   const config = useConfig(site)
   // Before the config arrives, the site price decides, so the Swiss site renders it on the server.
   const price = config?.price ?? priceForSite(site)
   if ((config && config.payments !== 'stripe') || price.currency !== 'CHF') return null
   const [before, after] = t.programmes.payTwint
+  if (compact) return <span className={className}>TWINT {after}</span>
   return (
     <p className={`flex flex-wrap items-center gap-2 text-sm font-semibold ${className}`}>
       {before} <TwintLogo /> {after}

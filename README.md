@@ -416,6 +416,15 @@ under *Measurement* in `.env.example`; without them nothing loads.
 - **Vercel Web Analytics** for cookieless page counts of every visitor
   (`NEXT_PUBLIC_VERCEL_ANALYTICS=1`).
 
+The landing hero offers checkout first for Google Ads arrivals, with the local
+one-time price and AI analysis explicitly included. Detection uses nonempty
+`gclid`, `gbraid`, `wbraid`, or `utm_source=google` with a paid medium (`cpc`,
+`ppc`, `paidsearch`, `paid_search`, `paid-search`, `cpm`, `display`). It reads
+only the current URL, stores nothing, and does not depend on analytics consent.
+Other arrivals keep the free-start hero; sales-paused sites keep their normal
+entry. Both variants use the existing checkout and paid unlock flow.
+Preview locally at `/schweiz?utm_source=google&utm_medium=cpc`.
+
 ### Free aggregate usage statistics
 
 No Vercel Custom Events subscription is needed. The counters live in a

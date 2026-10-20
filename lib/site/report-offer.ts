@@ -1,6 +1,9 @@
 import type { Locale } from './config.ts'
 
 const de = {
+  landingCta: (price: string) => `Los geht’s – ${price} einmalig`,
+  landingSummary: 'Dein vollständiger Studienbericht mit Platz 1, passenden Studiengängen und persönlicher KI-Analyse.',
+  landingReassurance: 'KI inklusive · Kein Abo',
   title: 'Deine Studiengänge. Mit KI-Analyse.',
   price: (price: string) => `Einmalig ${price} · kein Abo`,
   intro: 'Die Fachrichtungen geben dir eine erste Orientierung. Im vollen Report findest du konkrete Studiengänge und erfährst, was davon zu dir passt.',
@@ -18,6 +21,9 @@ const de = {
 }
 
 const en: typeof de = {
+  landingCta: (price) => `Get started – ${price} once`,
+  landingSummary: 'Your full study report with your top match, relevant programmes and personal AI analysis.',
+  landingReassurance: 'AI included · No subscription',
   title: 'Your programmes. With AI analysis.',
   price: (price) => `${price} once · no subscription`,
   intro: 'Your fields give you a starting point. The full report shows specific programmes and explains how they fit you.',
@@ -35,6 +41,9 @@ const en: typeof de = {
 }
 
 const fr: typeof de = {
+  landingCta: (price) => `C’est parti – ${price} en une fois`,
+  landingSummary: 'Ton rapport d’orientation complet avec ton premier choix, des formations adaptées et une analyse IA personnelle.',
+  landingReassurance: 'IA incluse · Sans abonnement',
   title: 'Tes formations. Avec une analyse IA.',
   price: (price) => `${price} en une fois · sans abonnement`,
   intro: 'Tes domaines te donnent une première orientation. Le rapport complet présente des formations précises et explique en quoi elles te correspondent.',
@@ -52,6 +61,9 @@ const fr: typeof de = {
 }
 
 const it: typeof de = {
+  landingCta: (price) => `Inizia – ${price} una tantum`,
+  landingSummary: 'Il tuo report di orientamento completo con la prima scelta, corsi adatti a te e analisi IA personale.',
+  landingReassurance: 'IA inclusa · Nessun abbonamento',
   title: 'I tuoi corsi. Con analisi IA.',
   price: (price) => `${price} una tantum · nessun abbonamento`,
   intro: 'Le aree ti danno un primo orientamento. Il report completo presenta corsi concreti e spiega come corrispondono al tuo profilo.',
