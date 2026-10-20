@@ -2,6 +2,12 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Outreach erneut gestoppt (20.10.2026)
+
+- Neuer ausdrücklicher Auftrag des Inhabers: alle automatischen Outreach-Mails stoppen und pushen. Dieser Auftrag ersetzt die weiter unten dokumentierte Wiederaktivierung vom selben Tag.
+- Im separaten Repository `moritzlauper/whatshouldistudy-outreach` sind «Outreach prüfen» (377367573) und «Einzelmails verschicken» (379790874) serverseitig deaktiviert. Nach der Deaktivierung keine laufenden oder wartenden Actions-Aufträge vorhanden.
+- Der tägliche Outreach-Zeitplan wurde aus `check.yml` entfernt; beide Versandjobs sind zusätzlich mit `if: ${{ false }}` gesperrt. Nur auf erneuten ausdrücklichen Auftrag reaktivieren. Die separate Blog-Automation bleibt aktiv.
+
 ## Google-Ads-Paywall: A/B-Test mit automatischer Auswahl (20.10.2026)
 
 - Auftrag: direkte Zahlung im Hero gegen Gratis-Einstieg mit späterem Kauf testen, 50/50 für Google Ads. Nach Rückfrage ausdrücklich **nach 14 Tagen die höhere Kaufquote übernehmen, auch bei wenig Daten**; keine Verlängerung bis statistische Signifikanz. Gleichstand/keine Käufe → `direct`.
