@@ -2,16 +2,21 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 
-function report(status: number, challenge: boolean, bypass: string) {
+function report(status: number, challenge: boolean, bypass: string, period = '2026-10', collectingSince: string | null = '2026-10-20', oldServer = false) {
   return spawnSync(process.execPath, ['--input-type=module', '-e', `
     import assert from 'node:assert/strict';
-    process.argv[2] = '2026-10';
+    const RealDate = Date;
+    globalThis.Date = class extends RealDate {
+      constructor(...args) { super(...(args.length ? args : ['2026-10-21T10:00:00Z'])); }
+      static now() { return RealDate.parse('2026-10-21T10:00:00Z'); }
+    };
+    process.argv[2] = ${JSON.stringify(period)};
     globalThis.fetch = async (url, options) => {
-      assert.equal(url.toString(), 'https://report.invalid/api/usage?month=2026-10');
+      assert.equal(url.toString(), ${JSON.stringify(`https://report.invalid/api/usage?${period.length === 10 ? 'day' : 'month'}=${period}`)});
       assert.equal(options.headers.Authorization, 'Bearer admin-test-secret');
       assert.equal(options.headers['x-vercel-protection-bypass'], ${JSON.stringify(bypass || undefined)});
       assert.equal(options.redirect, 'error');
-      return new Response(JSON.stringify({ rows: [{ kind: 'event', event: 'result', count: 12 }] }), {
+      return new Response(JSON.stringify({ ...${JSON.stringify(oldServer ? {} : { day: period, timezone: 'Europe/Zurich', collectingSince })}, rows: [{ kind: 'event', event: 'result', count: 12 }] }), {
         status: ${status}, headers: ${JSON.stringify(challenge ? { 'x-vercel-mitigated': 'challenge' } : {})}
       });
     };
@@ -30,6 +35,32 @@ test('report supports authenticated automation and sites without Vercel protecti
     assert.match(result.stdout, /result/)
     assert.doesNotMatch(result.stdout + result.stderr, /admin-test-secret|automation-test-secret/)
   }
+})
+
+test('daily reports use Swiss days and disclose incomplete initial history', () => {
+  const first = report(200, false, '', '2026-10-20')
+  assert.equal(first.status, 0, first.stderr)
+  assert.match(first.stdout, /Europe\/Zurich/)
+  assert.match(first.stdout, /Partial day/)
+  assert.match(first.stdout, /result/)
+  const earlier = report(200, false, '', '2026-10-19')
+  assert.equal(earlier.status, 0, earlier.stderr)
+  assert.match(earlier.stdout, /No daily history/)
+  assert.doesNotMatch(earlier.stdout, /Results shown/)
+  const pending = report(200, false, '', '2026-10-20', null)
+  assert.match(pending.stdout, /No daily counters recorded yet/)
+})
+
+test('daily reports refuse monthly responses from deployments without daily support', () => {
+  const result = report(200, false, '', '2026-10-20', null, true)
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /does not support daily reports yet/)
+})
+
+test('invalid dates are rejected before a request is sent', () => {
+  const result = report(200, false, '', '2026-02-30')
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /YYYY-MM-DD/)
 })
 
 test('report distinguishes a Vercel challenge from an ordinary HTTP 429', () => {

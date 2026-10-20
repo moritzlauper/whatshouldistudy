@@ -1,8 +1,8 @@
 import 'server-only'
-import { USAGE_STATS, validMonth } from '../usage-stats.ts'
+import { USAGE_STATS, usagePeriods, validDay, validMonth } from '../usage-stats.ts'
 
 /**
- * Dedicated free Redis instance. Only monthly counters, never individual events.
+ * Dedicated free Redis instance. Daily and monthly aggregates, never individual events.
  * The Vercel Marketplace integration (prefix USAGE_) sets the KV_REST_API names;
  * a database set up by hand can use the REDIS_REST ones.
  */
@@ -10,6 +10,8 @@ const restUrl = () => process.env.USAGE_KV_REST_API_URL || process.env.USAGE_RED
 const restToken = () => process.env.USAGE_KV_REST_API_TOKEN || process.env.USAGE_REDIS_REST_TOKEN
 export const usageConfigured = () => USAGE_STATS && !!restUrl() && !!restToken()
 const key = (month: string) => `wsis:usage:v1:${month}`
+const dayKey = (day: string) => `wsis:usage:day:zurich:v1:${day}`
+const dailySinceKey = 'wsis:usage:day:zurich:v1:since'
 
 export async function redis(command: Array<string | number>): Promise<unknown> {
   const res = await fetch(restUrl()!, {
@@ -25,39 +27,47 @@ export async function redis(command: Array<string | number>): Promise<unknown> {
   return json.result
 }
 
-// Atomic increments and a fixed expiry: 90 days after the month's end.
+// Both periods in one atomic operation, with independent fixed retention.
 // Bound cardinality even if a bot sends many different requests.
 const INCREMENT = `
-local size = redis.call('HLEN', KEYS[1])
-for i = 2, #ARGV do
-  if size < 20000 or redis.call('HEXISTS', KEYS[1], ARGV[i]) == 1 then
-    redis.call('HINCRBY', KEYS[1], ARGV[i], 1)
-    size = size + 1
+for k = 1, 2 do
+  local size = redis.call('HLEN', KEYS[k])
+  for i = 4, #ARGV do
+    local exists = redis.call('HEXISTS', KEYS[k], ARGV[i]) == 1
+    if size < 20000 or exists then
+      redis.call('HINCRBY', KEYS[k], ARGV[i], 1)
+      if not exists then size = size + 1 end
+    end
   end
+  redis.call('EXPIREAT', KEYS[k], ARGV[k])
 end
-redis.call('EXPIREAT', KEYS[1], ARGV[1])
+redis.call('SET', KEYS[3], ARGV[3], 'NX')
 return 1
 `
 
 export async function countUsage(counters: string[]) {
   if (!usageConfigured() || !counters.length) return
-  const now = new Date()
-  const month = now.toISOString().slice(0, 7)
-  const expiry = Math.floor(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1) / 1000) + 90 * 86400
+  const { month, day, monthExpiry, dayExpiry } = usagePeriods()
   try {
-    await redis(['EVAL', INCREMENT, 1, key(month), expiry, ...counters.slice(0, 100)])
+    await redis(['EVAL', INCREMENT, 3, key(month), dayKey(day), dailySinceKey, monthExpiry, dayExpiry, day, ...counters.slice(0, 100)])
   } catch {
     // No request details or payloads in logs; a storage failure cannot break results.
     console.warn('Usage statistics storage unavailable')
   }
 }
 
-export async function readUsage(month: string) {
-  if (!validMonth(month)) throw new Error('Invalid month')
-  const values = await redis(['HGETALL', key(month)]) as string[]
+export async function readUsage(period: string) {
+  if (!validMonth(period) && !validDay(period)) throw new Error('Invalid usage period')
+  const values = await redis(['HGETALL', validDay(period) ? dayKey(period) : key(period)]) as string[]
   const rows: Array<Record<string, unknown> & { count: number }> = []
   for (let i = 0; i < values.length; i += 2) {
     rows.push({ ...JSON.parse(values[i]), count: Number(values[i + 1]) })
   }
   return rows.sort((a, b) => b.count - a.count)
+}
+
+/** One deployment-wide calendar date, not an individual event timestamp. */
+export async function readDailySince(): Promise<string | null> {
+  const since = await redis(['GET', dailySinceKey])
+  return typeof since === 'string' && validDay(since) ? since : null
 }

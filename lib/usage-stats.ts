@@ -26,3 +26,22 @@ export function programmeCounters(items: Array<{ id: string; name: string; insti
 export const sourceCounter = (source: ImportSource) => JSON.stringify({ kind: 'import', source })
 export const eventCounter = (event: UsageEvent) => JSON.stringify({ kind: 'event', event })
 export const validMonth = (month: string) => /^20\d{2}-(0[1-9]|1[0-2])$/.test(month)
+export const USAGE_DAY_TIMEZONE = 'Europe/Zurich'
+export const validDay = (day: string) => /^20\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(day)
+  && new Date(`${day}T00:00:00Z`).toISOString().slice(0, 10) === day
+
+/** Swiss calendar days, including summer/winter time; existing months stay UTC. */
+export function usageDay(now = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: USAGE_DAY_TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
+}
+
+export function usagePeriods(now = new Date()) {
+  const day = usageDay(now)
+  return {
+    month: now.toISOString().slice(0, 7),
+    day,
+    monthExpiry: Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1) / 1000 + 90 * 86400,
+    // Retain at least 90 days after the Swiss day's end, also across DST changes.
+    dayExpiry: Date.parse(`${day}T00:00:00Z`) / 1000 + 91 * 86400,
+  }
+}

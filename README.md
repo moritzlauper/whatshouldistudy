@@ -460,6 +460,7 @@ Read a report locally (set `USAGE_REPORT_URL` to your deployed site and
 
 ```sh
 pnpm usage:report 2026-10
+pnpm usage:report 2026-10-20
 ```
 
 If Vercel Bot Protection is enabled, also set `VERCEL_AUTOMATION_BYPASS_SECRET`
@@ -471,8 +472,14 @@ retrying cannot solve that challenge. See
 [Vercel's automation access documentation](https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation).
 Keep both secrets private and out of URLs. This requires no app deployment.
 
-The protected `GET /api/usage?month=YYYY-MM` returns JSON with monthly counts,
-ordered by frequency. It requires the admin secret as a Bearer header; it must
+The protected `GET /api/usage?month=YYYY-MM` returns UTC monthly counts;
+`GET /api/usage?day=YYYY-MM-DD` returns daily counts for **Europe/Zurich**
+(including daylight saving time), with `collectingSince` recording the first
+day counted. Daily history starts with this rollout, without backfilling.
+The CLI labels the first day as partial and distinguishes unavailable or expired
+history from an empty report. Monthly counters remain unchanged; summing Swiss
+days can differ from a UTC month around its boundaries.
+Both reports are ordered by frequency and require the admin secret as a Bearer header; it must
 not be placed in URLs or browser code. The script prints event, source and programme
 tables. The same counters can be inspected in the Upstash console.
 
@@ -487,8 +494,11 @@ tables. The same counters can be inspected in the Upstash console.
   and `unlocked`. Only authorised responses count; bulk CSV requests over 100
   items are excluded. Counts describe API output, not confirmed screen views
   or unique people. Reloads, retries and filters can count again.
-- Storage: one aggregate hash per UTC month, deleted 90 days after that month
-  ends. No individual event records, exact timestamps, IPs, user agents,
+- Storage: one aggregate hash per UTC month and one per Swiss calendar day.
+  Monthly counters expire 90 days after month end; daily counters expire at
+  00:00 UTC 91 days after the day's date (at least 90 days after local day end).
+  One persistent calendar date marks when daily collection began.
+  No individual event records, exact timestamps, IPs, user agents,
   cookies, visitor IDs or links between imports and results are stored.
   Upstash receives server-side counter commands, not visitor requests.
 - No new consent prompt, browser storage access, or advertising integration.
@@ -496,7 +506,7 @@ tables. The same counters can be inspected in the Upstash console.
   still process connection metadata: configure access-log retention separately.
   Cookie-free counters alone do not guarantee a consent exemption in every
   jurisdiction; assess the deployment's full processing and privacy notice.
-- Writes are atomic, bounded to 20,000 categories per month, and fail without
+- Daily and monthly writes share one atomic operation, are bounded to 20,000 categories per period, and fail without
   breaking imports or recommendations. There is no visitor fingerprinting for
   deduplication or abuse controls: bots can distort these approximate totals.
   Storage errors produce only a generic warning, without event payloads.

@@ -1,7 +1,7 @@
 import { timingSafeEqual } from 'node:crypto'
 import { after, NextResponse } from 'next/server'
-import { eventCounter, parseUsage, sourceCounter, validMonth } from '@/lib/usage-stats.ts'
-import { countUsage, readUsage, usageConfigured } from '@/lib/server/usage.ts'
+import { eventCounter, parseUsage, sourceCounter, USAGE_DAY_TIMEZONE, validDay, validMonth } from '@/lib/usage-stats.ts'
+import { countUsage, readDailySince, readUsage, usageConfigured } from '@/lib/server/usage.ts'
 
 const headers = { 'Cache-Control': 'private, no-store' }
 
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   return new Response(null, { status: 204, headers })
 }
 
-/** Owner-only monthly report; never exposes paid programme output publicly. */
+/** Owner-only daily/monthly report; never exposes paid programme output publicly. */
 export async function GET(req: Request) {
   const secret = process.env.USAGE_ADMIN_TOKEN
   const have = Buffer.from(req.headers.get('authorization') ?? '')
@@ -42,9 +42,16 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers })
   }
   if (!usageConfigured()) return NextResponse.json({ error: 'Usage storage not configured' }, { status: 503, headers })
-  const month = new URL(req.url).searchParams.get('month') ?? new Date().toISOString().slice(0, 7)
+  const params = new URL(req.url).searchParams
+  const day = params.get('day')
+  if (day !== null && (!validDay(day) || params.has('month'))) return NextResponse.json({ error: 'Use day=YYYY-MM-DD or month=YYYY-MM' }, { status: 400, headers })
+  const month = params.get('month') ?? new Date().toISOString().slice(0, 7)
   if (!validMonth(month)) return NextResponse.json({ error: 'Use YYYY-MM' }, { status: 400, headers })
   try {
+    if (day !== null) {
+      const [rows, collectingSince] = await Promise.all([readUsage(day), readDailySince()])
+      return NextResponse.json({ day, timezone: USAGE_DAY_TIMEZONE, collectingSince, rows }, { headers })
+    }
     return NextResponse.json({ month, rows: await readUsage(month) }, { headers })
   } catch {
     return NextResponse.json({ error: 'Usage storage unavailable' }, { status: 503, headers })

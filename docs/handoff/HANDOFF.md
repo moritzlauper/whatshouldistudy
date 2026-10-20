@@ -2,6 +2,13 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Tageswerte im Usage-Report (20.10.2026)
+
+- Auf ausdrücklichen Auftrag ab jetzt täglich zählen: `pnpm usage:report YYYY-MM-DD`, API `GET /api/usage?day=YYYY-MM-DD`, Kalenderzeit Europe/Zurich mit Sommer-/Winterzeit. Bisherige Monatssummen und `?month=YYYY-MM` bleiben UTC und behalten ihre Redis-Keys.
+- Ein Lua-Aufruf erhöht Tages- und Monatsaggregate atomar, je höchstens 20’000 Kategorien und 100 Zähler pro Aufruf. Tages-Keys separat unter `wsis:usage:day:zurich:v1:`, Löschung mindestens 90 Tage nach Tagesende. Ein globales Startdatum wird beim ersten Tages-Schreibvorgang einmalig gesetzt; keine Einzelereignisse oder persönlichen Zeitstempel.
+- CLI meldet fehlende Historie, abgelaufene Zähler und den unvollständigen ersten/aktuellen Tag ausdrücklich. Kein Backfill für gestern. Alte Deployments, die einen Tagesfilter ignorieren, werden erkannt. Admin-Prüfung und Vercel-Automation-Zugang unverändert; Datenschutzhinweise in DE/EN/FR/IT aktualisiert.
+- 14 gezielte Tests und Typprüfung erfolgreich, inklusive Schweizer Mitternacht, Sommer-/Winterzeitwechsel, Monatsgrenze, ungültigen Datumswerten, API-Autorisierung und Speicherausfällen. Veröffentlichung und Liveprüfung folgen.
+
 ## Google-Ads-Einstieg mit Kauf vor der Analyse (20.10.2026, lokal)
 
 - Auf Wunsch des Inhabers zeigt der Landing-Hero bei Google-Ads-Parametern direkt den bestehenden Checkout: «Los geht’s – CHF 9 einmalig», Report inklusive KI-Analyse, Platz 1 und passende Studiengänge; kein Abo/keine weiteren Kosten. Texte auch EN/FR/IT, Preis weiterhin aus der bestehenden Länder-/Besucherkonfiguration. Oberes Gratis-Label für diese Variante ersetzt.
