@@ -75,7 +75,8 @@ function nearby(all: Programme[], p: Programme): Programme[] {
 
 /** What the reading of the official page says about the programme itself: what sets it apart and its specialisations. */
 function OfficialReading({ reading, locale, intl }: { reading: PublicReading; locale: Locale; intl: string }) {
-  const o = catalogueText(locale).official
+  const ct = catalogueText(locale)
+  const o = ct.official
   const both = reading.distinctive.length > 0 && reading.specialisations.length > 0
   return (
     <section className="card mt-10 p-6">
@@ -102,7 +103,18 @@ function OfficialReading({ reading, locale, intl }: { reading: PublicReading; lo
           </div>
         )}
       </div>
-      <p className="mt-4 text-xs text-muted">{o.note(fmtDate(reading.at, intl))}</p>
+      <p className="mt-4 text-xs text-muted">
+        {o.note(fmtDate(reading.at, intl))}
+        {reading.url && (
+          <>
+            {' '}
+            {ct.sourceLabel}:{' '}
+            <a href={reading.url} target="_blank" rel="noopener" className="font-semibold hover:text-ink">
+              {new URL(reading.url).hostname.replace(/^www\./, '')} ↗
+            </a>
+          </>
+        )}
+      </p>
     </section>
   )
 }

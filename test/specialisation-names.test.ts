@@ -35,7 +35,7 @@ test('a programme page gets its specialisations and what sets it apart, in its l
     },
   }
   const shown = publicReading(translated, 'fr-CH')
-  assert.deepEqual(shown, { specialisations: ['Wirtschaftssoziologie', 'Lebenslauf und Generationen'], distinctive: ['La filière mise fortement sur des projets de recherche empiriques.'], at: '2026-10-01' })
+  assert.deepEqual(shown, { specialisations: ['Wirtschaftssoziologie', 'Lebenslauf und Generationen'], distinctive: ['La filière mise fortement sur des projets de recherche empiriques.'], at: '2026-10-01', url: 'https://www.unibe.ch/p1' })
   const json = JSON.stringify(shown)
   for (const kept of ['riasec', 'subjects', 'topics', 'check', 'sociology', 'Vérifier']) assert.ok(!json.includes(kept), kept)
 })
@@ -44,4 +44,10 @@ test('untranslated points stay out, and a reading with nothing to show gives no 
   assert.deepEqual(publicReading(reading, 'de-CH')?.distinctive, [])
   assert.equal(publicReading({ ...reading, specialisations: [] }, 'de-CH'), null)
   assert.equal(publicReading(undefined, 'de-CH'), null)
+})
+
+test('the source is linked only when it is a web address', () => {
+  assert.equal(publicReading({ ...reading, url: 'javascript:alert(1)' }, 'de-CH')?.url, undefined)
+  assert.equal(publicReading({ ...reading, url: 'https://' }, 'de-CH')?.url, undefined)
+  assert.equal(publicReading(reading, 'de-CH')?.url, 'https://www.unibe.ch/p1')
 })

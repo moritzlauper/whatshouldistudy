@@ -204,6 +204,8 @@ export interface PublicReading {
   distinctive: string[]
   /** When the official page was read, YYYY-MM-DD. */
   at: string
+  /** The page that was read, when it is a web address. */
+  url?: string
 }
 
 /**
@@ -214,5 +216,16 @@ export function publicReading(f: StoredFact | undefined, locale: Locale): Public
   if (!f) return null
   const { specialisations = [], distinctive = [] } = factsForLocale(f, locale)
   const names = specialisations.map((s) => s.name)
-  return names.length || distinctive.length ? { specialisations: names, distinctive, at: f.at } : null
+  if (!names.length && !distinctive.length) return null
+  const url = webAddress(f.url)
+  return { specialisations: names, distinctive, at: f.at, ...(url ? { url } : {}) }
+}
+
+function webAddress(url: string): string | undefined {
+  try {
+    const u = new URL(url)
+    return u.protocol === 'https:' || u.protocol === 'http:' ? u.href : undefined
+  } catch {
+    return undefined
+  }
 }

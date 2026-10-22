@@ -683,7 +683,7 @@ The readings as a whole are never published. Public pages show only the part tha
 describes the programme itself (`specialisationNames`, `publicReading` in
 `lib/facts-store.ts`): field pages list the specialisation names, Swiss programme
 pages add a card «Von der offiziellen Seite» with the translated distinctive points,
-the specialisations and the reading date. Interest profile, topics and the check
+the specialisations, the reading date and a link to the page that was read. Interest profile, topics and the check
 stay in the paid comparison. The job writes the readings to the site's private
 database (`lib/facts-store.ts`: `FACTS_REDIS_REST_*`, or the counter database
 `USAGE_*` if that is all there is) through `/api/facts/ingest`. The job proves who it
