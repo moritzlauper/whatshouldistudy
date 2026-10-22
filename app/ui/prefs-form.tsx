@@ -37,12 +37,20 @@ export function PrefsForm() {
   return (
     <div className="grid items-start gap-5 lg:grid-cols-[1fr_1.4fr]">
       <div className="card grid content-start gap-5 p-6">
-        <Field label={t.prefs.level}>
-          <Segmented
-            value={prefs.level}
-            options={(['bachelor', 'master', 'any'] as const).map((l) => [l, t.prefs.levels[l]])}
-            onChange={(level) => set({ level: level as Preferences['level'] })}
-          />
+        {/* Continuing education (MAS, DAS, CAS) has Swiss data only: a choice of its own beside the degrees. */}
+        <Field label={t.prefs.level} hint={site === 'ch' ? t.prefs.continuingHint : undefined}>
+          <div className="flex flex-wrap items-center gap-2">
+            <Segmented
+              value={prefs.level}
+              options={(['bachelor', 'master', 'any'] as const).map((l) => [l, t.prefs.levels[l]])}
+              onChange={(level) => set({ level: level as Preferences['level'] })}
+            />
+            {(site === 'ch' || prefs.level === 'continuing') && (
+              <Chip on={prefs.level === 'continuing'} onClick={() => set({ level: prefs.level === 'continuing' ? 'bachelor' : 'continuing' })}>
+                {t.prefs.levels.continuing}
+              </Chip>
+            )}
+          </div>
         </Field>
         <Field label={t.prefs.institutionType} hint={t.prefs.institutionTypeHint}>
           <InstitutionTypeSelect />

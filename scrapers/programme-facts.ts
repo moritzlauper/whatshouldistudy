@@ -16,6 +16,7 @@ import { factsAiConfigured, completeFacts } from './lib/facts-ai.ts'
 import { exactBatch } from '../lib/ai-batch.ts'
 import { robotsAllow } from '../lib/official-facts.ts'
 import { programmeCountry } from '../lib/programme-countries.ts'
+import { isContinuing } from '../lib/programmes.ts'
 import { emptyPageIndex, programmePage, type PageIndex } from './lib/programme-pages.ts'
 import { programmePageText } from './lib/programme-page-text.ts'
 import { FACTS_SCHEMA, FACTS_SYSTEM, batches, costMicroUsd, hashText, isUnchanged, mergeFacts, normaliseFact, type PageMember, type StoredFact } from './lib/facts.ts'
@@ -104,7 +105,8 @@ async function main() {
     log(`${country}: ${result.translated} translated, ${result.failed} failed, ${result.remaining} remaining; about $${(result.spendMicro / 1e6).toFixed(3)}`)
     return
   }
-  const rows = loadRows(dataDir).filter((r) => r.country === country)
+  // Continuing education is not read: the readings cost money and serve the degree ranking.
+  const rows = loadRows(dataDir).filter((r) => r.country === country && !isContinuing(r.level))
   if (!rows.length) throw new Error(`No programme data for ${country}; keeping previous readings`)
 
   // A programme gets its own page: the checked one, else the feed's link. A homepage describes no programme.

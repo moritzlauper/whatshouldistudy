@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { isContinuing } from '@/lib/programmes.ts'
 import type { CatalogueEntry } from '@/lib/programmes.ts'
 import type { Locale } from '@/lib/site/config.ts'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
@@ -24,7 +25,8 @@ export function catalogueFacts(p: CatalogueEntry, country: string, locale: Local
   const languages = p.languages?.length ? p.languages.map((l) => languageName(l, locale)).join(', ') : null
   const type = p.institutionType && p.institutionType in TYPE_STYLE ? (p.institutionType as InstType) : undefined
   // The programme's own rule where the source has one (in German, Switzerland), otherwise the rule for its kind of institution.
-  const admission = (locale.startsWith('de-') ? p.admission : undefined) ?? admissionText(country, type, lang(locale))
+  // Continuing education has its own entry rules; the Matura rule of the institution type does not apply.
+  const admission = isContinuing(p.level) ? d.continuingAdmission : (locale.startsWith('de-') ? p.admission : undefined) ?? admissionText(country, type, lang(locale))
   const otherLanguages = p.otherLanguages?.length ? p.otherLanguages.map((l) => (/^[a-z]{2}$/.test(l) ? languageName(l, locale) : l)).join(', ') : null
   const ects = p.ects ? `${new Intl.NumberFormat(locale).format(p.ects)} ECTS` : null
   const facts: Array<[string, React.ReactNode]> = [

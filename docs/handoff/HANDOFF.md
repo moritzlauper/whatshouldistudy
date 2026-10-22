@@ -2,6 +2,16 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Weiterbildung MAS, DAS, CAS (22.10.2026)
+
+- Auftrag: MAS und CAS aufnehmen, «eher sekundär oder separat». Umgesetzt als eigene Quelle `ch-weiterbildung` mit eigenen Stufen `mas`, `das`, `cas` (Executive MBAs zählen als MAS).
+- Datenquelle: Die Weiterbildungsliste von swissuniversities (studyprogrammes.ch, API-Stufen 3 bis 5, rund 1'750 Einträge) wäre vollständig, steht aber auf `PERMISSION_PENDING` und wird nicht verwendet. Stattdessen liest `scrapers/ch-weiterbildung.ts` die Listen der Hochschulen selbst, nur Listen und keine Programmseiten: ZHAW (Angebotsfinder je Typ, alle Seiten), FHNW (Plone-Suche `++api++/de/@search`, mit Gebühr, Sprache, Ort; PH FHNW als eigene Hochschule), BFH (gleiche Suche wie bei den Studiengängen), Universität Basel (Advanced Studies je Typ), Université de Genève (eine Seite mit allen Karten, vergangene Durchführungen ausgeschlossen), Universität Luzern (Menü der Weiterbildung).
+- Offen: ETH (SCE), UZH, HSG (Executive School), UNIL/EPFL, Freiburg, Universität Bern und HSLU laden ihre Listen nur im Browser oder über Schnittstellen, die robots.txt sperrt (HSLU `/api/`). Bern hat eine Filterliste mit 24 Einträgen pro Seite ohne erkennbare Seitenparameter.
+- Fächer: eigene Regeltabelle `WB_TITLES` vor dem allgemeinen Abgleich (Beratung, Schule, Pflege, Bau, Verwaltung usw.), breite Wörter wie «Management» oder «Gesundheit» nur als Rückfall. Module ohne eigenen Abschluss (Master-Thesis, Masterarbeit-Modul) fallen weg. Bei den Probeseiten blieben 9 von 903 Angeboten ohne Fach, fast alle solche Module.
+- Website: Rangliste nur bei der neuen Wahl «Weiterbildung (MAS, DAS, CAS)» im Einstellungsformular, nur auf der Schweizer Seite; «Beides» umfasst weiterhin nur Studiengänge. Gebühr als «Kosten gesamt» (`tuition.total`). Fachseiten: eigener Abschnitt nach den Studiengängen mit eigenem Zeilenbudget; Titel, Zahlen, Orte und Sprachen zählen nur Studiengänge. Zulassung auf Katalogseiten mit eigenem Text statt der Matura-Regel. `meta.byCountry.CH.continuing` zählt die Weiterbildungen separat, Sitemaps zählen sie mit.
+- Kosten: Der Fakten-Lauf (`programme-facts.ts`, Claude-API) liest keine Weiterbildungen. Keine zusätzlichen API-Kosten.
+- Der Budgetfilter vergleicht bei Weiterbildungen die Gesamtkosten mit dem Jahresbudget, also eher streng.
+
 ## SEO der Schweizer Fach- und Studiengangseiten (22.10.2026)
 
 - Auftrag: mehr Suchtreffer auf wasstudieren.ch über die Fachseiten. Technische Basis war bereits in Ordnung (Canonical auf wasstudieren.ch bzw. whatshouldistudy.ch/fr|it, hreflang DE/FR/IT/EN, Sitemaps).

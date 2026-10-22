@@ -4,7 +4,7 @@ import type { ChSalary } from './ch-salary.ts'
  * Shared by the scrapers (Node) and the site (server routes and UI).
  */
 
-export type Level = 'short' | 'bachelor' | 'master' | 'integrated' | 'doctorate' | 'professional'
+export type Level = 'short' | 'bachelor' | 'master' | 'integrated' | 'doctorate' | 'professional' | 'mas' | 'das' | 'cas'
 
 export const LEVEL_LABELS: Record<Level, string> = {
   short: 'Short-cycle / foundation',
@@ -13,7 +13,18 @@ export const LEVEL_LABELS: Record<Level, string> = {
   integrated: "Integrated bachelor's + master's",
   doctorate: 'Doctorate',
   professional: 'Professional degree (MD, JD, ...)',
+  mas: 'MAS (continuing education)',
+  das: 'DAS (continuing education)',
+  cas: 'CAS (continuing education)',
 }
+
+/**
+ * Continuing education for people who already hold a degree (Switzerland:
+ * MAS, DAS, CAS; executive MBAs count as MAS). Listed after the degree
+ * programmes and ranked only when someone asks for it.
+ */
+export const CONTINUING: readonly Level[] = ['mas', 'das', 'cas']
+export const isContinuing = (level: string) => (CONTINUING as readonly string[]).includes(level)
 
 export interface Programme {
   id: string
@@ -107,6 +118,8 @@ export interface Tuition {
   /** Fee for everyone else (US: out-of-state). */
   international?: number
   estimated?: boolean
+  /** The fee covers the whole programme, not a year (continuing education). */
+  total?: boolean
   note?: string
 }
 
@@ -157,7 +170,7 @@ export interface DataMeta {
   counts: Record<string, Record<string, number>>
   totals: { programmes: number; countries: number; institutions: number; newLast90Days: number }
   /** Per country: programmes, institutions, and programmes per kind of institution. */
-  byCountry?: Record<string, { programmes: number; institutions: number; byType: Record<string, number> }>
+  byCountry?: Record<string, { programmes: number; institutions: number; byType: Record<string, number>; continuing?: number }>
   unclassified: number
 }
 

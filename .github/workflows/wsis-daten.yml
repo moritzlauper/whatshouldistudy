@@ -99,6 +99,10 @@ jobs:
         if: ${{ !inputs.only || contains(inputs.only, 'ch') }}
         continue-on-error: true
         run: node scrapers/ch-hochschulen.ts
+      - name: Switzerland (continuing education, MAS/DAS/CAS from the universities' own lists)
+        if: ${{ !inputs.only || contains(inputs.only, 'ch') }}
+        continue-on-error: true
+        run: node scrapers/ch-weiterbildung.ts
 
       - name: Switzerland salaries (BFS graduate survey)
         if: ${{ !inputs.only || contains(inputs.only, 'ch') }}

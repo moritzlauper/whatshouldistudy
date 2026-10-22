@@ -786,8 +786,9 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
 }) {
   const { t, locale, intl, site } = useSite()
   const [open, setOpen] = useState(false)
-  // Switzerland, Germany and Austria talk about fees per semester.
-  const perSemester = isLocal(site)
+  // Switzerland, Germany and Austria talk about fees per semester; continuing education states one fee for all of it.
+  const total = !!p.tuition?.total
+  const perSemester = isLocal(site) && !total
   const feeAmount = p.fee ? (perSemester ? Math.round(p.fee.amount / 2) : p.fee.amount) : 0
   const type = p.institutionType as InstType | undefined
   const lang = locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it'
@@ -847,7 +848,7 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
         <Item k={t.programmes.row.level} v={levelLabel(p.level as Level, locale)} />
         {p.durationYears && <Item k={t.programmes.row.duration} v={`${p.durationYears} ${t.programmes.row.yrs}`} />}
         <Item
-          k={perSemester ? t.programmes.row.feeSemester : t.programmes.row.fee}
+          k={total ? t.programmes.row.feeTotal : perSemester ? t.programmes.row.feeSemester : t.programmes.row.fee}
           v={p.fee ? `${feeAmount === 0 ? t.programmes.row.free : fmtMoney(feeAmount, p.fee.currency, intl)}${p.fee.estimated ? t.programmes.row.approx : ''}` : (p.tuition?.note ?? t.programmes.row.seePage)}
         />
         {p.earnings && <Item k={t.programmes.row.earnings(p.earnings.yearsAfter)} v={fmtMoney(p.earnings.median, p.earnings.currency, intl)} />}

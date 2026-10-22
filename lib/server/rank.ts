@@ -3,6 +3,7 @@ import { COUNTRIES, feeFor } from '../countries.ts'
 import { isGenericTopic, textTopics } from '../engine/classifier.ts'
 import { orderByNumber, orderedFieldIds } from '../engine/programme-fit.ts'
 import type { Preferences } from '../engine/types.ts'
+import { CONTINUING } from '../programmes.ts'
 import type { Level, Programme } from '../programmes.ts'
 import { FIELD_BY_ID } from '../taxonomy/fields.ts'
 import { getMeta, getShard } from './data.ts'
@@ -76,10 +77,12 @@ function topicBonus(p: Programme, topics: Record<string, number>): { hits: strin
   return { hits: hits.slice(0, 5), bonus: 10 * (1 - Math.exp(-overlap / 0.8)) }
 }
 
-const LEVELS_FOR: Record<Preferences['level'], Level[] | null> = {
+const LEVELS_FOR: Record<Preferences['level'], readonly Level[]> = {
   bachelor: ['bachelor', 'integrated', 'short', 'professional'],
   master: ['master', 'integrated', 'professional', 'doctorate'],
-  any: null,
+  // Continuing education is for people who already hold a degree: never mixed into a degree ranking.
+  any: ['bachelor', 'integrated', 'short', 'professional', 'master', 'doctorate'],
+  continuing: CONTINUING,
 }
 
 export function sanitizeRequest(body: unknown): RankRequest | null {
@@ -94,7 +97,7 @@ export function sanitizeRequest(body: unknown): RankRequest | null {
   if (!fields.length) return null
   const p = (b.prefs ?? {}) as Partial<Preferences>
   const prefs: Preferences = {
-    level: p.level === 'master' || p.level === 'any' ? p.level : 'bachelor',
+    level: p.level === 'master' || p.level === 'any' || p.level === 'continuing' ? p.level : 'bachelor',
     institutionType: typeof p.institutionType === 'string' && Object.hasOwn(TYPE_LABEL, p.institutionType) ? p.institutionType as InstType : undefined,
     countries: Array.isArray(p.countries) ? p.countries.filter((c) => typeof c === 'string' && /^[A-Z]{2}$/.test(c)).slice(0, 60) : [],
     maxTuitionEur: Math.max(0, Number(p.maxTuitionEur) || 0),
@@ -178,7 +181,7 @@ export async function rank(req: RankRequest): Promise<RankResult> {
   const onlyIds = req.ids ? new Set(req.ids) : null
   const base = [...byId.values()].filter((p) => {
     if (onlyIds && !onlyIds.has(p.id)) return false
-    if (levels && !levels.includes(p.level)) return false
+    if (!levels.includes(p.level)) return false
     if (req.prefs.institutionType && p.institutionType !== req.prefs.institutionType) return false
     if (req.prefs.countries.length && !req.prefs.countries.includes(p.country)) return false
     if (req.prefs.maxTuitionEur && p.fee && p.fee.eur > req.prefs.maxTuitionEur) return false

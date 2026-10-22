@@ -77,6 +77,18 @@
       "count": 0
     },
     {
+      "id": "ch-weiterbildung",
+      "name": "Weiterbildungsangebot der Hochschulen, MAS, DAS und CAS (ZHAW, FHNW, BFH, Universitäten Basel, Genf, Luzern)",
+      "countries": [
+        "CH"
+      ],
+      "url": "https://wasstudieren.ch/so-funktionierts#data",
+      "licence": "Fakten von den Websites der Hochschulen, je mit Link",
+      "ok": true,
+      "count": 8,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
       "id": "kr-academyinfo",
       "name": "Korea Higher Education Information, 대학알리미 (Ministry of Education, KCUE)",
       "countries": [
@@ -529,7 +541,8 @@
         "eth": 15,
         "fh": 58,
         "ph": 11
-      }
+      },
+      "continuing": 8
     },
     "KR": {
       "programmes": 72,

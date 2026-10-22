@@ -1,10 +1,11 @@
 import Link from 'next/link'
+import { Fragment } from 'react'
 import { notFound } from 'next/navigation'
 import { CATALOGUE_COUNTRIES, LEVEL_ORDER, LINK_ONLY, hasProgrammePages, programmeSlug } from '@/lib/catalogue.ts'
 import { COUNTRIES, flag } from '@/lib/countries.ts'
 import { ADMISSION, SCHOOL_TYPES, TYPE_STYLE, admissionText, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
-import { toCatalogueEntry } from '@/lib/programmes.ts'
+import { isContinuing, toCatalogueEntry } from '@/lib/programmes.ts'
 import type { CatalogueEntry, DataMeta, Level } from '@/lib/programmes.ts'
 import { getCatalogue, getMeta, getShard, getStats } from '@/lib/server/data.ts'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
@@ -156,6 +157,7 @@ export async function CountryView({ site, base, locale: selectedLocale, country:
   // Institutions by number of programmes, with their website.
   const institutions = new Map<string, { name: string; n: number; url?: string; city?: string }>()
   for (const p of catalogue?.programmes ?? []) {
+    if (isContinuing(p.level)) continue
     const e = institutions.get(p.institution) ?? { name: p.institution, n: 0, url: p.institutionUrl, city: p.city }
     e.n++
     institutions.set(p.institution, e)
@@ -486,6 +488,10 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
   }
   const name = fieldName(id, locale)
   const inC = inCountry(cc, locale)
+  // Continuing education comes after the degree programmes and stays out of their numbers.
+  const degrees = programmes.filter((p) => !isContinuing(p.level))
+  const continuing = programmes.length - degrees.length
+  const counted = degrees.length ? degrees : programmes
 
   const byLevel = LEVEL_ORDER.map((level) => {
     const insts = new Map<string, CatalogueEntry[]>()
@@ -500,9 +506,12 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
   }).filter((l) => l.n > 0)
   const linkOnly = LINK_ONLY[cc]
   // Without a licence, institutions and counts only; above the budget, the first programmes of each.
-  const limit = linkOnly ? 0 : rowsPerGroup(byLevel.flatMap((l) => l.institutions.map(([, ps]) => ps.length)))
-  const institutionCount = new Set(programmes.map((p) => p.institution)).size
-  const levelsText = list(byLevel.map((l) => ct.levelCount(fmtNumber(l.n, intl), levelLabel(l.level, locale))), intl)
+  // Each part has its own row budget, so a long list of courses does not shorten the degree programmes.
+  const groupSizes = (wb: boolean) => byLevel.filter((l) => isContinuing(l.level) === wb).flatMap((l) => l.institutions.map(([, ps]) => ps.length))
+  const limits = { degree: linkOnly ? 0 : rowsPerGroup(groupSizes(false)), continuing: linkOnly ? 0 : rowsPerGroup(groupSizes(true)) }
+  const firstContinuing = byLevel.find((l) => isContinuing(l.level))?.level
+  const institutionCount = new Set(counted.map((p) => p.institution)).size
+  const levelsText = list(byLevel.filter((l) => isContinuing(l.level) === !degrees.length).map((l) => ct.levelCount(fmtNumber(l.n, intl), levelLabel(l.level, locale))), intl)
   const types = [...new Set(programmes.map((p) => p.institutionType).filter((x): x is InstType => !!x && x in TYPE_STYLE))]
   const admissions = types.map((type) => [type, admissionText(cc, type, lang(locale))] as const).filter(([, a]) => a && ADMISSION[cc])
   const s = stats[id]
@@ -512,8 +521,9 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
       : cc === 'US' && s?.usMedianEarnings
         ? [ct.earningsUs, fmtMoney(s.usMedianEarnings, 'USD', intl), t.earnings.usSource]
         : null
-  const places = placesOf(programmes, locale, 8)
-  const languages = languagesOf(programmes, locale)
+  // Where and in which language the field's degree programmes are taught.
+  const places = placesOf(counted, locale, 8)
+  const languages = languagesOf(counted, locale)
   const related = FIELDS.filter((x) => x.id !== id && x.group === f.group && fieldCount(meta, x.id, cc) > 0)
     .sort((a, b) => fieldCount(meta, b.id, cc) - fieldCount(meta, a.id, cc))
     .slice(0, 6)
@@ -531,7 +541,10 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
           {cc !== 'CH' && <span className="ml-2 text-5xl">{flag(cc)}</span>}
         </div>
         <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.fieldH1(name, inC)}</h1>
-        <p className="mt-5 max-w-3xl text-xl text-muted">{ct.fieldSummary(name, inC, fmtNumber(programmes.length, intl), fmtNumber(institutionCount, intl), levelsText)}</p>
+        <p className="mt-5 max-w-3xl text-xl text-muted">
+          {ct.fieldSummary(name, inC, fmtNumber(counted.length, intl), fmtNumber(institutionCount, intl), levelsText)}
+          {degrees.length > 0 && continuing > 0 && ` ${ct.continuingSummary(fmtNumber(continuing, intl))}`}
+        </p>
         {(places || languages) && (
           <p className="mt-3 max-w-3xl text-muted">
             {[places && ct.fieldPlaces(name, places), languages && ct.fieldLanguages(languages)].filter(Boolean).join(' ')}
@@ -561,8 +574,17 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
         )}
       </div>
 
-      {byLevel.map((l) => (
-        <section key={l.level} id={l.level} className="mt-12 scroll-mt-24">
+      {byLevel.map((l) => {
+        const limit = isContinuing(l.level) ? limits.continuing : limits.degree
+        return (
+        <Fragment key={l.level}>
+        {l.level === firstContinuing && (
+          <div className="mt-16 border-t-2 border-line pt-10">
+            <h2 className="font-display text-4xl">{ct.continuingTitle}</h2>
+            <p className="mt-3 max-w-3xl text-muted">{ct.continuingText}</p>
+          </div>
+        )}
+        <section id={l.level} className="mt-12 scroll-mt-24">
           <h2 className="font-display text-3xl">
             {levelLabel(l.level, locale)} <span className="text-muted">({fmtNumber(l.n, intl)})</span>
           </h2>
@@ -617,7 +639,9 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
             </div>
           )}
         </section>
-      ))}
+        </Fragment>
+        )
+      })}
 
       <div className="mt-14 grid gap-5 md:grid-cols-[1.3fr_1fr]">
         <section className="card p-6">
@@ -684,17 +708,20 @@ export async function countryFieldText(cc: string, id: string, locale: Locale): 
   const intl = locale
   const name = fieldName(id, locale)
   const inC = inCountry(cc, locale)
-  const n = fmtNumber(programmes.length, intl)
+  // The title counts degree programmes; continuing education only where a field has nothing else.
+  const degrees = programmes.filter((p) => !isContinuing(p.level))
+  const counted = degrees.length ? degrees : programmes
+  const n = fmtNumber(counted.length, intl)
   const levels = list(
-    LEVEL_ORDER.map((l) => [l, programmes.filter((p) => p.level === l).length] as [Level, number])
+    LEVEL_ORDER.map((l) => [l, counted.filter((p) => p.level === l).length] as [Level, number])
       .filter(([, c]) => c > 0)
       .map(([l, c]) => ct.levelCount(fmtNumber(c, intl), levelLabel(l, locale))),
     intl,
   )
-  const institutions = fmtNumber(new Set(programmes.map((p) => p.institution)).size, intl)
+  const institutions = fmtNumber(new Set(counted.map((p) => p.institution)).size, intl)
   return {
     title: ct.fieldMetaTitle(name, inC, n),
-    description: LINK_ONLY[cc] ? ct.fieldMetaDescLink(name, inC, n, institutions, levels) : ct.fieldMetaDesc(name, inC, n, institutions, levels, placesOf(programmes, locale, 4)),
+    description: LINK_ONLY[cc] ? ct.fieldMetaDescLink(name, inC, n, institutions, levels) : ct.fieldMetaDesc(name, inC, n, institutions, levels, placesOf(counted, locale, 4)),
     // A field with one or two programmes is too thin a page to index.
     index: programmes.length >= 3,
   }

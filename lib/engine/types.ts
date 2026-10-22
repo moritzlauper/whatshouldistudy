@@ -117,7 +117,8 @@ export interface QuestionnaireAnswers {
   values?: Partial<Record<ValueKey, number>>
 }
 
-export type DegreeLevel = 'bachelor' | 'master' | 'any'
+/** `any`: every degree programme; continuing education (MAS, DAS, CAS) only when asked for. */
+export type DegreeLevel = 'bachelor' | 'master' | 'any' | 'continuing'
 
 export interface Studying {
   field: string

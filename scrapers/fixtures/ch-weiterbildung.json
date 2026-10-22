@@ -1,0 +1,10 @@
+[
+  { "institution": "ZHAW", "offer": { "name": "MAS Business Psychology", "level": "mas", "url": "https://www.zhaw.ch/de/psychologie/weiterbildung/detail/kurs/mas-business-psychology", "ects": 60, "city": "Zürich" } },
+  { "institution": "Fachhochschule Nordwestschweiz", "offer": { "name": "CAS Arbeits- und Organisationspsychologie", "level": "cas", "url": "https://www.fhnw.ch/de/psychologie/weiterbildung/angebot/weiterbildungen/cas-arbeits-organisationspsychologie", "languages": ["de"], "city": "Olten", "fee": 8750 } },
+  { "institution": "Fachhochschule Nordwestschweiz", "offer": { "name": "MAS Kunststofftechnik", "level": "mas", "url": "https://www.fhnw.ch/de/technik-umwelt/weiterbildung/angebot/weiterbildungen/mas-kunststofftechnik", "city": "Brugg-Windisch", "fee": 23400 } },
+  { "institution": "Berner Fachhochschule", "offer": { "name": "MAS AI-Driven Digital Transformation", "level": "mas", "url": "https://www.bfh.ch/de/weiterbildung/mas/ai-driven-digital-transformation/" } },
+  { "institution": "Berner Fachhochschule", "offer": { "name": "DAS Case Management", "level": "das", "url": "https://www.bfh.ch/de/weiterbildung/das/case-management/" } },
+  { "institution": "Universität Basel", "offer": { "name": "MAS Humanistische Psychotherapie", "level": "mas", "url": "https://advancedstudies.unibas.ch/studienangebot/kurs/mas-humanistische-psychotherapie-297446" } },
+  { "institution": "Université de Genève", "offer": { "name": "DAS Sécurité de l’information (DAS-InfoSec)", "level": "das", "url": "https://www.unige.ch/formcont/cours/das-infosec", "languages": ["fr"] } },
+  { "institution": "Universität Luzern", "offer": { "name": "CAS in Arbitration", "level": "cas", "url": "https://www.unilu.ch/weiterbildung/rf/cas-arbitration/" } }
+]

@@ -14,7 +14,7 @@
  */
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import { toCatalogueEntry } from '../lib/programmes.ts'
+import { isContinuing, toCatalogueEntry } from '../lib/programmes.ts'
 import { LINK_ONLY } from '../lib/catalogue.ts'
 import type { CatalogueShard, DataMeta, FieldStat, Level, Programme, ProgrammeShard, ResearchInstitution, ResearchShard, SourceStatus } from '../lib/programmes.ts'
 import { FIELDS } from '../lib/taxonomy/fields.ts'
@@ -31,6 +31,9 @@ import type { RawInstitution } from './global-openalex.ts'
 import { buildDirectory } from './global-directory.ts'
 import { parseRows as parseChRows } from './ch-bfs.ts'
 import { parseSpDetails } from './ch-studyprogrammes.ts'
+import { toProgramme as toContinuingProgramme } from './ch-weiterbildung.ts'
+import type { Offer } from './ch-weiterbildung.ts'
+import { findChInstitution } from '../lib/ch-institutions.ts'
 import type { SpDetails } from './ch-studyprogrammes.ts'
 import { parseAngebot } from './de-studiensuche.ts'
 import type { RawAngebot } from './de-studiensuche.ts'
@@ -50,7 +53,7 @@ import type { ChSalaryTable } from '../lib/ch-salary.ts'
 export const PERMISSION_PENDING = ['ch-studyprogrammes', 'de-studiensuche', 'at-studienwahl']
 
 /** Programme sources with an open licence (or written permission). */
-const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'ch-hochschulen', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku', 'nl-duo', 'no-dbh']
+const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'ch-hochschulen', 'ch-weiterbildung', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku', 'nl-duo', 'no-dbh']
 
 const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>> = [
   {
@@ -95,6 +98,13 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
   {
     id: 'ch-hochschulen',
     name: 'Studienangebot der Hochschulen (ETH Zürich, EPFL, Universitäten Zürich, Bern, Basel, Luzern, St. Gallen, Freiburg, Genf, Lausanne, ZHAW, FHNW, BFH, HSLU)',
+    countries: ['CH'],
+    url: 'https://wasstudieren.ch/so-funktionierts#data',
+    licence: 'Fakten von den Websites der Hochschulen, je mit Link',
+  },
+  {
+    id: 'ch-weiterbildung',
+    name: 'Weiterbildungsangebot der Hochschulen, MAS, DAS und CAS (ZHAW, FHNW, BFH, Universitäten Basel, Genf, Luzern)',
     countries: ['CH'],
     url: 'https://wasstudieren.ch/so-funktionierts#data',
     licence: 'Fakten von den Websites der Hochschulen, je mit Link',
@@ -188,7 +198,7 @@ function readOutputs(): Inputs {
     const o = readJson<ScrapeOutput>(join(OUT, `${id}.json`))
     if (o) {
       outputs.push(o)
-      const warning = id === 'ch-hochschulen' ? o.notes?.join('; ') : undefined
+      const warning = id === 'ch-hochschulen' || id === 'ch-weiterbildung' ? o.notes?.join('; ') : undefined
       status.set(id, { ok: o.programmes.length > 0 && !warning, count: o.programmes.length, fetchedAt: o.fetchedAt, ...(warning ? { error: warning } : {}) })
     } else status.set(id, { ok: false, count: 0, error: 'scraper did not produce output' })
   }
@@ -239,6 +249,15 @@ function readFixtures(): Inputs {
         .filter((p): p is Programme => !!p),
     },
     { source: 'ch-bfs', fetchedAt: at, programmes: ch },
+    {
+      source: 'ch-weiterbildung',
+      fetchedAt: at,
+      programmes: readJson<Array<{ institution: string; offer: Offer }>>(join(FIXTURES, 'ch-weiterbildung.json'))!.flatMap((x) => {
+        const inst = findChInstitution(x.institution)
+        const p = inst && toContinuingProgramme(x.offer, inst, at)
+        return p ? [p] : []
+      }),
+    },
     { source: 'de-studiensuche', fetchedAt: at, programmes: de },
     { source: 'at-studienwahl', fetchedAt: at, programmes: atItems },
     { source: 'kr-academyinfo', fetchedAt: at, programmes: krItems },
@@ -275,7 +294,7 @@ function carryOver(inputs: Inputs, dir: string) {
   const prevMeta = readJson<DataMeta>(join(dir, 'meta.json'))
   for (const id of PROGRAMME_SOURCES) {
     const fresh = inputs.outputs.find((o) => o.source === id && o.programmes.length)
-    if (fresh && id === 'ch-hochschulen' && existsSync(join(dir, 'programmes'))) {
+    if (fresh && (id === 'ch-hochschulen' || id === 'ch-weiterbildung') && existsSync(join(dir, 'programmes'))) {
       const old = new Map<string, Programme>()
       for (const file of readdirSync(join(dir, 'programmes')).filter((f) => f.endsWith('.json'))) {
         const shard = readJson<ProgrammeShard>(join(dir, 'programmes', file))
@@ -389,11 +408,16 @@ function fillInstitutionUrls(all: Programme[], directory: Inputs['directory']) {
   log(`Institution websites from the directory: ${filled}`)
 }
 
+/** Counts of degree programmes; continuing education is counted apart and never in the headline numbers. */
 function countryTotals(all: Programme[]): NonNullable<DataMeta['byCountry']> {
   const out: NonNullable<DataMeta['byCountry']> = {}
   const inst = new Map<string, Set<string>>()
   for (const p of all) {
     const c = (out[p.country] ??= { programmes: 0, institutions: 0, byType: {} })
+    if (isContinuing(p.level)) {
+      c.continuing = (c.continuing ?? 0) + 1
+      continue
+    }
     c.programmes++
     if (p.institutionType) c.byType[p.institutionType] = (c.byType[p.institutionType] ?? 0) + 1
     if (!inst.has(p.country)) inst.set(p.country, new Set())
@@ -440,10 +464,10 @@ async function main() {
     const shard: ProgrammeShard = { field: f.id, updated, count: list.length, programmes: list }
     writeJson(join(outDir, 'programmes', `${f.id}.json`), shard)
     const byCountry: Record<string, number> = {}
-    for (const p of list) byCountry[p.country] = (byCountry[p.country] ?? 0) + 1
+    for (const p of list) if (!isContinuing(p.level)) byCountry[p.country] = (byCountry[p.country] ?? 0) + 1
     counts[f.id] = byCountry
     const earnings = list.filter((p) => p.fields[0] === f.id && p.level === 'bachelor' && p.earnings?.currency === 'USD').map((p) => p.earnings!.median)
-    stats[f.id] = { programmes: list.length, countries: Object.keys(byCountry).length, usMedianEarnings: earnings.length >= 3 ? median(earnings) : undefined }
+    stats[f.id] = { programmes: list.filter((p) => !isContinuing(p.level)).length, countries: Object.keys(byCountry).length, usMedianEarnings: earnings.length >= 3 ? median(earnings) : undefined }
     const ch = inputs.chSalaries ? chSalaryFor(f.id, inputs.chSalaries) : inputs.carriedChSalaries?.[f.id]
     if (ch) stats[f.id].ch = ch
   }
@@ -480,16 +504,17 @@ async function main() {
   }
 
   const cutoff = new Date(Date.now() - 90 * 864e5).toISOString().slice(0, 10)
+  const degrees = all.filter((p) => !isContinuing(p.level))
   const meta: DataMeta = {
     updated,
     sources: SOURCES.map((s) => ({ ...s, ok: false, count: 0, ...inputs.status.get(s.id) })),
     fx: sample ? FX_FALLBACK : await fetchFx(),
     counts,
     totals: {
-      programmes: all.length,
-      countries: new Set(all.map((p) => p.country)).size,
-      institutions: new Set(all.map((p) => `${p.country}|${p.institution}`)).size,
-      newLast90Days: all.filter((p) => (p.firstSeen ?? '') >= cutoff && !isFirstRun).length,
+      programmes: degrees.length,
+      countries: new Set(degrees.map((p) => p.country)).size,
+      institutions: new Set(degrees.map((p) => `${p.country}|${p.institution}`)).size,
+      newLast90Days: degrees.filter((p) => (p.firstSeen ?? '') >= cutoff && !isFirstRun).length,
     },
     unclassified: 0,
     byCountry: countryTotals(all),

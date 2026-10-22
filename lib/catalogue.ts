@@ -74,7 +74,7 @@ export const PROGRAMME_PAGES_PENDING: Record<string, string> = {}
 export const hasProgrammePages = (cc: string) => CATALOGUE_COUNTRIES.includes(cc) && !LINK_ONLY[cc] && !PROGRAMME_PAGES_PENDING[cc]
 
 /** The order levels are listed in. */
-export const LEVEL_ORDER: Level[] = ['bachelor', 'integrated', 'professional', 'master', 'short', 'doctorate']
+export const LEVEL_ORDER: Level[] = ['bachelor', 'integrated', 'professional', 'master', 'short', 'doctorate', 'mas', 'das', 'cas']
 
 /** Lower case, without accents and punctuation, for search. */
 export function normalizeSearch(s: string): string {

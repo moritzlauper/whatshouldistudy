@@ -88,7 +88,7 @@ export function fiIsced(d: FiDetail): string[] {
   return [...out]
 }
 
-const YEARS: Record<Level, number> = { short: 2, bachelor: 3, master: 2, integrated: 5, doctorate: 4, professional: 6 }
+const YEARS: Partial<Record<Level, number>> = { short: 2, bachelor: 3, master: 2, integrated: 5, doctorate: 4, professional: 6 }
 
 /** One programme row per offering institution. */
 export function parseFiDetail(d: FiDetail, fetchedAt: string): Programme[] {

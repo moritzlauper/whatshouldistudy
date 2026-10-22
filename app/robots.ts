@@ -23,6 +23,6 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   const sitemap = frItHosts().includes(host.toLowerCase()) ? `${CH_FR_IT_URL}/sitemap.xml` : own ? (SITES[own].domainUrl ? siteUrl(own, '/sitemap.xml') : `https://${host}${b}/sitemap.xml`) : siteUrl('global', '/sitemap.xml')
   // The programme pages have sitemaps of their own, next to the main one.
   const { meta, sample } = await getMeta()
-  const programmes = sample ? [] : sitemapFiles(host, (cc) => meta?.byCountry?.[cc]?.programmes ?? 0).map((f) => sitemap.replace(/\/sitemap\.xml$/, `/sitemaps/${f}`))
+  const programmes = sample ? [] : sitemapFiles(host, (cc) => (meta?.byCountry?.[cc]?.programmes ?? 0) + (meta?.byCountry?.[cc]?.continuing ?? 0)).map((f) => sitemap.replace(/\/sitemap\.xml$/, `/sitemaps/${f}`))
   return { rules: [{ userAgent: '*', allow: '/', disallow }], sitemap: [sitemap, ...programmes] }
 }

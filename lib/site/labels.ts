@@ -233,12 +233,17 @@ const LEVEL_DE: Record<Level, string> = {
   integrated: 'Bachelor + Master integriert',
   doctorate: 'Doktorat',
   professional: 'Staatsexamen (Medizin, Recht …)',
+  mas: 'MAS (Weiterbildung)',
+  das: 'DAS (Weiterbildung)',
+  cas: 'CAS (Weiterbildung)',
 }
 const LEVEL_FR: Record<Level, string> = {
   short: 'Études courtes / préparation', bachelor: 'Bachelor', master: 'Master', integrated: 'Bachelor et Master intégrés', doctorate: 'Doctorat', professional: 'Diplôme professionnel',
+  mas: 'MAS (formation continue)', das: 'DAS (formation continue)', cas: 'CAS (formation continue)',
 }
 const LEVEL_IT: Record<Level, string> = {
   short: 'Studi brevi / preparazione', bachelor: 'Bachelor', master: 'Master', integrated: 'Bachelor e Master integrati', doctorate: 'Dottorato', professional: 'Diploma professionale',
+  mas: 'MAS (formazione continua)', das: 'DAS (formazione continua)', cas: 'CAS (formazione continua)',
 }
 
 const de = <T,>(v: T, l: Locale): T => (typeof v === 'string' ? (regionalize(v, l) as T) : (Object.fromEntries(Object.entries(v as object).map(([k, x]) => [k, regionalize(x as string, l)])) as T))
