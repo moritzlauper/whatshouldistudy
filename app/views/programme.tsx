@@ -213,7 +213,8 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
         ...(p.ects ? { numberOfCredits: p.ects } : {}),
         ...(p.mode ? { educationalProgramMode: p.mode } : {}),
         ...(p.requirements || p.admission ? { programPrerequisites: p.requirements ?? p.admission } : {}),
-        ...(p.focus?.length ? { teaches: p.focus } : {}),
+        ...(p.focus?.length || reading?.specialisations.length ? { teaches: [...new Set([...(p.focus ?? []), ...(reading?.specialisations ?? [])])] } : {}),
+        ...(reading?.distinctive.length ? { description: reading.distinctive.join(' ') } : {}),
       },
     ],
   }
@@ -362,8 +363,13 @@ export async function programmeText(cc: string, field: string, slug: string, loc
   const extra = [years, langs.join(', ')].filter(Boolean).join(', ')
   // A Korean title gets its English focus next to it.
   const name = /[A-Za-z]/.test(p.name) || !p.focus?.[0] ? p.name : `${p.name} (${p.focus[0]})`
+  // The town is searched for too («Physik Master Lausanne»): in the title when the institution's name lacks it and there is room.
+  const at = `${p.institution}${p.city && !p.institution.toLowerCase().includes(p.city.toLowerCase()) ? `, ${p.city}` : ''}`
+  const reading = READING_COUNTRIES.has(cc) ? publicReading((await countryFacts(cc))?.[p.id], locale) : null
+  // What the official page says sets it apart tells a searcher more than the list of facts every page has.
+  const detail = reading?.distinctive[0] ?? (reading?.specialisations.length ? `${ct.specialisations(reading.specialisations.join(', '))}.` : undefined)
   return {
-    title: `${name} · ${p.institution}`,
-    description: ct.programmeMetaDesc(levelLabel(p.level, locale), fieldName(field, locale), p.institution, placeOf(p), extra),
+    title: `${name} · ${`${name} · ${at}`.length <= 60 ? at : p.institution}`,
+    description: ct.programmeMetaDesc(levelLabel(p.level, locale), fieldName(field, locale), p.institution, placeOf(p), extra, detail),
   }
 }

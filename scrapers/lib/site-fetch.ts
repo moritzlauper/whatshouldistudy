@@ -1,6 +1,7 @@
 import { robotsAllow, sameSite } from '../../lib/official-facts.ts'
 
-type Page = { status: number; text: string }
+/** `url` is where the page was found after redirects. */
+type Page = { status: number; text: string; url?: string }
 const UA = 'Mozilla/5.0 (compatible; wasstudieren-bot/1.0; +https://wasstudieren.ch)'
 
 /** Every request, including robots, sitemaps and redirects, uses the same paced reader. */
@@ -34,7 +35,7 @@ export function siteReader(pause = 1500, request: typeof fetch = fetch) {
         const next = response.status === 303 || ([301, 302].includes(response.status) && init.method === 'POST') ? { ...init, method: 'GET', body: undefined } : init
         return location ? read(new URL(location, url).href, timeout, initial, redirects + 1, robots, next) : { status: response.status, text: '' }
       }
-      return { status: response.status, text: response.ok ? await response.text() : '' }
+      return { status: response.status, text: response.ok ? await response.text() : '', url }
     } catch { return { status: 0, text: '' } }
   }
   return (url: string, timeout = 30_000, init: RequestInit = {}) => read(url, timeout, url, 0, false, init)

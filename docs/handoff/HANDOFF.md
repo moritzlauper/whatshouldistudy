@@ -2,6 +2,15 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## SEO der Schweizer Fach- und Studiengangseiten (22.10.2026)
+
+- Auftrag: mehr Suchtreffer auf wasstudieren.ch über die Fachseiten. Technische Basis war bereits in Ordnung (Canonical auf wasstudieren.ch bzw. whatshouldistudy.ch/fr|it, hreflang DE/FR/IT/EN, Sitemaps).
+- Fachseiten (`/studiengaenge/[fach]`): neuer Absatz unter der Einleitung mit Studienorten (meiste Studiengänge zuerst, bis 8, dann «und N weiteren Orten») und Unterrichtssprachen mit Anzahl. Meta-Beschreibung nennt die vier wichtigsten Orte statt der allgemeinen Schlussformel, Länge jetzt rund 140 bis 155 Zeichen. Ortsnamen pro Sprache (`townName` in `lib/site/labels.ts`): Genf/Genève/Ginevra/Geneva, Zürich/Zurich/Zurigo usw.
+- Studiengangseiten: Titel mit Ort, wenn der Hochschulname ihn nicht enthält und der Titel höchstens 60 Zeichen hat («Master Applied Physics · EPFL, Lausanne»). Meta-Beschreibung endet mit der ersten Besonderheit aus der Lesung, sonst mit den Vertiefungen, sonst wie bisher. JSON-LD `EducationalOccupationalProgram` erhält `teaches` mit den Vertiefungen und `description` mit den Besonderheiten.
+- Duplikate: Die EPFL-Liste verlinkt `applied-physic/` (301 auf `applied-physics/`) neben `applied-physics/`, daher zwei Seiten für denselben Master. `withoutRedirects` in `scrapers/ch-hochschulen.ts` entfernt Listenlinks, die nur auf einen anderen gelisteten Studiengang derselben Stufe weiterleiten. Wirkt ab dem nächsten Datenlauf; die alte Adresse leitet dann über `findByName` dauerhaft auf die verbleibende weiter. Nicht behoben: UNIGE «Systèmes et services numériques» hat zwei echte Seiten (`…` und `…-1`), beide HTTP 200.
+- Geprüft: 334 Tests bestanden, 0 fehlgeschlagen; Typprüfung ohne Fehler in den geänderten Dateien. Lokal mit Produktionsdomains (Host-Header) und nachgebildetem Fakten-Store gerendert, DE/FR/IT. Nicht geprüft: Wirkung in der Search Console (dauert Wochen).
+- Hinweis: `scrapers/ch-weiterbildung.ts` lag beim Commit unversioniert im Arbeitsverzeichnis und hat Typfehler; nicht Teil dieser Arbeit und nicht eingecheckt.
+
 ## Besonderheiten auf Schweizer Studiengangseiten (22.10.2026)
 
 - Auftrag des Inhabers: Die studiengangspezifischen Angaben aus den Lesungen sollen auf den Schweizer Studiengangseiten stehen. Bisher zeigten nur die Fachseiten die Namen der Vertiefungen, die Detailseite nichts davon.

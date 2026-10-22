@@ -13,10 +13,10 @@ import type { Locale, SiteProps } from '@/lib/site/config.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { Kit } from '@/lib/site/kit.ts'
 import { pageUrl } from '@/lib/site/meta.ts'
-import { countryLabel, emoji, fieldBlurb, fieldCareers, fieldName, fmtMoney, fmtNumber, groupLabel, levelLabel } from '@/lib/site/labels.ts'
+import { countryLabel, emoji, fieldBlurb, fieldCareers, fieldName, fmtMoney, fmtNumber, groupLabel, levelLabel, townName } from '@/lib/site/labels.ts'
 import { FIELDS, FIELD_BY_ID, GROUP_LABELS } from '@/lib/taxonomy/fields.ts'
 import type { FieldGroup } from '@/lib/taxonomy/fields.ts'
-import { CatalogueRow } from '../ui/catalogue-row.tsx'
+import { CatalogueRow, languageName } from '../ui/catalogue-row.tsx'
 import { CatalogueSearch, MoreAt } from '../ui/catalogue-search.tsx'
 import { JsonLd, breadcrumbLd } from '../ui/json-ld.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
@@ -49,6 +49,27 @@ function list(items: string[], intl: string): string {
   } catch {
     return items.join(', ')
   }
+}
+
+/** The towns a field is taught in, those with the most programmes first, up to `max` and then how many more. */
+export function placesOf(programmes: Array<Pick<CatalogueEntry, 'city'>>, locale: Locale, max: number): string {
+  const n = new Map<string, number>()
+  for (const p of programmes) if (p.city) n.set(p.city, (n.get(p.city) ?? 0) + 1)
+  const towns = [...n.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], locale)).map(([town]) => townName(town, locale))
+  if (!towns.length) return ''
+  // «and 1 other place» says less than the place itself.
+  const more = towns.length - max > 1 ? towns.length - max : 0
+  return list(more ? [...towns.slice(0, max), catalogueText(locale).morePlaces(fmtNumber(more, locale))] : towns, locale)
+}
+
+/** The teaching languages with how many programmes use each, the most frequent first; programmes that name none are left out. */
+export function languagesOf(programmes: Array<Pick<CatalogueEntry, 'languages'>>, locale: Locale): string {
+  const n = new Map<string, number>()
+  for (const p of programmes) for (const l of new Set(p.languages ?? [])) n.set(l, (n.get(l) ?? 0) + 1)
+  return [...n.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([l, count]) => `${languageName(l, locale)} (${fmtNumber(count, locale)})`)
+    .join(', ')
 }
 
 export function fmtDate(iso: string | undefined, intl: string): string {
@@ -491,6 +512,8 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
       : cc === 'US' && s?.usMedianEarnings
         ? [ct.earningsUs, fmtMoney(s.usMedianEarnings, 'USD', intl), t.earnings.usSource]
         : null
+  const places = placesOf(programmes, locale, 8)
+  const languages = languagesOf(programmes, locale)
   const related = FIELDS.filter((x) => x.id !== id && x.group === f.group && fieldCount(meta, x.id, cc) > 0)
     .sort((a, b) => fieldCount(meta, b.id, cc) - fieldCount(meta, a.id, cc))
     .slice(0, 6)
@@ -509,6 +532,11 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
         </div>
         <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.fieldH1(name, inC)}</h1>
         <p className="mt-5 max-w-3xl text-xl text-muted">{ct.fieldSummary(name, inC, fmtNumber(programmes.length, intl), fmtNumber(institutionCount, intl), levelsText)}</p>
+        {(places || languages) && (
+          <p className="mt-3 max-w-3xl text-muted">
+            {[places && ct.fieldPlaces(name, places), languages && ct.fieldLanguages(languages)].filter(Boolean).join(' ')}
+          </p>
+        )}
         {byLevel.length > 1 && (
           <nav className="mt-5 flex flex-wrap gap-2">
             {byLevel.map((l) => (
@@ -666,7 +694,7 @@ export async function countryFieldText(cc: string, id: string, locale: Locale): 
   const institutions = fmtNumber(new Set(programmes.map((p) => p.institution)).size, intl)
   return {
     title: ct.fieldMetaTitle(name, inC, n),
-    description: (LINK_ONLY[cc] ? ct.fieldMetaDescLink : ct.fieldMetaDesc)(name, inC, n, institutions, levels),
+    description: LINK_ONLY[cc] ? ct.fieldMetaDescLink(name, inC, n, institutions, levels) : ct.fieldMetaDesc(name, inC, n, institutions, levels, placesOf(programmes, locale, 4)),
     // A field with one or two programmes is too thin a page to index.
     index: programmes.length >= 3,
   }

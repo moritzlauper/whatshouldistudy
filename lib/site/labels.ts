@@ -233,12 +233,17 @@ const LEVEL_DE: Record<Level, string> = {
   integrated: 'Bachelor + Master integriert',
   doctorate: 'Doktorat',
   professional: 'Staatsexamen (Medizin, Recht …)',
+  mas: 'MAS (Weiterbildung)',
+  das: 'DAS (Weiterbildung)',
+  cas: 'CAS (Weiterbildung)',
 }
 const LEVEL_FR: Record<Level, string> = {
   short: 'Études courtes / préparation', bachelor: 'Bachelor', master: 'Master', integrated: 'Bachelor et Master intégrés', doctorate: 'Doctorat', professional: 'Diplôme professionnel',
+  mas: 'MAS (formation continue)', das: 'DAS (formation continue)', cas: 'CAS (formation continue)',
 }
 const LEVEL_IT: Record<Level, string> = {
   short: 'Studi brevi / preparazione', bachelor: 'Bachelor', master: 'Master', integrated: 'Bachelor e Master integrati', doctorate: 'Dottorato', professional: 'Diploma professionale',
+  mas: 'MAS (formazione continua)', das: 'DAS (formazione continua)', cas: 'CAS (formazione continua)',
 }
 
 const de = <T,>(v: T, l: Locale): T => (typeof v === 'string' ? (regionalize(v, l) as T) : (Object.fromEntries(Object.entries(v as object).map(([k, x]) => [k, regionalize(x as string, l)])) as T))
@@ -264,6 +269,27 @@ export function countryLabel(code: string, intl: string): string {
   } catch {
     return code
   }
+}
+
+/** Swiss towns under the name each language uses, which is the one people search for; the catalogue has the local name. */
+const TOWNS: Record<string, Partial<Record<'de' | 'fr' | 'it' | 'en', string>>> = {
+  Zürich: { fr: 'Zurich', it: 'Zurigo', en: 'Zurich' },
+  Genève: { de: 'Genf', it: 'Ginevra', en: 'Geneva' },
+  Basel: { fr: 'Bâle', it: 'Basilea' },
+  Bern: { fr: 'Berne', it: 'Berna' },
+  Lausanne: { it: 'Losanna' },
+  Luzern: { fr: 'Lucerne', it: 'Lucerna', en: 'Lucerne' },
+  Neuchâtel: { de: 'Neuenburg' },
+  'St. Gallen': { fr: 'Saint-Gall', it: 'San Gallo' },
+  Biel: { fr: 'Bienne', it: 'Bienne' },
+  Chur: { fr: 'Coire', it: 'Coira' },
+  Brig: { fr: 'Brigue' },
+  Delémont: { de: 'Delsberg' },
+  Schaffhausen: { fr: 'Schaffhouse', it: 'Sciaffusa' },
+}
+
+export function townName(town: string, l: Locale): string {
+  return TOWNS[town]?.[l.slice(0, 2) as 'de' | 'fr' | 'it' | 'en'] ?? town
 }
 
 export function fmtNumber(n: number, intl: string): string {

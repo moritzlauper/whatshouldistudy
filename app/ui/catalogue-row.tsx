@@ -6,7 +6,7 @@ import { TYPE_STYLE, admissionText, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
 import { fieldName, levelLabel } from '@/lib/site/labels.ts'
 
-function languageName(code: string, intl: string): string {
+export function languageName(code: string, intl: string): string {
   try {
     return new Intl.DisplayNames([intl], { type: 'language' }).of(code) ?? code
   } catch {

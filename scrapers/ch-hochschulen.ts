@@ -45,7 +45,7 @@ export interface Listed {
 }
 
 /** Cantons of the campus towns of multi-site universities. */
-const CAMPUS_CANTON: Record<string, string> = {
+export const CAMPUS_CANTON: Record<string, string> = {
   Zürich: 'ZH', Winterthur: 'ZH', Wädenswil: 'ZH', Muttenz: 'BL', Liestal: 'BL', Basel: 'BS', Olten: 'SO', Solothurn: 'SO', 'Brugg-Windisch': 'AG', Windisch: 'AG', Aarau: 'AG',
   Luzern: 'LU', Horw: 'LU', Emmenbrücke: 'LU', Rotkreuz: 'ZG', Zug: 'ZG', Bern: 'BE', Biel: 'BE', Burgdorf: 'BE', Zollikofen: 'BE', Magglingen: 'BE',
 }
@@ -744,7 +744,7 @@ export const SOURCES: Source[] = [
  * Swiss programme names the general classifier misses (it is tuned to video
  * and search titles, where single words like «Englisch» mean little).
  */
-const CH_TITLES: Array<[RegExp, string[]]> = [
+export const CH_TITLES: Array<[RegExp, string[]]> = [
   [/philologie|anglistik|englisch|english|germanistik|deutsche philologie|französistik|romanistik|hispanistik|italianistik|iberoromanistik|slavistik|skandinavistik|nordistik|latein|griechisch/i, ['languages', 'literature']],
   [/indologie|sinologie|japanologie|islamwissenschaft|nahost|mitteloststudien|osteuropastudien|african studies|ägyptologie|aegyptologie|osteuropa|asien-orient|jüdische studien/i, ['languages', 'history']],
   [/altertumswissenschaft|alte geschichte|klassische archäologie/i, ['history', 'archaeology']],
@@ -872,6 +872,19 @@ async function page(url: string, timeout = 30_000): Promise<string | null> {
   return res.text
 }
 
+/**
+ * A listed link that only redirects to another listed programme of the same level counts once (EPFL lists
+ * applied-physic/ next to applied-physics/). Links that lead to the same page that is not listed itself stay:
+ * that page may be a general one for several programmes.
+ */
+export function withoutRedirects(listed: Listed[], arrivedAt: Map<string, string>): Listed[] {
+  const own = new Set(listed.map((x) => `${x.level}|${x.url}`))
+  return listed.filter((x) => {
+    const to = arrivedAt.get(x.url)
+    return !to || to === x.url || !own.has(`${x.level}|${to}`)
+  })
+}
+
 /** Only labelled facts of this programme; no institution-wide language or mode guesses. */
 export function studyFacts(html: string): Partial<Listed> {
   const content = pageText(html)
@@ -895,7 +908,7 @@ async function main() {
   for (const src of SOURCES) {
     const inst = findChInstitution(src.institution)
     if (!inst) throw new Error(`unknown institution ${src.institution}`)
-    const listed: Listed[] = []
+    let listed: Listed[] = []
     const fetched = new Map<string, string | null>()
     for (const l of src.lists) {
       if (!fetched.has(l.url)) fetched.set(l.url, l.load ? await l.load(l.url) : await page(l.url, 120_000))
@@ -911,11 +924,15 @@ async function main() {
     }
     if (src.detail || src.closure) {
       const defined = (o: Partial<Listed> | undefined) => Object.fromEntries(Object.entries(o ?? {}).filter(([, v]) => v !== undefined)) as Partial<Listed>
+      const arrivedAt = new Map<string, string>()
       for (const [i, x] of listed.entries()) {
         if (src.detailLevels && !src.detailLevels.includes(x.level)) continue
-        const html = await page(x.url)
+        const res = await fetchSite(x.url)
+        if (res.status !== 200) log(`  HTTP ${res.status} ${x.url}`)
+        const html = res.status === 200 ? res.text : null
         // Programme-page facts override list defaults; retain named focus areas from both.
         if (!html) continue
+        if (res.url) arrivedAt.set(x.url, res.url)
         const found = { ...(src.detail ? defined(studyFacts(html)) : {}), ...defined(src.detail?.(html)), ...defined(src.closure?.(html)) }
         const merged = { ...x, ...defined(found) } as Listed
         merged.focus = [...new Set([...(x.focus ?? []), ...(found.focus ?? [])])]
@@ -923,6 +940,9 @@ async function main() {
         delete merged.provisional
         listed[i] = merged
       }
+      const before = listed.length
+      listed = withoutRedirects(listed, arrivedAt)
+      if (listed.length < before) log(`${inst.name}: ${before - listed.length} listed links redirect to another listed programme`)
     }
     let unclassified = 0
     for (const x of listed) {
