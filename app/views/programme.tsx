@@ -3,9 +3,12 @@ import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { LEVEL_ORDER, programmeSlug } from '@/lib/catalogue.ts'
 import { TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
+import { publicReading } from '@/lib/facts-store.ts'
+import type { PublicReading } from '@/lib/facts-store.ts'
 import { toCatalogueEntry } from '@/lib/programmes.ts'
 import type { CatalogueEntry, Programme } from '@/lib/programmes.ts'
 import { getCatalogue, getMeta, getStats } from '@/lib/server/data.ts'
+import { countryFacts } from '@/lib/server/facts-db.ts'
 import { resolveProgramme } from '@/lib/server/programme.ts'
 import { translateDescription } from '@/lib/server/translate.ts'
 import type { FoundProgramme } from '@/lib/server/programme.ts'
@@ -28,6 +31,9 @@ import { Cta, countryTotals, crumbs, fmtDate, inCountry } from './catalogue.tsx'
  */
 
 const RELATED = 12
+
+/** Countries whose programme pages show what was read on the official page. */
+const READING_COUNTRIES = new Set(['CH'])
 
 const lang = (locale: Locale) => (locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it')
 
@@ -67,6 +73,40 @@ function nearby(all: Programme[], p: Programme): Programme[] {
     .map((x) => x.q)
 }
 
+/** What the reading of the official page says about the programme itself: what sets it apart and its specialisations. */
+function OfficialReading({ reading, locale, intl }: { reading: PublicReading; locale: Locale; intl: string }) {
+  const o = catalogueText(locale).official
+  const both = reading.distinctive.length > 0 && reading.specialisations.length > 0
+  return (
+    <section className="card mt-10 p-6">
+      <h2 className="font-display text-2xl">{o.title}</h2>
+      <div className={`mt-4 grid gap-6 ${both ? 'md:grid-cols-[1.4fr_1fr]' : ''}`}>
+        {reading.distinctive.length > 0 && (
+          <div>
+            <h3 className="font-bold">{o.distinctive}</h3>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed">
+              {reading.distinctive.map((d) => <li key={d}>{d}</li>)}
+            </ul>
+          </div>
+        )}
+        {reading.specialisations.length > 0 && (
+          <div>
+            <h3 className="font-bold">{o.specialisations}</h3>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {reading.specialisations.map((n) => (
+                <li key={n} className="chip">
+                  {n}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+      <p className="mt-4 text-xs text-muted">{o.note(fmtDate(reading.at, intl))}</p>
+    </section>
+  )
+}
+
 function Related({ k, cc, title, items, showInstitution, more }: { k: Kit; cc: string; title: string; items: CatalogueEntry[]; showInstitution: boolean; more?: { label: string; href: string } }) {
   if (!items.length) return null
   return (
@@ -96,7 +136,12 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
   const { r, intl, locale, t } = k
   const ct = catalogueText(locale)
   const d = ct.detail
-  const [{ p: full, shard }, { meta }, stats] = await Promise.all([programmeOr404(k, cc, field, slug), getMeta(), getStats()])
+  const [{ p: full, shard }, { meta }, stats, facts] = await Promise.all([
+    programmeOr404(k, cc, field, slug),
+    getMeta(),
+    getStats(),
+    READING_COUNTRIES.has(cc) ? countryFacts(cc) : null,
+  ])
   if (!countryTotals(meta, cc)) notFound()
   // Only the catalogue's own fields reach the page; fees, earnings and admission rates stay in the paid list.
   const p = toCatalogueEntry(full)
@@ -109,6 +154,8 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
   const original = full.description && source && DESCRIPTION_SOURCES.has(source.id) ? wholeSentences(full.description) : undefined
   const alreadyEnglish = locale === 'en' && !!original && (original.match(/\b(the|and|of|to|in|with)\b/gi)?.length ?? 0) >= 4
   const about = !original ? undefined : alreadyEnglish ? original : await translateDescription(original, locale)
+  // Only the specialisations and what sets the programme apart: the rest of the reading belongs to the paid comparison.
+  const reading = publicReading(facts?.[full.id], locale)
 
   const inCountryShard = shard.programmes.filter((q) => q.country === cc)
   const sameInstitution = inCountryShard
@@ -226,6 +273,8 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
           <p className="mt-1 text-xs text-muted">{ct.aboutSource(`${source!.name} (${source!.licence})`, !alreadyEnglish)}</p>
         </section>
       )}
+
+      {reading && <OfficialReading reading={reading} locale={locale} intl={intl} />}
 
       <div className="mt-10 grid gap-5 md:grid-cols-[1.4fr_1fr]">
         <section className="card p-6">

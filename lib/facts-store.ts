@@ -6,8 +6,9 @@ import { SUBJECT_KEYS } from './taxonomy/fields.ts'
 /**
  * The facts database: one Redis hash per country, a field per programme with what
  * the AI read about its official page (scrapers/lib/facts.ts). It is private: the
- * readings belong to the paid comparison. The weekly job writes it through
- * /api/facts/ingest, the site reads it from the same store.
+ * readings belong to the paid comparison, and public pages get only what
+ * specialisationNames and publicReading let through. The weekly job writes it
+ * through /api/facts/ingest, the site reads it from the same store.
  */
 
 export interface StoreConfig {
@@ -194,4 +195,24 @@ export function specialisationNames(facts: Record<string, StoredFact> | null): R
     if (names.length) out[id] = names
   }
   return out
+}
+
+/** What a programme's public page shows of its reading. */
+export interface PublicReading {
+  specialisations: string[]
+  /** What sets the programme apart, in the page's language. */
+  distinctive: string[]
+  /** When the official page was read, YYYY-MM-DD. */
+  at: string
+}
+
+/**
+ * The part of a reading that describes the programme itself, for its public page: the names of its specialisations and
+ * what sets it apart. The interest profile, the topics and the check stay in the paid reading. Null when there is nothing.
+ */
+export function publicReading(f: StoredFact | undefined, locale: Locale): PublicReading | null {
+  if (!f) return null
+  const { specialisations = [], distinctive = [] } = factsForLocale(f, locale)
+  const names = specialisations.map((s) => s.name)
+  return names.length || distinctive.length ? { specialisations: names, distinctive, at: f.at } : null
 }

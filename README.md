@@ -679,7 +679,12 @@ Its Vercel automation header uses the repository secret
 Other running server instances may retain cached readings
 for an hour; paid API responses are cached in the browser for up to ten minutes.
 
-The readings are never published. The job writes them to the site's private
+The readings as a whole are never published. Public pages show only the part that
+describes the programme itself (`specialisationNames`, `publicReading` in
+`lib/facts-store.ts`): field pages list the specialisation names, Swiss programme
+pages add a card «Von der offiziellen Seite» with the translated distinctive points,
+the specialisations and the reading date. Interest profile, topics and the check
+stay in the paid comparison. The job writes the readings to the site's private
 database (`lib/facts-store.ts`: `FACTS_REDIS_REST_*`, or the counter database
 `USAGE_*` if that is all there is) through `/api/facts/ingest`. The job proves who it
 is with its GitHub Actions token (`lib/actions-oidc.ts`: this repository, main, this

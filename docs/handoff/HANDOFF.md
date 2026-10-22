@@ -2,6 +2,13 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Besonderheiten auf Schweizer Studiengangseiten (22.10.2026)
+
+- Auftrag des Inhabers: Die studiengangspezifischen Angaben aus den Lesungen sollen auf den Schweizer Studiengangseiten stehen. Bisher zeigten nur die Fachseiten die Namen der Vertiefungen, die Detailseite nichts davon.
+- Neu: Karte «Von der offiziellen Seite» auf `/studiengaenge/[fach]/[studiengang]` (DE/FR/IT/EN) mit «Was den Studiengang besonders macht» in der Seitensprache, den Vertiefungen und dem Lesedatum (`OfficialReading` in `app/views/programme.tsx`, `publicReading` in `lib/facts-store.ts`). Nur für CH (`READING_COUNTRIES`). Nicht übersetzte Altaussagen bleiben weg.
+- Bewusst weiterhin nur im bezahlten Report: Interessenprofil, Themen, «Abklären», persönliche Passung und Begründungen. `/api/facts`, Tokenprüfung und Checkout unverändert.
+- Geprüft: Typprüfung, 330 Tests bestanden, 0 fehlgeschlagen (neu: Locale-Auswahl und kein Durchsickern von Profil/Abklären). Lokal mit nachgebildetem Store gerendert, DE und FR. Ob der EPFL-Studiengang `3b1hoca0g4` produktiv eine Lesung hat, war lokal nicht prüfbar (keine Store-Zugangsdaten); die Seiten sind ISR mit einem Tag Revalidierung.
+
 ## Outreach erneut gestoppt (20.10.2026)
 
 - Neuer ausdrücklicher Auftrag des Inhabers: alle automatischen Outreach-Mails stoppen und pushen. Dieser Auftrag ersetzt die weiter unten dokumentierte Wiederaktivierung vom selben Tag.
