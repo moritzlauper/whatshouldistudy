@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-23",
+  "site": "ch",
+  "fields": [
+    "medicine",
+    "education"
+  ],
+  "sources": [
+    {
+      "title": "Bundesamt für Statistik, Hochschulstatistik 2022 (Bildung und Wissenschaft 15)",
+      "url": "https://dam-api.bfs.admin.ch/hub/api/dam/assets/31068673/master"
+    },
+    {
+      "title": "Studierende an Hochschulen - LUSTAT Statistik Luzern",
+      "url": "https://www.lustat.ch/analysen/bildung/bildungsbericht-2024/studierende-an-hochschulen/articles/studierende-an-hochschulen"
+    },
+    {
+      "title": "berufsberatung.ch, Zulassung zur Fachhochschule",
+      "url": "https://www.berufsberatung.ch/de/zulassung-zur-fachhochschule"
+    },
+    {
+      "title": "Worum muss ich mich vor Studienbeginn kümmern?",
+      "url": "https://beratungsdienste.ch/blog/8120/worum-muss-ich-mich-vor-studienbeginn-kummern"
+    },
+    {
+      "title": "Application | University of Basel",
+      "url": "https://www.unibas.ch/en/Studies/Before-My-Studies/Application-Admission/Application.html"
+    },
+    {
+      "title": "Bewerbungsfristen | Universität Zürich",
+      "url": "https://www.uzh.ch/de/studies/application/deadlines.html"
+    },
+    {
+      "title": "Semesterdaten | Universität Bern",
+      "url": "https://www.unibe.ch/studium/daten/semesterdaten/index_ger.html"
+    },
+    {
+      "title": "Semesterdaten und Anmeldefristen | PH Bern",
+      "url": "https://www.phbern.ch/studium/rund-ums-studieren/semesterdaten-und-anmeldefristen"
+    },
+    {
+      "title": "Eignungstest | Departement für Sport, Bewegung und Gesundheit | Universität Basel",
+      "url": "https://dsbg.unibas.ch/de/studium/aufnahmepruefung/"
+    },
+    {
+      "title": "Zulassungsverfahren mit Numerus clausus | swissuniversities",
+      "url": "https://www.swissuniversities.ch/service/anmeldung-zum-medizinstudium/zulassungsverfahren-mit-numerus-clausus"
+    },
+    {
+      "title": "Anforderung und Anmeldung – Kanton Schwyz",
+      "url": "https://www.sz.ch/verwaltung/bildungsdepartement/amt-fuer-mittel-und-hochschulen/universitaere-hochschulen/anforderung-und-anmeldung.html/8756-8758-8802-9466-9468-10046-11287"
+    },
+    {
+      "title": "Wissenswertes zum EMS - Numerus Clausus Vorbereitung",
+      "url": "https://www.eignungstest.ch/EMS-Numerus-Clausus-/Wissenswertes-zum-EMS"
+    }
+  ],
+  "de": {
+    "slug": "uni-fh-oder-ph-hochschultyp-waehlen-fristen-2027",
+    "title": "Uni, FH oder PH? Den Hochschultyp wählen und die Fristen im Blick behalten",
+    "description": "Uni, FH oder PH: Wie sich die drei Hochschultypen unterscheiden, welche Vorbildung sie verlangen und welche Anmeldefristen für Herbst 2027 gelten.",
+    "body": "Wer nach der Schule in der Schweiz studieren will, steht zuerst vor einer Wahl: Universität, Fachhochschule (FH) oder Pädagogische Hochschule (PH)? Die drei Typen unterscheiden sich beim Inhalt, bei der Vorbildung und beim Zeitplan. Die Anmeldefristen liegen zudem weit auseinander. Dieser Beitrag zeigt dir, worin sich die Typen unterscheiden, und welche Termine für das Herbstsemester 2027 in den nächsten Monaten anstehen.\n\n## Drei Hochschultypen mit unterschiedlichem Profil\n\nIm Studienjahr 2022/23 waren in der Schweiz knapp 275’000 Personen an einer Hochschule eingeschrieben. 61% studierten an einer Universität, 30% an einer FH und 9% an einer PH. Die Schweiz zählt 14 Universitäten, 10 FH und 18 PH. Zwischen 2013 und 2022 wuchs die Zahl der Studierenden an den Universitäten um 18%, an den FH um 31% und an den PH um 53%. Die PH sind also der kleinste Typ und legten zugleich am stärksten zu. Die Zahlen stammen aus der [BFS-Hochschulstatistik](https://dam-api.bfs.admin.ch/hub/api/dam/assets/31068673/master).\n\nDie Statistikstelle des Kantons Luzern (Lustat) beschreibt den Unterschied so: Universitäten stellen die Grundlagenforschung in den Mittelpunkt, FH und PH sind stärker auf die Berufspraxis und die angewandte Forschung ausgerichtet. Das zeigt sich auch beim Alter. 2022 schlossen Studierende ihr Bachelorstudium an Universitäten im Schnitt mit 24.5 Jahren ab, an FH mit 26.6 und an PH mit 27.0 Jahren. Beim Studieneintritt sind die Studierenden an Universitäten im Schnitt 20.7 Jahre alt, an FH 23.1 und an PH 23.9 Jahre.\n\n## Welche Vorbildung welche Tür öffnet\n\nAn den Universitäten kommen 70% der Neueintretenden mit gymnasialer Maturität. An den FH ist die Berufsmaturität mit 50% der häufigste Weg, gefolgt von der gymnasialen Maturität mit 19% und der Fachmaturität mit 8%. An den PH stammen 43% der Eintretenden aus dem Gymnasium, 23% haben eine Fachmaturität und 13% eine Berufsmaturität. Der gymnasiale Anteil an den PH ist in zehn Jahren um 14 Prozentpunkte gesunken.\n\nWer mit einer Berufsmaturität an die FH will, kommt direkt hinein, wenn sie in einem verwandten Bereich liegt. Ohne verwandte Berufsmaturität braucht es in der Regel mindestens ein Jahr Arbeitserfahrung. Einige Fächer verlangen zusätzlich einen Eignungstest oder haben einen Numerus clausus, etwa in den Bereichen Gesundheit, Kunst, Sport und Soziale Arbeit.\n\nDer Weg an die Universität führt mit Berufsmaturität über eine Zusatzprüfung. Zuerst muss die Passerelle-Ergänzungsprüfung bestanden werden. Rund 7% der Universitätseintritte 2022/23 hatten einen anderen Schweizer Abschluss als die Matura. Von dieser Gruppe gingen 82% über die Passerelle an die Universität. Mit einer gymnasialen Maturität stehen die meisten Bachelorstudiengänge an ETH und Universitäten ohne weitere Bedingungen offen.\n\n## Was zu deinen Interessen passt\n\nDie Fächerwahl bestimmt den Hochschultyp stark. 85% der Studierenden in Naturwissenschaften, Mathematik und Statistik sind an einer Universität eingeschrieben. Im Gesundheits- und Sozialbereich studieren 59% an einer FH. 74% der PH-Studierenden belegen Pädagogik.\n\nWenn dich eher das Erarbeiten von Grundlagen reizt, passt die Universität. Wenn du früh praktisch arbeiten willst, passt die FH. Wenn du unterrichten willst, ist die PH der direkte Weg. Einen ersten Schritt bietet der [Fragebogen auf wasstudieren](start), der deine Interessen mit 80 Fachrichtungen abgleicht. Wer sich für Medizin interessiert, findet in der [Übersicht zur Fachrichtung Medizin](field:medicine) die wichtigsten Grundlagen.\n\n## Die Fristen für das Herbstsemester 2027\n\nDie Fristen unterscheiden sich von Hochschule zu Hochschule. Für den Studienstart im Herbst 2027 gelten diese Daten:\n\n- Universität Basel: Anmeldung vom 1. Februar bis 30. April 2027.\n- Universität Zürich: Regulär vom 1. Januar bis 30. April 2027. Bewerbende mit einem Schweizer Abschluss können bis 31. Juli 2027 nachmelden, dann mit einem Zuschlag von CHF 300.\n- Pädagogische Hochschule Bern, Primarstufe: Anmeldung vom 1. Februar bis 30. April 2027, Spätanmeldung vom 1. Mai bis 31. Juli 2027.\n- Universität Basel, Bachelor Sport, Bewegung und Gesundheit: Anmeldeschluss 15. Februar 2027, Eignungstest am 23. und 24. April 2027 für höchstens 125 Plätze.\n\nDie Universitäten Bern und Basel teilen dieselben Semesterdaten. Das Herbstsemester läuft vom 1. August bis 31. Januar. Für die FH und die ETH sind die Fristen für Herbst 2027 hier nicht bestätigt. Prüfe sie direkt auf der Website der gewünschten Schule, bevor du planst.\n\n## Medizin: Die erste Frist liegt im Februar\n\nHumanmedizin, Zahnmedizin, Veterinärmedizin und Chiropraktik beginnen mit einer Voranmeldung bei swissuniversities. Sie muss bis 15. Februar 2027 über die Plattform MEDON abgeschlossen sein. Danach folgt die Anmeldung zum Eignungstest für das Medizinstudium (EMS). Die Gebühr von CHF 300 muss bis 25. Mai 2027 bezahlt sein. Der Test findet am 9. Juli 2027 statt.\n\nIn Basel, Bern, Fribourg, Zürich, an der Università della Svizzera italiana und an der ETH Zürich entscheidet das EMS-Resultat über die Zulassung zur Medizin. Im Jahr 2026 lag die Grenze für Humanmedizin beim Testprozentrang 69. Laut einem Vorbereitungsanbieter gibt es an den Hochschulen mit Numerus clausus rund 1’150 Studienplätze in der Humanmedizin pro Jahr. Seit 2024 wird politisch über ein neues Zulassungsverfahren diskutiert. Abgeschafft ist der EMS aber nicht, und der Test 2027 findet statt.\n\nWer bei einem negativen EMS-Bescheid noch ein anderes Fach beginnen will, hat wenig Zeit. An der Universität Zürich und an der ETH Zürich muss man sich dafür innerhalb der normalen Einschreibefrist bis 30. April einschreiben. Das Ergebnis kommt erst Ende Juli. Ein Ausweichfach gehört deshalb schon im Winter in den Plan, nicht erst nach dem EMS-Bescheid."
+  }
+}
