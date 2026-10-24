@@ -2,6 +2,14 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Widerrufsrecht und Studiengangdaten DE/AT (24.10.2026)
+
+- Anlass: Ein Käufer aus Deutschland hat einen Kauf auf wasstudieren.ch widerrufen (fehlende Widerrufsbelehrung, keine Zustimmung nach § 356 Abs. 5 BGB). Erstattet am 24.10.2026 im Stripe-Dashboard; der CLI-Schlüssel darf keine Erstattungen auslösen.
+- Entscheid des Inhabers: Das Widerrufsrecht von 14 Tagen gilt auf allen Seiten und für Käufe aus jedem Land, auch nach dem Öffnen des Reports. Deshalb gibt es im Checkout keine Verzichts-Checkbox. Texte in `lib/site/withdrawal-text.ts`, siehe README unter *Paywall*.
+- Entscheid des Inhabers: **Keine Leser für Hochschul-Websites in Deutschland und Österreich.** Anders als die Schweiz kennen beide Länder das Datenbankherstellerrecht (§ 87a ff. UrhG DE, § 76c ff. UrhG AT). Das Abmahnrisiko will der Inhaber nicht tragen. Der Abschnitt «Deutschland und Österreich: Studiengänge von den Hochschul-Websites» weiter unten ist damit zurückgestellt. DE/AT bleiben im Link-Modus (`LINK_ONLY`, `PERMISSION_PENDING`), bis eine schriftliche Zusage vorliegt.
+- Recherche: Die Studiensuche der BA stammt aus dem Hochschulkompass der HRK; die BA ist dort Kooperationspartner mit eigener Suche. Eine Zusage der BA allein reicht also nicht, Rechteinhaberin ist die Stiftung zur Förderung der HRK. Die HRK liefert Kooperationspartnern mit bundesweiter Studiengangsuche einen Datenexport (Partner unter anderem BA, DAAD, ZEIT ONLINE). Bedingungen nicht öffentlich, Kontakt hochschulkompass@hrk.de.
+- Österreich: studienwahl.at gehört laut Impressum dem BMFWF (Medieninhaber), OeAD wird dort nicht genannt. Antrag nach § 6 IWG 2022 an studienwahl@bmfwf.gv.at entworfen (kommerzielle Weiterverwendung, § 5 Abs. 1; kein Datenbankherstellerrecht gegen die Weiterverwendung, § 2 Abs. 4; Antwortfrist vier Wochen ab Eingang, § 6 Abs. 3). Ob und wann der Inhaber ihn verschickt hat, steht hier nicht.
+
 ## Weiterbildung MAS, DAS, CAS (22.10.2026)
 
 - Auftrag: MAS und CAS aufnehmen, «eher sekundär oder separat». Umgesetzt als eigene Quelle `ch-weiterbildung` mit eigenen Stufen `mas`, `das`, `cas` (Executive MBAs zählen als MAS).
@@ -491,6 +499,8 @@ Prüfungen: TypeScript, 120 App-Tests, 36 Outreach-Tests, Demodaten-Build (752 S
 Die DE/AT-Leser sind weiterhin offen und für einen separaten Durchlauf vorgesehen.
 
 ## Deutschland und Österreich: Studiengänge von den Hochschul-Websites
+
+**Zurückgestellt am 24.10.2026 auf Entscheid des Inhabers** (Datenbankherstellerrecht, siehe oben). Nicht weiterbauen ohne neuen ausdrücklichen Auftrag.
 
 Ziel: wie in der Schweiz (`scrapers/ch-hochschulen.ts`) die Studienangebote direkt von den Websites der Hochschulen lesen, weil es für DE/AT keine offen lizenzierte Gesamtliste gibt (Studiensuche der BA und studienwahl.at stehen auf `PERMISSION_PENDING` in `scrapers/build.ts`).
 

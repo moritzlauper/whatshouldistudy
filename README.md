@@ -382,9 +382,15 @@ when a publisher renames something the run log shows it. `pnpm data:all` runs
 everything locally; `pnpm data:sample` rebuilds the demo dataset from
 `scrapers/fixtures` (CI checks it is up to date).
 
-Before launching the German and Austrian sites commercially, ask the
-Bundesagentur für Arbeit and OeAD (studienwahl.at) for written permission, or
-switch Germany to the Hochschulkompass export (on request from HRK). For
+Germany and Austria stay in link mode until a publisher agrees in writing.
+Reading the universities' own websites, as in Switzerland, is ruled out there:
+unlike Switzerland, both countries have the database maker's right (§ 87a ff.
+UrhG in Germany, § 76c ff. UrhG in Austria). The Studiensuche of the
+Bundesagentur für Arbeit takes its programmes from the HRK's Hochschulkompass,
+so the permission needed is the HRK's: it gives a data export to cooperation
+partners with a nationwide programme search. studienwahl.at belongs to the
+Austrian ministry (BMFWF), which must answer a re-use request under § 6 IWG 2022
+within four weeks. For
 Austria, `unidata.gv.at` publishes student numbers per public university and
 ISCED field under CC BY; it lacks programme names but could add student counts.
 

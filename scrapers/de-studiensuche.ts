@@ -1,8 +1,9 @@
 /**
  * Germany: every study programme from the Studiensuche of the Bundesagentur für
  * Arbeit, the database behind studiensuche.arbeitsagentur.de (documented at
- * studiensuche.api.bund.dev). The API needs a search word and returns 20
- * programmes per page; the degree words in programme titles (Bachelor, Master,
+ * studiensuche.api.bund.dev). Its programmes come from the HRK's
+ * Hochschulkompass, so permission would have to come from the HRK. The API
+ * needs a search word and returns 20 programmes per page; the degree words in programme titles (Bachelor, Master,
  * Staatsexamen …) reach nearly all of them, field words catch the rest.
  *
  * Fees follow the rules, not the programme: public universities charge no

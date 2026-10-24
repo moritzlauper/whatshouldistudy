@@ -2,7 +2,7 @@
  * Austria: every degree programme at universities, universities of applied
  * sciences (FH), universities of teacher education (PH) and private
  * universities, from studienwahl.at, the study portal of the Federal Ministry
- * (BMFWF, run by OeAD). Its list pages show name, institution, kind of
+ * (BMFWF). Its list pages show name, institution, kind of
  * programme and place; robots.txt allows crawling. We read the list slowly,
  * one page per second, and link every programme to its page there.
  */
