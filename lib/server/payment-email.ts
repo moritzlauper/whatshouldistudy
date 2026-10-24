@@ -3,6 +3,7 @@ import { createHash, randomUUID } from 'node:crypto'
 import nodemailer from 'nodemailer'
 import { CONTACT, SITE_URL, hostsFor } from '../site.ts'
 import { LOCAL_SITES, SITES } from '../site/config.ts'
+import { withdrawalPlain, withdrawalText } from '../site/withdrawal-text.ts'
 import { redis } from './usage.ts'
 
 export interface PaidSession {
@@ -62,7 +63,9 @@ export function paymentEmail(session: PaidSession) {
   if (!email || email.length > 254 || !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(email)) throw new Error('Paid session has no valid email')
   const language = (session.metadata?.locale || session.locale || (site === 'global' ? 'en' : 'de')).split('-')[0]
   const copy = COPY[language as keyof typeof COPY] ?? COPY.en
-  return { to: email, subject: copy.subject, text: `${copy.intro}\n\n${url}\n\n${copy.instructions}\n\n${copy.footer}\n\n${CONTACT}` }
+  // The confirmation on a durable medium carries the withdrawal notice and form (§ 312f BGB).
+  const withdrawal = withdrawalPlain(withdrawalText(copy === COPY.en ? 'en' : session.metadata?.locale || language))
+  return { to: email, subject: copy.subject, text: `${copy.intro}\n\n${url}\n\n${copy.instructions}\n\n${copy.footer}\n\n${withdrawal}\n\n${CONTACT}` }
 }
 
 export async function sendPaymentEmail(session: PaidSession) {

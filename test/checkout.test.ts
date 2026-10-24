@@ -42,6 +42,7 @@ test('landing checkout preserves the site, language, fixed price and safe return
       assert.equal(form.get('mode'), 'payment');
       assert.equal(form.get('metadata[product]'), 'wsis_report');
       if(query.includes('it-CH')) {assert.equal(form.get('metadata[locale]'),'it-CH');assert.equal(form.get('locale'),'it');}
+      assert.match(form.get('custom_text[submit][message]'), query.includes('it-CH') ? /recedere entro 14 giorni/ : query.includes('fr-CH') ? /rétracter dans les 14 jours/ : query.includes('global') ? /withdraw within 14 days/ : /innert 14 Tagen.*auch nach dem Öffnen/);
     }
   `], {
     encoding: 'utf8',

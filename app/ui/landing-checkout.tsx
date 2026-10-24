@@ -8,6 +8,7 @@ import { measureCheckout } from '@/lib/measure.ts'
 import { useAppState } from '@/lib/store.ts'
 import { resultsReady } from '@/lib/engine/questionnaire.ts'
 import { reportOfferText } from '@/lib/site/report-offer.ts'
+import { withdrawalText } from '@/lib/site/withdrawal-text.ts'
 import { useConfig } from './price.tsx'
 import { useSite } from './site-context.tsx'
 import { PayWithTwint } from './twint.tsx'
@@ -65,7 +66,7 @@ export function LandingCheckout({ entry = false }: { entry?: boolean }) {
           <PayWithTwint className="mt-3 justify-center" />
           <p className="mt-3 text-center text-sm">{t.landing.buyNote}</p>
           {config?.payments === 'stripe' && <p className="mt-2 text-center text-sm font-semibold">{t.programmes.boxNote}</p>}
-          <p className="mt-2 text-center text-xs opacity-80">{t.programmes.minors}{' '}<Link href={r.terms} className="underline">{t.footer.terms}</Link></p>
+          <p className="mt-2 text-center text-xs opacity-80">{withdrawalText(locale).note} {t.programmes.minors}{' '}<Link href={r.terms} className="underline">{withdrawalText(locale).termsLink}</Link></p>
         </>
       )}
     </div>

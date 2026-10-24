@@ -36,6 +36,10 @@ test('paid emails: trusted links, languages, duplicate events, SMTP failure retr
     assert.match(paymentEmail(s).text, /Non devi pagare di nuovo/);
     assert.match(paymentEmail(s).text, /session_id=cs_test_purchase1/);
     for (const language of ['de','en','fr','it']) assert.ok(paymentEmail({...s,metadata:{site:'ch',locale:language}}).subject);
+    assert.match(paymentEmail(s).text, /Diritto di recesso[\\s\\S]*anche se hai già aperto il report[\\s\\S]*Modulo tipo di recesso/);
+    assert.match(paymentEmail({...s,metadata:{site:'ch',locale:'de-CH'}}).text, /Widerrufsrecht[\\s\\S]*innert 14 Tagen[\\s\\S]*Muster-Widerrufsformular/);
+    assert.match(paymentEmail({...s,metadata:{site:'de',locale:'de-DE'}}).text, /innerhalb von 14 Tagen[\\s\\S]*außer wir vereinbaren/);
+    assert.match(paymentEmail({...s,metadata:{site:'ch',locale:'xx'}}).text, /Right of withdrawal/);
     assert.equal(paymentEmail({...s,payment_status:'unpaid'}),null);
     assert.equal(paymentEmail({...s,mode:'subscription'}),null);
     assert.equal(paymentEmail({...s,success_url:'https://evil.example/freigeschaltet'}),null);

@@ -5,6 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { getState, loadCompareRows, studentId, unlockToken, update, useAppState } from '@/lib/store.ts'
 import { orgsText } from '@/lib/site/orgs-text.ts'
 import { reportOfferText } from '@/lib/site/report-offer.ts'
+import { withdrawalText } from '@/lib/site/withdrawal-text.ts'
 import { SALES_PAUSED, isLocal } from '@/lib/site/config.ts'
 import type { FieldMatch, Preferences, Results } from '@/lib/engine/types.ts'
 import { normalize } from '@/lib/engine/text.ts'
@@ -548,9 +549,10 @@ function Locked({ teaser, config, hideFirst, onUnlocked }: { teaser: Teaser | nu
         {!org && !SALES_PAUSED[site] && config?.payments === 'stripe' && <p className="mt-3 text-center text-sm font-semibold">{t.programmes.boxNote}</p>}
         {config?.payments !== 'off' && !(SALES_PAUSED[site] && !org) && (
           <p className="mt-2 text-center text-xs opacity-80">
+            {!org && <>{withdrawalText(locale).note}{' '}</>}
             {t.programmes.minors}{' '}
             <Link href={r.terms} className="underline">
-              {t.footer.terms}
+              {org ? t.footer.terms : withdrawalText(locale).termsLink}
             </Link>
           </p>
         )}

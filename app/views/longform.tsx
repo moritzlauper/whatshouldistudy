@@ -4,7 +4,8 @@ import { professionalText } from '@/lib/site/professional-text.ts'
 import { USAGE_STATS } from '@/lib/usage-stats.ts'
 import { productMeasureText } from '@/lib/site/product-measure-text.ts'
 import { experimentPrivacyText } from '@/lib/site/experiment-text.ts'
-import { cloneElement, isValidElement } from 'react'
+import { withdrawalText } from '@/lib/site/withdrawal-text.ts'
+import { Fragment, cloneElement, isValidElement } from 'react'
 import type { ReactNode } from 'react'
 import { regionalize } from '@/lib/site/regional.ts'
 import type { Locale } from '@/lib/site/config.ts'
@@ -679,6 +680,19 @@ export function PrivacyView({ site, base, locale }: SiteProps) {
   )
 }
 
+/** The same right on every site and in every language, see lib/site/withdrawal-text.ts. */
+function Withdrawal({ locale }: { locale: Locale }) {
+  const w = withdrawalText(locale)
+  return (
+    <>
+      <h2 id="widerruf">{w.heading}</h2>
+      {w.body.map((p) => <p key={p}>{p}</p>)}
+      <h3>{w.formHeading}</h3>
+      <p>{w.form.map((line, i) => <Fragment key={line}>{i > 0 && <br />}{line}</Fragment>)}</p>
+    </>
+  )
+}
+
 export function TermsView({ site, base, locale }: SiteProps) {
   const k = kit(site, base, locale)
   if (k.locale === 'fr-CH') {
@@ -686,9 +700,10 @@ export function TermsView({ site, base, locale }: SiteProps) {
       <Page title="Conditions">
         <p><strong>Traduction :</strong> en cas de divergence, la version allemande fait foi.</p>
         <h2>Service</h2><p>{k.conf.name} fournit une orientation, pas une garantie. Les correspondances sont des estimations fondées sur tes données et sur des informations publiques qui peuvent être incomplètes ou obsolètes. Vérifie les formations, les frais et les délais auprès de l’établissement avant de déposer ta candidature.</p>
-        <h2>Rapport complet</h2><p>Un paiement unique débloque le rapport complet dans le navigateur utilisé lors de l’achat, pour une durée de 12 mois. Les mises à jour hebdomadaires sont incluses. En cas de problème, contacte-nous dans les 14 jours pour demander un remboursement.</p>
+        <h2>Rapport complet</h2><p>Un paiement unique débloque le rapport complet dans le navigateur utilisé lors de l’achat, pour une durée de 12 mois. Les mises à jour hebdomadaires sont incluses.</p>
         <h2>YouTube et utilisation équitable</h2><p>En connectant YouTube, tu acceptes ses <a href="https://www.youtube.com/t/terms">conditions d’utilisation</a>. N’extrais pas automatiquement les données de l’interface des formations et ne revends pas ses résultats. Les données ouvertes restent disponibles auprès de leurs éditeurs selon leurs licences.</p>
         <h2>Sources des données</h2><p>Suisse : Office fédéral de la statistique (OFS), libre utilisation avec indication de la source. États-Unis : College Scorecard (domaine public). Royaume-Uni : Discover Uni (Office for Students, CC BY 4.0). France : Parcoursup (Licence Ouverte 2.0). Pays-Bas : DUO (CC BY). Norvège : DBH (HK-dir, NLOD 2.0). Finlande : Opintopolku (Opetushallitus, CC BY 4.0). Australie : CRICOS (Department of Education, CC BY 2.5 AU). Corée du Sud : 대학알리미 (ministère de l’Éducation, utilisation libre). Ainsi qu’OpenAlex (CC0) et University Domains List (MIT). Le classement par domaine est le nôtre. Pour l’Allemagne et l’Autriche, nous renvoyons vers les recherches officielles, sans reprendre leurs données.</p>
+        <Withdrawal locale={k.locale} />
         <h2>Droit applicable et contact</h2><p>Le droit suisse s’applique, sous réserve des règles impératives de protection des consommateurs. Contact : <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
       </Page>
     )
@@ -698,9 +713,10 @@ export function TermsView({ site, base, locale }: SiteProps) {
       <Page title="Condizioni">
         <p><strong>Traduzione:</strong> in caso di differenze, fa fede la versione tedesca.</p>
         <h2>Servizio</h2><p>{k.conf.name} offre un orientamento, non una garanzia. Le corrispondenze sono stime basate sui dati forniti e su informazioni pubbliche che possono essere incomplete o non aggiornate. Prima di candidarti, verifica corsi, tasse e scadenze presso l’istituto.</p>
-        <h2>Report completo</h2><p>Un pagamento unico sblocca il report completo nel browser usato per l’acquisto per 12 mesi. Gli aggiornamenti settimanali sono inclusi. Se qualcosa non funziona, contattaci entro 14 giorni per chiedere un rimborso.</p>
+        <h2>Report completo</h2><p>Un pagamento unico sblocca il report completo nel browser usato per l’acquisto per 12 mesi. Gli aggiornamenti settimanali sono inclusi.</p>
         <h2>YouTube e uso corretto</h2><p>Collegando YouTube accetti i suoi <a href="https://www.youtube.com/t/terms">termini di servizio</a>. Non estrarre automaticamente i dati dall’interfaccia dei corsi e non rivendere i risultati. I dati aperti restano disponibili presso gli editori originali secondo le relative licenze.</p>
         <h2>Fonti dei dati</h2><p>Svizzera: Ufficio federale di statistica (UST), libera utilizzazione con indicazione della fonte. Stati Uniti: College Scorecard (pubblico dominio). Regno Unito: Discover Uni (Office for Students, CC BY 4.0). Francia: Parcoursup (Licence Ouverte 2.0). Paesi Bassi: DUO (CC BY). Norvegia: DBH (HK-dir, NLOD 2.0). Finlandia: Opintopolku (Opetushallitus, CC BY 4.0). Australia: CRICOS (Department of Education, CC BY 2.5 AU). Corea del Sud: 대학알리미 (ministero dell’istruzione, uso libero). Inoltre OpenAlex (CC0) e University Domains List (MIT). L’assegnazione alle aree è nostra. Per Germania e Austria rimandiamo alle ricerche ufficiali, senza riprenderne i dati.</p>
+        <Withdrawal locale={k.locale} />
         <h2>Legge applicabile e contatto</h2><p>Si applica il diritto svizzero, fatte salve le norme inderogabili di tutela dei consumatori. Contatto: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
       </Page>
     )
@@ -714,7 +730,7 @@ export function TermsView({ site, base, locale }: SiteProps) {
         </p>
         <h2>Der volle Report</h2>
         <p>
-          Eine einmalige Zahlung schaltet den vollen Report frei, in dem Browser, in dem du bezahlt hast, für 12 Monate. Die wöchentlichen Aktualisierungen in dieser Zeit sind inbegriffen. Der Preis steht vor der Zahlung in deiner Währung. Klappt etwas nicht, melde dich innert 14 Tagen, dann gibt es das Geld zurück.
+          Eine einmalige Zahlung schaltet den vollen Report frei, in dem Browser, in dem du bezahlt hast, für 12 Monate. Die wöchentlichen Aktualisierungen in dieser Zeit sind inbegriffen. Der Preis steht vor der Zahlung in deiner Währung.
         </p>
         <h2>YouTube</h2>
         <p>
@@ -726,14 +742,9 @@ export function TermsView({ site, base, locale }: SiteProps) {
         <p>
           Schweiz: Bundesamt für Statistik (BFS: Studierende, Absolventenbefragung), freie Nutzung mit Quellenangabe. USA: College Scorecard des US-Bildungsministeriums (gemeinfrei). Grossbritannien: Discover Uni (Office for Students, CC BY 4.0). Frankreich: Parcoursup (Licence Ouverte 2.0). Niederlande: DUO (CC BY). Norwegen: DBH (HK-dir, NLOD 2.0). Finnland: Opintopolku (Opetushallitus, CC BY 4.0). Australien: CRICOS (Department of Education, CC BY 2.5 AU). Südkorea: 대학알리미 (Bildungsministerium, freie Nutzung). Dazu OpenAlex (CC0) und University Domains List (MIT). Die Zuordnung zu Fächern stammt von uns. Für Deutschland und Österreich verlinken wir auf die offiziellen Suchen der Bundesagentur für Arbeit und von studienwahl.at, ohne ihre Daten zu übernehmen.
         </p>
-        {k.site !== 'ch' && (
-          <>
-            <h2>Widerrufsrecht</h2>
-            <p>Du kannst den Kauf innert 14 Tagen ohne Angabe von Gründen widerrufen. Eine E-Mail an uns genügt, wir erstatten den vollen Betrag, auch wenn du den Report schon geöffnet hast.</p>
-          </>
-        )}
+        <Withdrawal locale={k.locale} />
         <h2>Recht</h2>
-        <p>{k.site === 'ch' ? 'Es gilt Schweizer Recht.' : 'Es gilt Schweizer Recht. Zwingende Verbraucherschutzvorschriften deines Wohnsitzstaates bleiben unberührt.'}</p>
+        <p>Es gilt Schweizer Recht. Zwingende Verbraucherschutzvorschriften deines Wohnsitzstaates bleiben unberührt.</p>
         <h2>Kontakt</h2>
         <p>
           <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
@@ -750,7 +761,7 @@ export function TermsView({ site, base, locale }: SiteProps) {
       </p>
       <h2>The full report</h2>
       <p>
-        A one-time payment unlocks the full programme report in the browser you used to pay, for 12 months, including the weekly data updates during that time. If something doesn’t work, contact us within 14 days for a refund.
+        A one-time payment unlocks the full programme report in the browser you used to pay, for 12 months, including the weekly data updates during that time.
       </p>
       <h2>YouTube</h2>
       <p>
@@ -762,6 +773,9 @@ export function TermsView({ site, base, locale }: SiteProps) {
       <p>
         Programme data: U.S. Department of Education College Scorecard (public domain), Discover Uni dataset (Office for Students, CC BY 4.0), Parcoursup open data (Licence Ouverte 2.0), Swiss Federal Statistical Office (BFS: enrolment and graduate survey, open use with attribution), DUO HO Opleidingsoverzicht (CC BY), DBH of HK-dir (NLOD 2.0), Opintopolku of the Finnish National Agency for Education (CC BY 4.0), CRICOS of the Australian Department of Education (CC BY 2.5 AU), Korea Higher Education Information 대학알리미 (Ministry of Education, free use without restrictions), OpenAlex (CC0), University Domains List (MIT). The assignment to fields is ours. For Germany and Austria we link to the official searches without using their data.
       </p>
+      <Withdrawal locale={k.locale} />
+      <h2>Law</h2>
+      <p>Swiss law applies. Mandatory consumer protection rules of your country of residence remain unaffected.</p>
       <h2>Contact</h2>
       <p>
         <a href={`mailto:${CONTACT}`}>{CONTACT}</a>

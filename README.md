@@ -594,6 +594,15 @@ is saved; retries prefer a possible duplicate over a missing access email.
 Ensure Vercel Bot Protection allows Stripe to reach this signed endpoint. Test
 deliveries must reach the handler, not a browser challenge.
 
+Right of withdrawal: every site and every buyer gets 14 days to withdraw
+without giving a reason, also after opening the report, so checkout asks for
+no waiver. `lib/site/withdrawal-text.ts` holds the notice and model form in
+German (regionalised for Germany and Austria), English, French and Italian.
+The terms show it in full, the buy buttons and Stripe Checkout
+(`custom_text[submit]`) show a one-sentence note, and the payment email carries
+the notice and form as the confirmation on a durable medium. Refunds are issued
+by hand in the Stripe dashboard.
+
 Owner recovery: `POST /api/stripe/recover-email` with the existing
 `Authorization: Bearer <USAGE_ADMIN_TOKEN>` and JSON `{ "session_id": "cs_…",
 "locale": "it-CH" }` rechecks the actual session in Stripe and sends to its

@@ -5,6 +5,7 @@ import { reportPriceId } from '@/lib/server/stripe.ts'
 import { paymentMode, visitorCountry } from '@/lib/server/token.ts'
 import { SITES, isLocal } from '@/lib/site/config.ts'
 import { checkoutExperiment, countExperimentCheckout } from '@/lib/server/paywall-experiment.ts'
+import { withdrawalText } from '@/lib/site/withdrawal-text.ts'
 
 /**
  * Starts a Stripe Checkout session in the site's currency (or, without
@@ -36,6 +37,8 @@ export async function POST(req: Request) {
     cancel_url: cancel,
     locale: local ? locale.split('-')[0] : 'auto',
     'line_items[0][quantity]': '1',
+    // Right above the pay button: immediate unlock, withdrawal right that survives it.
+    'custom_text[submit][message]': withdrawalText(locale).note,
     'metadata[site]': site,
     'metadata[product]': 'wsis_report',
     'metadata[locale]': locale,
