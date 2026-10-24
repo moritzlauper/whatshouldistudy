@@ -1,0 +1,1152 @@
+{
+  "updated": "2026-10-24T10:45:01.118Z",
+  "sources": [
+    {
+      "id": "us-college-scorecard",
+      "name": "College Scorecard (U.S. Department of Education)",
+      "countries": [
+        "US"
+      ],
+      "url": "https://collegescorecard.ed.gov/data/",
+      "licence": "Public domain",
+      "ok": true,
+      "count": 98243,
+      "fetchedAt": "2026-10-24T10:03:00.440Z"
+    },
+    {
+      "id": "uk-discover-uni",
+      "name": "Discover Uni (Office for Students)",
+      "countries": [
+        "GB"
+      ],
+      "url": "https://discoveruni.gov.uk/",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "ok": true,
+      "count": 30440,
+      "fetchedAt": "2026-10-24T10:05:39.358Z"
+    },
+    {
+      "id": "fr-parcoursup",
+      "name": "Parcoursup open data (Ministère de l’Enseignement supérieur)",
+      "countries": [
+        "FR"
+      ],
+      "url": "https://data.enseignementsup-recherche.gouv.fr/",
+      "licence": "Licence Ouverte 2.0",
+      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+      "ok": true,
+      "count": 23260,
+      "fetchedAt": "2026-10-24T10:11:44.232Z"
+    },
+    {
+      "id": "ch-bfs-salaries",
+      "name": "Erwerbseinkommen ein Jahr nach Studienabschluss (Bundesamt für Statistik, EHA)",
+      "countries": [
+        "CH"
+      ],
+      "url": "https://www.bfs.admin.ch/bfs/de/home/statistiken/bildung-wissenschaft/uebertritte-verlaeufe-bildungsbereich/absolventen-hochschulen.html",
+      "licence": "Open use, source must be credited (BFS)",
+      "licenceUrl": "https://opendata.swiss/de/terms-of-use#terms_by",
+      "ok": true,
+      "count": 19,
+      "fetchedAt": "2026-10-24T10:42:02.365Z"
+    },
+    {
+      "id": "ch-bfs",
+      "name": "Studierende nach Hochschule und Fachrichtung (Bundesamt für Statistik)",
+      "countries": [
+        "CH"
+      ],
+      "url": "https://opendata.swiss/de/organization/bundesamt-fur-statistik-bfs",
+      "licence": "Open use, Quelle: BFS",
+      "licenceUrl": "https://opendata.swiss/de/terms-of-use#terms_by",
+      "ok": true,
+      "count": 1069,
+      "fetchedAt": "2026-10-24T10:11:48.903Z"
+    },
+    {
+      "id": "ch-hochschulen",
+      "name": "Studienangebot der Hochschulen (ETH Zürich, EPFL, Universitäten Zürich, Bern, Basel, Luzern, St. Gallen, Freiburg, Genf, Lausanne, ZHAW, FHNW, BFH, HSLU)",
+      "countries": [
+        "CH"
+      ],
+      "url": "https://wasstudieren.ch/so-funktionierts#data",
+      "licence": "Fakten von den Websites der Hochschulen, je mit Link",
+      "ok": true,
+      "count": 1230,
+      "fetchedAt": "2026-10-24T10:12:46.687Z"
+    },
+    {
+      "id": "ch-weiterbildung",
+      "name": "Weiterbildungsangebot der Hochschulen, MAS, DAS und CAS (ZHAW, FHNW, BFH, Universitäten Basel, Genf, Luzern)",
+      "countries": [
+        "CH"
+      ],
+      "url": "https://wasstudieren.ch/so-funktionierts#data",
+      "licence": "Fakten von den Websites der Hochschulen, je mit Link",
+      "ok": true,
+      "count": 1275,
+      "fetchedAt": "2026-10-24T10:39:47.998Z"
+    },
+    {
+      "id": "kr-academyinfo",
+      "name": "Korea Higher Education Information, 대학알리미 (Ministry of Education, KCUE)",
+      "countries": [
+        "KR"
+      ],
+      "url": "https://www.academyinfo.go.kr/",
+      "licence": "Free use, no restrictions (이용허락범위 제한 없음, Ministry of Education on data.go.kr)",
+      "licenceUrl": "https://www.data.go.kr/data/15139338/fileData.do",
+      "ok": true,
+      "count": 21142,
+      "fetchedAt": "2026-10-24T10:42:02.479Z"
+    },
+    {
+      "id": "au-cricos",
+      "name": "CRICOS (Australian Government Department of Education)",
+      "countries": [
+        "AU"
+      ],
+      "url": "https://data.gov.au/data/dataset/cricos",
+      "licence": "CC BY 2.5 AU",
+      "licenceUrl": "https://creativecommons.org/licenses/by/2.5/au/",
+      "ok": true,
+      "count": 9661,
+      "fetchedAt": "2026-10-24T10:42:22.656Z"
+    },
+    {
+      "id": "fi-opintopolku",
+      "name": "Opintopolku / Studyinfo.fi (Finnish National Agency for Education)",
+      "countries": [
+        "FI"
+      ],
+      "url": "https://opintopolku.fi/",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "ok": true,
+      "count": 2774,
+      "fetchedAt": "2026-10-24T10:42:26.153Z"
+    },
+    {
+      "id": "nl-duo",
+      "name": "DUO HO Opleidingsoverzicht (Dienst Uitvoering Onderwijs)",
+      "countries": [
+        "NL"
+      ],
+      "url": "https://onderwijsdata.duo.nl/dataset/ho-opleidingsoverzicht",
+      "licence": "CC BY",
+      "licenceUrl": "https://onderwijsdata.duo.nl/dataset/ho-opleidingsoverzicht",
+      "ok": true,
+      "count": 3404,
+      "fetchedAt": "2026-10-24T10:44:34.651Z"
+    },
+    {
+      "id": "no-dbh",
+      "name": "DBH, Database for statistikk om høgre utdanning (HK-dir)",
+      "countries": [
+        "NO"
+      ],
+      "url": "https://dbh.hkdir.no/",
+      "licence": "NLOD 2.0",
+      "licenceUrl": "https://data.norge.no/nlod/en/2.0",
+      "ok": true,
+      "count": 2633,
+      "fetchedAt": "2026-10-24T10:44:38.373Z"
+    },
+    {
+      "id": "global-openalex",
+      "name": "OpenAlex institution research profiles",
+      "countries": [
+        "*"
+      ],
+      "url": "https://openalex.org/",
+      "licence": "CC0",
+      "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "ok": false,
+      "count": 14817,
+      "fetchedAt": "2026-10-14T08:10:26.848Z",
+      "error": "failed; kept data from the previous run"
+    },
+    {
+      "id": "global-directory",
+      "name": "University Domains List (Hipo)",
+      "countries": [
+        "*"
+      ],
+      "url": "https://github.com/Hipo/university-domains-list",
+      "licence": "MIT",
+      "licenceUrl": "https://github.com/Hipo/university-domains-list/blob/master/LICENSE",
+      "ok": true,
+      "count": 10248,
+      "fetchedAt": "2026-10-24T10:45:00.666Z"
+    }
+  ],
+  "fx": {
+    "EUR": 1,
+    "USD": 0.893416,
+    "JPY": 0.005698,
+    "CZK": 0.041107,
+    "DKK": 0.133783,
+    "GBP": 1.194344,
+    "HUF": 0.002727,
+    "PLN": 0.227557,
+    "RON": 0.186944,
+    "SEK": 0.089839,
+    "CHF": 1.083776,
+    "ISK": 0.007342,
+    "NOK": 0.095543,
+    "TRY": 0.017963,
+    "AUD": 0.627392,
+    "BRL": 0.177038,
+    "CAD": 0.638366,
+    "CNY": 0.133941,
+    "HKD": 0.113904,
+    "IDR": 0.000049,
+    "ILS": 0.286213,
+    "INR": 0.00941,
+    "KRW": 0.000675,
+    "MXN": 0.047568,
+    "MYR": 0.21868,
+    "NZD": 0.508078,
+    "PHP": 0.014038,
+    "SGD": 0.698812,
+    "THB": 0.026475,
+    "ZAR": 0.053828
+  },
+  "counts": {
+    "mathematics": {
+      "AU": 147,
+      "CH": 27,
+      "FI": 24,
+      "FR": 720,
+      "GB": 892,
+      "KR": 127,
+      "NL": 65,
+      "NO": 26,
+      "US": 2334
+    },
+    "statistics-data-science": {
+      "AU": 93,
+      "CH": 25,
+      "FI": 30,
+      "FR": 51,
+      "GB": 283,
+      "KR": 302,
+      "NL": 43,
+      "NO": 21,
+      "US": 1727
+    },
+    "computer-science": {
+      "AU": 296,
+      "CH": 67,
+      "FI": 201,
+      "FR": 1098,
+      "GB": 1382,
+      "KR": 1104,
+      "NL": 60,
+      "NO": 130,
+      "US": 2738
+    },
+    "artificial-intelligence": {
+      "AU": 60,
+      "CH": 8,
+      "FI": 194,
+      "FR": 10,
+      "GB": 276,
+      "KR": 596,
+      "NL": 39,
+      "NO": 84
+    },
+    "cybersecurity": {
+      "AU": 118,
+      "CH": 8,
+      "FI": 162,
+      "FR": 563,
+      "GB": 466,
+      "KR": 73,
+      "NL": 15,
+      "NO": 29,
+      "US": 706
+    },
+    "information-systems": {
+      "AU": 184,
+      "CH": 37,
+      "FI": 25,
+      "GB": 64,
+      "KR": 156,
+      "NL": 35,
+      "NO": 26,
+      "US": 841
+    },
+    "computer-engineering": {
+      "AU": 37,
+      "FI": 150,
+      "GB": 132,
+      "KR": 766,
+      "NL": 2,
+      "NO": 35,
+      "US": 669
+    },
+    "physics": {
+      "AU": 47,
+      "CH": 29,
+      "FI": 32,
+      "FR": 666,
+      "GB": 577,
+      "KR": 147,
+      "NL": 50,
+      "NO": 29,
+      "US": 1352
+    },
+    "astronomy": {
+      "AU": 10,
+      "CH": 4,
+      "FI": 11,
+      "FR": 1,
+      "GB": 144,
+      "KR": 32,
+      "NL": 12,
+      "NO": 18,
+      "US": 192
+    },
+    "chemistry": {
+      "AU": 30,
+      "CH": 29,
+      "FI": 25,
+      "FR": 643,
+      "GB": 416,
+      "KR": 200,
+      "NL": 60,
+      "NO": 24,
+      "US": 1607
+    },
+    "biology": {
+      "AU": 159,
+      "CH": 58,
+      "FI": 20,
+      "FR": 417,
+      "GB": 813,
+      "KR": 395,
+      "NL": 70,
+      "NO": 39,
+      "US": 2811
+    },
+    "molecular-biology": {
+      "AU": 112,
+      "CH": 37,
+      "FI": 34,
+      "FR": 91,
+      "GB": 769,
+      "KR": 263,
+      "NL": 34,
+      "NO": 22,
+      "US": 2701
+    },
+    "neuroscience": {
+      "AU": 10,
+      "CH": 9,
+      "FI": 5,
+      "GB": 150,
+      "NL": 22,
+      "NO": 21,
+      "US": 516
+    },
+    "cognitive-science": {
+      "AU": 1,
+      "FI": 51,
+      "FR": 1,
+      "GB": 3,
+      "NL": 9,
+      "NO": 25,
+      "US": 91
+    },
+    "environmental-science": {
+      "AU": 199,
+      "CH": 40,
+      "FI": 42,
+      "FR": 361,
+      "GB": 474,
+      "KR": 340,
+      "NL": 72,
+      "NO": 27,
+      "US": 2086
+    },
+    "earth-sciences": {
+      "AU": 28,
+      "CH": 21,
+      "FI": 22,
+      "FR": 57,
+      "GB": 132,
+      "KR": 100,
+      "NL": 8,
+      "NO": 21,
+      "US": 987
+    },
+    "marine-biology": {
+      "AU": 47,
+      "FI": 7,
+      "FR": 17,
+      "GB": 215,
+      "KR": 70,
+      "NL": 8,
+      "NO": 37,
+      "US": 62
+    },
+    "zoology": {
+      "AU": 26,
+      "FI": 2,
+      "GB": 240,
+      "KR": 91,
+      "NO": 5,
+      "US": 447
+    },
+    "geography": {
+      "AU": 33,
+      "CH": 17,
+      "FI": 97,
+      "FR": 101,
+      "GB": 519,
+      "KR": 67,
+      "NL": 37,
+      "NO": 73,
+      "US": 528
+    },
+    "mechanical-engineering": {
+      "AU": 501,
+      "CH": 44,
+      "FI": 256,
+      "FR": 1760,
+      "GB": 833,
+      "KR": 581,
+      "NL": 72,
+      "NO": 46,
+      "US": 1707
+    },
+    "electrical-engineering": {
+      "AU": 106,
+      "CH": 18,
+      "FI": 244,
+      "FR": 618,
+      "GB": 539,
+      "KR": 1100,
+      "NL": 26,
+      "NO": 64,
+      "US": 871
+    },
+    "civil-engineering": {
+      "AU": 172,
+      "CH": 22,
+      "FI": 87,
+      "FR": 510,
+      "GB": 659,
+      "KR": 825,
+      "NL": 46,
+      "NO": 42,
+      "US": 1000
+    },
+    "aerospace-engineering": {
+      "AU": 23,
+      "CH": 1,
+      "FI": 9,
+      "FR": 87,
+      "GB": 226,
+      "KR": 129,
+      "NL": 5,
+      "NO": 14,
+      "US": 192
+    },
+    "automotive-engineering": {
+      "AU": 7,
+      "CH": 1,
+      "FI": 9,
+      "FR": 273,
+      "GB": 248,
+      "KR": 140,
+      "NL": 10,
+      "NO": 9
+    },
+    "chemical-engineering": {
+      "AU": 41,
+      "CH": 6,
+      "FI": 76,
+      "FR": 12,
+      "GB": 191,
+      "KR": 521,
+      "NL": 14,
+      "NO": 35,
+      "US": 543
+    },
+    "biomedical-engineering": {
+      "AU": 30,
+      "CH": 10,
+      "FI": 10,
+      "FR": 2,
+      "GB": 142,
+      "KR": 102,
+      "NL": 23,
+      "NO": 14,
+      "US": 528
+    },
+    "materials-science": {
+      "AU": 35,
+      "CH": 13,
+      "FI": 67,
+      "FR": 74,
+      "GB": 191,
+      "KR": 437,
+      "NL": 5,
+      "NO": 7,
+      "US": 368
+    },
+    "robotics-mechatronics": {
+      "AU": 14,
+      "CH": 15,
+      "FI": 37,
+      "FR": 195,
+      "GB": 246,
+      "KR": 195,
+      "NL": 11,
+      "NO": 45,
+      "US": 126
+    },
+    "energy-engineering": {
+      "AU": 34,
+      "CH": 15,
+      "FI": 121,
+      "FR": 385,
+      "GB": 102,
+      "KR": 225,
+      "NL": 8,
+      "NO": 45,
+      "US": 377
+    },
+    "industrial-engineering": {
+      "AU": 37,
+      "CH": 17,
+      "FI": 25,
+      "FR": 197,
+      "GB": 260,
+      "KR": 304,
+      "NL": 38,
+      "NO": 37,
+      "US": 1001
+    },
+    "architecture": {
+      "AU": 223,
+      "CH": 30,
+      "FI": 27,
+      "FR": 186,
+      "GB": 399,
+      "KR": 514,
+      "NL": 45,
+      "NO": 22,
+      "US": 613
+    },
+    "urban-planning": {
+      "AU": 65,
+      "CH": 8,
+      "FI": 27,
+      "FR": 42,
+      "GB": 332,
+      "KR": 256,
+      "NL": 27,
+      "NO": 20,
+      "US": 293
+    },
+    "industrial-design": {
+      "AU": 18,
+      "CH": 26,
+      "FI": 121,
+      "FR": 218,
+      "GB": 688,
+      "KR": 515,
+      "NL": 16,
+      "NO": 18,
+      "US": 6
+    },
+    "game-design": {
+      "AU": 14,
+      "CH": 1,
+      "FI": 100,
+      "FR": 3,
+      "GB": 561,
+      "KR": 103,
+      "NL": 6,
+      "NO": 81
+    },
+    "ux-design": {
+      "AU": 10,
+      "CH": 6,
+      "FI": 91,
+      "FR": 5,
+      "GB": 21,
+      "NL": 3,
+      "NO": 28,
+      "US": 58
+    },
+    "medicine": {
+      "AU": 464,
+      "CH": 34,
+      "FI": 125,
+      "FR": 333,
+      "GB": 671,
+      "KR": 223,
+      "NL": 50,
+      "NO": 102,
+      "US": 1470
+    },
+    "nursing": {
+      "AU": 190,
+      "CH": 25,
+      "FI": 219,
+      "FR": 349,
+      "GB": 628,
+      "KR": 297,
+      "NL": 52,
+      "NO": 213,
+      "US": 2413
+    },
+    "pharmacy": {
+      "AU": 86,
+      "CH": 13,
+      "FI": 110,
+      "FR": 98,
+      "GB": 242,
+      "KR": 144,
+      "NL": 14,
+      "NO": 78,
+      "US": 543
+    },
+    "dentistry": {
+      "AU": 65,
+      "CH": 8,
+      "FI": 17,
+      "FR": 32,
+      "GB": 67,
+      "KR": 40,
+      "NL": 12,
+      "NO": 12,
+      "US": 247
+    },
+    "veterinary-medicine": {
+      "AU": 47,
+      "CH": 4,
+      "FI": 2,
+      "GB": 134,
+      "KR": 121,
+      "NL": 3,
+      "NO": 9,
+      "US": 106
+    },
+    "physiotherapy": {
+      "AU": 183,
+      "CH": 22,
+      "FI": 62,
+      "FR": 103,
+      "GB": 618,
+      "KR": 308,
+      "NL": 24,
+      "NO": 25,
+      "US": 1597
+    },
+    "sports-science": {
+      "AU": 104,
+      "CH": 18,
+      "FI": 35,
+      "FR": 134,
+      "GB": 781,
+      "KR": 778,
+      "NL": 21,
+      "NO": 61,
+      "US": 1419
+    },
+    "nutrition": {
+      "AU": 149,
+      "CH": 9,
+      "FI": 82,
+      "FR": 189,
+      "GB": 193,
+      "KR": 335,
+      "NL": 14,
+      "NO": 32,
+      "US": 815
+    },
+    "public-health": {
+      "AU": 225,
+      "CH": 14,
+      "FI": 8,
+      "FR": 17,
+      "GB": 73,
+      "KR": 663,
+      "NL": 28,
+      "NO": 27,
+      "US": 2495
+    },
+    "psychology": {
+      "AU": 455,
+      "CH": 31,
+      "FI": 63,
+      "FR": 106,
+      "GB": 1396,
+      "KR": 283,
+      "NL": 84,
+      "NO": 74,
+      "US": 4336
+    },
+    "economics": {
+      "AU": 197,
+      "CH": 50,
+      "FI": 69,
+      "FR": 395,
+      "GB": 938,
+      "KR": 235,
+      "NL": 110,
+      "NO": 147,
+      "US": 1359
+    },
+    "business-management": {
+      "AU": 1568,
+      "CH": 107,
+      "FI": 382,
+      "FR": 4733,
+      "GB": 2812,
+      "KR": 1307,
+      "NL": 412,
+      "NO": 297,
+      "US": 5014
+    },
+    "finance-accounting": {
+      "AU": 373,
+      "CH": 26,
+      "FI": 175,
+      "FR": 1632,
+      "GB": 790,
+      "KR": 277,
+      "NL": 111,
+      "NO": 36,
+      "US": 2771
+    },
+    "marketing": {
+      "AU": 139,
+      "CH": 3,
+      "FI": 162,
+      "FR": 3257,
+      "GB": 688,
+      "KR": 48,
+      "NL": 53,
+      "NO": 45,
+      "US": 1697
+    },
+    "entrepreneurship": {
+      "AU": 44,
+      "CH": 8,
+      "FI": 8,
+      "FR": 12,
+      "GB": 246,
+      "KR": 74,
+      "NL": 86,
+      "NO": 144,
+      "US": 349
+    },
+    "logistics": {
+      "AU": 30,
+      "CH": 1,
+      "FI": 19,
+      "FR": 302,
+      "GB": 144,
+      "KR": 276,
+      "NL": 60,
+      "NO": 145,
+      "US": 9
+    },
+    "hospitality-tourism": {
+      "AU": 111,
+      "CH": 11,
+      "FI": 58,
+      "FR": 708,
+      "GB": 333,
+      "KR": 309,
+      "NL": 54,
+      "NO": 11,
+      "US": 540
+    },
+    "political-science": {
+      "AU": 218,
+      "CH": 41,
+      "FI": 34,
+      "FR": 163,
+      "GB": 1280,
+      "KR": 900,
+      "NL": 85,
+      "NO": 54,
+      "US": 3148
+    },
+    "law": {
+      "AU": 580,
+      "CH": 54,
+      "FI": 17,
+      "FR": 529,
+      "GB": 963,
+      "KR": 209,
+      "NL": 162,
+      "NO": 38,
+      "US": 780
+    },
+    "criminology": {
+      "AU": 162,
+      "CH": 8,
+      "FI": 7,
+      "GB": 780,
+      "KR": 175,
+      "NL": 20,
+      "NO": 35,
+      "US": 1703
+    },
+    "sociology": {
+      "AU": 512,
+      "CH": 47,
+      "FI": 50,
+      "FR": 122,
+      "GB": 755,
+      "KR": 84,
+      "NL": 70,
+      "NO": 74,
+      "US": 2203
+    },
+    "anthropology": {
+      "AU": 37,
+      "CH": 32,
+      "FI": 43,
+      "FR": 26,
+      "GB": 512,
+      "KR": 162,
+      "NL": 33,
+      "NO": 63,
+      "US": 1299
+    },
+    "social-work": {
+      "AU": 125,
+      "CH": 16,
+      "FI": 60,
+      "FR": 1084,
+      "GB": 604,
+      "KR": 834,
+      "NL": 72,
+      "NO": 87,
+      "US": 1419
+    },
+    "education": {
+      "AU": 626,
+      "CH": 145,
+      "FI": 151,
+      "FR": 290,
+      "GB": 941,
+      "KR": 1587,
+      "NL": 506,
+      "NO": 308,
+      "US": 8594
+    },
+    "journalism": {
+      "AU": 59,
+      "CH": 1,
+      "FI": 20,
+      "FR": 5,
+      "GB": 235,
+      "KR": 183,
+      "NL": 8,
+      "NO": 22,
+      "US": 416
+    },
+    "media-communication": {
+      "AU": 389,
+      "CH": 32,
+      "FI": 24,
+      "FR": 537,
+      "GB": 477,
+      "KR": 298,
+      "NL": 84,
+      "NO": 52,
+      "US": 1480
+    },
+    "history": {
+      "AU": 32,
+      "CH": 86,
+      "FI": 63,
+      "FR": 206,
+      "GB": 1803,
+      "KR": 302,
+      "NL": 85,
+      "NO": 66,
+      "US": 1768
+    },
+    "archaeology": {
+      "AU": 20,
+      "CH": 23,
+      "FI": 29,
+      "FR": 63,
+      "GB": 361,
+      "KR": 153,
+      "NL": 30,
+      "NO": 48,
+      "US": 450
+    },
+    "philosophy": {
+      "AU": 1142,
+      "CH": 26,
+      "FI": 63,
+      "FR": 106,
+      "GB": 678,
+      "KR": 114,
+      "NL": 65,
+      "NO": 44,
+      "US": 1313
+    },
+    "religious-studies": {
+      "AU": 99,
+      "CH": 51,
+      "FI": 15,
+      "FR": 11,
+      "GB": 352,
+      "KR": 263,
+      "NL": 68,
+      "NO": 90,
+      "US": 2475
+    },
+    "linguistics": {
+      "AU": 26,
+      "CH": 47,
+      "FI": 31,
+      "FR": 74,
+      "GB": 504,
+      "KR": 322,
+      "NL": 22,
+      "NO": 30,
+      "US": 516
+    },
+    "languages": {
+      "AU": 28,
+      "CH": 141,
+      "FI": 75,
+      "FR": 915,
+      "GB": 1433,
+      "KR": 1140,
+      "NL": 57,
+      "NO": 51,
+      "US": 1849
+    },
+    "literature": {
+      "AU": 50,
+      "CH": 126,
+      "FI": 31,
+      "FR": 291,
+      "GB": 1349,
+      "KR": 740,
+      "NL": 21,
+      "NO": 41,
+      "US": 2543
+    },
+    "liberal-arts": {
+      "AU": 8,
+      "CH": 14,
+      "FI": 7,
+      "FR": 135,
+      "GB": 192,
+      "KR": 647,
+      "NL": 24,
+      "NO": 38,
+      "US": 2190
+    },
+    "fine-arts": {
+      "AU": 123,
+      "CH": 44,
+      "FI": 82,
+      "FR": 55,
+      "GB": 524,
+      "KR": 326,
+      "NL": 54,
+      "NO": 36,
+      "US": 1813
+    },
+    "graphic-design": {
+      "AU": 14,
+      "CH": 25,
+      "FI": 56,
+      "FR": 132,
+      "GB": 836,
+      "KR": 666,
+      "NL": 38,
+      "NO": 20,
+      "US": 853
+    },
+    "fashion-design": {
+      "AU": 43,
+      "CH": 3,
+      "FI": 22,
+      "FR": 98,
+      "GB": 296,
+      "KR": 101,
+      "NL": 3,
+      "NO": 4,
+      "US": 96
+    },
+    "film-production": {
+      "AU": 3,
+      "CH": 12,
+      "FI": 18,
+      "FR": 623,
+      "GB": 806,
+      "KR": 178,
+      "NL": 5,
+      "NO": 32,
+      "US": 917
+    },
+    "animation-vfx": {
+      "AU": 36,
+      "CH": 2,
+      "FI": 2,
+      "FR": 120,
+      "GB": 215,
+      "KR": 126,
+      "NL": 4,
+      "NO": 4
+    },
+    "music": {
+      "AU": 20,
+      "CH": 55,
+      "FI": 64,
+      "FR": 39,
+      "GB": 522,
+      "KR": 390,
+      "NL": 202,
+      "NO": 112,
+      "US": 1428
+    },
+    "music-production": {
+      "AU": 12,
+      "FI": 60,
+      "FR": 53,
+      "GB": 542,
+      "KR": 100,
+      "NL": 2,
+      "NO": 76,
+      "US": 56
+    },
+    "performing-arts": {
+      "AU": 81,
+      "CH": 15,
+      "FI": 65,
+      "FR": 49,
+      "GB": 295,
+      "KR": 219,
+      "NL": 39,
+      "NO": 87,
+      "US": 1336
+    },
+    "culinary-arts": {
+      "AU": 1,
+      "FI": 20,
+      "FR": 12,
+      "GB": 34,
+      "KR": 218,
+      "NO": 2,
+      "US": 30
+    },
+    "agriculture": {
+      "AU": 112,
+      "CH": 7,
+      "FI": 51,
+      "FR": 1165,
+      "GB": 320,
+      "KR": 520,
+      "NL": 25,
+      "NO": 20,
+      "US": 966
+    },
+    "aviation": {
+      "AU": 38,
+      "CH": 1,
+      "FI": 6,
+      "FR": 6,
+      "GB": 55,
+      "KR": 30,
+      "NL": 1,
+      "NO": 22,
+      "US": 129
+    }
+  },
+  "totals": {
+    "programmes": 193204,
+    "countries": 9,
+    "institutions": 10843,
+    "newLast90Days": 125972
+  },
+  "unclassified": 0,
+  "byCountry": {
+    "US": {
+      "programmes": 98243,
+      "institutions": 2567,
+      "byType": {}
+    },
+    "GB": {
+      "programmes": 30440,
+      "institutions": 462,
+      "byType": {}
+    },
+    "FR": {
+      "programmes": 23260,
+      "institutions": 6996,
+      "byType": {}
+    },
+    "CH": {
+      "programmes": 1647,
+      "institutions": 43,
+      "byType": {
+        "uni": 919,
+        "fh": 521,
+        "eth": 122,
+        "ph": 85
+      },
+      "continuing": 1275
+    },
+    "KR": {
+      "programmes": 21142,
+      "institutions": 416,
+      "byType": {
+        "priv": 11983,
+        "uni": 5182,
+        "ph": 152
+      }
+    },
+    "AU": {
+      "programmes": 9661,
+      "institutions": 170,
+      "byType": {}
+    },
+    "FI": {
+      "programmes": 2774,
+      "institutions": 70,
+      "byType": {
+        "uni": 1516,
+        "fh": 1258
+      }
+    },
+    "NL": {
+      "programmes": 3404,
+      "institutions": 75,
+      "byType": {
+        "fh": 1810,
+        "uni": 1594
+      }
+    },
+    "NO": {
+      "programmes": 2633,
+      "institutions": 44,
+      "byType": {
+        "fh": 817,
+        "uni": 1746,
+        "art": 70
+      }
+    }
+  }
+}
