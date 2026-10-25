@@ -10,5 +10,6 @@ import p6 from './2026-10-09-ch-was-kostet-ein-studium-in-der-schweiz-studiengeb
 import p7 from './2026-10-09-de-bafoeg-studienstart-2026-27-wohnkostenpauschale-2027.json' with { type: 'json' }
 import p8 from './2026-10-12-global-dutch-tuition-non-eu-students-2027-budget.json' with { type: 'json' }
 import p9 from './2026-10-23-ch-uni-fh-oder-ph-hochschultyp-waehlen-fristen-2027.json' with { type: 'json' }
+import p10 from './2026-10-25-ch-medizin-numerus-clausus-ems-fristen-2027-plan-b.json' with { type: 'json' }
 
-export const POSTS = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9] as Post[]
+export const POSTS = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10] as Post[]
