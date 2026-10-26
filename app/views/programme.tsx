@@ -277,6 +277,12 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
             </a>
           )}
         </div>
+        <p className="mt-5 text-lg">
+          <span className="text-muted">{ct.fieldCtaTitle(fname)}</span>{' '}
+          <Link href={r.start} className="font-bold text-accent underline-offset-2 hover:underline">
+            {t.fields.findOut} →
+          </Link>
+        </p>
       </div>
 
       {about && (
