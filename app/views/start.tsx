@@ -305,10 +305,11 @@ export function StartView() {
       <div className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-line bg-bg/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex min-w-0 items-center gap-3 text-sm">
-            <span className="chip whitespace-nowrap">
+            {/* A phone has room for one count: the one of the part on screen. */}
+            <span className={`chip whitespace-nowrap ${view === 'data' ? '' : 'max-sm:hidden'}`}>
               <span className="font-display text-base">{mounted ? fmtNumber(signals, intl) : '0'}</span> {t.start.signals}
             </span>
-            <span className="chip whitespace-nowrap max-sm:hidden">
+            <span className={`chip whitespace-nowrap ${view === 'questionnaire' ? '' : 'max-sm:hidden'}`}>
               <span className="font-display text-base">{mounted ? q.done : 0}</span>/{q.total} {t.start.answers}
             </span>
           </div>

@@ -286,6 +286,12 @@ html {
     font-size: 0.95rem;
     outline: none;
   }
+  /* Below 16px, Safari on the iPhone zooms into the page when the field is tapped. */
+  @media (max-width: 639px) {
+    .input {
+      font-size: 1rem;
+    }
+  }
   .input:focus {
     box-shadow: 3px 3px 0 var(--accent);
   }

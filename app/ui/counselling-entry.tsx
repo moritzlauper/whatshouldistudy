@@ -8,6 +8,6 @@ export function CounsellingEntry({ locale, href }: { locale: Locale; href: strin
   return <div className="card-sm mt-6 bg-surface p-5 print:hidden">
     <p className="font-semibold">{text.title}</p>
     <p className="mt-2 text-sm text-muted">{text.lead}</p>
-    <a href={withBase(href)} className="btn btn-ghost mt-4">{text.enter} →</a>
+    <a href={withBase(href)} className="btn btn-ghost mt-4 max-w-full whitespace-normal text-center">{text.enter} →</a>
   </div>
 }
