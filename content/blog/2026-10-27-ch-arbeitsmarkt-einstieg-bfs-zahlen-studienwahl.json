@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-27",
+  "site": "ch",
+  "fields": [
+    "economics",
+    "computer-science",
+    "electrical-engineering"
+  ],
+  "sources": [
+    {
+      "title": "BFS, Tertiärstufe – Hochschulen (27.08.2026)",
+      "url": "https://www.bfs.admin.ch/bfs/de/home/statistiken/bildung-wissenschaft/eintritt-arbeitsmarkt/tertiaerstufe-hochschulen.html"
+    },
+    {
+      "title": "BFS, Studierende an den Hochschulen 2025/26 (Medienmitteilung)",
+      "url": "https://www.bfs.admin.ch/news/de/2026-0107"
+    },
+    {
+      "title": "Bundesbehörden, Die Lernenden- und Studierendenzahlen werden sich je nach Bildungsstufe sehr unterschiedlich entwickeln (12.10.2026)",
+      "url": "https://www.admin.ch/de/newnsb/W-G-02vJ62K8"
+    },
+    {
+      "title": "cash.ch, Erwerbslosigkeit bei Hochschulabsolventen nimmt zu (27.08.2026)",
+      "url": "https://www.cash.ch/news/erwerbslosigkeit-bei-hochschulabsolventen-nimmt-zu-963896"
+    },
+    {
+      "title": "Bund, Erwerbslosigkeit unter Hochschulabsolventen steigt (16.09.2026)",
+      "url": "https://www.kmu.admin.ch/de/erwerbslosigkeit-unter-hochschulabsolventen-steigt"
+    },
+    {
+      "title": "NZZ, Die Elite ist zurück: Wirtschaftsstudenten sind immer öfter arbeitslos",
+      "url": "https://www.nzz.ch/wirtschaft/die-elite-ist-zurueck-wirtschaftsstudenten-sind-immer-oefter-arbeitslos-doch-die-kaderschmiede-hsg-trotzt-dem-trend-ld.10021759"
+    },
+    {
+      "title": "20 Minuten, Studierende Schweiz: 21 % mehr bis 2035 – reicht der Arbeitsmarkt für alle?",
+      "url": "https://www.20min.ch/story/studierende-in-der-schweiz-bfs-erwartet-21-mehr-hochschulabsolventen-bis-2035-103648644"
+    },
+    {
+      "title": "watson, Keine Jobgarantie – Arbeitslosigkeit bei Hochschulabsolventen nimmt zu",
+      "url": "https://www.watson.ch/schweiz/arbeitswelt/246140619-keine-jobgarantie-arbeitslosigkeit-bei-hochschulabsolventen-nimmt-zu"
+    },
+    {
+      "title": "Blick, Schweizer Arbeitsmarkt 2026: Darum finden Akademiker keinen Job",
+      "url": "https://www.blick.ch/wirtschaft/schweizer-arbeitsmarkt-2026-darum-finden-akademiker-keinen-job/ezg6sfn"
+    },
+    {
+      "title": "cash.ch, Einstiegslöhne der Schweizer Uni-Absolventen im Vergleich",
+      "url": "https://www.cash.ch/news/top-news/die-lohne-der-uni-absolventen-in-der-schweiz-840048"
+    }
+  ],
+  "de": {
+    "slug": "arbeitsmarkt-einstieg-bfs-zahlen-studienwahl",
+    "title": "Schwierigerer Einstieg ins Berufsleben: Was die neuen BFS-Zahlen für dich bedeuten",
+    "description": "Die Erwerbslosigkeit nach dem Uni- und FH-Abschluss steigt, besonders in Wirtschaft und Technik. So liest du die neuen BFS-Zahlen für deine Studienwahl.",
+    "body": "## Was die neuen Zahlen messen\n\nDas Bundesamt für Statistik (BFS) hat am 27.08.2026 neue Zahlen zur Hochschulabsolventenbefragung veröffentlicht. Die Daten stehen auf der [BFS-Seite zur Tertiärstufe](https://www.bfs.admin.ch/bfs/de/home/statistiken/bildung-wissenschaft/eintritt-arbeitsmarkt/tertiaerstufe-hochschulen.html). Sie zeigen, wie viele Absolventinnen und Absolventen ein Jahr nach dem Abschluss keine Stelle haben.\n\nBei den Masterabsolventinnen und -absolventen der universitären Hochschulen (UH) stieg die Erwerbslosenquote nach den Kriterien der Internationalen Arbeitsorganisation (ILO) von 3.9% auf 6.4%. Verglichen werden die Befragungen von 2023 und 2025. Die jüngere erfasst den Abschlussjahrgang 2024. Bei den Bachelorabsolventinnen und -absolventen der Fachhochschulen (FH) stieg die Quote von 3.4% auf 4.9%. Einzig bei den pädagogischen Hochschulen (PH) blieb sie stabil, bei 0.7%.\n\nDie Quoten sind Durchschnitte über ganze Abschlussstufen. Für deine Studienwahl sagen sie deshalb wenig, solange du nicht nach Fach schaust.\n\n## Der Unterschied zwischen den Fächern\n\nDie Zunahme trifft nicht alle Fächer gleich stark. Bei den UH-Masterabsolvierenden der Wirtschaftswissenschaften stieg die Quote von 3.5% auf 8.5%. In den technischen Wissenschaften stieg sie von 2.1% auf 4.8%. Deutliche Zunahmen verzeichnete das BFS auch in den Geistes- und Sozialwissenschaften sowie in den exakten und Naturwissenschaften.\n\nDie NZZ berichtet unter Berufung auf das BFS, dass 8.5% der Wirtschaftsmaster des Jahrgangs 2024 ein Jahr später ohne Stelle waren. Das ist etwa doppelt so viel wie zwei Jahre zuvor. Wer sich für [Wirtschaft](field:economics) interessiert, sollte diese Entwicklung kennen.\n\nBei den FH-Bachelorabschlüssen lagen die höchsten Quoten in der Befragung von 2025 in Musik, Theater und anderen Künsten mit 10.8%, gefolgt von Design mit 10% und angewandter Linguistik mit 9.4%.\n\nAuch die IT-Branche zeigt den Wandel. Laut einer Studie von KOF und ETH Zürich verdoppelte sich die Zahl der Arbeitslosen dort zwischen 2022 und 2025 von 1700 auf 4000. Die Studie ordnet Softwareentwicklung zu den Berufen, in denen künstliche Intelligenz viele Aufgaben übernehmen oder ergänzen kann. Dort stieg die Arbeitslosigkeit stärker als in Berufen mit geringer KI-Exposition. Wer sich für [Informatik](field:computer-science) interessiert, sollte also genau hinschauen.\n\n## Warum der Einstieg schwieriger wird\n\nPatrick Chuard-Keller, Chefökonom des Schweizerischen Arbeitgeberverbands, nennt einen wichtigen Grund. Mehr Menschen haben einen Hochschulabschluss. 2024 besassen 31.1% der Bevölkerung einen, 2004 waren es 12.3%. Gleichzeitig sank der Anteil jener, deren höchste Ausbildung eine Berufsbildung ist, von 48.4% auf 32.2%. Die Zahl der Stellen für Hochqualifizierte hielt mit dem Wachstum der Abschlüsse nicht Schritt.\n\nDazu kommt die Konjunktur. Laut Blick belasten die Zollpolitik der USA, die schwache Nachfrage aus der EU und der starke Franken die exportabhängige Wirtschaft. Im Januar 2026 machten Personen mit Tertiärausbildung knapp einen Drittel aller Erwerbslosen aus, über 50’000 Personen. Ihre Quote lag aber bei 2.4%, insgesamt bei 3%. Ein Hochschulabschluss schützt also weiterhin besser vor Arbeitslosigkeit als eine fehlende Ausbildung.\n\nAls häufigsten Grund für Schwierigkeiten bei der Stellensuche nannte der Abschlussjahrgang 2024 die fehlende Berufserfahrung. Sie wurde 2025 von rund zwei Dritteln der UH-Masterabsolvierenden und von knapp drei Vierteln der FH-Bachelorabsolvierenden genannt. Die wirtschaftliche Lage gaben 42.5% der UH-Masterabsolvierenden als Grund an. 2023 waren es noch 23.8%.\n\n## Mehr Studierende bis 2035\n\nLaut dem Referenzszenario des BFS dürften 2035 rund 305’000 Studierende auf Bachelor- und Masterstufe eingeschrieben sein. Das sind 21% mehr als 2026. Damit würde erstmals die 300’000er-Marke überschritten. Das BFS nennt zwei Hauptgründe: Die Bevölkerung wächst um etwa 6%, und mehr Studierende kommen aus dem Ausland. Bei ausländischen Studierenden rechnet das BFS mit 19% mehr Eintritten auf Bachelorstufe und 37% mehr auf Masterstufe. Das BFS betont selbst, dass die Ergebnisse mit Unsicherheiten verbunden sind, vor allem bei der Zahl ausländischer Studierender.\n\nIm Studienjahr 2025/26 waren 288’097 Studierende an Schweizer Hochschulen eingeschrieben. 61% davon studierten an Universitäten (176’332), 30% an FH ohne Lehrerbildung (86’741) und 9% an PH (25’024).\n\nAuch die höheren Fachschulen wachsen. Bis 2035 wird ihre Zahl laut BFS um 17% steigen, auf 41’300 Studierende auf Diplomstufe. Die Konferenz der kantonalen Erziehungsdirektorinnen und -direktoren sieht darin eine Alternative zum Hochschulstudium.\n\nDie Szenarien sagen nichts darüber, wie viele Stellen es für all diese Studierenden geben wird. Was die Einstiegslöhne angeht, zeigt eine BFS-Studie vom Herbst 2024 deutliche Unterschiede. Ein Jahr nach dem Bachelor in Wirtschaftswissenschaften lag der Median bei CHF 80’000, im Bachelor Recht bei CHF 63’300. Im Bachelor Medizin lag er bei CHF 45’000. Die Universität Zürich erklärt das damit, dass das Medizinstudium erst mit Master und eidgenössischer Prüfung als vollständig gilt. Fünf Jahre nach dem Studium verringert sich der Abstand zwischen den Fächern.\n\n## Was du daraus für deine Wahl mitnimmst\n\nDer [kostenlose Fragebogen](start) auf wasstudieren zeigt dir, welche Fachbereiche zu deinen Interessen passen. Danach lohnt sich der Blick auf die Zahlen dieser Fächer.\n\n- Fach und Abschlussstufe getrennt prüfen. Die Quoten unterscheiden sich stark, von 0.7% bei den PH bis 10.8% bei FH-Musik.\n- Die höhere Berufsbildung als Option prüfen, wenn ein Weg über eine Lehre oder eine Fachschule zu dir passt.\n- Berufserfahrung früh einplanen. Die Befragung nennt sie als häufigsten Grund für Schwierigkeiten. Ob Praktika oder Teilzeitstellen das Problem lösen, zeigen die Zahlen nicht.\n\nDie nächste Befragung des BFS wird zeigen, ob die Quote bei den Wirtschaftsmastern weiter steigt oder wieder sinkt."
+  }
+}
