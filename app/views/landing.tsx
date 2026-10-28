@@ -146,39 +146,39 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
           </p>
         )}
 
-        {/* Optional upload after step 1: what it reads and what it adds. */}
-        <div className="card card-pop on-color mt-10 grid gap-8 p-7 sm:p-9 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]" style={{ background: 'var(--lime)', transform: 'rotate(0.4deg)' }}>
-          <div>
-            <div className="flex items-start justify-between gap-3">
-              <div className="font-display text-5xl opacity-30" aria-hidden="true">01+</div>
-              <span className="mt-1 rounded-full border-2 border-line bg-surface px-3 py-0.5 text-right text-xs font-extrabold text-ink">{t.landing.upload.tag}</span>
-            </div>
-            <h2 className="mt-2 font-display text-3xl sm:text-4xl">{t.landing.upload.title}</h2>
-            <p className="mt-3 leading-relaxed text-muted">{t.landing.upload.text}</p>
-            <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
-              <span className="font-semibold">{t.landing.upload.also}</span>
-              {sources.filter((s) => s.id !== 'takeout').map((s) => (
-                <span key={s.id} className="rounded-full border-2 border-line bg-surface px-3 py-1 font-semibold text-ink">
-                  <span aria-hidden="true">{s.glyph}</span> {s.name}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <div className="rounded-2xl border-2 border-line bg-surface p-6 text-ink">
-              <p className="font-display text-xl">{t.landing.upload.pointsTitle}</p>
-              <ul className="mt-4 grid gap-2.5 text-sm leading-relaxed">
-                {t.landing.upload.points.map((point) => (
-                  <li key={point} className="flex gap-2.5">
-                    <span className="font-extrabold text-accent" aria-hidden="true">✓</span> {point}
-                  </li>
+        {/* Extra data is deliberately tucked away: the questionnaire is the complete default start. */}
+        <details className="group card card-pop mt-10 overflow-hidden bg-surface">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 text-left [&::-webkit-details-marker]:hidden">
+            <span>
+              <span className="block font-semibold">{t.start.dataOptionalTitle}</span>
+              <span className="mt-1 block text-sm text-muted">{t.start.dataOptionalNote}</span>
+            </span>
+            <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-line bg-lime text-2xl text-on-color transition-transform group-open:rotate-45">+</span>
+          </summary>
+          <div className="on-color grid gap-8 border-t-2 border-line p-7 sm:p-9 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]" style={{ background: 'var(--lime)' }}>
+            <div>
+              <span className="rounded-full border-2 border-line bg-surface px-3 py-0.5 text-xs font-extrabold text-ink">{t.landing.upload.tag}</span>
+              <h2 className="mt-4 font-display text-3xl sm:text-4xl">{t.landing.upload.title}</h2>
+              <p className="mt-3 leading-relaxed text-muted">{t.landing.upload.text}</p>
+              <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
+                <span className="font-semibold">{t.landing.upload.also}</span>
+                {sources.filter((s) => s.id !== 'takeout').map((s) => (
+                  <span key={s.id} className="rounded-full border-2 border-line bg-surface px-3 py-1 font-semibold text-ink"><span aria-hidden="true">{s.glyph}</span> {s.name}</span>
                 ))}
-              </ul>
+              </div>
             </div>
-            <p className="mt-4 text-sm leading-relaxed text-muted">🔒 {t.landing.upload.privacy}</p>
-            <a href="#sources" className="mt-3 font-semibold underline underline-offset-4">{t.landing.upload.cta} →</a>
+            <div className="flex flex-col">
+              <div className="rounded-2xl border-2 border-line bg-surface p-6 text-ink">
+                <p className="font-display text-xl">{t.landing.upload.pointsTitle}</p>
+                <ul className="mt-4 grid gap-2.5 text-sm leading-relaxed">
+                  {t.landing.upload.points.map((point) => <li key={point} className="flex gap-2.5"><span className="font-extrabold text-accent" aria-hidden="true">✓</span> {point}</li>)}
+                </ul>
+              </div>
+              <p className="mt-4 text-sm leading-relaxed text-muted">🔒 {t.landing.upload.privacy}</p>
+              <a href="#sources" className="mt-3 font-semibold underline underline-offset-4">{t.landing.upload.cta} →</a>
+            </div>
           </div>
-        </div>
+        </details>
       </section>
 
       {/* Concrete AI benefits; importing history remains optional. */}
@@ -249,22 +249,28 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
           <h2 className="font-display text-4xl sm:text-5xl">{t.landing.sourcesTitle}</h2>
           <p className="mt-4 text-lg text-muted">{t.landing.sourcesSub}</p>
         </div>
-        <div className="mt-10">
-          {sources.filter((s) => s.id === 'takeout').map(sourceCard)}
-        </div>
-        <details className="group mt-5 text-sm text-muted">
+        <details className="group mt-10 text-sm text-muted">
           <summary className="card-sm flex cursor-pointer list-none items-center justify-between gap-4 bg-accent-soft px-5 py-4 text-ink transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
             <span>
-              <span className="block text-lg font-bold">{t.start.optionalSources}</span>
-              <span className="mt-1 block text-sm text-muted">{t.start.optionalSourcesHint}</span>
+              <span className="block text-lg font-bold">{t.start.dataOptionalCta}</span>
+              <span className="mt-1 block text-sm text-muted">{t.start.dataOptionalNote}</span>
             </span>
             <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-line bg-lime text-2xl text-on-color transition-transform group-open:rotate-45">+</span>
           </summary>
-          <p className="mt-3">{t.start.optionalYoutube}</p>
-          <a href="https://takeout.google.com/settings/takeout/custom/youtube" target="_blank" rel="noreferrer" className="mt-2 inline-block font-semibold underline">{t.start.request.youtube} ↗</a>
-          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {sources.filter((s) => s.id !== 'takeout').map(sourceCard)}
+          <div className="mt-5">
+            {sources.filter((s) => s.id === 'takeout').map(sourceCard)}
           </div>
+          <details className="group mt-5">
+            <summary className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border-2 border-soft-line px-5 py-4 text-ink [&::-webkit-details-marker]:hidden">
+              <span><span className="block font-bold">{t.start.optionalSources}</span><span className="mt-1 block text-sm text-muted">{t.start.optionalSourcesHint}</span></span>
+              <span aria-hidden="true" className="text-2xl transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <p className="mt-3">{t.start.optionalYoutube}</p>
+            <a href="https://takeout.google.com/settings/takeout/custom/youtube" target="_blank" rel="noreferrer" className="mt-2 inline-block font-semibold underline">{t.start.request.youtube} ↗</a>
+            <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {sources.filter((s) => s.id !== 'takeout').map(sourceCard)}
+            </div>
+          </details>
         </details>
       </section>
 

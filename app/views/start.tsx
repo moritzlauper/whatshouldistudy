@@ -143,31 +143,17 @@ export function StartView() {
       <p className="mt-5 max-w-2xl text-lg text-muted">{t.start.lead}</p>
       <p className="mt-3 max-w-2xl text-sm text-muted">{professionalText(locale).notice}{' '}<Link href={r.professional} className="text-accent underline">{professionalText(locale).link}</Link></p>
 
-      <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-2">
-        {([
-          { id: 'questionnaire', anchor: r.anchors.questionnaire, color: 'var(--sky)', card: t.start.cards.questionnaire },
-          { id: 'data', anchor: r.anchors.sources, color: 'var(--pink)', card: t.start.cards.data },
-        ] as const).map(({ id, anchor, color, card }) => (
-          <button
-            key={id}
-            type="button"
-            aria-pressed={view === id}
-            aria-controls={anchor}
-            onClick={() => selectView(id)}
-            className={`card-sm block p-4 text-left transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-accent ${view === id ? 'on-color ring-2 ring-line ring-offset-4 ring-offset-bg' : 'bg-surface hover:bg-surface-2'}`}
-            style={view === id ? { background: color } : undefined}
-          >
-            <span className="block text-xs font-extrabold uppercase tracking-wider">{card.step}</span>
-            <span className="mt-1 block font-display text-xl">{card.title}</span>
-            <span className="mt-1 block text-sm">{card.text}</span>
-          </button>
-        ))}
-      </div>
-
       <section id={r.anchors.questionnaire} hidden={view !== 'questionnaire'} className="mt-14 scroll-mt-24">
         <StepTitle n={1} color="var(--sky)" title={t.start.step1} sub={t.start.step1sub} />
         <div className="mt-7">
           <Questionnaire />
+        </div>
+        <div className="mt-5 max-w-3xl rounded-2xl border-2 border-soft-line bg-surface-2 p-5">
+          <p className="font-semibold">{t.start.dataOptionalTitle}</p>
+          <p className="mt-1 text-sm text-muted">{t.start.dataOptionalNote}</p>
+          <button type="button" onClick={() => selectView('data')} className="btn btn-ghost btn-sm mt-4">
+            {t.start.dataOptionalCta} →
+          </button>
         </div>
       </section>
 
