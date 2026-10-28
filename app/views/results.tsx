@@ -159,6 +159,10 @@ export function ResultsView() {
         </div>
       </div>
 
+      <p className="card-sm mt-6 border-l-8 p-4 text-sm" style={{ borderLeftColor: 'var(--sky)' }}>
+        {t.results.explorationNotice}
+      </p>
+
       {!unlocked && !isShared && <ReportOffer />}
 
       {unlocked && !isShared && (

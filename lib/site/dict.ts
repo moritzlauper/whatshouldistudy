@@ -506,6 +506,7 @@ const en = {
     yourAnswers: 'your answers',
     title: 'Your result',
     addMore: 'Add more data',
+    explorationNotice: 'Use this as a starting point for comparing fields. It is not an aptitude assessment, an admissions decision or a prediction of study success.',
     confidence: { low: 'Few signals', medium: 'More signals', high: 'Rich profile' },
     confidenceTip: 'How much information the ranking uses. This is not a validated accuracy or success estimate.',
     /** Notes on how the questionnaire was answered, and what the result can and can't say. */
@@ -1301,6 +1302,7 @@ const deCH: Dict = {
     yourAnswers: 'deinen Antworten',
     title: 'Dein Resultat',
     addMore: 'Mehr Daten hinzufügen',
+    explorationNotice: 'Nutze dies als Ausgangspunkt, um Fächer zu vergleichen. Es ist keine Eignungsdiagnose, Zulassungsentscheidung oder Vorhersage deines Studienerfolgs.',
     confidence: { low: 'Wenige Signale', medium: 'Mehr Signale', high: 'Breites Profil' },
     confidenceTip: 'Wie viele Informationen in die Rangliste fliessen. Keine validierte Genauigkeits- oder Erfolgsschätzung.',
     quality: {
@@ -1965,7 +1967,7 @@ const frCH = mergeDeep(en, {
     yearRank: (n: number) => `${n}e place cette année-là`,
     relative: (n: number) => `score relatif, comparé aux ${n} domaines`,
     calculating: 'Calcul en cours…', nothingTitle: 'Complète ton questionnaire', nothingText: 'Réponds d’abord aux questions d’intérêts (au moins deux par domaine) ou connecte une source.',
-    title: 'Ton résultat', addMore: 'Ajouter des données', best: 'La meilleure correspondance', next: 'Tes autres domaines recommandés', why: 'Pourquoi ?', less: 'Moins',
+    title: 'Ton résultat', addMore: 'Ajouter des données', explorationNotice: 'Utilise ce résultat comme point de départ pour comparer les domaines. Ce n’est ni une évaluation d’aptitude, ni une décision d’admission, ni une prédiction de réussite dans les études.', best: 'La meilleure correspondance', next: 'Tes autres domaines recommandés', why: 'Pourquoi ?', less: 'Moins',
     topics: 'Thèmes associés', hiddenTitle: 'Correspondances inattendues', riasecTitle: 'Profil d’intérêts', big5Title: 'Personnalité',
     insightsTitle: 'Ce que tes données révèlent', timelineTitle: 'Évolution de tes intérêts', middle: 'Dans la moyenne', addIt: 'Compléter',
     yourAnswers: 'tes réponses', confidence: { low: 'Peu de signaux', medium: 'Plus de signaux', high: 'Profil riche' },
@@ -2281,7 +2283,7 @@ const itCH = mergeDeep(en, {
     yearRank: (n: number) => `${n}° posto quell’anno`,
     relative: (n: number) => `punteggio relativo, rispetto a tutte le ${n} aree`,
     calculating: 'Calcolo in corso…', nothingTitle: 'Completa il questionario', nothingText: 'Rispondi prima alle domande sugli interessi (almeno due per area) o collega una fonte.',
-    title: 'Il tuo risultato', addMore: 'Aggiungi dati', best: 'La corrispondenza migliore', next: 'Le altre aree consigliate', why: 'Perché?', less: 'Meno',
+    title: 'Il tuo risultato', addMore: 'Aggiungi dati', explorationNotice: 'Usa questo risultato come punto di partenza per confrontare le aree. Non è una valutazione di idoneità, una decisione di ammissione o una previsione del successo negli studi.', best: 'La corrispondenza migliore', next: 'Le altre aree consigliate', why: 'Perché?', less: 'Meno',
     topics: 'Temi associati', hiddenTitle: 'Corrispondenze inaspettate', riasecTitle: 'Profilo degli interessi', big5Title: 'Personalità',
     insightsTitle: 'Cosa raccontano i tuoi dati', timelineTitle: 'Come sono cambiati i tuoi interessi', middle: 'Nella media', addIt: 'Completa',
     yourAnswers: 'le tue risposte', confidence: { low: 'Pochi segnali', medium: 'Più segnali', high: 'Profilo ricco' },
