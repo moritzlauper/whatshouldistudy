@@ -9,17 +9,18 @@ unabhängige Prüfung.
 
 | Bereich | Quelle | Was sie für wasstudieren stützt | Was sie nicht stützt |
 | --- | --- | --- | --- |
-| RIASEC und Studienfachumwelten | Nauta (2010), *The Development, Evolution, and Status of Holland's RIASEC Theory*, DOI [10.1016/j.jvb.2010.04.006](https://doi.org/10.1016/j.jvb.2010.04.006) | RIASEC ist ein sinnvoller theoretischer Rahmen, um Interessen und Lern-/Arbeitsumwelten zu beschreiben. | Die 24 eigenen WSIS-Items, die Feldprofile oder deren Gewichte sind dadurch nicht validiert. |
+| RIASEC und Studienfachumwelten | Nauta (2010), *The Development, Evolution, and Status of Holland’s Theory of Vocational Personalities*, DOI [10.1037/a0018213](https://doi.org/10.1037/a0018213) | RIASEC ist ein sinnvoller theoretischer Rahmen, um Interessen und Lern-/Arbeitsumwelten zu beschreiben; die prognostische Kraft von Kongruenz ist jedoch begrenzt. | Die 24 eigenen WSIS-Items, die Feldprofile oder deren Gewichte sind dadurch nicht validiert. |
 | RIASEC, Studienfach und Erwartungen | Pike (2006), *Students' Personality Types, Intended Majors, and College Expectations*, DOI [10.1007/s11162-006-9016-5](https://doi.org/10.1007/s11162-006-9016-5) | Persönlichkeitstypen, beabsichtigte Studienfächer und Erwartungen hängen zusammen; Person und Studienumwelt müssen getrennt betrachtet werden. | Keine Kausalität, keine Vorhersage individueller Studienerfolge und keine Validierung dieser Plattform. |
 | Big Five | Donnellan et al. (2006), *The Mini-IPIP Scales*, DOI [10.1037/1040-3590.18.2.192](https://doi.org/10.1037/1040-3590.18.2.192) | Die Herkunft und Kurzform der 20 Mini-IPIP-Items. | Eigene Übersetzungen, Normen, Diagnosen oder eine Verwendung zur Ranglistenentscheidung. |
 | Übersetzungen | Beaton et al. (2000), *Guidelines for the Process of Cross-Cultural Adaptation of Self-Report Measures*, DOI [10.1097/00007632-200012150-00014](https://doi.org/10.1097/00007632-200012150-00014) | Die Notwendigkeit eines dokumentierten, sprachspezifischen Adaptions- und Prüfprozesses. | Dass eine Übersetzung durch blosses Vorliegen gleichwertig oder validiert ist. |
 | Digitale Spuren | Youyou, Kosinski & Stillwell (2015), *Computer-Based Personality Judgments Are More Accurate Than Those Made by Humans*, DOI [10.1073/pnas.1418680112](https://doi.org/10.1073/pnas.1418680112) | Digitale Spuren können unter klaren Bedingungen psychologisch relevante Informationen enthalten. | Dass ein individueller Verlauf Studieninteressen, Eignung oder Studienerfolg zuverlässig vorhersagt; die Stichprobe und Merkmale sind nicht mit WSIS gleichzusetzen. |
+| Sensitivität digitaler Spuren | Kosinski, Stillwell & Graepel (2013), *Private Traits and Attributes Are Predictable from Digital Records of Human Behavior*, DOI [10.1073/pnas.1218772110](https://doi.org/10.1073/pnas.1218772110) | Digitale Spuren können Merkmale offenbaren, die Personen nicht bewusst preisgeben; Transparenz, lokale Verarbeitung und freiwillige Aktivierung sind deshalb zentrale Schutzmassnahmen. | Dass aus solchen Spuren ein fairer oder geeigneter Studienvorschlag folgt. |
 
-Alle fünf Quellen sind im Zotero-Projekt `whatshouldistudy` erfasst. Der
-Volltext von Pike ist über den institutionellen Springer-Zugang geprüft;
-Youyou et al. ist frei verfügbar. Bei den übrigen Titeln muss der jeweilige
-institutionelle Volltextzugang vor einer inhaltlichen Auswertung noch geprüft
-werden.
+Alle sechs Quellen sind im Zotero-Projekt `whatshouldistudy` erfasst. Der
+Volltext von Pike ist über den institutionellen Springer-Zugang geprüft; Nauta
+und beide PNAS-Artikel sind frei zugänglich. Ein Autor:innen-PDF zu Donnellan
+ist im Korpus verlinkt; für Beaton ist der Volltextzugang vor einer vollständigen
+Auswertung noch explizit zu prüfen.
 
 ## Folgerungen für das Produkt
 

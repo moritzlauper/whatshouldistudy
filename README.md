@@ -7,7 +7,7 @@ the 20 Mini-IPIP Big Five items are optional. Results are available with at leas
 two interest answers per area or imported data, without personality answers.
 Personality remains a questionnaire step and counts towards the overall progress
 (67 entries, including optional questions). The
-custom interest scale is not yet validated in a study. Results match 80 fields
+custom interest scale is not yet validated in a study. Results rank 80 fields
 to programmes in the available country datasets. Germany and Austria currently
 link to official programme searches; their own programme readers are pending.
 The paid report reveals the best field and programme and offers an optional AI
@@ -35,9 +35,10 @@ programme ranking. Entry uses a full page navigation to unload previously loaded
 scripts. Explicit print/JSON copies are personal data; ending a session does not
 delete downloaded files. Page requests and hosting logs still require review.
 
-**Research preparation:** [pilot protocol](docs/validation/PILOT_PROTOCOL.md),
-[research decisions and unresolved rights](docs/validation/RESEARCH_DECISIONS.md),
-and [institutional dossier](docs/validation/INSTITUTIONAL_REVIEW.md).
+**Research preparation:** [evidence log](docs/validation/EVIDENCE_LOG.md),
+[pilot protocol](docs/validation/PILOT_PROTOCOL.md), [research decisions and
+unresolved rights](docs/validation/RESEARCH_DECISIONS.md), and
+[institutional dossier](docs/validation/INSTITUTIONAL_REVIEW.md).
 `npm run validation:bundle` records exact forms for each language, scoring/source
 checksums and an unreviewed field-profile template. Review version IDs before
 regenerating; `npm run validation:check` (also in tests) detects drift. Keep

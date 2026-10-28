@@ -33,7 +33,7 @@ export function ProfessionalView({ site, base, locale: lang }: SiteProps) {
   ]
   return <article id="professional-manual" className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
     <header>
-      <p className="text-sm font-bold text-muted">{de ? 'Dokumentationsstand' : 'Documentation revision'} · 14.10.2026 · 1.1</p>
+      <p className="text-sm font-bold text-muted">{de ? 'Dokumentationsstand' : 'Documentation revision'} · 28.10.2026 · 1.2</p>
       <h1 className="mt-3 font-display text-4xl sm:text-5xl">{text.title}</h1>
       <p className="mt-5 text-lg">{text.notice}</p>
       <p className="mt-3 text-muted">{text.institution}</p>
@@ -118,6 +118,7 @@ export function ProfessionalView({ site, base, locale: lang }: SiteProps) {
         </section>
         <section id="manual-7" className="scroll-mt-24">
           <h2>{headings[7]}</h2>
+          <p>{de ? 'Revision 1.2 vom 28.10.2026: Evidenzlog ergänzt; die Anzeige 0–100 heisst «relativer Wert» und nicht «Match». Sie ordnet Felder innerhalb eines Ergebnisses und ist weder Erfolgswahrscheinlichkeit noch validierte Genauigkeit.' : 'Revision 1.2, 28 October 2026: added an evidence log; the 0–100 display is now called a “relative score”, not a “match”. It orders fields within one result and is neither a success probability nor a validated accuracy measure.'} <a href={`${SOURCE_URL}/blob/main/docs/validation/EVIDENCE_LOG.md`}>{de ? 'Evidenzlog mit Quellen und Grenzen' : 'Evidence log with sources and boundaries'}</a>.</p>
           <p>{de ? 'Revision 1.1: getrennte Fragebogen-Sitzung, Versionsnachweise und Pilotprotokoll ergänzt. Interessenantworten müssen auch beim Einlesen gespeicherter Angaben gültige ganze Werte von 1 bis 5 sein.' : 'Revision 1.1: separate questionnaire session, version records and pilot protocol added. Interest responses must be valid integers from 1 to 5, including when reading saved responses.'}</p>
           <p><code>{ASSESSMENT_VERSION.interests}</code> · <code>{ASSESSMENT_VERSION.scoring}</code>. <a href={`${SOURCE_URL}/blob/main/docs/validation/release-manifest.json`}>{de ? 'Versionsmanifest mit exakten Sprachfassungen und Dateiprüfsummen' : 'Version manifest with exact language forms and file checksums'}</a></p>
           <p>{de ? 'Revision 1.0 vom 14.10.2026: erste zusammenhängende Fachdokumentation; ungesicherte Persönlichkeitsnormen entfernt; vollständige Persönlichkeitsantworten erforderlich; KI-Einwilligung am Endpunkt geprüft. Frühere Ergebnislinks ohne Antwortmittelwerte werden nicht in neue Normwerte umgerechnet. Modelländerungen erfordern eine erneute Prüfung und Dokumentation.' : 'Revision 1.0, 14 October 2026: first consolidated professional documentation; unsupported personality norms removed; complete personality responses required; AI consent checked at the endpoint. Earlier result links without response means are not converted into new norm scores. Model changes require renewed review and documentation.'}</p>
