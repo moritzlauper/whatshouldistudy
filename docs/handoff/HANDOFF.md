@@ -2,6 +2,18 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Österreich: offene Studiengangsdaten (28.10.2026)
+
+- Antwort von studienwahl.at auf die Anfrage: Die Daten zum Studienangebot stehen als offene Daten auf data.gv.at, Lizenz CC BY 4.0. Der Datensatz heisst «Studiengänge», veröffentlichende Stelle ist das BMFWF. Alle drei Distributionen nennen `https://creativecommons.org/licenses/by/4.0/`. Das habe ich im Browser auf data.gv.at selbst geprüft. Die Seite trägt «Aktualisiert: 14. November 2024». Ob der Stand aktuell ist, habe ich nicht ausgewertet.
+- Maschinenlesbarer Abruf laut Antwort: `https://extapp.noc-science.at/apex/shibb/api/v1/studien` (JSON, 2'556 Einträge). Die Distributionen auf data.gv.at habe ich nicht heruntergeladen. Dass Endpunkt und Datensatz identisch sind, ist deshalb nicht bestätigt.
+- `scrapers/at-hochschulen.ts` liest das JSON mit einem Abruf statt die HTML-Liste auf studienwahl.at zu lesen. Lauf am 28.10.2026: 2'364 Programme aus 2'556 Datensätzen (1'047 Universitäten, 593 FH, 356 Kunsthochschulen, 253 Privat, 115 PH). Doktorate, Lizentiate und Weiterbildung bleiben aussen vor, wie vorher.
+- Österreich ist nicht mehr `LINK_ONLY`. `at-studienwahl` steht in `PROGRAMME_SOURCES` mit Quellenangabe CC BY 4.0 in `SOURCES` (`scrapers/build.ts`) und hat einen Workflow-Schritt. Deutschland bleibt im Link-Modus.
+- Verlinkung pro Programm: Studienseite der Hochschule (`studieninfourl_de`, sonst `uniurl_de`), sonst die Suche auf studienwahl.at.
+- Texte: Angepasst sind die Österreich- und Deutschland-Texte in `lib/site/dict.ts` und `app/views/longform.tsx`. Die Kosten für Österreich bleiben Richtwerte je Hochschultyp (`lib/at-institutions.ts`).
+- Demo-Daten neu gebaut mit `node scrapers/build.ts --sample`, Fixture `scrapers/fixtures/at-studienwahl.json` mit 60 Einträgen neu erzeugt.
+- Offen: Das Validierungs-Manifest ist nicht neu erzeugt. Die Prüfsumme von `app/ui/questionnaire-form.tsx` war schon vor dieser Änderung veraltet (Commit 233783d). Vor `npm run validation:bundle` muss die Fragebogen-Änderung geprüft werden. Bis dahin schlägt der Test «release manifest matches» fehl, wie schon vorher.
+- Offen: Ob der Lauf im Workflow durchgeht und die AT-Zahlen dort gleich ausfallen, zeigt der nächste Wochenlauf. Einzelne Studienseiten der Hochschulen habe ich nicht abgerufen.
+
 ## Widerrufsrecht und Studiengangdaten DE/AT (24.10.2026)
 
 - Anlass: Ein Käufer aus Deutschland hat einen Kauf auf wasstudieren.ch widerrufen (fehlende Widerrufsbelehrung, keine Zustimmung nach § 356 Abs. 5 BGB). Erstattet am 24.10.2026 im Stripe-Dashboard; der CLI-Schlüssel darf keine Erstattungen auslösen.

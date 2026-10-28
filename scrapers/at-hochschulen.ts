@@ -1,10 +1,10 @@
 /**
  * Austria: every degree programme at universities, universities of applied
- * sciences (FH), universities of teacher education (PH) and private
- * universities, from studienwahl.at, the study portal of the Federal Ministry
- * (BMFWF). Its list pages show name, institution, kind of
- * programme and place; robots.txt allows crawling. We read the list slowly,
- * one page per second, and link every programme to its page there.
+ * sciences (FH), universities of teacher education (PH), private universities
+ * and arts universities, from the open dataset «Studiengänge» of the Federal
+ * Ministry (BMFWF) on data.gv.at. studienwahl.at shows the same data. Licence
+ * CC BY 4.0. One request for the whole list; each programme links to its
+ * university's study page.
  */
 import { join } from 'node:path'
 import { programmeId } from '../lib/programmes.ts'
@@ -12,45 +12,51 @@ import type { Level, Programme } from '../lib/programmes.ts'
 import { ADMISSION } from '../lib/institutions.ts'
 import { atTuition, findAtInstitution } from '../lib/at-institutions.ts'
 import type { AtType } from '../lib/at-institutions.ts'
-import { OUT, fetchRetry, isMain, log, sleep, writeJson } from './lib/common.ts'
+import { OUT, fetchRetry, isMain, log, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
 import { germanFields } from './lib/de-titles.ts'
 
-const SITE = 'https://www.studienwahl.at'
+export const DATA_URL = 'https://extapp.noc-science.at/apex/shibb/api/v1/studien'
 
 const STATES: Record<string, string> = {
   B: 'Burgenland', K: 'Kärnten', NÖ: 'Niederösterreich', OÖ: 'Oberösterreich', S: 'Salzburg', ST: 'Steiermark', T: 'Tirol', V: 'Vorarlberg', W: 'Wien',
 }
 
+/** The fields of one record in the dataset that we use. */
+export interface AtRecord {
+  studium_id: number
+  studium_de: string | null
+  typ_de: string | null
+  hochschule_de: string | null
+  institution_de: string | null
+  ort_de: string | null
+  studieninfourl_de: string | null
+  uniurl_de: string | null
+}
+
 export interface ListItem {
+  id: string
   name: string
   institution: string
   kind: string
   place: string
-  href: string
+  hochschule: string
+  link: string
 }
 
-const decode = (s: string) =>
-  s
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;/g, "'")
-    .replace(/&uuml;/g, 'ü')
-    .replace(/&ouml;/g, 'ö')
-    .replace(/&auml;/g, 'ä')
-    .replace(/&szlig;/g, 'ß')
-    .replace(/\s+/g, ' ')
-    .trim()
+const isHttp = (u: string | null): u is string => !!u && /^https?:\/\//.test(u)
 
-/** The programmes on one list page. */
-export function parseList(html: string): ListItem[] {
-  const out: ListItem[] = []
-  const re = /<div class="course[^"]*">\s*<h2>([\s\S]*?)<\/h2>\s*<p>([\s\S]*?)<\/p>\s*<b>([\s\S]*?)<\/b>[\s\S]*?href="(\/studien\/[^"]+\.html)"/g
-  for (const m of html.matchAll(re)) {
-    const [kind, place] = decode(m[3]).split('»').map((x) => x.trim())
-    out.push({ name: decode(m[1]), institution: decode(m[2]), kind: kind ?? '', place: place ?? '', href: m[4] })
+export function toListItem(r: AtRecord): ListItem {
+  const name = r.studium_de ?? ''
+  return {
+    id: String(r.studium_id),
+    name,
+    institution: r.institution_de ?? '',
+    kind: r.typ_de ?? '',
+    place: r.ort_de ?? '',
+    hochschule: r.hochschule_de ?? '',
+    link: [r.studieninfourl_de, r.uniurl_de].find(isHttp) ?? `https://www.studienwahl.at/studien/?q=${encodeURIComponent(name)}`,
   }
-  return out
 }
 
 export function atLevel(kind: string): Level | null {
@@ -62,12 +68,13 @@ export function atLevel(kind: string): Level | null {
   return null
 }
 
-function typeOf(institution: string): AtType {
-  const known = findAtInstitution(institution)
+function typeOf(it: ListItem): AtType {
+  const known = findAtInstitution(it.institution)
   if (known) return known.type
-  if (/fachhochschule|\bfh\b|university of applied sciences/i.test(institution)) return 'fh'
-  if (/pädagogische hochschule|\bph\b/i.test(institution)) return 'ph'
-  if (/privat|private/i.test(institution)) return 'priv'
+  const text = `${it.hochschule} ${it.institution}`
+  if (/fachhochschule|\bfh\b|university of applied sciences/i.test(text)) return 'fh'
+  if (/pädagogische hochschule|\bph\b/i.test(text)) return 'ph'
+  if (/privat|private/i.test(text)) return 'priv'
   return 'uni'
 }
 
@@ -77,13 +84,13 @@ export function parseItem(it: ListItem, fetchedAt: string): Programme | null {
   const { fields, confidence } = germanFields(it.name)
   if (!fields.length) return null
   const known = findAtInstitution(it.institution)
-  const type = typeOf(it.institution)
+  const type = typeOf(it)
   const fee = atTuition(type)
   const city = it.place || known?.city
   const region = known ? STATES[known.state] : undefined
   const english = /^[A-Za-z0-9 ,.&()'’\-–:/+]+$/.test(it.name) && /\b(and|of|in|for|management|science|studies|engineering|design)\b/i.test(it.name)
   return {
-    id: programmeId(['at', it.href]),
+    id: programmeId(['at', it.id]),
     name: it.name,
     institution: known?.name ?? it.institution,
     country: 'AT',
@@ -94,7 +101,7 @@ export function parseItem(it: ListItem, fetchedAt: string): Programme | null {
     fieldConfidence: confidence,
     languages: english ? ['en'] : (known?.languages ?? ['de']),
     tuition: { currency: 'EUR', domestic: fee.domestic, eu: fee.eu, international: fee.international, estimated: true, note: fee.note },
-    url: `${SITE}${encodeURI(decodeURI(it.href))}`,
+    url: it.link,
     institutionUrl: known?.url,
     public: type !== 'priv',
     admission: ADMISSION.AT[type]?.de,
@@ -106,49 +113,29 @@ export function parseItem(it: ListItem, fetchedAt: string): Programme | null {
 
 async function main() {
   const fetchedAt = new Date().toISOString()
+  const body = (await (await fetchRetry(DATA_URL, {}, 3)).json()) as { items?: AtRecord[] }
+  if (!Array.isArray(body.items)) throw new Error('The Austrian dataset has no items')
   const programmes: Programme[] = []
   const seen = new Set<string>()
   const kinds = new Map<string, number>()
   const unclassified: string[] = []
   const unknown = new Set<string>()
-  const fixture: ListItem[] = []
-  let empty = 0
-  for (let page = 1; page <= 1000 && empty < 2; page++) {
-    let items: ListItem[] = []
-    try {
-      const html = await (await fetchRetry(`${SITE}/studien/?page=${page}&per-page=10`, {}, 3)).text()
-      items = parseList(html)
-    } catch (e) {
-      log(`AT page ${page} failed: ${(e as Error).message}`)
-    }
-    const fresh = items.filter((it) => !seen.has(it.href))
-    // Past the last page the portal repeats it.
-    if (!fresh.length) {
-      empty++
-      continue
-    }
-    empty = 0
-    for (const it of fresh) {
-      seen.add(it.href)
-      kinds.set(it.kind, (kinds.get(it.kind) ?? 0) + 1)
-      if (!findAtInstitution(it.institution)) unknown.add(it.institution)
-      const p = parseItem(it, fetchedAt)
-      if (p) {
-        programmes.push(p)
-        if (fixture.length < 60 && /^(Universität Wien|Technische Universität Wien|FH Technikum Wien|FH JOANNEUM|Pädagogische Hochschule Wien|Universität Graz|MCI)/.test(it.institution)) fixture.push(it)
-      } else if (atLevel(it.kind)) unclassified.push(it.name)
-    }
-    if (page % 25 === 0) log(`AT: page ${page}, ${seen.size} read, ${programmes.length} programmes`)
-    await sleep(1000)
+  for (const it of body.items.map(toListItem)) {
+    if (seen.has(it.id)) continue
+    seen.add(it.id)
+    kinds.set(it.kind, (kinds.get(it.kind) ?? 0) + 1)
+    if (!findAtInstitution(it.institution)) unknown.add(it.institution)
+    const p = parseItem(it, fetchedAt)
+    if (p) programmes.push(p)
+    else if (atLevel(it.kind)) unclassified.push(it.name)
   }
-  log(`AT: ${seen.size} read, ${programmes.length} programmes`)
+  log(`AT: ${body.items.length} records, ${programmes.length} programmes`)
   log(`AT kinds: ${JSON.stringify([...kinds])}`)
   log(`AT institutions not in our list (${unknown.size}): ${[...unknown].slice(0, 60).join(' || ')}`)
   log(`AT unclassified (${unclassified.length}): ${unclassified.slice(0, 400).join(' || ')}`)
   const byType = new Map<string, number>()
   for (const p of programmes) byType.set(p.institutionType!, (byType.get(p.institutionType!) ?? 0) + 1)
   log(`AT by type: ${JSON.stringify([...byType])}`)
-  log(`AT fixture: ${JSON.stringify(fixture)}`)
   if (programmes.length < 300) throw new Error(`Only ${programmes.length} Austrian programmes`)
   const out: ScrapeOutput = { source: 'at-studienwahl', fetchedAt, programmes }
   writeJson(join(OUT, 'at-studienwahl.json'), out)

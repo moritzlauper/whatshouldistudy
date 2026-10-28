@@ -1680,7 +1680,7 @@ const deCH: Dict = {
 
 /** Germany: the Swiss texts in German spelling, plus what differs in substance. */
 const DE_OVERRIDES: DeepPartial<Dict> = {
-  reportScope: 'Der volle Report enthält dein bestes Fach mit Belegen und passende Studiengänge aus unserer Datenbank in der Schweiz, Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA. Einzelne Studiengänge in Deutschland und Österreich sind derzeit nicht enthalten. Für diese Länder gibt es Links zu den offiziellen Suchportalen pro Fach. Wer nur Deutschland oder Österreich als Studienland auswählt, erhält keine einzelnen Studiengänge im Report.',
+  reportScope: 'Der volle Report enthält dein bestes Fach mit Belegen und passende Studiengänge aus unserer Datenbank in der Schweiz, in Österreich, Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA. Einzelne Studiengänge in Deutschland sind derzeit nicht enthalten. Für Deutschland gibt es Links zur offiziellen Suche pro Fach. Wer nur Deutschland als Studienland auswählt, erhält im Report keine einzelnen Studiengänge.',
   landing: {
     lead: (n: number) =>
       `Finde deinen Weg zu einem passenden Studiengang: mit einem kurzen Fragebogen oder zusätzlich deinen eigenen Daten. Du erhältst passende Fächer aus ${n} Studienfeldern. Für Studiengänge in Deutschland verlinken wir pro Fach auf die Studiensuche der Bundesagentur für Arbeit. Der kostenpflichtige Report ergänzt dein bestes Fach mit Belegen und passende Studiengänge in den abgedeckten Auslandsländern.`,
@@ -1699,7 +1699,7 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Die Daten gelangen direkt auf dein Gerät. Zusammenfassungen und eingelesene Exporte aus Meine Aktivitäten und YouTube bleiben in diesem Browser, bis du die Quelle oder alle deine Daten löschst. Nur wenn du die KI-Inhaltsanalyse ausdrücklich aktivierst, gehen ausgewählte Exporttitel und Kanalnamen über unseren Server an Infomaniak. Wir speichern diese Anfrage nicht.'],
       ['Ist das ein richtiger psychologischer Test?', 'Er baut auf gesicherter Forschung auf, ist aber kein geprüfter Test. Die Interessenfragen folgen dem RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, mit vier Tätigkeiten pro Bereich. Die Fragen sind unsere eigenen und noch nicht in einer Studie geprüft. Der Teil zur Persönlichkeit ist der Mini-IPIP, eine veröffentlichte Big-Five-Skala mit 20 Fragen, in eigener Übersetzung. Die Analyse deiner Daten ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
       ['Welche Hochschulen sind drin?', 'Für Deutschland zeigen wir die Fächer, die Hochschultypen und die Kosten; die einzelnen Studiengänge führt die Studiensuche der Bundesagentur für Arbeit, auf die wir pro Fach verlinken. Ihre Daten haben keine offene Lizenz, deshalb übernehmen wir sie nicht. Studiengang für Studiengang kommen die Schweiz, Frankreich, UK, die Niederlande, Norwegen, Finnland, Australien, Südkorea und die USA dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
-      ['Was bringt der volle Report?', 'Dein bestes Fach mit allen Belegen, deine Fächer mit Link zur Studiensuche der Bundesagentur für Arbeit und die passenden Studiengänge in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Einzelne Studiengänge in Deutschland und Österreich sind nicht enthalten. Wenn du nur diese Länder auswählst, erhältst du die Fächerauswertung und Links zu den offiziellen Suchportalen, aber keine einzelnen Studiengänge.'],
+      ['Was bringt der volle Report?', 'Dein bestes Fach mit allen Belegen, deine Fächer mit Link zur Studiensuche der Bundesagentur für Arbeit und die passenden Studiengänge in Österreich, der Schweiz, Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Einzelne Studiengänge in Deutschland sind nicht enthalten. Wenn du nur Deutschland auswählst, erhältst du die Fächerauswertung und Links zur offiziellen Suche, aber keine einzelnen Studiengänge.'],
       ['Geht das auch ohne Verbindungen?', 'Ja. Der Fragebogen allein gibt schon ein brauchbares Ergebnis. Jede Quelle macht es genauer, und das Vertrauens-Badge beim Ergebnis zeigt, worauf es beruht.'],
     ],
     typesTitle: 'Uni, HAW oder duales Studium?',
@@ -1732,26 +1732,26 @@ const DE_OVERRIDES: DeepPartial<Dict> = {
 
 /** Austria: the Swiss texts in Austrian spelling, plus what differs in substance. */
 const AT_OVERRIDES: DeepPartial<Dict> = {
-  reportScope: 'Der volle Report enthält dein bestes Fach mit Belegen und passende Studiengänge aus unserer Datenbank in der Schweiz, Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA. Einzelne Studiengänge in Deutschland und Österreich sind derzeit nicht enthalten. Für diese Länder gibt es Links zu den offiziellen Suchportalen pro Fach. Wer nur Deutschland oder Österreich als Studienland auswählt, erhält keine einzelnen Studiengänge im Report.',
+  reportScope: 'Der volle Report enthält dein bestes Fach mit Belegen und passende Studiengänge aus unserer Datenbank in der Schweiz, in Österreich, Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA. Einzelne Studiengänge in Deutschland sind derzeit nicht enthalten. Für Deutschland gibt es Links zur offiziellen Suche pro Fach. Wer nur Deutschland als Studienland auswählt, erhält im Report keine einzelnen Studiengänge.',
   landing: {
     lead: (n: number) =>
-      `Finde deinen Weg zu einem passenden Studiengang: mit einem kurzen Fragebogen oder zusätzlich deinen eigenen Daten. Du erhältst passende Fächer aus ${n} Studienfeldern. Für Studiengänge in Österreich verlinken wir pro Fach auf studienwahl.at. Der kostenpflichtige Report ergänzt dein bestes Fach mit Belegen und passende Studiengänge in den abgedeckten Auslandsländern.`,
+      `Finde deinen Weg zu einem passenden Studiengang: mit einem kurzen Fragebogen oder zusätzlich deinen eigenen Daten. Du erhältst passende Fächer aus ${n} Studienfeldern. Die Studiengänge in Österreich stammen aus dem offenen Datensatz des BMFWF auf data.gv.at. Der kostenpflichtige Report ergänzt dein bestes Fach mit Belegen und passende Studiengänge in den abgedeckten Auslandsländern.`,
     cols: [
       deCH.landing.cols[0],
       {
         tag: 'Im vollen Report',
         title: 'Dein Platz 1 und passende Studien',
-        text: 'Der Report sortiert deine Fächer und die Studien aus unserer Datenbank nach deinem Profil. Für Österreich verlinken wir pro Fach auf studienwahl.at.',
-        points: ['Dein bestes Fach mit allen Belegen und deine Top 5 Studien', 'Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform, Ort und Link, wo die Quelle sie nennt', 'Filter nach Ort, Stufe und Land, Suche und CSV-Export'],
+        text: 'Der Report sortiert deine Fächer und die Studien aus unserer Datenbank nach deinem Profil. Die Studien aus Österreich stammen aus dem offenen Datensatz des BMFWF.',
+        points: ['Dein bestes Fach mit allen Belegen und deine Top 5 Studien', 'Studien in Österreich, der Schweiz, Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform, Ort und Link, wo die Quelle sie nennt', 'Filter nach Ort, Stufe und Land, Suche und CSV-Export'],
       },
       deCH.landing.cols[2],
     ],
-    fullList: ['Dein bestes Fach, mit allen Belegen', 'Deine Fächer, für dich sortiert, je mit Link zu studienwahl.at','Passende Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studien markiert'],
+    fullList: ['Dein bestes Fach, mit allen Belegen', 'Deine Fächer, für dich sortiert','Passende Studien in Österreich, der Schweiz, Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA', 'Abschluss, Studienform und Ort, wo die Quelle sie nennt', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche, CSV-Export, neue Studien markiert'],
     faq: [
       ['Speichert ihr meinen YouTube-Verlauf?', 'Nein. Die Analyse läuft in deinem Browser. Die Daten gelangen direkt auf dein Gerät. Zusammenfassungen und eingelesene Exporte aus Meine Aktivitäten und YouTube bleiben in diesem Browser, bis du die Quelle oder alle deine Daten löschst. Nur wenn du die KI-Inhaltsanalyse ausdrücklich aktivierst, gehen ausgewählte Exporttitel und Kanalnamen über unseren Server an Infomaniak. Wir speichern diese Anfrage nicht.'],
       ['Ist das ein richtiger psychologischer Test?', 'Er baut auf gesicherter Forschung auf, ist aber kein geprüfter Test. Die Interessenfragen folgen dem RIASEC-Modell von Holland, auf dem die meiste Studien- und Berufsberatung aufbaut, mit vier Tätigkeiten pro Bereich. Die Fragen sind unsere eigenen und noch nicht in einer Studie geprüft. Der Teil zur Persönlichkeit ist der Mini-IPIP, eine veröffentlichte Big-Five-Skala mit 20 Fragen, in eigener Übersetzung. Die Analyse deiner Daten ist unser eigenes Modell. Auf „So funktioniert’s“ steht jeder Schritt, auch was es nicht kann.'],
-      ['Welche Hochschulen sind drin?', 'Für Österreich zeigen wir die Fächer, die Hochschultypen und die Kosten; die einzelnen Studien führt studienwahl.at, das Studienportal des Wissenschaftsministeriums, auf das wir pro Fach verlinken. Seine Daten haben keine offene Lizenz, deshalb übernehmen wir sie nicht. Studiengang für Studiengang kommen die Schweiz, Frankreich, UK, die Niederlande, Norwegen, Finnland, Australien, Südkorea und die USA dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
-      ['Was bringt der volle Report?', 'Dein bestes Fach mit allen Belegen, deine Fächer mit Link zu studienwahl.at und die passenden Studien in der Schweiz, in Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Einzelne Studiengänge in Österreich und Deutschland sind nicht enthalten. Wenn du nur diese Länder auswählst, erhältst du die Fächerauswertung und Links zu den offiziellen Suchportalen, aber keine einzelnen Studiengänge.'],
+      ['Welche Hochschulen sind drin?', 'Für Österreich zeigen wir die Studiengänge der Universitäten, Fachhochschulen, Pädagogischen Hochschulen, Privatuniversitäten und Kunsthochschulen, mit Richtwerten für die Kosten. Die Angaben stammen aus dem offenen Datensatz »Studiengänge« des BMFWF auf data.gv.at, lizenziert unter CC BY 4.0. Studiengang für Studiengang kommen die Schweiz, Frankreich, UK, die Niederlande, Norwegen, Finnland, Australien, Südkorea und die USA dazu, für 60 weitere Länder die forschungsstärksten Unis.'],
+      ['Was bringt der volle Report?', 'Dein bestes Fach mit allen Belegen, deine Fächer und die passenden Studien in Österreich, der Schweiz, Frankreich, UK, den Niederlanden, Norwegen, Finnland, Australien, Südkorea und den USA, mit Abschluss, Studienform, Ort und Link, sortiert nach deinem Profil. Einzelne Studiengänge in Deutschland sind nicht enthalten. Wenn du nur Deutschland auswählst, erhältst du die Fächerauswertung und Links zur offiziellen Suche, aber keine einzelnen Studiengänge.'],
       ['Geht das auch ohne Verbindungen?', 'Ja. Der Fragebogen allein gibt schon ein brauchbares Ergebnis. Jede Quelle macht es genauer, und das Vertrauens-Badge beim Ergebnis zeigt, worauf es beruht.'],
     ],
     typesTitle: 'Uni, FH oder PH?',
@@ -1761,7 +1761,7 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
   start: { seeResult: 'Mein Ergebnis →', lead: 'Starte mit dem Fragebogen. Danach kannst du freiwillig deine Daten für einen zweiten Blick ergänzen. Dein Ergebnis siehst du auch ohne Datenimport und kannst später mehr ergänzen.' },
   programmes: {
     boxSub: 'Dein bestes Fach mit Belegen und passende Studiengänge aus den abgedeckten Ländern.',
-    boxList: (n: string) => ['Dein bestes Fach, mit allen Belegen', `Alle ${n} passenden Studien aus unserer Datenbank für deine gewählten Länder und Filter`, 'Abschluss, Studienform und Ort', 'Für Österreich: Link zu studienwahl.at pro Fach', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche und CSV-Export', 'Neue Studien markiert, wöchentlich aktualisiert'],
+    boxList: (n: string) => ['Dein bestes Fach, mit allen Belegen', `Alle ${n} passenden Studien aus unserer Datenbank für deine gewählten Länder und Filter`, 'Abschluss, Studienform und Ort', 'Studien in Österreich, mit Quellenangabe', 'Forschungsstärkste Unis in 60 weiteren Ländern', 'Filter, Suche und CSV-Export', 'Neue Studien markiert, wöchentlich aktualisiert'],
     boxNote: 'Einmalig · 12 Monate gültig · Zugangslink nach Zahlung per E-Mail',
   },
   fields: {
@@ -1772,13 +1772,13 @@ const AT_OVERRIDES: DeepPartial<Dict> = {
   meta: {
     title: `${AT_NAME}: Welches Studium passt zu mir?`,
     description:
-      'Finde dein Studienfach aus dem, was du wirklich schaust, suchst und likest: YouTube, Google, Instagram, TikTok und GitHub plus ein kurzer Fragebogen. Dazu passende Studien in der Schweiz, Frankreich, UK, den Niederlanden und weiteren Ländern, für Österreich der direkte Weg zu studienwahl.at. Deine Daten bleiben in deinem Browser.',
+      'Finde dein Studienfach aus dem, was du wirklich schaust, suchst und likest: YouTube, Google, Instagram, TikTok und GitHub plus ein kurzer Fragebogen. Dazu passende Studien in Österreich, der Schweiz, Frankreich, UK, den Niederlanden und weiteren Ländern. Deine Daten bleiben in deinem Browser.',
     keywords: ['Was soll ich studieren', 'Welches Studium passt zu mir', 'Studienwahl Test', 'Studieren in Österreich', 'Uni oder FH', 'Studienberatung', 'RIASEC', 'Big Five'],
     results: 'Dein Ergebnis',
     fieldsDesc: (n: number) => `${n} Studienfächer erklärt: was du lernst, wem sie liegen, wohin sie führen und wo du in Österreich danach suchst.`,
     howDesc: `So findest du mit ${AT_NAME} passende Studien: Fragebogen ausfüllen, Interessen, Schulfächer und Werte vergleichen und freiwillig eigene Daten ergänzen.`,
   },
-  misc: { dataCredit: 'Studiengänge: College Scorecard, Discover Uni, Parcoursup, BFS, DUO, DBH, Opintopolku, CRICOS, 대학알리미, OpenAlex; für Österreich Links zu studienwahl.at' },
+  misc: { dataCredit: 'Studiengänge: College Scorecard, Discover Uni, Parcoursup, BFS, DUO, DBH, Opintopolku, CRICOS, 대학알리미, OpenAlex; Österreich: BMFWF (data.gv.at, CC BY 4.0)' },
 }
 
 const deDE = mergeDeep(regionalizeDeep(deCH, 'de-DE'), regionalizeDeep(DE_OVERRIDES, 'de-DE'))

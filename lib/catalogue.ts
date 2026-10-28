@@ -18,7 +18,6 @@ export const CATALOGUE_COUNTRIES = Object.keys(COUNTRIES).filter((cc) => COUNTRI
  */
 export const LINK_ONLY: Record<string, { name: string; home: string; search: (q: string) => string }> = {
   DE: { name: 'Studiensuche der Bundesagentur für Arbeit', home: 'https://web.arbeitsagentur.de/studiensuche/', search: (q) => `https://web.arbeitsagentur.de/studiensuche/suche?sw=${encodeURIComponent(q)}` },
-  AT: { name: 'studienwahl.at', home: 'https://www.studienwahl.at/', search: (q) => `https://www.studienwahl.at/studien/?q=${encodeURIComponent(q)}` },
 }
 
 /** Address of a country on the global site, from its English name: south-korea. */

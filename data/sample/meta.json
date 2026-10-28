@@ -89,6 +89,19 @@
       "fetchedAt": "2026-01-01T00:00:00.000Z"
     },
     {
+      "id": "at-studienwahl",
+      "name": "Studiengänge (BMFWF, studienwahl.at, data.gv.at)",
+      "countries": [
+        "AT"
+      ],
+      "url": "https://www.studienwahl.at/",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "ok": true,
+      "count": 54,
+      "fetchedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
       "id": "kr-academyinfo",
       "name": "Korea Higher Education Information, 대학알리미 (Ministry of Education, KCUE)",
       "countries": [
@@ -194,6 +207,7 @@
   },
   "counts": {
     "mathematics": {
+      "AT": 1,
       "FR": 3,
       "GB": 1,
       "KR": 2,
@@ -205,6 +219,7 @@
       "US": 18
     },
     "computer-science": {
+      "AT": 2,
       "CH": 15,
       "FR": 4,
       "GB": 4,
@@ -220,6 +235,7 @@
       "CH": 7
     },
     "computer-engineering": {
+      "AT": 1,
       "US": 10
     },
     "physics": {
@@ -229,22 +245,26 @@
       "US": 24
     },
     "astronomy": {
+      "AT": 2,
       "GB": 1,
       "US": 8
     },
     "chemistry": {
+      "AT": 6,
       "FR": 2,
       "GB": 1,
       "KR": 1,
       "US": 24
     },
     "biology": {
+      "AT": 5,
       "CH": 6,
       "FR": 3,
       "KR": 4,
       "US": 14
     },
     "molecular-biology": {
+      "AT": 2,
       "FR": 1,
       "US": 6
     },
@@ -256,6 +276,7 @@
       "US": 6
     },
     "environmental-science": {
+      "AT": 1,
       "GB": 2,
       "US": 8
     },
@@ -290,6 +311,7 @@
       "US": 14
     },
     "civil-engineering": {
+      "AT": 2,
       "FR": 1,
       "GB": 1,
       "KR": 2,
@@ -321,6 +343,7 @@
       "US": 6
     },
     "architecture": {
+      "AT": 2,
       "CH": 8,
       "GB": 1,
       "KR": 1,
@@ -360,6 +383,7 @@
       "GB": 1
     },
     "sports-science": {
+      "AT": 2,
       "FR": 1,
       "KR": 1,
       "US": 6
@@ -383,6 +407,7 @@
       "US": 24
     },
     "business-management": {
+      "AT": 4,
       "CH": 7,
       "FR": 3,
       "GB": 2,
@@ -421,10 +446,12 @@
       "GB": 1
     },
     "sociology": {
+      "AT": 1,
       "FR": 1,
       "GB": 1
     },
     "anthropology": {
+      "AT": 3,
       "GB": 3
     },
     "social-work": {
@@ -433,6 +460,7 @@
       "KR": 1
     },
     "education": {
+      "AT": 2,
       "CH": 11,
       "KR": 20
     },
@@ -445,27 +473,34 @@
       "KR": 1
     },
     "history": {
+      "AT": 6,
       "CH": 4,
       "FR": 1,
       "GB": 1,
       "US": 10
     },
-    "archaeology": {},
+    "archaeology": {
+      "AT": 3
+    },
     "philosophy": {
+      "AT": 1,
       "FR": 1,
       "GB": 1,
       "US": 12
     },
     "religious-studies": {},
     "linguistics": {
+      "AT": 2,
       "GB": 1,
       "US": 12
     },
     "languages": {
+      "AT": 7,
       "FR": 1,
       "KR": 5
     },
     "literature": {
+      "AT": 5,
       "FR": 1,
       "GB": 1,
       "KR": 4,
@@ -501,6 +536,7 @@
       "GB": 1
     },
     "performing-arts": {
+      "AT": 1,
       "GB": 1
     },
     "culinary-arts": {},
@@ -511,9 +547,9 @@
     "aviation": {}
   },
   "totals": {
-    "programmes": 752,
-    "countries": 5,
-    "institutions": 53,
+    "programmes": 806,
+    "countries": 6,
+    "institutions": 56,
     "newLast90Days": 0
   },
   "unclassified": 0,
@@ -543,6 +579,13 @@
         "ph": 11
       },
       "continuing": 8
+    },
+    "AT": {
+      "programmes": 54,
+      "institutions": 3,
+      "byType": {
+        "uni": 54
+      }
     },
     "KR": {
       "programmes": 72,

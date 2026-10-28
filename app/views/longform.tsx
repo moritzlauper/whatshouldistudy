@@ -54,7 +54,7 @@ function LocalData({ k }: { k: Kit }) {
   if (k.site === 'at')
     return (
       <p>
-        Für Österreich zeigen wir die Fächer, die Hochschultypen und was das Studium kostet. Die einzelnen Studien führt studienwahl.at, das Studienportal des Wissenschaftsministeriums; wir verlinken pro Fach direkt dorthin, weil seine Daten keine offene Lizenz haben. Öffentliche Universitäten sind für Studierende aus der EU innerhalb der Regelstudienzeit plus zwei Toleranzsemestern gratis, Studierende aus Drittstaaten zahlen 726.72 Euro pro Semester. Fachhochschulen verlangen meist bis 363.36 Euro pro Semester.
+        Für Österreich zeigen wir die Fächer, die Hochschultypen, Richtwerte für die Kosten und die einzelnen Studien. Die Studien stammen aus dem offenen Datensatz »Studiengänge« des BMFWF auf data.gv.at, lizenziert unter CC BY 4.0. Öffentliche Universitäten sind für Studierende aus der EU innerhalb der Regelstudienzeit plus zwei Toleranzsemestern gratis, Studierende aus Drittstaaten zahlen 726.72 Euro pro Semester. Fachhochschulen verlangen meist bis 363.36 Euro pro Semester.
       </p>
     )
   return (
@@ -740,7 +740,7 @@ export function TermsView({ site, base, locale }: SiteProps) {
         <p>Die Schnittstelle für Studiengänge ist nicht zum automatischen Auslesen oder Weiterverkaufen gedacht. Die offenen Daten dahinter bleiben bei ihren Herausgebern unter deren Lizenzen frei verfügbar.</p>
         <h2>Datenquellen</h2>
         <p>
-          Schweiz: Bundesamt für Statistik (BFS: Studierende, Absolventenbefragung), freie Nutzung mit Quellenangabe. USA: College Scorecard des US-Bildungsministeriums (gemeinfrei). Grossbritannien: Discover Uni (Office for Students, CC BY 4.0). Frankreich: Parcoursup (Licence Ouverte 2.0). Niederlande: DUO (CC BY). Norwegen: DBH (HK-dir, NLOD 2.0). Finnland: Opintopolku (Opetushallitus, CC BY 4.0). Australien: CRICOS (Department of Education, CC BY 2.5 AU). Südkorea: 대학알리미 (Bildungsministerium, freie Nutzung). Dazu OpenAlex (CC0) und University Domains List (MIT). Die Zuordnung zu Fächern stammt von uns. Für Deutschland und Österreich verlinken wir auf die offiziellen Suchen der Bundesagentur für Arbeit und von studienwahl.at, ohne ihre Daten zu übernehmen.
+          Schweiz: Bundesamt für Statistik (BFS: Studierende, Absolventenbefragung), freie Nutzung mit Quellenangabe. Österreich: Studiengänge des BMFWF, offener Datensatz auf data.gv.at (CC BY 4.0). USA: College Scorecard des US-Bildungsministeriums (gemeinfrei). Grossbritannien: Discover Uni (Office for Students, CC BY 4.0). Frankreich: Parcoursup (Licence Ouverte 2.0). Niederlande: DUO (CC BY). Norwegen: DBH (HK-dir, NLOD 2.0). Finnland: Opintopolku (Opetushallitus, CC BY 4.0). Australien: CRICOS (Department of Education, CC BY 2.5 AU). Südkorea: 대학알리미 (Bildungsministerium, freie Nutzung). Dazu OpenAlex (CC0) und University Domains List (MIT). Die Zuordnung zu Fächern stammt von uns. Für Deutschland verlinken wir auf die offizielle Suche der Bundesagentur für Arbeit, ohne ihre Daten zu übernehmen.
         </p>
         <Withdrawal locale={k.locale} />
         <h2>Recht</h2>

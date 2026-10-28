@@ -19,9 +19,9 @@ test('a programme slug is readable ASCII and ends in its id', () => {
 
 test('programme pages only where the source has an open licence', () => {
   for (const cc of [...Object.keys(LINK_ONLY), ...Object.keys(PROGRAMME_PAGES_PENDING)]) assert.equal(hasProgrammePages(cc), false, cc)
-  // Germany and Austria link to the official search only.
-  for (const cc of ['DE', 'AT']) assert.equal(hasProgrammePages(cc), false, cc)
-  for (const cc of ['US', 'GB', 'FR', 'CH']) assert.equal(hasProgrammePages(cc), CATALOGUE_COUNTRIES.includes(cc), cc)
+  // Germany links to the official search only; Austria has an open dataset.
+  assert.equal(hasProgrammePages('DE'), false)
+  for (const cc of ['US', 'GB', 'FR', 'CH', 'AT']) assert.equal(hasProgrammePages(cc), CATALOGUE_COUNTRIES.includes(cc), cc)
 })
 
 test('a programme lives under its main field', () => {
@@ -33,7 +33,8 @@ test('a programme lives under its main field', () => {
 test('programme sitemaps: per host, per country, under the 50,000 limit', () => {
   const groups = sitemapGroups('whatshouldistudy.com')
   assert.ok(groups.some((g) => g.site === 'global' && g.country === 'US'))
-  assert.ok(!groups.some((g) => g.country === 'DE' || g.country === 'AT'))
+  assert.ok(!groups.some((g) => g.country === 'DE'))
+  assert.ok(groups.some((g) => g.country === 'AT'))
   assert.ok(groups.some((g) => g.site === 'global' && g.country === 'CH'))
   assert.ok(sitemapGroups('wasstudieren.ch').some((g) => g.site === 'ch' && g.country === 'CH'))
   const files = sitemapFiles('whatshouldistudy.com', (cc) => (cc === 'US' ? 97_538 : 1000))

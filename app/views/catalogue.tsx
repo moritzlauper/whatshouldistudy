@@ -440,7 +440,7 @@ function LinkOnlyField({ k, cc, id }: { k: Kit; cc: string; id: string }) {
         <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.fieldH1(name, inC)}</h1>
       </div>
       <div className="mt-8">
-        <SourceLink title={ct.linkOnlyFieldTitle(name)} text={ct.linkOnlyFieldText(name, src.name)} href={src.search(fieldName(id, cc === 'AT' ? 'de-AT' : 'de-DE'))} label={ct.linkOpen(src.name)} />
+        <SourceLink title={ct.linkOnlyFieldTitle(name)} text={ct.linkOnlyFieldText(name, src.name)} href={src.search(fieldName(id, 'de-DE'))} label={ct.linkOpen(src.name)} />
       </div>
       <div className="mt-10 grid gap-5 md:grid-cols-[1.3fr_1fr]">
         <section className="card p-6">
@@ -566,7 +566,7 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
           <SourceLink
             title={ct.linkFieldTitle(name, fmtNumber(programmes.length, intl))}
             text={ct.linkFieldText(linkOnly.name)}
-            href={linkOnly.search(fieldName(id, cc === 'AT' ? 'de-AT' : 'de-DE'))}
+            href={linkOnly.search(fieldName(id, 'de-DE'))}
             label={ct.linkOpen(linkOnly.name)}
           />
         ) : (

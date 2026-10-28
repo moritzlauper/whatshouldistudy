@@ -139,8 +139,8 @@ same field at the institution and nearby, and the source with its licence. They
 exist only for countries whose source has an open licence: not for Germany and
 Austria (`LINK_ONLY`); `PROGRAMME_PAGES_PENDING` can hold back others. Sources
 without an open licence are not used at all until their publisher agrees in
-writing (`PERMISSION_PENDING` in `scrapers/build.ts`): studyprogrammes.ch, the
-Studiensuche of the Bundesagentur für Arbeit and studienwahl.at. Switzerland
+writing (`PERMISSION_PENDING` in `scrapers/build.ts`): studyprogrammes.ch and the
+Studiensuche of the Bundesagentur für Arbeit. Switzerland
 then has the BFS data (free use with attribution), and for the largest
 universities their own programme lists (`ch-hochschulen.ts`), one page per field of
 study at an institution; Germany and Austria get pages per field that link to
@@ -343,7 +343,7 @@ Strava (sports).
 | `ch-weiterbildung.ts` | Swiss continuing education (MAS, DAS, CAS; executive MBAs count as MAS) as ZHAW, FHNW, BFH and the universities of Basel, Geneva and Lucerne list it: name, type, link, and where the list has them ECTS, language, campus and the fee for the whole programme. Lists only, no programme pages; one request every 1.5 s. ETH, UZH, HSG, UNIL/EPFL, Fribourg, Bern and HSLU load their lists in the browser only and are not read yet. Own source and own levels `mas`, `das`, `cas`: counted apart from the degree programmes (`byCountry.continuing`), listed after them on field pages, ranked only when the person picks «Weiterbildung», never read by the AI facts run | facts from public pages, each with a link to the source |
 | `ch-studyprogrammes.ts` | **not run** until swissuniversities agrees: its legal notice reserves public or commercial use of its content. The Swiss catalogue uses the BFS data only | none stated |
 | `de-studiensuche.ts` | **not run** until the Bundesagentur für Arbeit agrees: its Studiensuche API states no licence for reuse. The country pages link to its search instead | none stated |
-| `at-hochschulen.ts` | **not run** until the publisher of studienwahl.at agrees: no licence for reuse. The country pages link to its search instead | none stated |
+| `at-hochschulen.ts` | every degree programme at Austrian universities, FHs, PHs, private and arts universities, from the open dataset «Studiengänge» of the BMFWF on data.gv.at: name, level, institution, place, link to the university's study page. Fees are estimates per institution type | CC BY 4.0 (dataset «Studiengänge», BMFWF; studienwahl.at confirmed it in writing) |
 | `kr-academyinfo.ts` | every South Korean department and major at universities, colleges and graduate schools from 대학알리미 (academyinfo.go.kr): degree, duration, location, official subject classification | free use without restrictions («이용허락범위 제한 없음»): the Ministry of Education publishes the same department list on data.go.kr (dataset 15139338) |
 | `au-cricos.ts` | every current Australian bachelor's, master's and doctoral course open to international students (CRICOS, data.gov.au): field of education, duration, city, international tuition | CC BY 2.5 AU |
 | `fi-opintopolku.ts` | every Finnish degree programme at universities and universities of applied sciences (Opintopolku / Studyinfo.fi): level, ISCED-F field, offering institution, language | CC BY 4.0 |
@@ -370,7 +370,7 @@ State of the first live runs (October 2026):
 | --- | --- |
 | Switzerland (BFS) | 1,069 programmes for 2025/26: 536 university, 75 ETH/EPFL, 373 FH, 85 PH, at 43 institutions |
 | Germany (Studiensuche) | 20,094 programmes from 21,585 offers: 12,467 university, 5,651 HAW/FH, 1,182 private, 726 art and music colleges, 37 dual, 31 public administration |
-| Austria (studienwahl.at) | 2,551 entries, 1,658 programmes in the first run (976 university, 290 FH, 190 private, 130 arts, 72 PH). The German title stems in `scrapers/lib/de-titles.ts` came after it and classify the compound names it missed. |
+| Austria (BMFWF open data, data.gv.at) | 2,556 records, 2,364 programmes (1,047 university, 593 FH, 253 private, 356 arts, 115 PH). Doctorates and continuing education are left out. |
 | France (Parcoursup cartographie) | 25,805 programmes read, ~22,300+ classified |
 | United States | with `DEMO_KEY` only ~1,000 of ~2,700 institutions (≈45,000 programmes) before the rate limit; complete with a free API key |
 | OpenAlex | 14,657 universities in 65 countries |
@@ -382,16 +382,15 @@ when a publisher renames something the run log shows it. `pnpm data:all` runs
 everything locally; `pnpm data:sample` rebuilds the demo dataset from
 `scrapers/fixtures` (CI checks it is up to date).
 
-Germany and Austria stay in link mode until a publisher agrees in writing.
+Germany stays in link mode until a publisher agrees in writing.
 Reading the universities' own websites, as in Switzerland, is ruled out there:
 unlike Switzerland, both countries have the database maker's right (§ 87a ff.
 UrhG in Germany, § 76c ff. UrhG in Austria). The Studiensuche of the
 Bundesagentur für Arbeit takes its programmes from the HRK's Hochschulkompass,
 so the permission needed is the HRK's: it gives a data export to cooperation
-partners with a nationwide programme search. studienwahl.at belongs to the
-Austrian ministry (BMFWF), which must answer a re-use request under § 6 IWG 2022
-within four weeks. For
-Austria, `unidata.gv.at` publishes student numbers per public university and
+partners with a nationwide programme search.
+
+Austria reads the open dataset «Studiengänge» of the BMFWF on data.gv.at, licensed under CC BY 4.0. studienwahl.at confirmed in writing that the same data is published under that licence. For Austria, `unidata.gv.at` publishes student numbers per public university and
 ISCED field under CC BY; it lacks programme names but could add student counts.
 
 Next countries with official open data to add: Netherlands (Studiekeuzedatabase,

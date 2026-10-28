@@ -50,10 +50,10 @@ import type { ChSalaryTable } from '../lib/ch-salary.ts'
  * in the demo data) until the publisher agrees in writing. To add one back,
  * move it to PROGRAMME_SOURCES and restore its workflow step and SOURCES entry.
  */
-export const PERMISSION_PENDING = ['ch-studyprogrammes', 'de-studiensuche', 'at-studienwahl']
+export const PERMISSION_PENDING = ['ch-studyprogrammes', 'de-studiensuche']
 
 /** Programme sources with an open licence (or written permission). */
-const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'ch-hochschulen', 'ch-weiterbildung', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku', 'nl-duo', 'no-dbh']
+const PROGRAMME_SOURCES = ['us-college-scorecard', 'uk-discover-uni', 'fr-parcoursup', 'ch-bfs', 'ch-hochschulen', 'ch-weiterbildung', 'at-studienwahl', 'kr-academyinfo', 'au-cricos', 'fi-opintopolku', 'nl-duo', 'no-dbh']
 
 const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>> = [
   {
@@ -108,6 +108,14 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
     countries: ['CH'],
     url: 'https://wasstudieren.ch/so-funktionierts#data',
     licence: 'Fakten von den Websites der Hochschulen, je mit Link',
+  },
+  {
+    id: 'at-studienwahl',
+    name: 'Studiengänge (BMFWF, studienwahl.at, data.gv.at)',
+    countries: ['AT'],
+    url: 'https://www.studienwahl.at/',
+    licence: 'CC BY 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by/4.0/',
   },
   {
     id: 'kr-academyinfo',
