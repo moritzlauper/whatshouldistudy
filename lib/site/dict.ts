@@ -506,8 +506,8 @@ const en = {
     yourAnswers: 'your answers',
     title: 'Your result',
     addMore: 'Add more data',
-    confidence: { low: 'Rough sketch', medium: 'Solid basis', high: 'Strong basis' },
-    confidenceTip: 'How much data and how complete and clear your answers to the questionnaire are',
+    confidence: { low: 'Few signals', medium: 'More signals', high: 'Rich profile' },
+    confidenceTip: 'How much information the ranking uses. This is not a validated accuracy or success estimate.',
     /** Notes on how the questionnaire was answered, and what the result can and can't say. */
     quality: {
       flat: 'Your interests come out about equally strong (or equally weak) across all six areas. That is common and not a bad sign, but it means the ranking below leans on your school subjects and priorities, and the first places are close. Browse the fields, or redo the interest questions a little later with one clear favourite in mind.',
@@ -1301,8 +1301,8 @@ const deCH: Dict = {
     yourAnswers: 'deinen Antworten',
     title: 'Dein Resultat',
     addMore: 'Mehr Daten hinzufügen',
-    confidence: { low: 'Grobe Skizze', medium: 'Solide Grundlage', high: 'Starke Grundlage' },
-    confidenceTip: 'Wie viele Daten und wie vollständige und deutliche Antworten im Fragebogen dahinterstehen',
+    confidence: { low: 'Wenige Signale', medium: 'Mehr Signale', high: 'Breites Profil' },
+    confidenceTip: 'Wie viele Informationen in die Rangliste fliessen. Keine validierte Genauigkeits- oder Erfolgsschätzung.',
     quality: {
       flat: 'Deine Interessen sind in allen sechs Bereichen etwa gleich stark (oder gleich schwach). Das ist häufig und kein schlechtes Zeichen. Es heisst aber, dass die Rangliste unten vor allem auf deinen Schulfächern und Prioritäten beruht und die ersten Plätze nahe beieinanderliegen. Schau dich bei den Fächern um oder beantworte die Interessenfragen später noch einmal.',
       careless: 'Ein Teil der Antworten wirkt durchgeklickt. Lies das Resultat als grobe Skizze.',
@@ -1968,8 +1968,8 @@ const frCH = mergeDeep(en, {
     title: 'Ton résultat', addMore: 'Ajouter des données', best: 'La meilleure correspondance', next: 'Tes autres domaines recommandés', why: 'Pourquoi ?', less: 'Moins',
     topics: 'Thèmes associés', hiddenTitle: 'Correspondances inattendues', riasecTitle: 'Profil d’intérêts', big5Title: 'Personnalité',
     insightsTitle: 'Ce que tes données révèlent', timelineTitle: 'Évolution de tes intérêts', middle: 'Dans la moyenne', addIt: 'Compléter',
-    yourAnswers: 'tes réponses', confidence: { low: 'Esquisse', medium: 'Base solide', high: 'Base très solide' },
-    confidenceTip: 'La quantité de données et à quel point tes réponses au questionnaire sont complètes et nettes', lockedTitle: 'Ton domaine numéro 1 est prêt',
+    yourAnswers: 'tes réponses', confidence: { low: 'Peu de signaux', medium: 'Plus de signaux', high: 'Profil riche' },
+    confidenceTip: 'La quantité d’informations utilisée par le classement. Ce n’est pas une estimation validée de précision ou de réussite.', lockedTitle: 'Ton domaine numéro 1 est prêt',
     quality: {
       flat: 'Tes intérêts ressortent à peu près aussi forts (ou aussi faibles) dans les six domaines. C’est fréquent et pas mauvais signe, mais le classement ci-dessous repose surtout sur tes matières et tes priorités, et les premières places sont proches. Parcours les domaines ou réponds plus tard une nouvelle fois aux questions d’intérêts.',
       careless: 'Une partie des réponses semble cliquée. Lis le résultat comme une esquisse.',
@@ -2284,8 +2284,8 @@ const itCH = mergeDeep(en, {
     title: 'Il tuo risultato', addMore: 'Aggiungi dati', best: 'La corrispondenza migliore', next: 'Le altre aree consigliate', why: 'Perché?', less: 'Meno',
     topics: 'Temi associati', hiddenTitle: 'Corrispondenze inaspettate', riasecTitle: 'Profilo degli interessi', big5Title: 'Personalità',
     insightsTitle: 'Cosa raccontano i tuoi dati', timelineTitle: 'Come sono cambiati i tuoi interessi', middle: 'Nella media', addIt: 'Completa',
-    yourAnswers: 'le tue risposte', confidence: { low: 'Schizzo', medium: 'Base solida', high: 'Base molto solida' },
-    confidenceTip: 'Quanti dati e quanto sono complete e chiare le tue risposte al questionario', lockedTitle: 'La tua area numero uno è pronta',
+    yourAnswers: 'le tue risposte', confidence: { low: 'Pochi segnali', medium: 'Più segnali', high: 'Profilo ricco' },
+    confidenceTip: 'Quante informazioni usa la classifica. Non è una stima validata di accuratezza o successo.', lockedTitle: 'La tua area numero uno è pronta',
     quality: {
       flat: 'I tuoi interessi risultano più o meno ugualmente forti (o deboli) in tutte e sei le aree. È frequente e non è un brutto segno, ma la classifica qui sotto si basa soprattutto sulle tue materie e priorità, e i primi posti sono vicini. Esplora le aree o rispondi di nuovo più tardi alle domande sugli interessi.',
       careless: 'Una parte delle risposte sembra data senza leggere. Leggi il risultato come uno schizzo.',
