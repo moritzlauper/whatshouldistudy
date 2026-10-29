@@ -12,5 +12,6 @@ import p8 from './2026-10-12-global-dutch-tuition-non-eu-students-2027-budget.js
 import p9 from './2026-10-23-ch-uni-fh-oder-ph-hochschultyp-waehlen-fristen-2027.json' with { type: 'json' }
 import p10 from './2026-10-25-ch-medizin-numerus-clausus-ems-fristen-2027-plan-b.json' with { type: 'json' }
 import p11 from './2026-10-27-ch-arbeitsmarkt-einstieg-bfs-zahlen-studienwahl.json' with { type: 'json' }
+import p12 from './2026-10-29-ch-pflege-studieren-fh-bachelor-anmeldung-2027.json' with { type: 'json' }
 
-export const POSTS = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11] as Post[]
+export const POSTS = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12] as Post[]
