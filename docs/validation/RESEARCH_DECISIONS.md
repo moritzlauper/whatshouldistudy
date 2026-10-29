@@ -29,7 +29,8 @@ Zugangsprüfungen bleiben bestehen.
 | Eigene RIASEC-24 | Vorerst beibehalten, als Eigenfassung ausweisen | Eigene Item-, Struktur-, Retest- und Validitätsprüfung |
 | AIST-3 | Externer Vergleichskandidat | Qualifizierte Durchführung und Lizenz; Web/OEM/API, Normtabellen, Übersetzungen und Hosting separat klären |
 | explorix-2 | Vergleichsalternative, nicht einbetten | Kosten/Umfang und Mischung von Interessen/Fähigkeiten beachten; eigene Einbettungsrechte |
-| VIT-2 | Schweizer Kooperationskandidat | ZHAW muss kommerzielle Einbettung, Sprachfassungen und Jugenddaten klären |
+| VIT (Hell, Wetzel & Päßler) | Bevorzugter offener Vergleichs- und Alternativkandidat (ergänzt 29.10.2026) | Items laut Zenodo unter CC BY 4.0; Umfang für Auswertung und Kennwerte schriftlich mit den Autor:innen bestätigen; deutsche Fassung im Pilot gegen Eigenfassung und AIST-3 prüfen; keine Normen für 16–25 |
+| VIT-2 | Nachrangiger Schweizer Kooperationskandidat | Kennwerte nur aus N = 218 Erwachsenen (Ø 36.5 J.), kein Retest; ZHAW muss Itemrechte, kommerzielle Einbettung, Sprachfassungen und Jugenddaten klären |
 | O*NET | Kein sofortiger Austausch/Übersetzung | Entwicklerlizenz, Attribution und bei inhaltlicher Adaption Validierung vor Einführung |
 | Mini-IPIP | Optional, beschreibend; keine Normperzentile | Original-Itemrechte sind frei, Übersetzungsqualität und Gesamtmodell separat prüfen |
 | BFI-2 / S / XS | Kein ungeprüfter Austausch | Widerspruch zwischen Autorennutzung und ZIS-Lizenz für genaue kommerzielle Fassung klären |
@@ -69,7 +70,7 @@ Modellgewichte, Publikation und Weitergabe ausdrücklich im Antrag benennen.
 
 ## Externe nächste Schritte
 
-Priorität 1: Offerte/Qualifikation für AIST-3-Vergleich; Gespräch mit möglichem
+Priorität 1: Lizenzumfang des VIT bei den Autor:innen schriftlich bestätigen lassen; Offerte/Qualifikation für AIST-3-Vergleich; Gespräch mit möglichem
 unabhängigem Forschungspartner über das Pilotprotokoll. Mögliche Partner aus
 dem Bericht: Universität Bern (berufliche Interessen/Berufswahl), ZHAW IAP
 (VIT-2/Diagnostik), FHNW (Online-Self-Assessments), CePCO Lausanne
