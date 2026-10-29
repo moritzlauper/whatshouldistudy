@@ -9,9 +9,9 @@
  */
 import { score } from '../lib/engine/scoring.ts'
 import { ATTENTION_ITEMS, INTEREST_ITEMS } from '../lib/engine/questionnaire.ts'
-import { BASIC_INTERESTS, BASIC_KEYS } from '../lib/taxonomy/basic-interests.ts'
+import { BASIC_INTERESTS, BASIC_KEYS, SUBJECT_RIASEC } from '../lib/taxonomy/basic-interests.ts'
 import type { BasicKey } from '../lib/taxonomy/basic-interests.ts'
-import { FIELDS, RIASEC_KEYS } from '../lib/taxonomy/fields.ts'
+import { FIELDS, RIASEC_KEYS, SUBJECT_KEYS } from '../lib/taxonomy/fields.ts'
 import type { RiasecKey } from '../lib/taxonomy/fields.ts'
 import type { QuestionnaireAnswers } from '../lib/engine/types.ts'
 
@@ -19,20 +19,39 @@ const args = process.argv.slice(2)
 const topN = Math.max(1, Number(args[args.indexOf('--top') + 1]) || 5)
 const asJson = args.includes('--json')
 
-/** Every item of a basic interest answered alike; instructed items answered as asked. */
-function answers(level: (k: BasicKey) => number): QuestionnaireAnswers {
+/** Every item of a basic interest and every school subject answered alike; instructed items answered as asked. */
+function answers(level: (k: BasicKey) => number, subjectLevel: (k: (typeof SUBJECT_KEYS)[number]) => number): QuestionnaireAnswers {
   const interests: Record<string, number> = Object.fromEntries(INTEREST_ITEMS.map((i) => [i.id, level(i.key as BasicKey)]))
   for (const it of ATTENTION_ITEMS) interests[it.id] = it.answer
-  return { interests, order: 1 }
+  const subjects = Object.fromEntries(SUBJECT_KEYS.map((k) => [k, { enjoy: subjectLevel(k) }]))
+  return { interests, subjects, order: 1 }
 }
 
 const typeOf = Object.fromEntries(BASIC_INTERESTS.map((b) => [b.key, b.riasec])) as Record<BasicKey, RiasecKey>
 const codes = RIASEC_KEYS.flatMap((a) => RIASEC_KEYS.flatMap((b) => RIASEC_KEYS.map((c) => a + b + c))).filter((c) => new Set(c).size === 3)
+const subjectLevelFor = (type: RiasecKey, code: string) => {
+  const place = code.indexOf(type)
+  return place < 0 ? 1 : [5, 4, 3][place]
+}
 
 const profiles: Array<{ group: 'basic' | 'holland'; name: string; answers: QuestionnaireAnswers }> = [
-  ...BASIC_KEYS.map((k) => ({ group: 'basic' as const, name: k, answers: answers((x) => (x === k ? 5 : 2)) })),
+  ...BASIC_KEYS.map((k) => ({
+    group: 'basic' as const,
+    name: k,
+    answers: answers(
+      (x) => (x === k ? 5 : 2),
+      (subject) => SUBJECT_RIASEC[subject] === typeOf[k] ? 5 : 2,
+    ),
+  })),
   // Basic interests of the first type loved, the second liked, the third neutral, the rest disliked.
-  ...codes.map((code) => ({ group: 'holland' as const, name: code, answers: answers((x) => [5, 4, 3][code.indexOf(typeOf[x])] ?? 1) })),
+  ...codes.map((code) => ({
+    group: 'holland' as const,
+    name: code,
+    answers: answers(
+      (x) => [5, 4, 3][code.indexOf(typeOf[x])] ?? 1,
+      (subject) => subjectLevelFor(SUBJECT_RIASEC[subject], code),
+    ),
+  })),
 ]
 
 const rows = profiles.map((p) => {
