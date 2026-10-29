@@ -1,5 +1,5 @@
 import { ASSESSMENT_VERSION } from './engine/assessment-version.ts'
-import { ASKED_SUBJECTS, ATTENTION_ITEMS, INTEREST_ITEMS, INTEREST_LIST, ITEMS_PER_SCALE, LONGSTRING, MIN_PER_SCALE, careless, isLikert, profileShape, riasecSummary, scoreBasic } from './engine/questionnaire.ts'
+import { ASKED_SUBJECTS, ATTENTION_ITEMS, INTEREST_ITEMS, INTEREST_LIST, ITEMS_PER_SCALE, LONGSTRING, MIN_PER_SCALE, careless, isLikert, profileShape, questionnaireReady, riasecSummary, scoreBasic, scoreSubjects } from './engine/questionnaire.ts'
 import { GRADE_SCALES, cleanGrades } from './engine/grades.ts'
 import type { QuestionnaireAnswers } from './engine/types.ts'
 import { dict } from './site/dict.ts'
@@ -23,12 +23,12 @@ export function instrumentDefinition(locale: Locale) {
       order: 'random per person (seeded shuffle); attention items after the first and second third',
       attention: { items: ATTENTION_ITEMS.map(i => ({ id: i.id, answer: i.answer })), longstring: LONGSTRING, effect: 'notice asking to review the answers; ranking unchanged' },
       sessionMinimum: `all ${INTEREST_ITEMS.length} interest items; attention items are not part of any scale`,
-      provenance: 'CABIN-NET items (Chu et al., 2025, public domain) for 17 basic interests; own items for six more; own translations',
+      provenance: 'CABIN-NET items (Chu et al., 2025, public domain) for 12 activity scales; own items for three more; school subjects for the areas a subject covers; own translations',
     },
     subjects: {
       instruction: q.hints.subjects, enjoymentLabels: q.enjoyScale,
       items: ASKED_SUBJECTS.map(id => ({ id, text: subjectLabel(id, locale) })),
-      interpretation: 'enjoyment of the subjects the basic interests cannot tell apart; extra dimensions of the interest-fit profile correlation',
+      interpretation: 'enjoyment of each school subject; dimensions of the interest-fit profile correlation, matched to O*NET knowledge where a subject has its own area; at least 10 answered for a result',
     },
     grades: { scales: GRADE_SCALES, items: ['math'], answer: 'band: weak (below passing), sufficient (passing to halfway), strong (upper half)', interpretation: 'Shown as a feasibility note for maths-heavy fields, never part of the ranking' },
   }
@@ -48,7 +48,7 @@ export function cleanAnswers(input: QuestionnaireAnswers): QuestionnaireAnswers 
 }
 
 export function sessionReady(answers: QuestionnaireAnswers): boolean {
-  return INTEREST_ITEMS.every(i => isLikert(answers.interests?.[i.id]))
+  return INTEREST_ITEMS.every(i => isLikert(answers.interests?.[i.id])) && questionnaireReady(answers)
 }
 
 /** Local descriptive result only: no imported sources, field ranking, token or paid programme data. */
@@ -57,7 +57,7 @@ export function sessionProfile(input: QuestionnaireAnswers) {
   if (!sessionReady(answers)) return null
   const basic = scoreBasic(answers)!
   return {
-    interestMeans: riasecSummary(basic).map(v => v * 4 + 1),
+    interestMeans: riasecSummary(basic, scoreSubjects(answers)).map(v => v * 4 + 1),
     basicMeans: Object.fromEntries(BASIC_KEYS.map(k => [k, basic[k] * 4 + 1])),
     subjects: answers.subjects,
     grades: answers.grades,

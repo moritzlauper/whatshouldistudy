@@ -16,8 +16,8 @@ import type { FieldStat } from '@/lib/programmes.ts'
 import { FIELDS, FIELD_BY_ID, RIASEC_KEYS, VALUE_KEYS } from '@/lib/taxonomy/fields.ts'
 import { BASIC_KEYS } from '@/lib/taxonomy/basic-interests.ts'
 import { basicLabel } from '@/lib/site/basic-labels.ts'
-import type { ValueKey } from '@/lib/taxonomy/fields.ts'
-import { emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel, valueLabel } from '@/lib/site/labels.ts'
+import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
+import { emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import { cleanGrades, feasibility } from '@/lib/engine/grades.ts'
 import { bandText, fitText } from '@/lib/site/fit-text.ts'
 import { insightText, reasonText } from '@/lib/site/explain.ts'
@@ -908,12 +908,11 @@ function GradesNote({ grades }: { grades?: Grades }) {
   )
 }
 
-/** The profile in its own words: the basic interests liked most and least, not a three-letter code. */
+/** The profile in its own words: the activities and subjects liked most and least, not a three-letter code. */
 function BasicInterests({ results }: { results: Results }) {
   const { t, r, locale } = useSite()
   const f = fitText(locale)
-  const basic = results.basic
-  if (!basic) {
+  if (!results.basic) {
     return (
       <div className="card p-6 sm:p-8">
         <h2 className="font-display text-3xl">{f.basicTitle}</h2>
@@ -923,15 +922,18 @@ function BasicInterests({ results }: { results: Results }) {
       </div>
     )
   }
-  const sorted = BASIC_KEYS.filter((k) => basic[k] !== undefined).sort((a, b) => basic[b]! - basic[a]!)
-  const row = (k: (typeof BASIC_KEYS)[number]) => (
-    <li key={k}>
+  const entries: Array<{ key: string; label: string; value: number }> = [
+    ...Object.entries(results.basic).map(([k, v]) => ({ key: k, label: basicLabel(k as (typeof BASIC_KEYS)[number], locale), value: v! })),
+    ...Object.entries(results.subjects ?? {}).map(([k, v]) => ({ key: `s:${k}`, label: subjectLabel(k as SubjectKey, locale), value: v! })),
+  ].sort((a, b) => b.value - a.value)
+  const row = (e: (typeof entries)[number]) => (
+    <li key={e.key}>
       <div className="flex justify-between text-sm">
-        <span className="font-bold">{basicLabel(k, locale)}</span>
-        <span className="text-muted">{Math.round(basic[k]! * 100)}</span>
+        <span className="font-bold">{e.label}</span>
+        <span className="text-muted">{Math.round(e.value * 100)}</span>
       </div>
       <div className="bar mt-1.5" aria-hidden="true">
-        <span className="bg-accent" style={{ width: `${Math.round(basic[k]! * 100)}%` }} />
+        <span className="bg-accent" style={{ width: `${Math.round(e.value * 100)}%` }} />
       </div>
     </li>
   )
@@ -939,9 +941,9 @@ function BasicInterests({ results }: { results: Results }) {
     <div className="card p-6 sm:p-8">
       <h2 className="font-display text-3xl">{f.basicTitle}</h2>
       <div className="mt-4 text-xs font-bold uppercase tracking-wider text-muted">{f.basicTop}</div>
-      <ul className="mt-3 grid gap-4">{sorted.slice(0, 5).map(row)}</ul>
+      <ul className="mt-3 grid gap-4">{entries.slice(0, 5).map(row)}</ul>
       <div className="mt-6 text-xs font-bold uppercase tracking-wider text-muted">{f.basicLow}</div>
-      <ul className="mt-3 grid gap-4">{sorted.slice(-3).reverse().map(row)}</ul>
+      <ul className="mt-3 grid gap-4">{entries.slice(-3).reverse().map(row)}</ul>
     </div>
   )
 }

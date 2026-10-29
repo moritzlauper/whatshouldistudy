@@ -13,14 +13,14 @@ Schweiz untersuchen. Zielgruppe vorläufig 16–25 Jahre, verschiedene Bildungsw
 und Regionen; endgültige Einschlussregeln mit Forschungspartner festlegen.
 Keine Normierung der Bevölkerung und keine Auswahl- oder Zulassungsdiagnostik.
 
-- 69 Interessenitems zu 23 Basisinteressen (17 aus CABIN-NET, sechs eigene),
-  in zufälliger Reihenfolge je Person, plus zwei Aufmerksamkeitsitems. Alle 69
-  Interessenantworten im Studienablauf verlangen. Keine Ersetzung fehlender
-  Werte. Der normale Produktmodus erlaubt zwei von drei je Basisinteresse;
-  diese abweichende Bedingung ist separat zu untersuchen.
-- Keine Persönlichkeitsfragen mehr. Freude an vier Schulfächern zählt zur
-  Interessenpassung; der Bereich der letzten Mathematiknote wird nur als
-  Hinweis zur Machbarkeit gezeigt.
+- Freude an den 14 Schulfächern und 45 Tätigkeitsitems zu 15 Bereichen ohne
+  eigenes Schulfach (12 aus CABIN-NET, drei eigene), in zufälliger Reihenfolge
+  je Person, plus zwei Aufmerksamkeitsitems. Im Studienablauf alle 45
+  Tätigkeiten und mindestens zehn Fächer verlangen. Keine Ersetzung fehlender
+  Werte. Der normale Produktmodus erlaubt zwei von drei je Bereich; diese
+  abweichende Bedingung ist separat zu untersuchen.
+- Keine Persönlichkeitsfragen mehr. Der Bereich der letzten Mathematiknote wird
+  nur als Hinweis zur Machbarkeit gezeigt.
 - Werte werden nicht erfragt; im Resultat dienen sie als Filter, den die
   Person setzt.
 - Keine persönlichen Exporte oder KI im ersten Messpilot. Ein späterer Test

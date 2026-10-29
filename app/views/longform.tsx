@@ -123,8 +123,8 @@ export async function HowView({ site, base, locale }: SiteProps) {
         <p>Chaque élément est comparé à un lexique multilingue et à des thèmes associés aux domaines. Un abonnement ou un projet créé pèse davantage qu’une consultation isolée. Nous tenons compte de la répétition dans le temps, puis comparons la part de chaque domaine à sa fréquence générale. Les signaux provenant de sources différentes peuvent se renforcer.</p>
         <h2>3. Tes réponses complètent l’analyse</h2>
         <ul>
-          <li><strong>Intérêts :</strong> 69 questions sur 23 domaines d’intérêts de base, comme les maths, la biologie ou le droit. 17 domaines reprennent le CABIN-NET, un questionnaire librement utilisable issu de la recherche en orientation ; six sont nos propres questions. Les six types RIASEC de Holland en sont un résumé. Si tu as répondu au questionnaire, le classement repose uniquement sur la correspondance des intérêts ; ton historique apparaît comme exemples sans modifier le classement.</li>
-          <li><strong>Matières et note de maths :</strong> quatre matières que les questions d’intérêts ne distinguent pas complètent ton profil. Ta note de maths figure à part comme indication de faisabilité, et ce que tu recherches dans un métier est un filtre que tu choisis toi-même dans le résultat.</li>
+          <li><strong>Matières et activités :</strong> tu évalues tes 14 matières et 45 activités dans 15 domaines qu’aucune matière ne couvre, comme la médecine, le droit ou le conseil. 12 de ces domaines reprennent le CABIN-NET, un questionnaire librement utilisable issu de la recherche en orientation ; trois sont nos propres questions. Les six types RIASEC de Holland en sont un résumé. Si tu as répondu au questionnaire, le classement repose uniquement sur la correspondance des intérêts ; ton historique apparaît comme exemples sans modifier le classement.</li>
+          <li><strong>Note de maths et priorités :</strong> ta note de maths figure à part comme indication de faisabilité, et ce que tu recherches dans un métier est un filtre que tu choisis toi-même dans le résultat.</li>
         </ul>
         <h2>4. Ce que le résultat ne dit pas</h2>
         <ul>
@@ -157,8 +157,8 @@ export async function HowView({ site, base, locale }: SiteProps) {
         <p>Ogni elemento viene confrontato con un lessico multilingue e con i temi associati alle aree. Un’iscrizione o un progetto creato pesa più di una visita isolata. Consideriamo la ricorrenza nel tempo e confrontiamo la quota di ogni area con la sua frequenza generale. Segnali provenienti da fonti diverse possono rafforzarsi.</p>
         <h2>3. Le tue risposte completano l’analisi</h2>
         <ul>
-          <li><strong>Interessi:</strong> 69 domande su 23 interessi di base, come matematica, biologia o diritto. 17 ambiti riprendono il CABIN-NET, un questionario di libero utilizzo della ricerca sull’orientamento; sei sono domande nostre. I sei tipi RIASEC di Holland ne sono una sintesi. Se hai risposto al questionario, la classifica si basa solo sulla compatibilità degli interessi; la cronologia compare come esempi senza cambiare la classifica.</li>
-          <li><strong>Materie e voto di matematica:</strong> quattro materie che le domande sugli interessi non distinguono completano il profilo. Il voto di matematica compare a parte come indicazione sulla fattibilità, e ciò che cerchi in un lavoro è un filtro che scegli tu nel risultato.</li>
+          <li><strong>Materie e attività:</strong> valuti le tue 14 materie e 45 attività in 15 ambiti che nessuna materia copre, come medicina, diritto o consulenza. 12 di questi ambiti riprendono il CABIN-NET, un questionario di libero utilizzo della ricerca sull’orientamento; tre sono domande nostre. I sei tipi RIASEC di Holland ne sono una sintesi. Se hai risposto al questionario, la classifica si basa solo sulla compatibilità degli interessi; la cronologia compare come esempi senza cambiare la classifica.</li>
+          <li><strong>Voto di matematica e priorità:</strong> il voto di matematica compare a parte come indicazione sulla fattibilità, e ciò che cerchi in un lavoro è un filtro che scegli tu nel risultato.</li>
         </ul>
         <h2>4. Cosa non indica il risultato</h2>
         <ul>
@@ -326,14 +326,14 @@ export async function HowView({ site, base, locale }: SiteProps) {
       <h2>4. The psychology</h2>
       <ul>
         <li>
-          <strong>Interests:</strong> 69 questions on 23 basic interests such as maths, biology or law. 17 come from the CABIN-NET (Chu et al., 2025), a public-domain inventory from career research; six are our own. John Holland’s six RIASEC types are computed from them as a summary. Basic-interest fit predicts satisfaction better than RIASEC fit, but interest fit relates to satisfaction and persistence only weakly and to grades hardly at all (de Vries et al., 2024). It is a guide for exploring, not a forecast.
+          <strong>Interests:</strong> you rate your 14 school subjects and 45 activities in 15 areas no subject covers, such as medicine, law or counselling. 12 of these areas come from the CABIN-NET (Chu et al., 2025), a public-domain inventory from career research; three are our own. John Holland’s six RIASEC types are computed from them as a summary. Basic-interest fit predicts satisfaction better than RIASEC fit, but interest fit relates to satisfaction and persistence only weakly and to grades hardly at all (de Vries et al., 2024). It is a guide for exploring, not a forecast.
         </li>
         <li>
-          <strong>School subjects, maths grade and values:</strong> four subjects the interest questions cannot tell apart extend your profile. Your maths grade is shown separately as a note on feasibility, because grades predict study grades far better than interests do. What you want from work (salary, security, creativity, helping, impact) is a filter you set yourself in the result.
+          <strong>Maths grade and values:</strong> Your maths grade is shown separately as a note on feasibility, because grades predict study grades far better than interests do. What you want from work (salary, security, creativity, helping, impact) is a filter you set yourself in the result.
         </li>
       </ul>
       <p>
-        With the interest questions answered, the ranking is interest fit alone: the profile correlation of your basic interests and subjects with the field’s profile, which comes from the knowledge the field’s occupations require (O*NET). Footprint data appear as evidence but do not move it. Without the questions, the footprint leads and the ranking is an experiment. Fields less than 5 points apart are shown as one group. Scores are relative: 90+ means a field stands out for you among all {FIELDS.length}, not that success is guaranteed.
+        With the interest questions answered, the ranking is interest fit alone: the profile correlation of your subjects and activities with the field’s profile, which comes from the knowledge the field’s occupations require (O*NET). Footprint data appear as evidence but do not move it. Without the questions, the footprint leads and the ranking is an experiment. Fields less than 5 points apart are shown as one group. Scores are relative: 90+ means a field stands out for you among all {FIELDS.length}, not that success is guaranteed.
       </p>
 
       <h2>Limits, honestly</h2>

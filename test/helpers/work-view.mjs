@@ -17,7 +17,7 @@ registerHooks({
     if (url === 'mock:link') source = `import React from 'react'; export default function Link({children,...props}) { return React.createElement('a',props,children) }`
     if (url === 'mock:store') source = `
       import { INTEREST_ITEMS } from '${new URL('lib/engine/questionnaire.ts', root).href}';
-      export function useAppState() { return {answers:{interests:Object.fromEntries(INTEREST_ITEMS.map(i=>[i.id,['math','physicalScience','lifeScience','medicalScience','computing','finance'].includes(i.key)?5:2]))},summaries:{},prefs:{}} }
+      export function useAppState() { return {answers:{interests:Object.fromEntries(INTEREST_ITEMS.map(i=>[i.id,['medicalScience','socialScience','finance'].includes(i.key)?5:2])),subjects:Object.fromEntries(['math','phys','chem','bio','cs','lang','forlang','hist','geo','econ','art','music','sport','social'].map(k=>[k,{enjoy:['math','phys','chem','bio','cs','econ'].includes(k)?5:2}]))},summaries:{},prefs:{}} }
       export function effectiveSummaries() { return [] }
       export function update() {}
     `

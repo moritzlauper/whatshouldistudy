@@ -208,6 +208,8 @@ export interface Results {
   riasec: { profile: Riasec; code: string; from: string[] }
   /** Basic interests from the questionnaire, 0..1. Absent without the questionnaire and in older shared results. */
   basic?: Partial<Record<BasicKey, number>>
+  /** Enjoyment of the answered school subjects, 0..1. Absent without the questionnaire and in older shared results. */
+  subjects?: Partial<Record<SubjectKey, number>>
   /**
    * How the questionnaire was answered. A flat interest profile has no clear
    * direction; careless marks signs of answering without reading; topTie that

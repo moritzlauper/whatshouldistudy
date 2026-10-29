@@ -17,6 +17,9 @@
  *               deviation above. Standardising keeps knowledge every job
  *               needs (English, customer service) from dominating each
  *               profile.
+ * - subjectLevel How much the field draws on each school subject, standardised
+ *               the same way: from O*NET knowledge where a subject has its own
+ *               area (SUBJECT_KNOWLEDGE), else from `subjects`.
  * - big5        Small tilts (-0.5..0.5) for Openness, Conscientiousness,
  *               Extraversion, Agreeableness, Neuroticism, after the
  *               personality-and-major literature (e.g. Vedel 2016 meta-analysis).
@@ -34,7 +37,7 @@
 import { FIELD_ONET } from './field-onet.ts'
 import { ONET_INTERESTS } from './onet-interests.ts'
 import { ONET_KNOWLEDGE, ONET_KNOWLEDGE_AREAS } from './onet-knowledge.ts'
-import { BASIC_INTERESTS } from './basic-interests.ts'
+import { BASIC_INTERESTS, SUBJECT_KNOWLEDGE } from './basic-interests.ts'
 import type { BasicProfile } from './basic-interests.ts'
 
 export type FieldGroup =
@@ -93,6 +96,7 @@ export interface Field {
   blurb: string
   riasec: Riasec
   basic: BasicProfile
+  subjectLevel: Record<SubjectKey, number>
   big5: Partial<Big5>
   subjects: Partial<Record<SubjectKey, number>>
   values: Record<ValueKey, number>
@@ -129,7 +133,7 @@ function onetProfile(id: string): Riasec {
   }) as Riasec
 }
 
-const RAW: Array<Omit<Field, 'riasec' | 'basic'>> = [
+const RAW: Array<Omit<Field, 'riasec' | 'basic' | 'subjectLevel'>> = [
   // ── Sciences ──────────────────────────────────────────────────────────────
   {
     id: 'mathematics',
@@ -1346,21 +1350,23 @@ function knowledgeLevel(id: string, areas: readonly string[]): number {
   return codes.reduce((s, c) => s + level(c), 0) / codes.length
 }
 
-/** Each basic interest standardised across all fields, two decimals. */
-function basicProfiles(ids: string[]): Map<string, BasicProfile> {
-  const out = new Map(ids.map((id) => [id, {} as BasicProfile]))
-  for (const b of BASIC_INTERESTS) {
-    const raw = ids.map((id) => knowledgeLevel(id, b.knowledge))
-    const mean = raw.reduce((s, x) => s + x, 0) / raw.length
-    const sd = Math.sqrt(raw.reduce((s, x) => s + (x - mean) ** 2, 0) / raw.length) || 1
-    ids.forEach((id, i) => (out.get(id)![b.key] = Math.round(((raw[i] - mean) / sd) * 100) / 100))
-  }
-  return out
+/** Values standardised across fields, two decimals. */
+function standardised(raw: number[]): number[] {
+  const mean = raw.reduce((s, x) => s + x, 0) / raw.length
+  const sd = Math.sqrt(raw.reduce((s, x) => s + (x - mean) ** 2, 0) / raw.length) || 1
+  return raw.map((x) => Math.round(((x - mean) / sd) * 100) / 100)
 }
 
-const BASIC = basicProfiles(RAW.map((f) => f.id))
+const BASIC = new Map(RAW.map((f) => [f.id, {} as BasicProfile]))
+for (const b of BASIC_INTERESTS) standardised(RAW.map((f) => knowledgeLevel(f.id, b.knowledge))).forEach((z, i) => (BASIC.get(RAW[i].id)![b.key] = z))
 
-export const FIELDS: Field[] = RAW.map((f) => ({ ...f, riasec: onetProfile(f.id), basic: BASIC.get(f.id)! }))
+const SUBJECT_LEVEL = new Map(RAW.map((f) => [f.id, {} as Record<SubjectKey, number>]))
+for (const k of SUBJECT_KEYS) {
+  const areas = SUBJECT_KNOWLEDGE[k]
+  standardised(RAW.map((f) => (areas ? knowledgeLevel(f.id, areas) : f.subjects[k] ?? 0))).forEach((z, i) => (SUBJECT_LEVEL.get(RAW[i].id)![k] = z))
+}
+
+export const FIELDS: Field[] = RAW.map((f) => ({ ...f, riasec: onetProfile(f.id), basic: BASIC.get(f.id)!, subjectLevel: SUBJECT_LEVEL.get(f.id)! }))
 
 export const FIELD_BY_ID: Record<string, Field> = Object.fromEntries(FIELDS.map((f) => [f.id, f]))
 export const FIELD_INDEX: Record<string, number> = Object.fromEntries(FIELDS.map((f, i) => [f.id, i]))

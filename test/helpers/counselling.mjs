@@ -80,7 +80,7 @@ tree = render()
 let form = elements(tree).find(e => e.type === QuestionnaireForm)
 assert.deepEqual(form.props.answers, {})
 assert.equal(button(tree, text.result).props.disabled, true)
-const synthetic = { interests: Object.fromEntries(INTEREST_ITEMS.map((i,n) => [i.id,n%5+1])) }
+const synthetic = { interests: Object.fromEntries(INTEREST_ITEMS.map((i,n) => [i.id,n%5+1])), subjects: Object.fromEntries(['math','phys','chem','bio','cs','lang','forlang','hist','geo','econ','art','music','sport','social'].map((k,n) => [k,{enjoy:n%5+1}])) }
 form.props.onChange(synthetic)
 tree = render()
 assert.equal(button(tree, text.result).props.disabled, false)

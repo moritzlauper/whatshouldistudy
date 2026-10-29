@@ -3,7 +3,7 @@ import type { Big5, Field, Riasec, RiasecKey, SubjectKey, ValueKey } from '../ta
 import { BASIC_KEYS } from '../taxonomy/basic-interests.ts'
 import type { BasicKey } from '../taxonomy/basic-interests.ts'
 import { musicBig5 } from './music.ts'
-import { ASKED_SUBJECTS, careless, interestCompleteness, profileShape, riasecCode, riasecSummary, scoreBasic } from './questionnaire.ts'
+import { careless, interestCompleteness, profileShape, questionnaireReady, riasecCode, riasecSummary, scoreBasic, scoreSubjects } from './questionnaire.ts'
 import { correlation } from './programme-fit.ts'
 import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, SourceId, SourceSummary, Studying } from './types.ts'
 import { isGenericTopic } from './classifier.ts'
@@ -15,9 +15,9 @@ import { ASSESSMENT_VERSION } from './assessment-version.ts'
  * The matching model. Components per field, each in 0..1:
  *
  *   basic        Interest fit from the questionnaire: the profile correlation
- *                of your basic interests with the field's (fields.ts, from
- *                O*NET knowledge), extended by the few school subjects the
- *                basic interests cannot tell apart.
+ *                of how much you enjoy your school subjects and the activity
+ *                scales with the field's levels on the same (fields.ts, from
+ *                O*NET knowledge).
  *   interest     What you actually spend attention on, from your footprint:
  *                your share of content on the field against how common that
  *                content is for everyone (log-lift), shrunk towards zero when
@@ -77,17 +77,6 @@ const KIND_WEIGHT: Record<string, number> = { watch: 3, search: 3, google: 3, co
 
 const FIELD_GROUP = new Map(FIELDS.map((f) => [f.id, f.group]))
 
-/** How much each field draws on the asked subjects, standardised across fields like the basic interests. */
-const SUBJECT_LEVEL: Map<string, Record<string, number>> = (() => {
-  const out = new Map(FIELDS.map((f) => [f.id, {} as Record<string, number>]))
-  for (const k of ASKED_SUBJECTS) {
-    const raw = FIELDS.map((f) => f.subjects[k] ?? 0)
-    const mean = raw.reduce((s, x) => s + x, 0) / raw.length
-    const sd = Math.sqrt(raw.reduce((s, x) => s + (x - mean) ** 2, 0) / raw.length) || 1
-    FIELDS.forEach((f, i) => (out.get(f.id)![k] = (raw[i] - mean) / sd))
-  }
-  return out
-})()
 
 const POP_SUM = FIELDS.reduce((s, f) => s + f.popularity, 0)
 /** Share of a typical person's recognised content that lands in a given field. */
@@ -267,8 +256,9 @@ export function score(input: ScoreInput): Results {
       footRiasec = acc.map((x) => x / max) as Riasec
     }
   }
-  const qBasic = scoreBasic(answers)
-  const qRiasec = qBasic ? riasecSummary(qBasic) : null
+  const qBasic = questionnaireReady(answers) ? scoreBasic(answers) : null
+  const qSubjects = scoreSubjects(answers)
+  const qRiasec = qBasic ? riasecSummary(qBasic, qSubjects) : null
   let riasec: Riasec | null = null
   const riasecFrom: string[] = []
   // Answered interest scales stand on their own; data show up separately and as a capped share of the match.
@@ -299,10 +289,10 @@ export function score(input: ScoreInput): Results {
 
   const userR = riasec ? centeredUnit(riasec) : null
   const questionnaireLed = !!qBasic
-  const shape = qBasic ? profileShape(BASIC_KEYS.map((k) => qBasic[k])) : null
-  // The person's side of the interest fit: the basic interests, then the asked subjects they answered.
-  const askedKeys = ASKED_SUBJECTS.filter((k) => subj[k] !== undefined)
-  const person = qBasic ? [...BASIC_KEYS.map((k) => qBasic[k]), ...askedKeys.map((k) => (subj[k]! + 1) / 2)] : null
+  // The person's side of the interest fit: the activity scales, then the subjects they answered.
+  const askedKeys = SUBJECT_KEYS.filter((k) => qSubjects[k] !== undefined)
+  const person = qBasic ? [...BASIC_KEYS.map((k) => qBasic[k]), ...askedKeys.map((k) => qSubjects[k]!)] : null
+  const shape = person ? profileShape(person) : null
   const fieldValue = (f: Field, k: ValueKey) =>
     k === 'salary' && fieldStats[f.id]?.salaryPercentile !== undefined ? 0.5 * f.values[k] + 0.5 * fieldStats[f.id]!.salaryPercentile! : f.values[k]
 
@@ -327,8 +317,7 @@ export function score(input: ScoreInput): Results {
     }
     if (person && !shape?.flat) {
       // Profile correlation: the shape of the two profiles, not how much someone ticks overall.
-      const level = SUBJECT_LEVEL.get(f.id)!
-      comp.basic = (correlation(person, [...BASIC_KEYS.map((k) => f.basic[k]), ...askedKeys.map((k) => level[k])]) + 1) / 2
+      comp.basic = (correlation(person, [...BASIC_KEYS.map((k) => f.basic[k]), ...askedKeys.map((k) => f.subjectLevel[k])]) + 1) / 2
       w.basic = 1
     }
     if (!questionnaireLed && userR) {
@@ -427,17 +416,25 @@ export function score(input: ScoreInput): Results {
       const low = BASIC_KEYS.filter((k) => f.basic[k] >= 1.5 && qBasic[k] <= 0.35).sort((a, b) => f.basic[b] - f.basic[a])
       if (low.length) reasons.push({ k: 'basicLow', keys: low.slice(0, 2) as BasicKey[] })
     }
-    if ((comp.subjects ?? comp.basic ?? 0) > 0.62) {
-      const liked = Object.entries(f.subjects)
-        .filter(([k, d]) => (d ?? 0) >= 0.6 && (subj[k] ?? 0) > 0.3)
-        .map(([k]) => k as SubjectKey)
-      if (liked.length) reasons.push({ k: 'subjects', subjects: liked })
-    }
-    if ((comp.subjects ?? comp.basic ?? 1) < 0.4) {
-      const disliked = Object.entries(f.subjects)
-        .filter(([k, d]) => (d ?? 0) >= 0.7 && (subj[k] ?? 0) < -0.3)
-        .map(([k]) => k as SubjectKey)
-      if (disliked.length) reasons.push({ k: 'subjectsLow', subjects: disliked })
+    // Subjects you like where the field draws on them clearly more than most, and those it needs that you like little.
+    if (comp.basic !== undefined) {
+      const liked = askedKeys.filter((k) => qSubjects[k]! >= 0.75 && f.subjectLevel[k] >= 1).sort((a, b) => f.subjectLevel[b] - f.subjectLevel[a])
+      if (liked.length) reasons.push({ k: 'subjects', subjects: liked.slice(0, 3) })
+      const disliked = askedKeys.filter((k) => qSubjects[k]! <= 0.25 && f.subjectLevel[k] >= 1.5).sort((a, b) => f.subjectLevel[b] - f.subjectLevel[a])
+      if (disliked.length) reasons.push({ k: 'subjectsLow', subjects: disliked.slice(0, 2) })
+    } else {
+      if ((comp.subjects ?? 0) > 0.62) {
+        const liked = Object.entries(f.subjects)
+          .filter(([k, d]) => (d ?? 0) >= 0.6 && (subj[k] ?? 0) > 0.3)
+          .map(([k]) => k as SubjectKey)
+        if (liked.length) reasons.push({ k: 'subjects', subjects: liked })
+      }
+      if ((comp.subjects ?? 1) < 0.4) {
+        const disliked = Object.entries(f.subjects)
+          .filter(([k, d]) => (d ?? 0) >= 0.7 && (subj[k] ?? 0) < -0.3)
+          .map(([k]) => k as SubjectKey)
+        if (disliked.length) reasons.push({ k: 'subjectsLow', subjects: disliked })
+      }
     }
     if (comp.personality !== undefined && comp.personality > 0.62 && big5) {
       const k = BIG5_KEYS.filter((k) => (f.big5[k] ?? 0) * (big5![k] ?? 0) > 0.15)[0]
@@ -533,6 +530,7 @@ export function score(input: ScoreInput): Results {
       ? { profile: riasec.map((x) => Math.round(x * 100) / 100) as Riasec, code: riasecCode(riasec), from: riasecFrom }
       : { profile: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5], code: '', from: [] },
     ...(qBasic ? { basic: Object.fromEntries(BASIC_KEYS.map((k) => [k, Math.round(qBasic[k] * 100) / 100])) } : {}),
+    ...(qBasic ? { subjects: Object.fromEntries(askedKeys.map((k) => [k, Math.round(qSubjects[k]! * 100) / 100])) } : {}),
     quality: { flat, careless: isCareless, topTie, differentiation: shape?.differentiation ?? 0, elevation: shape?.elevation ?? 0, questionnaireLed },
     big5: big5 && !questionnaireLed ? { z: big5, from: ['music'], confidence: big5Conf } : undefined,
     insights: insights(footprint, interest, sorted),

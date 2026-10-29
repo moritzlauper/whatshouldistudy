@@ -18,7 +18,7 @@ const en = {
   flowTitle: 'Lesson plan',
   flow: (start: string) => [
     { min: 5, title: 'Warm-up', text: 'Everyone writes down on the worksheet three fields of study they can picture themselves in today. Anyone without an idea yet writes that down too.' },
-    { min: 10, title: 'Questionnaire', text: `The class opens ${start} and answers the questionnaire on interests and a few school subjects. It has about 75 short questions, and most students are done in 8 to 10 minutes. At home they can add YouTube, Instagram, TikTok or GitHub later; in class the questionnaire is enough.` },
+    { min: 10, title: 'Questionnaire', text: `The class opens ${start} and answers the questionnaire on interests and a few school subjects. It has about 60 short questions, and most students are done in 6 to 8 minutes. At home they can add YouTube, Instagram, TikTok or GitHub later; in class the questionnaire is enough.` },
     { min: 15, title: 'Read the result', text: 'Each student notes their top three fields and opens the page of one of them. It shows who the field suits, which school subjects it builds on and where it leads.' },
     { min: 10, title: 'Compare in pairs', text: 'In pairs, students compare the result with the three fields they wrote down at the start: what matches and what surprised them. The answers go on the worksheet.' },
     { min: 5, title: 'Next step', text: 'To finish, everyone sets one concrete next step with a date, such as an open day, a talk with the careers adviser or sitting in on a university lecture.' },
@@ -71,7 +71,7 @@ const deCH: TeachersText = {
   flowTitle: 'Ablauf',
   flow: (start: string) => [
     { min: 5, title: 'Einstieg', text: 'Alle schreiben auf dem Arbeitsblatt drei Studienfächer auf, die sie sich heute vorstellen können. Wer noch keine Idee hat, schreibt das hin.' },
-    { min: 10, title: 'Fragebogen', text: `Die Klasse öffnet ${start} und beantwortet den Fragebogen zu Interessen und einigen Schulfächern. Er hat rund 75 kurze Fragen, die meisten sind nach 8 bis 10 Minuten fertig. Zu Hause lassen sich später YouTube, Instagram, TikTok oder GitHub dazunehmen, im Unterricht reicht der Fragebogen.` },
+    { min: 10, title: 'Fragebogen', text: `Die Klasse öffnet ${start} und beantwortet den Fragebogen zu Interessen und einigen Schulfächern. Er hat rund 60 kurze Fragen, die meisten sind nach 6 bis 8 Minuten fertig. Zu Hause lassen sich später YouTube, Instagram, TikTok oder GitHub dazunehmen, im Unterricht reicht der Fragebogen.` },
     { min: 15, title: 'Resultat lesen', text: 'Jede Person notiert ihre drei besten Studienfelder und öffnet die Seite von einem davon. Dort steht, für wen das Fach passt, auf welchen Schulfächern es aufbaut und wohin es führt.' },
     { min: 10, title: 'Zu zweit vergleichen', text: 'Zu zweit vergleichen die Jugendlichen das Resultat mit den drei Fächern vom Anfang: was sich deckt und was sie überrascht hat. Die Antworten kommen auf das Arbeitsblatt.' },
     { min: 5, title: 'Nächster Schritt', text: 'Zum Schluss legt jede Person einen konkreten nächsten Schritt mit Datum fest, zum Beispiel den Infotag einer Hochschule, ein Gespräch mit der Studienberatung oder den Besuch einer Vorlesung.' },
@@ -122,7 +122,7 @@ const frCH: TeachersText = {
   flowTitle: 'Déroulement',
   flow: (start: string) => [
     { min: 5, title: 'Introduction', text: 'Chaque élève note sur la fiche trois domaines d’études qu’il ou elle envisage aujourd’hui. Qui n’a pas encore d’idée l’écrit aussi.' },
-    { min: 10, title: 'Questionnaire', text: `La classe ouvre ${start} et répond au questionnaire sur les intérêts et quelques branches scolaires. Il compte environ 75 questions courtes, et la plupart des élèves ont fini en 8 à 10 minutes. À la maison, on peut ensuite ajouter YouTube, Instagram, TikTok ou GitHub ; en classe, le questionnaire suffit.` },
+    { min: 10, title: 'Questionnaire', text: `La classe ouvre ${start} et répond au questionnaire sur les intérêts et quelques branches scolaires. Il compte environ 60 questions courtes, et la plupart des élèves ont fini en 6 à 8 minutes. À la maison, on peut ensuite ajouter YouTube, Instagram, TikTok ou GitHub ; en classe, le questionnaire suffit.` },
     { min: 15, title: 'Lire le résultat', text: 'Chaque élève note ses trois meilleurs domaines et ouvre la page de l’un d’eux. On y voit pour qui il convient, sur quelles branches il s’appuie et où il mène.' },
     { min: 10, title: 'Comparer à deux', text: 'À deux, les élèves comparent le résultat avec les trois domaines notés au début : ce qui correspond et ce qui les a surpris. Les réponses vont sur la fiche.' },
     { min: 5, title: 'Prochaine étape', text: 'Pour finir, chaque élève fixe une prochaine étape concrète avec une date, par exemple une journée d’information d’une haute école, un entretien avec l’orientation ou la visite d’un cours.' },
@@ -173,7 +173,7 @@ const itCH: TeachersText = {
   flowTitle: 'Svolgimento',
   flow: (start: string) => [
     { min: 5, title: 'Introduzione', text: 'Ognuno scrive sulla scheda tre aree di studio che oggi riesce a immaginarsi. Chi non ha ancora un’idea lo scrive.' },
-    { min: 10, title: 'Questionario', text: `La classe apre ${start} e risponde al questionario su interessi e alcune materie scolastiche. Ha circa 75 domande brevi, e la maggior parte finisce in 8–10 minuti. A casa si possono poi aggiungere YouTube, Instagram, TikTok o GitHub; in classe basta il questionario.` },
+    { min: 10, title: 'Questionario', text: `La classe apre ${start} e risponde al questionario su interessi e alcune materie scolastiche. Ha circa 60 domande brevi, e la maggior parte finisce in 6–8 minuti. A casa si possono poi aggiungere YouTube, Instagram, TikTok o GitHub; in classe basta il questionario.` },
     { min: 15, title: 'Leggere il risultato', text: 'Ognuno annota le sue tre aree migliori e apre la pagina di una di esse. Lì si vede a chi si addice, su quali materie si basa e dove porta.' },
     { min: 10, title: 'Confronto a coppie', text: 'A coppie si confronta il risultato con le tre aree scritte all’inizio: che cosa coincide e che cosa ha sorpreso. Le risposte vanno sulla scheda.' },
     { min: 5, title: 'Prossimo passo', text: 'Per finire ognuno fissa un prossimo passo concreto con una data, per esempio la giornata informativa di una scuola universitaria, un colloquio con l’orientamento o la visita di una lezione.' },

@@ -134,7 +134,7 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
           <h2 className="font-display text-2xl">{t.fields.whoTitle}</h2>
           <div className="mt-3 flex items-center gap-4">
             <Hexagon profile={f.riasec} size={170} label={t.misc.profileLabel} />
-            <FitsWhom fieldId={id} locale={locale} />
+            <FitsWhom fieldId={id} locale={locale} against />
           </div>
         </div>
         <div className="grid gap-5">

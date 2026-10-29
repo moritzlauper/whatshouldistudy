@@ -278,12 +278,13 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
             </a>
           )}
         </div>
-        <p className="mt-5 text-lg">
-          <span className="text-muted">{ct.fieldCtaTitle(fname)}</span>{' '}
-          <Link href={r.start} className="font-bold text-accent underline-offset-2 hover:underline">
+        <section className="card-sm mt-8 max-w-3xl p-5 sm:p-6">
+          <h2 className="font-display text-2xl sm:text-3xl">{ct.fieldCtaTitle(fname)}</h2>
+          <FitsWhom fieldId={field} locale={locale} className="mt-3" against />
+          <Link href={r.start} className="btn btn-primary btn-lg mt-5">
             {t.fields.findOut} →
           </Link>
-        </p>
+        </section>
       </div>
 
       {about && (
@@ -311,8 +312,6 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
         <section className="card-sm p-6">
           <h2 className="font-display text-2xl">{ct.aboutTitle(fname)}</h2>
           <p className="mt-2 text-sm text-muted">{fieldBlurb(field, locale)}</p>
-          <h3 className="mt-4 font-bold">{k.t.fields.whoTitle}</h3>
-          <FitsWhom fieldId={field} locale={locale} className="mt-1" />
           <h3 className="mt-4 font-bold">{ct.careers}</h3>
           <p className="mt-1 text-sm text-muted">{fieldCareers(field, locale).join(' · ')}</p>
           {earnings && (

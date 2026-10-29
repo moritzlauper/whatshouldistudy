@@ -5,34 +5,35 @@ import { cleanAnswers, instrumentDefinition, sessionExport, sessionProfile, sess
 import { ASSESSMENT_VERSION } from '../lib/engine/assessment-version.ts'
 import { INTEREST_ITEMS, scoreBasic, interestCompleteness } from '../lib/engine/questionnaire.ts'
 import { score } from '../lib/engine/scoring.ts'
+import { SUBJECT_KEYS } from '../lib/taxonomy/fields.ts'
 import { encodeSnapshot, decodeSnapshot } from '../lib/share.ts'
 import { unmeasured } from '../lib/measure.ts'
 
-const answers = { interests: Object.fromEntries(INTEREST_ITEMS.map((i, n) => [i.id, n % 5 + 1])) }
+const answers = { interests: Object.fromEntries(INTEREST_ITEMS.map((i, n) => [i.id, n % 5 + 1])), subjects: Object.fromEntries(SUBJECT_KEYS.map((k, n) => [k, { enjoy: n % 5 + 1 }])) }
 
 test('invalid interest responses do not produce scores, readiness or completeness', () => {
   for (const invalid of [NaN, Infinity, -1, 0, 2.5, 6]) {
-    const input = { interests: { ...answers.interests, math1: invalid, math2: invalid, law3: invalid } }
+    const input = { interests: { ...answers.interests, law1: invalid, law2: invalid, media3: invalid } }
     assert.equal(scoreBasic(input), null)
     assert.equal(sessionReady(input), false)
     assert.equal(interestCompleteness(input), (INTEREST_ITEMS.length - 3) / INTEREST_ITEMS.length)
   }
-  const partial = { interests: { ...answers.interests } }
-  delete partial.interests.math1
+  const partial = { ...answers, interests: { ...answers.interests } }
+  delete partial.interests.law1
   assert.ok(scoreBasic(partial), 'normal exploration still allows partial forms')
   assert.equal(sessionProfile(partial), null, 'standardised session requires every item')
 })
 
 test('session exports whitelist valid items and expose descriptive means, not rankings or hidden state', () => {
-  const input = { ...answers, interests: { ...answers.interests, secret: 5 }, subjects: { music: { enjoy: 5, grade: 2.5 }, math: { enjoy: 4 } }, grades: { scale: 'ch', math: 'strong' }, values: { helping: 4 }, token: 'never-export', summaries: { takeout: { title: 'private' } } } as never
+  const input = { ...answers, interests: { ...answers.interests, secret: 5 }, subjects: { ...answers.subjects, music: { enjoy: 5, grade: 2.5 }, secret: { enjoy: 4 } }, grades: { scale: 'ch', math: 'strong' }, values: { helping: 4 }, token: 'never-export', summaries: { takeout: { title: 'private' } } } as never
   const exported = sessionExport(input, 'de-CH')
-  assert.deepEqual(cleanAnswers(input).subjects, { music: { enjoy: 5 } })
+  assert.deepEqual(cleanAnswers(input).subjects, { ...answers.subjects, music: { enjoy: 5 } })
   assert.deepEqual(cleanAnswers(input).grades, { scale: 'ch', math: 'strong' })
   assert.equal(exported.definition.version.interests, ASSESSMENT_VERSION.interests)
   assert.equal(exported.definition.norms, null)
   assert.doesNotMatch(JSON.stringify(exported), /never-export|private|secret|"summaries"|"fields"|"values"/)
   assert.equal(exported.profile?.interestMeans.length, 6)
-  assert.equal(Object.keys(exported.profile?.basicMeans ?? {}).length, 23)
+  assert.equal(Object.keys(exported.profile?.basicMeans ?? {}).length, 15)
 })
 
 test('all language definitions preserve IDs, response scales and explicit provenance', () => {

@@ -11,14 +11,15 @@ import type { GradeScaleId } from '@/lib/engine/grades.ts'
 import { subjectLabel } from '@/lib/site/labels.ts'
 import { useSite } from './site-context.tsx'
 
-const TABS = ['interests', 'subjects'] as const
+// Subjects first: they are quick and familiar, a good way in.
+const TABS = ['subjects', 'interests'] as const
 type Tab = (typeof TABS)[number]
 const TAB_COLOR: Record<Tab, string> = { interests: 'var(--pink)', subjects: 'var(--lime)' }
 
 export function QuestionnaireForm({ answers: a, onChange }: { answers: QuestionnaireAnswers; onChange: (answers: QuestionnaireAnswers) => void }) {
   const { t, locale } = useSite()
   const info = instrumentText(locale)
-  const [tab, setTab] = useState<Tab>('interests')
+  const [tab, setTab] = useState<Tab>('subjects')
   // Each person gets an item order of their own before the first answer.
   useEffect(() => {
     if (a.order === undefined) onChange({ ...a, order: newOrderSeed() })
@@ -148,7 +149,7 @@ function LikertList({ items, values, labels, onChange, color }: { items: LikertI
   )
 }
 
-/** Only the subjects the interest questions cannot tell apart or do not cover. */
+/** The school subjects; those not taught are left empty. */
 function Subjects({ answers, onChange }: { answers: QuestionnaireAnswers; onChange: (answers: QuestionnaireAnswers) => void }) {
   const { t, locale } = useSite()
   const set = (k: (typeof ASKED_SUBJECTS)[number], v: number) => onChange({ ...answers, subjects: { ...(answers.subjects ?? {}), [k]: { enjoy: v } } })

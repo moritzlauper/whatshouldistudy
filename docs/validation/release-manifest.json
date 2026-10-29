@@ -2,13 +2,13 @@
   "schema": "wsis-validation-release-v1",
   "status": "implementation-record-not-empirical-validation",
   "version": {
-    "interests": "wsis-basic23-2026-10-29.1",
-    "scoring": "wsis-basic-fit-2026-10-29.1",
+    "interests": "wsis-subjects14-activities45-2026-10-29.1",
+    "scoring": "wsis-basic-fit-2026-10-29.2",
     "description": "wsis-response-means-2026-10-14.1"
   },
   "sourceFiles": {
-    "lib/engine/questionnaire.ts": "123d7b1a3c28b53c01b78ddd105f2a5eca1a37d9b1e46f2aae63a533d2996914",
-    "lib/engine/scoring.ts": "4aa13cedecdcbdd9ec30362e1bfd2b1df4a47c87a3103a782f1734b1e6df7c95",
+    "lib/engine/questionnaire.ts": "1dddee0009e08f928a8cfc4eee2c854e246d4fba1778f9d2f0f72ee70dda3bf7",
+    "lib/engine/scoring.ts": "bac4f57787cbfe9aea66b0e93b0ef5e638cee59340d4476b26b43da595ea5113",
     "lib/engine/programme-fit.ts": "2c2cc65db25b2e21b2ae77737252d521ae593d0a5a3bf1537fe517b2eb710e14",
     "lib/engine/recency.ts": "b09f8d992ea59c21c64bb97f1dea97888104d69613f17f65e9d188e04bdb06d1",
     "lib/engine/topics.ts": "f4e33c10b99e7e8b80953ab314dc2edffa32fbcab6493ca50b69a91a96f6ee8e",
@@ -17,28 +17,28 @@
     "lib/engine/accumulate.ts": "054c22248955406b04e6a45c66767eace66b40e36b45c1fe98370bf46a6ebd3b",
     "lib/engine/music.ts": "7043532e27fb9672840b1b2a2f51624c7402b6210cd7e8628822d0108d625784",
     "lib/engine/grades.ts": "3a8e1f5e95508501dd668f2629162410f96b27263f3db079db09a7f071b0d4d6",
-    "lib/taxonomy/fields.ts": "70529facf03cea368d0d1de6599933ab94d2c99ede7e7387b4d415409f82a33b",
+    "lib/taxonomy/fields.ts": "a15b86f2ca26ec86c51a1304fc1795ae030dc8b2f8aa9aa4196d5f7dd2c82f7d",
     "lib/taxonomy/field-onet.ts": "9f363f313f824aff831115d8a5a6f554e9f7da29d14cc334cc4dc2732bd8c943",
     "lib/taxonomy/onet-interests.ts": "4ed12b9eb884367a02b70436396e72cbfb42f65bae6c8a06fc7f1dc0326b8ab1",
-    "lib/assessment.ts": "6b94d21a6abfe4f4bb9633d5d25325b42e6634a15c1e366c85b6fb3d3d7dac76",
-    "lib/site/fit-text.ts": "be3adff393de7dd9d6a207fb052314e1d6337dfa94a369560bcf7a4a6fe68391",
-    "app/ui/questionnaire-form.tsx": "df25bad689ee4d2c0e7b55a528c3786dea647758759210153f32c48de24eab3e",
+    "lib/assessment.ts": "ae9815f02b4ddbbc9973a916407b082524ec8b2ef205b4e098a461245a38c46d",
+    "lib/site/fit-text.ts": "ce6f1e1480bc0a377b27ab5e8d0154043c7be5ec4bf6059f6923ab223c1eeadb",
+    "app/ui/questionnaire-form.tsx": "8341da87c2d3b21849a78dd8cec5a3b6b4abe02ce2afa822274367c34d7a7538",
     "app/views/counselling.tsx": "9eceb70feaa4c825cc9d95030f702692bc4919df5a25ba75699b759986aba8f9",
-    "lib/site/assessment-text.ts": "efe8664c099b339c9c8cc9dc24f481cf23316b4073d8e51efac2dd3d9ba095e0",
+    "lib/site/assessment-text.ts": "7e58fba572137ef295d134c99a453d019de63216c9c6facff40e0f7c21b67fb4",
     "lib/server/personal-fit.ts": "921d8f1682d2e29705a88237fb57934be0cf54263a17f9f9cc2c5816ab3f9353",
     "lib/server/content-analysis.ts": "2346175c2a220f57e14d80626303e8b94ce8fd8a88e7d156565d191bd186bcbc",
     "lib/engine/content-analysis.ts": "7c3abb2cc9124b9d113f3e21b8cee02548406aaa7da7bece23cbe78b019d7bb9",
     "lib/infomaniak.ts": "0e8dc79a22a718c2d94b5a0991b75e1b58b268e9d92dbfb68246b5e6e8893566",
-    "lib/site/dict.ts": "8d00335f5f9fedd729a3c28003fec832c7c6c5a832bc582fc66ed26c390f4cb4",
+    "lib/site/dict.ts": "d5e2f08d1799295ef8a3fffc21483710b7c3761118c5a62a15824d8d561b2e71",
     "lib/site/regional.ts": "b890842a317d6d2c6803c3cd76248c75a55b16f6538ba5653155854d28b0dcfe"
   },
   "instruments": {
     "de-CH": {
-      "sha256": "0c360a4f761e68baf5b4d4678e76f5de3468324c10344ddfad0f25c7606a19de",
+      "sha256": "20d7000f016a4163980d60de7869f1ca3dc431e79f58cfcfb79d4205bc97e432",
       "definition": {
         "version": {
-          "interests": "wsis-basic23-2026-10-29.1",
-          "scoring": "wsis-basic-fit-2026-10-29.1",
+          "interests": "wsis-subjects14-activities45-2026-10-29.1",
+          "scoring": "wsis-basic-fit-2026-10-29.2",
           "description": "wsis-response-means-2026-10-14.1"
         },
         "locale": "de-CH",
@@ -80,24 +80,9 @@
               "text": "Ein Verbrechen aufklären und Spuren sichern"
             },
             {
-              "id": "physicalScience1",
-              "key": "physicalScience",
-              "text": "Erforschen, wie Galaxien entstehen und sich entwickeln"
-            },
-            {
-              "id": "lifeScience1",
-              "key": "lifeScience",
-              "text": "Untersuchen, wie Zellen und Gene funktionieren"
-            },
-            {
               "id": "medicalScience1",
               "key": "medicalScience",
               "text": "Die Ursache eines Gesundheitsproblems untersuchen"
-            },
-            {
-              "id": "math1",
-              "key": "math",
-              "text": "Mathematikaufgaben lösen"
             },
             {
               "id": "socialScience1",
@@ -105,29 +90,9 @@
               "text": "Untersuchen, wie Armut den Bildungserfolg beeinflusst"
             },
             {
-              "id": "humanities1",
-              "key": "humanities",
-              "text": "Herausfinden, wie Menschen in einer antiken Kultur gelebt haben"
-            },
-            {
               "id": "design1",
               "key": "design",
               "text": "Ein kunstvolles und zugleich nützliches Möbelstück gestalten"
-            },
-            {
-              "id": "arts1",
-              "key": "arts",
-              "text": "Ein Bild skizzieren"
-            },
-            {
-              "id": "music1",
-              "key": "music",
-              "text": "Ein Instrument spielen oder singen"
-            },
-            {
-              "id": "writing1",
-              "key": "writing",
-              "text": "Einen Roman schreiben"
             },
             {
               "id": "media1",
@@ -165,11 +130,6 @@
               "text": "Die Jahresrechnung einer Firma analysieren"
             },
             {
-              "id": "computing1",
-              "key": "computing",
-              "text": "Eine neue Datenbank aufbauen"
-            },
-            {
               "id": "chk",
               "key": "check",
               "text": "Damit wir sehen, dass du liest: Wähle hier die 2",
@@ -201,24 +161,9 @@
               "text": "An einem grossen Anlass für Sicherheit sorgen"
             },
             {
-              "id": "physicalScience2",
-              "key": "physicalScience",
-              "text": "Eine Gesteinsprobe vom Mars analysieren"
-            },
-            {
-              "id": "lifeScience2",
-              "key": "lifeScience",
-              "text": "Beobachten, wie Tiere in ihrem Lebensraum leben"
-            },
-            {
               "id": "medicalScience2",
               "key": "medicalScience",
               "text": "Die Nebenwirkungen eines Medikaments erforschen"
-            },
-            {
-              "id": "math2",
-              "key": "math",
-              "text": "Eine neue Theorie der Geometrie kennenlernen"
             },
             {
               "id": "socialScience2",
@@ -226,29 +171,9 @@
               "text": "Erforschen, wie politische Massnahmen Gewalt verringern"
             },
             {
-              "id": "humanities2",
-              "key": "humanities",
-              "text": "Über philosophische Fragen diskutieren, etwa was gerecht ist"
-            },
-            {
               "id": "design2",
               "key": "design",
               "text": "Das Bühnenbild für einen Film oder ein Theaterstück entwerfen"
-            },
-            {
-              "id": "arts2",
-              "key": "arts",
-              "text": "Eine Landschaft malen"
-            },
-            {
-              "id": "music2",
-              "key": "music",
-              "text": "Musik komponieren oder einen Track produzieren"
-            },
-            {
-              "id": "writing2",
-              "key": "writing",
-              "text": "Kurzgeschichten schreiben"
             },
             {
               "id": "media2",
@@ -286,11 +211,6 @@
               "text": "Kontostände überwachen und Monatsabschlüsse erstellen"
             },
             {
-              "id": "computing2",
-              "key": "computing",
-              "text": "Die tägliche Leistung von Computersystemen überwachen"
-            },
-            {
               "id": "chk2",
               "key": "check",
               "text": "Damit wir sehen, dass du liest: Wähle hier die 4",
@@ -322,24 +242,9 @@
               "text": "Prüfen, ob Regeln und Vorschriften eingehalten werden"
             },
             {
-              "id": "physicalScience3",
-              "key": "physicalScience",
-              "text": "Die Ursachen von Erdbeben und Tsunamis untersuchen"
-            },
-            {
-              "id": "lifeScience3",
-              "key": "lifeScience",
-              "text": "Erforschen, wie Pflanzen auf ein wärmeres Klima reagieren"
-            },
-            {
               "id": "medicalScience3",
               "key": "medicalScience",
               "text": "Untersuchen, wie sich Krankheiten verhindern lassen"
-            },
-            {
-              "id": "math3",
-              "key": "math",
-              "text": "Mit mathematischen Gleichungen praktische Probleme lösen"
             },
             {
               "id": "socialScience3",
@@ -347,29 +252,9 @@
               "text": "Untersuchen, warum Menschen Stereotype und Vorurteile haben"
             },
             {
-              "id": "humanities3",
-              "key": "humanities",
-              "text": "Einen Roman, einen Film oder ein Kunstwerk deuten und darüber schreiben"
-            },
-            {
               "id": "design3",
               "key": "design",
               "text": "Aufbau und Licht einer Ausstellung gestalten"
-            },
-            {
-              "id": "arts3",
-              "key": "arts",
-              "text": "Illustrationen für ein Buch zeichnen"
-            },
-            {
-              "id": "music3",
-              "key": "music",
-              "text": "Mit einer Band, einem Chor oder einem Orchester proben"
-            },
-            {
-              "id": "writing3",
-              "key": "writing",
-              "text": "Kreatives Schreiben lernen"
             },
             {
               "id": "media3",
@@ -405,11 +290,6 @@
               "id": "finance3",
               "key": "finance",
               "text": "Steuerabzüge für ein Unternehmen berechnen"
-            },
-            {
-              "id": "computing3",
-              "key": "computing",
-              "text": "Hardware- oder Softwareprobleme finden und beheben"
             }
           ],
           "scales": [
@@ -456,36 +336,10 @@
               "source": "own"
             },
             {
-              "key": "physicalScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Chemistry",
-                "Physics",
-                "Geography"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "lifeScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Biology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "medicalScience",
               "riasec": "I",
               "onetKnowledge": [
                 "Medicine and Dentistry"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "math",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Mathematics"
               ],
               "source": "cabin-net"
             },
@@ -499,44 +353,11 @@
               "source": "cabin-net"
             },
             {
-              "key": "humanities",
-              "riasec": "I",
-              "onetKnowledge": [
-                "History and Archeology",
-                "Philosophy and Theology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "design",
               "riasec": "A",
               "onetKnowledge": [
                 "Design",
                 "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "arts",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "music",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "own"
-            },
-            {
-              "key": "writing",
-              "riasec": "A",
-              "onetKnowledge": [
-                "English Language"
               ],
               "source": "cabin-net"
             },
@@ -595,14 +416,6 @@
                 "Economics and Accounting"
               ],
               "source": "cabin-net"
-            },
-            {
-              "key": "computing",
-              "riasec": "C",
-              "onetKnowledge": [
-                "Computers and Electronics"
-              ],
-              "source": "cabin-net"
             }
           ],
           "score": "(mean of valid answers - 1) / 4 per basic interest; at least 2 of 3; RIASEC = mean of its basic interests; attention items excluded",
@@ -621,11 +434,11 @@
             "longstring": 12,
             "effect": "notice asking to review the answers; ranking unchanged"
           },
-          "sessionMinimum": "all 69 interest items; attention items are not part of any scale",
-          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 17 basic interests; own items for six more; own translations"
+          "sessionMinimum": "all 45 interest items; attention items are not part of any scale",
+          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 12 activity scales; own items for three more; school subjects for the areas a subject covers; own translations"
         },
         "subjects": {
-          "instruction": "Wie gern hast du diese Fächer?",
+          "instruction": "Wie gern hast du diese Fächer? Fächer, die du nicht hast, lässt du leer.",
           "enjoymentLabels": [
             "Gar nicht",
             "Wenig",
@@ -635,23 +448,63 @@
           ],
           "items": [
             {
-              "id": "music",
-              "text": "Musik"
+              "id": "math",
+              "text": "Mathematik"
             },
             {
-              "id": "art",
-              "text": "Bildnerisches Gestalten"
+              "id": "phys",
+              "text": "Physik"
+            },
+            {
+              "id": "chem",
+              "text": "Chemie"
+            },
+            {
+              "id": "bio",
+              "text": "Biologie"
+            },
+            {
+              "id": "cs",
+              "text": "Informatik"
+            },
+            {
+              "id": "lang",
+              "text": "Deutsch & Literatur"
             },
             {
               "id": "forlang",
               "text": "Fremdsprachen"
             },
             {
+              "id": "hist",
+              "text": "Geschichte"
+            },
+            {
+              "id": "geo",
+              "text": "Geografie"
+            },
+            {
+              "id": "econ",
+              "text": "Wirtschaft & Recht"
+            },
+            {
+              "id": "art",
+              "text": "Bildnerisches Gestalten"
+            },
+            {
+              "id": "music",
+              "text": "Musik"
+            },
+            {
               "id": "sport",
               "text": "Sport"
+            },
+            {
+              "id": "social",
+              "text": "Philosophie, Psychologie & Gesellschaft"
             }
           ],
-          "interpretation": "enjoyment of the subjects the basic interests cannot tell apart; extra dimensions of the interest-fit profile correlation"
+          "interpretation": "enjoyment of each school subject; dimensions of the interest-fit profile correlation, matched to O*NET knowledge where a subject has its own area; at least 10 answered for a result"
         },
         "grades": {
           "scales": {
@@ -695,11 +548,11 @@
       }
     },
     "de-DE": {
-      "sha256": "0016d658cfc3636055bde9fd9721080a56213cf1a7b860f0c6f9b28525d1e281",
+      "sha256": "db3597063ea766a6e148f0c58ecf23fa7dc2e5b24479dea9f2072d421b4b06ee",
       "definition": {
         "version": {
-          "interests": "wsis-basic23-2026-10-29.1",
-          "scoring": "wsis-basic-fit-2026-10-29.1",
+          "interests": "wsis-subjects14-activities45-2026-10-29.1",
+          "scoring": "wsis-basic-fit-2026-10-29.2",
           "description": "wsis-response-means-2026-10-14.1"
         },
         "locale": "de-DE",
@@ -741,24 +594,9 @@
               "text": "Ein Verbrechen aufklären und Spuren sichern"
             },
             {
-              "id": "physicalScience1",
-              "key": "physicalScience",
-              "text": "Erforschen, wie Galaxien entstehen und sich entwickeln"
-            },
-            {
-              "id": "lifeScience1",
-              "key": "lifeScience",
-              "text": "Untersuchen, wie Zellen und Gene funktionieren"
-            },
-            {
               "id": "medicalScience1",
               "key": "medicalScience",
               "text": "Die Ursache eines Gesundheitsproblems untersuchen"
-            },
-            {
-              "id": "math1",
-              "key": "math",
-              "text": "Mathematikaufgaben lösen"
             },
             {
               "id": "socialScience1",
@@ -766,29 +604,9 @@
               "text": "Untersuchen, wie Armut den Bildungserfolg beeinflusst"
             },
             {
-              "id": "humanities1",
-              "key": "humanities",
-              "text": "Herausfinden, wie Menschen in einer antiken Kultur gelebt haben"
-            },
-            {
               "id": "design1",
               "key": "design",
               "text": "Ein kunstvolles und zugleich nützliches Möbelstück gestalten"
-            },
-            {
-              "id": "arts1",
-              "key": "arts",
-              "text": "Ein Bild skizzieren"
-            },
-            {
-              "id": "music1",
-              "key": "music",
-              "text": "Ein Instrument spielen oder singen"
-            },
-            {
-              "id": "writing1",
-              "key": "writing",
-              "text": "Einen Roman schreiben"
             },
             {
               "id": "media1",
@@ -826,11 +644,6 @@
               "text": "Die Jahresrechnung einer Firma analysieren"
             },
             {
-              "id": "computing1",
-              "key": "computing",
-              "text": "Eine neue Datenbank aufbauen"
-            },
-            {
               "id": "chk",
               "key": "check",
               "text": "Damit wir sehen, dass du liest: Wähle hier die 2",
@@ -862,24 +675,9 @@
               "text": "An einem großen Anlass für Sicherheit sorgen"
             },
             {
-              "id": "physicalScience2",
-              "key": "physicalScience",
-              "text": "Eine Gesteinsprobe vom Mars analysieren"
-            },
-            {
-              "id": "lifeScience2",
-              "key": "lifeScience",
-              "text": "Beobachten, wie Tiere in ihrem Lebensraum leben"
-            },
-            {
               "id": "medicalScience2",
               "key": "medicalScience",
               "text": "Die Nebenwirkungen eines Medikaments erforschen"
-            },
-            {
-              "id": "math2",
-              "key": "math",
-              "text": "Eine neue Theorie der Geometrie kennenlernen"
             },
             {
               "id": "socialScience2",
@@ -887,29 +685,9 @@
               "text": "Erforschen, wie politische Massnahmen Gewalt verringern"
             },
             {
-              "id": "humanities2",
-              "key": "humanities",
-              "text": "Über philosophische Fragen diskutieren, etwa was gerecht ist"
-            },
-            {
               "id": "design2",
               "key": "design",
               "text": "Das Bühnenbild für einen Film oder ein Theaterstück entwerfen"
-            },
-            {
-              "id": "arts2",
-              "key": "arts",
-              "text": "Eine Landschaft malen"
-            },
-            {
-              "id": "music2",
-              "key": "music",
-              "text": "Musik komponieren oder einen Track produzieren"
-            },
-            {
-              "id": "writing2",
-              "key": "writing",
-              "text": "Kurzgeschichten schreiben"
             },
             {
               "id": "media2",
@@ -947,11 +725,6 @@
               "text": "Kontostände überwachen und Monatsabschlüsse erstellen"
             },
             {
-              "id": "computing2",
-              "key": "computing",
-              "text": "Die tägliche Leistung von Computersystemen überwachen"
-            },
-            {
               "id": "chk2",
               "key": "check",
               "text": "Damit wir sehen, dass du liest: Wähle hier die 4",
@@ -983,24 +756,9 @@
               "text": "Prüfen, ob Regeln und Vorschriften eingehalten werden"
             },
             {
-              "id": "physicalScience3",
-              "key": "physicalScience",
-              "text": "Die Ursachen von Erdbeben und Tsunamis untersuchen"
-            },
-            {
-              "id": "lifeScience3",
-              "key": "lifeScience",
-              "text": "Erforschen, wie Pflanzen auf ein wärmeres Klima reagieren"
-            },
-            {
               "id": "medicalScience3",
               "key": "medicalScience",
               "text": "Untersuchen, wie sich Krankheiten verhindern lassen"
-            },
-            {
-              "id": "math3",
-              "key": "math",
-              "text": "Mit mathematischen Gleichungen praktische Probleme lösen"
             },
             {
               "id": "socialScience3",
@@ -1008,29 +766,9 @@
               "text": "Untersuchen, warum Menschen Stereotype und Vorurteile haben"
             },
             {
-              "id": "humanities3",
-              "key": "humanities",
-              "text": "Einen Roman, einen Film oder ein Kunstwerk deuten und darüber schreiben"
-            },
-            {
               "id": "design3",
               "key": "design",
               "text": "Aufbau und Licht einer Ausstellung gestalten"
-            },
-            {
-              "id": "arts3",
-              "key": "arts",
-              "text": "Illustrationen für ein Buch zeichnen"
-            },
-            {
-              "id": "music3",
-              "key": "music",
-              "text": "Mit einer Band, einem Chor oder einem Orchester proben"
-            },
-            {
-              "id": "writing3",
-              "key": "writing",
-              "text": "Kreatives Schreiben lernen"
             },
             {
               "id": "media3",
@@ -1066,11 +804,6 @@
               "id": "finance3",
               "key": "finance",
               "text": "Steuerabzüge für ein Unternehmen berechnen"
-            },
-            {
-              "id": "computing3",
-              "key": "computing",
-              "text": "Hardware- oder Softwareprobleme finden und beheben"
             }
           ],
           "scales": [
@@ -1117,36 +850,10 @@
               "source": "own"
             },
             {
-              "key": "physicalScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Chemistry",
-                "Physics",
-                "Geography"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "lifeScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Biology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "medicalScience",
               "riasec": "I",
               "onetKnowledge": [
                 "Medicine and Dentistry"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "math",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Mathematics"
               ],
               "source": "cabin-net"
             },
@@ -1160,44 +867,11 @@
               "source": "cabin-net"
             },
             {
-              "key": "humanities",
-              "riasec": "I",
-              "onetKnowledge": [
-                "History and Archeology",
-                "Philosophy and Theology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "design",
               "riasec": "A",
               "onetKnowledge": [
                 "Design",
                 "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "arts",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "music",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "own"
-            },
-            {
-              "key": "writing",
-              "riasec": "A",
-              "onetKnowledge": [
-                "English Language"
               ],
               "source": "cabin-net"
             },
@@ -1256,14 +930,6 @@
                 "Economics and Accounting"
               ],
               "source": "cabin-net"
-            },
-            {
-              "key": "computing",
-              "riasec": "C",
-              "onetKnowledge": [
-                "Computers and Electronics"
-              ],
-              "source": "cabin-net"
             }
           ],
           "score": "(mean of valid answers - 1) / 4 per basic interest; at least 2 of 3; RIASEC = mean of its basic interests; attention items excluded",
@@ -1282,11 +948,11 @@
             "longstring": 12,
             "effect": "notice asking to review the answers; ranking unchanged"
           },
-          "sessionMinimum": "all 69 interest items; attention items are not part of any scale",
-          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 17 basic interests; own items for six more; own translations"
+          "sessionMinimum": "all 45 interest items; attention items are not part of any scale",
+          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 12 activity scales; own items for three more; school subjects for the areas a subject covers; own translations"
         },
         "subjects": {
-          "instruction": "Wie gern hast du diese Fächer?",
+          "instruction": "Wie gern hast du diese Fächer? Fächer, die du nicht hast, lässt du leer.",
           "enjoymentLabels": [
             "Gar nicht",
             "Wenig",
@@ -1296,23 +962,63 @@
           ],
           "items": [
             {
-              "id": "music",
-              "text": "Musik"
+              "id": "math",
+              "text": "Mathematik"
             },
             {
-              "id": "art",
-              "text": "Kunst"
+              "id": "phys",
+              "text": "Physik"
+            },
+            {
+              "id": "chem",
+              "text": "Chemie"
+            },
+            {
+              "id": "bio",
+              "text": "Biologie"
+            },
+            {
+              "id": "cs",
+              "text": "Informatik"
+            },
+            {
+              "id": "lang",
+              "text": "Deutsch & Literatur"
             },
             {
               "id": "forlang",
               "text": "Fremdsprachen"
             },
             {
+              "id": "hist",
+              "text": "Geschichte"
+            },
+            {
+              "id": "geo",
+              "text": "Geografie"
+            },
+            {
+              "id": "econ",
+              "text": "Wirtschaft & Recht"
+            },
+            {
+              "id": "art",
+              "text": "Kunst"
+            },
+            {
+              "id": "music",
+              "text": "Musik"
+            },
+            {
               "id": "sport",
               "text": "Sport"
+            },
+            {
+              "id": "social",
+              "text": "Philosophie, Psychologie & Gesellschaft"
             }
           ],
-          "interpretation": "enjoyment of the subjects the basic interests cannot tell apart; extra dimensions of the interest-fit profile correlation"
+          "interpretation": "enjoyment of each school subject; dimensions of the interest-fit profile correlation, matched to O*NET knowledge where a subject has its own area; at least 10 answered for a result"
         },
         "grades": {
           "scales": {
@@ -1356,11 +1062,11 @@
       }
     },
     "de-AT": {
-      "sha256": "313a3e632fa15e71ad59655cac3284b53f2bd763ddb641ff3a0a4d08067de983",
+      "sha256": "0dc1b76df1885345bd0d2f7df307de22545814ce6e911f9e4b44f9e8ca0fc693",
       "definition": {
         "version": {
-          "interests": "wsis-basic23-2026-10-29.1",
-          "scoring": "wsis-basic-fit-2026-10-29.1",
+          "interests": "wsis-subjects14-activities45-2026-10-29.1",
+          "scoring": "wsis-basic-fit-2026-10-29.2",
           "description": "wsis-response-means-2026-10-14.1"
         },
         "locale": "de-AT",
@@ -1402,24 +1108,9 @@
               "text": "Ein Verbrechen aufklären und Spuren sichern"
             },
             {
-              "id": "physicalScience1",
-              "key": "physicalScience",
-              "text": "Erforschen, wie Galaxien entstehen und sich entwickeln"
-            },
-            {
-              "id": "lifeScience1",
-              "key": "lifeScience",
-              "text": "Untersuchen, wie Zellen und Gene funktionieren"
-            },
-            {
               "id": "medicalScience1",
               "key": "medicalScience",
               "text": "Die Ursache eines Gesundheitsproblems untersuchen"
-            },
-            {
-              "id": "math1",
-              "key": "math",
-              "text": "Mathematikaufgaben lösen"
             },
             {
               "id": "socialScience1",
@@ -1427,29 +1118,9 @@
               "text": "Untersuchen, wie Armut den Bildungserfolg beeinflusst"
             },
             {
-              "id": "humanities1",
-              "key": "humanities",
-              "text": "Herausfinden, wie Menschen in einer antiken Kultur gelebt haben"
-            },
-            {
               "id": "design1",
               "key": "design",
               "text": "Ein kunstvolles und zugleich nützliches Möbelstück gestalten"
-            },
-            {
-              "id": "arts1",
-              "key": "arts",
-              "text": "Ein Bild skizzieren"
-            },
-            {
-              "id": "music1",
-              "key": "music",
-              "text": "Ein Instrument spielen oder singen"
-            },
-            {
-              "id": "writing1",
-              "key": "writing",
-              "text": "Einen Roman schreiben"
             },
             {
               "id": "media1",
@@ -1487,11 +1158,6 @@
               "text": "Die Jahresrechnung einer Firma analysieren"
             },
             {
-              "id": "computing1",
-              "key": "computing",
-              "text": "Eine neue Datenbank aufbauen"
-            },
-            {
               "id": "chk",
               "key": "check",
               "text": "Damit wir sehen, dass du liest: Wähle hier die 2",
@@ -1523,24 +1189,9 @@
               "text": "An einem großen Anlass für Sicherheit sorgen"
             },
             {
-              "id": "physicalScience2",
-              "key": "physicalScience",
-              "text": "Eine Gesteinsprobe vom Mars analysieren"
-            },
-            {
-              "id": "lifeScience2",
-              "key": "lifeScience",
-              "text": "Beobachten, wie Tiere in ihrem Lebensraum leben"
-            },
-            {
               "id": "medicalScience2",
               "key": "medicalScience",
               "text": "Die Nebenwirkungen eines Medikaments erforschen"
-            },
-            {
-              "id": "math2",
-              "key": "math",
-              "text": "Eine neue Theorie der Geometrie kennenlernen"
             },
             {
               "id": "socialScience2",
@@ -1548,29 +1199,9 @@
               "text": "Erforschen, wie politische Massnahmen Gewalt verringern"
             },
             {
-              "id": "humanities2",
-              "key": "humanities",
-              "text": "Über philosophische Fragen diskutieren, etwa was gerecht ist"
-            },
-            {
               "id": "design2",
               "key": "design",
               "text": "Das Bühnenbild für einen Film oder ein Theaterstück entwerfen"
-            },
-            {
-              "id": "arts2",
-              "key": "arts",
-              "text": "Eine Landschaft malen"
-            },
-            {
-              "id": "music2",
-              "key": "music",
-              "text": "Musik komponieren oder einen Track produzieren"
-            },
-            {
-              "id": "writing2",
-              "key": "writing",
-              "text": "Kurzgeschichten schreiben"
             },
             {
               "id": "media2",
@@ -1608,11 +1239,6 @@
               "text": "Kontostände überwachen und Monatsabschlüsse erstellen"
             },
             {
-              "id": "computing2",
-              "key": "computing",
-              "text": "Die tägliche Leistung von Computersystemen überwachen"
-            },
-            {
               "id": "chk2",
               "key": "check",
               "text": "Damit wir sehen, dass du liest: Wähle hier die 4",
@@ -1644,24 +1270,9 @@
               "text": "Prüfen, ob Regeln und Vorschriften eingehalten werden"
             },
             {
-              "id": "physicalScience3",
-              "key": "physicalScience",
-              "text": "Die Ursachen von Erdbeben und Tsunamis untersuchen"
-            },
-            {
-              "id": "lifeScience3",
-              "key": "lifeScience",
-              "text": "Erforschen, wie Pflanzen auf ein wärmeres Klima reagieren"
-            },
-            {
               "id": "medicalScience3",
               "key": "medicalScience",
               "text": "Untersuchen, wie sich Krankheiten verhindern lassen"
-            },
-            {
-              "id": "math3",
-              "key": "math",
-              "text": "Mit mathematischen Gleichungen praktische Probleme lösen"
             },
             {
               "id": "socialScience3",
@@ -1669,29 +1280,9 @@
               "text": "Untersuchen, warum Menschen Stereotype und Vorurteile haben"
             },
             {
-              "id": "humanities3",
-              "key": "humanities",
-              "text": "Einen Roman, einen Film oder ein Kunstwerk deuten und darüber schreiben"
-            },
-            {
               "id": "design3",
               "key": "design",
               "text": "Aufbau und Licht einer Ausstellung gestalten"
-            },
-            {
-              "id": "arts3",
-              "key": "arts",
-              "text": "Illustrationen für ein Buch zeichnen"
-            },
-            {
-              "id": "music3",
-              "key": "music",
-              "text": "Mit einer Band, einem Chor oder einem Orchester proben"
-            },
-            {
-              "id": "writing3",
-              "key": "writing",
-              "text": "Kreatives Schreiben lernen"
             },
             {
               "id": "media3",
@@ -1727,11 +1318,6 @@
               "id": "finance3",
               "key": "finance",
               "text": "Steuerabzüge für ein Unternehmen berechnen"
-            },
-            {
-              "id": "computing3",
-              "key": "computing",
-              "text": "Hardware- oder Softwareprobleme finden und beheben"
             }
           ],
           "scales": [
@@ -1778,36 +1364,10 @@
               "source": "own"
             },
             {
-              "key": "physicalScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Chemistry",
-                "Physics",
-                "Geography"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "lifeScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Biology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "medicalScience",
               "riasec": "I",
               "onetKnowledge": [
                 "Medicine and Dentistry"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "math",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Mathematics"
               ],
               "source": "cabin-net"
             },
@@ -1821,44 +1381,11 @@
               "source": "cabin-net"
             },
             {
-              "key": "humanities",
-              "riasec": "I",
-              "onetKnowledge": [
-                "History and Archeology",
-                "Philosophy and Theology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "design",
               "riasec": "A",
               "onetKnowledge": [
                 "Design",
                 "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "arts",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "music",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "own"
-            },
-            {
-              "key": "writing",
-              "riasec": "A",
-              "onetKnowledge": [
-                "English Language"
               ],
               "source": "cabin-net"
             },
@@ -1917,14 +1444,6 @@
                 "Economics and Accounting"
               ],
               "source": "cabin-net"
-            },
-            {
-              "key": "computing",
-              "riasec": "C",
-              "onetKnowledge": [
-                "Computers and Electronics"
-              ],
-              "source": "cabin-net"
             }
           ],
           "score": "(mean of valid answers - 1) / 4 per basic interest; at least 2 of 3; RIASEC = mean of its basic interests; attention items excluded",
@@ -1943,11 +1462,11 @@
             "longstring": 12,
             "effect": "notice asking to review the answers; ranking unchanged"
           },
-          "sessionMinimum": "all 69 interest items; attention items are not part of any scale",
-          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 17 basic interests; own items for six more; own translations"
+          "sessionMinimum": "all 45 interest items; attention items are not part of any scale",
+          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 12 activity scales; own items for three more; school subjects for the areas a subject covers; own translations"
         },
         "subjects": {
-          "instruction": "Wie gern hast du diese Fächer?",
+          "instruction": "Wie gern hast du diese Fächer? Fächer, die du nicht hast, lässt du leer.",
           "enjoymentLabels": [
             "Gar nicht",
             "Wenig",
@@ -1957,23 +1476,63 @@
           ],
           "items": [
             {
-              "id": "music",
-              "text": "Musik"
+              "id": "math",
+              "text": "Mathematik"
             },
             {
-              "id": "art",
-              "text": "Bildnerische Erziehung"
+              "id": "phys",
+              "text": "Physik"
+            },
+            {
+              "id": "chem",
+              "text": "Chemie"
+            },
+            {
+              "id": "bio",
+              "text": "Biologie"
+            },
+            {
+              "id": "cs",
+              "text": "Informatik"
+            },
+            {
+              "id": "lang",
+              "text": "Deutsch & Literatur"
             },
             {
               "id": "forlang",
               "text": "Fremdsprachen"
             },
             {
+              "id": "hist",
+              "text": "Geschichte"
+            },
+            {
+              "id": "geo",
+              "text": "Geografie"
+            },
+            {
+              "id": "econ",
+              "text": "Wirtschaft & Recht"
+            },
+            {
+              "id": "art",
+              "text": "Bildnerische Erziehung"
+            },
+            {
+              "id": "music",
+              "text": "Musik"
+            },
+            {
               "id": "sport",
               "text": "Sport"
+            },
+            {
+              "id": "social",
+              "text": "Philosophie, Psychologie & Gesellschaft"
             }
           ],
-          "interpretation": "enjoyment of the subjects the basic interests cannot tell apart; extra dimensions of the interest-fit profile correlation"
+          "interpretation": "enjoyment of each school subject; dimensions of the interest-fit profile correlation, matched to O*NET knowledge where a subject has its own area; at least 10 answered for a result"
         },
         "grades": {
           "scales": {
@@ -2017,11 +1576,11 @@
       }
     },
     "en": {
-      "sha256": "95008e1a5402158dbd444a7c58f1d98ac70d9e937f9f0cbe0b823aa8780a0f1b",
+      "sha256": "c7e8ddf37abde2a4006d4e247ad512742b2755297f53e4280a3ec4f3e35e006e",
       "definition": {
         "version": {
-          "interests": "wsis-basic23-2026-10-29.1",
-          "scoring": "wsis-basic-fit-2026-10-29.1",
+          "interests": "wsis-subjects14-activities45-2026-10-29.1",
+          "scoring": "wsis-basic-fit-2026-10-29.2",
           "description": "wsis-response-means-2026-10-14.1"
         },
         "locale": "en",
@@ -2063,24 +1622,9 @@
               "text": "Solve a crime and secure the evidence"
             },
             {
-              "id": "physicalScience1",
-              "key": "physicalScience",
-              "text": "Study the formation and evolution of galaxies"
-            },
-            {
-              "id": "lifeScience1",
-              "key": "lifeScience",
-              "text": "Study how cells and genes work"
-            },
-            {
               "id": "medicalScience1",
               "key": "medicalScience",
               "text": "Investigate the cause of a health problem"
-            },
-            {
-              "id": "math1",
-              "key": "math",
-              "text": "Solve math problems"
             },
             {
               "id": "socialScience1",
@@ -2088,29 +1632,9 @@
               "text": "Investigate how poverty influences educational attainment"
             },
             {
-              "id": "humanities1",
-              "key": "humanities",
-              "text": "Find out how people lived in an ancient culture"
-            },
-            {
               "id": "design1",
               "key": "design",
               "text": "Create a piece of artistic and functional furniture"
-            },
-            {
-              "id": "arts1",
-              "key": "arts",
-              "text": "Sketch a picture"
-            },
-            {
-              "id": "music1",
-              "key": "music",
-              "text": "Play an instrument or sing"
-            },
-            {
-              "id": "writing1",
-              "key": "writing",
-              "text": "Write a novel"
             },
             {
               "id": "media1",
@@ -2148,11 +1672,6 @@
               "text": "Analyze the financial statements of a company"
             },
             {
-              "id": "computing1",
-              "key": "computing",
-              "text": "Create a new computer database"
-            },
-            {
               "id": "chk",
               "key": "check",
               "text": "To show you are reading: choose 2 here",
@@ -2184,24 +1703,9 @@
               "text": "Keep people safe at a large event"
             },
             {
-              "id": "physicalScience2",
-              "key": "physicalScience",
-              "text": "Analyze a mineral sample found on Mars"
-            },
-            {
-              "id": "lifeScience2",
-              "key": "lifeScience",
-              "text": "Observe how animals live in their habitat"
-            },
-            {
               "id": "medicalScience2",
               "key": "medicalScience",
               "text": "Research the side effects of a medicine"
-            },
-            {
-              "id": "math2",
-              "key": "math",
-              "text": "Learn about a new theory in geometry"
             },
             {
               "id": "socialScience2",
@@ -2209,29 +1713,9 @@
               "text": "Study the effects of public policy on violence reduction"
             },
             {
-              "id": "humanities2",
-              "key": "humanities",
-              "text": "Discuss philosophical questions, such as what is just"
-            },
-            {
               "id": "design2",
               "key": "design",
               "text": "Create the set for a movie or stage play"
-            },
-            {
-              "id": "arts2",
-              "key": "arts",
-              "text": "Paint a landscape"
-            },
-            {
-              "id": "music2",
-              "key": "music",
-              "text": "Compose music or produce a track"
-            },
-            {
-              "id": "writing2",
-              "key": "writing",
-              "text": "Write short stories"
             },
             {
               "id": "media2",
@@ -2269,11 +1753,6 @@
               "text": "Monitor account balance and prepare monthly statements"
             },
             {
-              "id": "computing2",
-              "key": "computing",
-              "text": "Monitor the daily performance of computer systems"
-            },
-            {
               "id": "chk2",
               "key": "check",
               "text": "To show you are reading: choose 4 here",
@@ -2305,24 +1784,9 @@
               "text": "Check that rules and regulations are followed"
             },
             {
-              "id": "physicalScience3",
-              "key": "physicalScience",
-              "text": "Study the causes for earthquakes and tsunamis"
-            },
-            {
-              "id": "lifeScience3",
-              "key": "lifeScience",
-              "text": "Research how plants react to a warmer climate"
-            },
-            {
               "id": "medicalScience3",
               "key": "medicalScience",
               "text": "Investigate prevention methods for diseases"
-            },
-            {
-              "id": "math3",
-              "key": "math",
-              "text": "Use math equations to solve practical problems"
             },
             {
               "id": "socialScience3",
@@ -2330,29 +1794,9 @@
               "text": "Research why people have stereotypes and prejudice"
             },
             {
-              "id": "humanities3",
-              "key": "humanities",
-              "text": "Interpret a novel, a film or a work of art and write about it"
-            },
-            {
               "id": "design3",
               "key": "design",
               "text": "Design the layout and lighting of an exhibition"
-            },
-            {
-              "id": "arts3",
-              "key": "arts",
-              "text": "Draw illustrations for a book"
-            },
-            {
-              "id": "music3",
-              "key": "music",
-              "text": "Rehearse with a band, a choir or an orchestra"
-            },
-            {
-              "id": "writing3",
-              "key": "writing",
-              "text": "Study creative writing"
             },
             {
               "id": "media3",
@@ -2388,11 +1832,6 @@
               "id": "finance3",
               "key": "finance",
               "text": "Calculate tax deductions for a business"
-            },
-            {
-              "id": "computing3",
-              "key": "computing",
-              "text": "Diagnose and resolve computer hardware or software problems"
             }
           ],
           "scales": [
@@ -2439,36 +1878,10 @@
               "source": "own"
             },
             {
-              "key": "physicalScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Chemistry",
-                "Physics",
-                "Geography"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "lifeScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Biology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "medicalScience",
               "riasec": "I",
               "onetKnowledge": [
                 "Medicine and Dentistry"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "math",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Mathematics"
               ],
               "source": "cabin-net"
             },
@@ -2482,44 +1895,11 @@
               "source": "cabin-net"
             },
             {
-              "key": "humanities",
-              "riasec": "I",
-              "onetKnowledge": [
-                "History and Archeology",
-                "Philosophy and Theology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "design",
               "riasec": "A",
               "onetKnowledge": [
                 "Design",
                 "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "arts",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "music",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "own"
-            },
-            {
-              "key": "writing",
-              "riasec": "A",
-              "onetKnowledge": [
-                "English Language"
               ],
               "source": "cabin-net"
             },
@@ -2578,14 +1958,6 @@
                 "Economics and Accounting"
               ],
               "source": "cabin-net"
-            },
-            {
-              "key": "computing",
-              "riasec": "C",
-              "onetKnowledge": [
-                "Computers and Electronics"
-              ],
-              "source": "cabin-net"
             }
           ],
           "score": "(mean of valid answers - 1) / 4 per basic interest; at least 2 of 3; RIASEC = mean of its basic interests; attention items excluded",
@@ -2604,11 +1976,11 @@
             "longstring": 12,
             "effect": "notice asking to review the answers; ranking unchanged"
           },
-          "sessionMinimum": "all 69 interest items; attention items are not part of any scale",
-          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 17 basic interests; own items for six more; own translations"
+          "sessionMinimum": "all 45 interest items; attention items are not part of any scale",
+          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 12 activity scales; own items for three more; school subjects for the areas a subject covers; own translations"
         },
         "subjects": {
-          "instruction": "How much do you enjoy these subjects?",
+          "instruction": "How much do you enjoy these subjects? Leave out any you don’t have.",
           "enjoymentLabels": [
             "Not at all",
             "A little",
@@ -2618,23 +1990,63 @@
           ],
           "items": [
             {
-              "id": "music",
-              "text": "Music"
+              "id": "math",
+              "text": "Mathematics"
             },
             {
-              "id": "art",
-              "text": "Art & design"
+              "id": "phys",
+              "text": "Physics"
+            },
+            {
+              "id": "chem",
+              "text": "Chemistry"
+            },
+            {
+              "id": "bio",
+              "text": "Biology"
+            },
+            {
+              "id": "cs",
+              "text": "Computer science"
+            },
+            {
+              "id": "lang",
+              "text": "Native language & literature"
             },
             {
               "id": "forlang",
               "text": "Foreign languages"
             },
             {
+              "id": "hist",
+              "text": "History"
+            },
+            {
+              "id": "geo",
+              "text": "Geography"
+            },
+            {
+              "id": "econ",
+              "text": "Economics & business"
+            },
+            {
+              "id": "art",
+              "text": "Art & design"
+            },
+            {
+              "id": "music",
+              "text": "Music"
+            },
+            {
               "id": "sport",
               "text": "Sports"
+            },
+            {
+              "id": "social",
+              "text": "Philosophy, psychology & social studies"
             }
           ],
-          "interpretation": "enjoyment of the subjects the basic interests cannot tell apart; extra dimensions of the interest-fit profile correlation"
+          "interpretation": "enjoyment of each school subject; dimensions of the interest-fit profile correlation, matched to O*NET knowledge where a subject has its own area; at least 10 answered for a result"
         },
         "grades": {
           "scales": {
@@ -2678,11 +2090,11 @@
       }
     },
     "fr-CH": {
-      "sha256": "5e599ecd8648af81773d15ec55896a8a79df8250821d48a48c783d2c039f13fc",
+      "sha256": "f9a05b7fa3e7480deed705d30cbbd43514bcd9c489e5a135df3f4ea52eb8ee0f",
       "definition": {
         "version": {
-          "interests": "wsis-basic23-2026-10-29.1",
-          "scoring": "wsis-basic-fit-2026-10-29.1",
+          "interests": "wsis-subjects14-activities45-2026-10-29.1",
+          "scoring": "wsis-basic-fit-2026-10-29.2",
           "description": "wsis-response-means-2026-10-14.1"
         },
         "locale": "fr-CH",
@@ -2724,24 +2136,9 @@
               "text": "Élucider un crime et sécuriser les indices"
             },
             {
-              "id": "physicalScience1",
-              "key": "physicalScience",
-              "text": "Étudier la formation et l’évolution des galaxies"
-            },
-            {
-              "id": "lifeScience1",
-              "key": "lifeScience",
-              "text": "Étudier le fonctionnement des cellules et des gènes"
-            },
-            {
               "id": "medicalScience1",
               "key": "medicalScience",
               "text": "Rechercher la cause d’un problème de santé"
-            },
-            {
-              "id": "math1",
-              "key": "math",
-              "text": "Résoudre des problèmes de maths"
             },
             {
               "id": "socialScience1",
@@ -2749,29 +2146,9 @@
               "text": "Étudier comment la pauvreté influence la réussite scolaire"
             },
             {
-              "id": "humanities1",
-              "key": "humanities",
-              "text": "Découvrir comment vivaient les gens d’une culture antique"
-            },
-            {
               "id": "design1",
               "key": "design",
               "text": "Créer un meuble à la fois artistique et pratique"
-            },
-            {
-              "id": "arts1",
-              "key": "arts",
-              "text": "Esquisser un dessin"
-            },
-            {
-              "id": "music1",
-              "key": "music",
-              "text": "Jouer d’un instrument ou chanter"
-            },
-            {
-              "id": "writing1",
-              "key": "writing",
-              "text": "Écrire un roman"
             },
             {
               "id": "media1",
@@ -2809,11 +2186,6 @@
               "text": "Analyser les comptes annuels d’une entreprise"
             },
             {
-              "id": "computing1",
-              "key": "computing",
-              "text": "Créer une nouvelle base de données"
-            },
-            {
               "id": "chk",
               "key": "check",
               "text": "Pour montrer que tu lis : choisis 2 ici",
@@ -2845,24 +2217,9 @@
               "text": "Assurer la sécurité lors d’un grand événement"
             },
             {
-              "id": "physicalScience2",
-              "key": "physicalScience",
-              "text": "Analyser un échantillon de roche venu de Mars"
-            },
-            {
-              "id": "lifeScience2",
-              "key": "lifeScience",
-              "text": "Observer comment des animaux vivent dans leur habitat"
-            },
-            {
               "id": "medicalScience2",
               "key": "medicalScience",
               "text": "Étudier les effets secondaires d’un médicament"
-            },
-            {
-              "id": "math2",
-              "key": "math",
-              "text": "Découvrir une nouvelle théorie de géométrie"
             },
             {
               "id": "socialScience2",
@@ -2870,29 +2227,9 @@
               "text": "Étudier l’effet des politiques publiques sur la réduction de la violence"
             },
             {
-              "id": "humanities2",
-              "key": "humanities",
-              "text": "Discuter de questions philosophiques, par exemple ce qui est juste"
-            },
-            {
               "id": "design2",
               "key": "design",
               "text": "Créer le décor d’un film ou d’une pièce de théâtre"
-            },
-            {
-              "id": "arts2",
-              "key": "arts",
-              "text": "Peindre un paysage"
-            },
-            {
-              "id": "music2",
-              "key": "music",
-              "text": "Composer de la musique ou produire un morceau"
-            },
-            {
-              "id": "writing2",
-              "key": "writing",
-              "text": "Écrire des nouvelles"
             },
             {
               "id": "media2",
@@ -2930,11 +2267,6 @@
               "text": "Surveiller les soldes de comptes et établir des relevés mensuels"
             },
             {
-              "id": "computing2",
-              "key": "computing",
-              "text": "Surveiller chaque jour les performances de systèmes informatiques"
-            },
-            {
               "id": "chk2",
               "key": "check",
               "text": "Pour montrer que tu lis : choisis 4 ici",
@@ -2966,24 +2298,9 @@
               "text": "Vérifier que les règles et les réglementations sont respectées"
             },
             {
-              "id": "physicalScience3",
-              "key": "physicalScience",
-              "text": "Étudier les causes des tremblements de terre et des tsunamis"
-            },
-            {
-              "id": "lifeScience3",
-              "key": "lifeScience",
-              "text": "Étudier comment les plantes réagissent à un climat plus chaud"
-            },
-            {
               "id": "medicalScience3",
               "key": "medicalScience",
               "text": "Rechercher des moyens de prévenir des maladies"
-            },
-            {
-              "id": "math3",
-              "key": "math",
-              "text": "Utiliser des équations pour résoudre des problèmes concrets"
             },
             {
               "id": "socialScience3",
@@ -2991,29 +2308,9 @@
               "text": "Chercher pourquoi les gens ont des stéréotypes et des préjugés"
             },
             {
-              "id": "humanities3",
-              "key": "humanities",
-              "text": "Interpréter un roman, un film ou une œuvre d’art et écrire à son sujet"
-            },
-            {
               "id": "design3",
               "key": "design",
               "text": "Concevoir l’agencement et l’éclairage d’une exposition"
-            },
-            {
-              "id": "arts3",
-              "key": "arts",
-              "text": "Dessiner les illustrations d’un livre"
-            },
-            {
-              "id": "music3",
-              "key": "music",
-              "text": "Répéter avec un groupe, une chorale ou un orchestre"
-            },
-            {
-              "id": "writing3",
-              "key": "writing",
-              "text": "Apprendre l’écriture créative"
             },
             {
               "id": "media3",
@@ -3049,11 +2346,6 @@
               "id": "finance3",
               "key": "finance",
               "text": "Calculer les déductions fiscales d’une entreprise"
-            },
-            {
-              "id": "computing3",
-              "key": "computing",
-              "text": "Diagnostiquer et résoudre des problèmes matériels ou logiciels"
             }
           ],
           "scales": [
@@ -3100,36 +2392,10 @@
               "source": "own"
             },
             {
-              "key": "physicalScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Chemistry",
-                "Physics",
-                "Geography"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "lifeScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Biology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "medicalScience",
               "riasec": "I",
               "onetKnowledge": [
                 "Medicine and Dentistry"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "math",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Mathematics"
               ],
               "source": "cabin-net"
             },
@@ -3143,44 +2409,11 @@
               "source": "cabin-net"
             },
             {
-              "key": "humanities",
-              "riasec": "I",
-              "onetKnowledge": [
-                "History and Archeology",
-                "Philosophy and Theology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "design",
               "riasec": "A",
               "onetKnowledge": [
                 "Design",
                 "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "arts",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "music",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "own"
-            },
-            {
-              "key": "writing",
-              "riasec": "A",
-              "onetKnowledge": [
-                "English Language"
               ],
               "source": "cabin-net"
             },
@@ -3239,14 +2472,6 @@
                 "Economics and Accounting"
               ],
               "source": "cabin-net"
-            },
-            {
-              "key": "computing",
-              "riasec": "C",
-              "onetKnowledge": [
-                "Computers and Electronics"
-              ],
-              "source": "cabin-net"
             }
           ],
           "score": "(mean of valid answers - 1) / 4 per basic interest; at least 2 of 3; RIASEC = mean of its basic interests; attention items excluded",
@@ -3265,11 +2490,11 @@
             "longstring": 12,
             "effect": "notice asking to review the answers; ranking unchanged"
           },
-          "sessionMinimum": "all 69 interest items; attention items are not part of any scale",
-          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 17 basic interests; own items for six more; own translations"
+          "sessionMinimum": "all 45 interest items; attention items are not part of any scale",
+          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 12 activity scales; own items for three more; school subjects for the areas a subject covers; own translations"
         },
         "subjects": {
-          "instruction": "À quel point aimes-tu ces matières ?",
+          "instruction": "À quel point aimes-tu ces matières ? Laisse vides celles que tu n’as pas.",
           "enjoymentLabels": [
             "Pas du tout",
             "Un peu",
@@ -3279,23 +2504,63 @@
           ],
           "items": [
             {
-              "id": "music",
-              "text": "Musique"
+              "id": "math",
+              "text": "Mathématiques"
             },
             {
-              "id": "art",
-              "text": "Arts visuels"
+              "id": "phys",
+              "text": "Physique"
+            },
+            {
+              "id": "chem",
+              "text": "Chimie"
+            },
+            {
+              "id": "bio",
+              "text": "Biologie"
+            },
+            {
+              "id": "cs",
+              "text": "Informatique"
+            },
+            {
+              "id": "lang",
+              "text": "Langue et littérature"
             },
             {
               "id": "forlang",
               "text": "Langues étrangères"
             },
             {
+              "id": "hist",
+              "text": "Histoire"
+            },
+            {
+              "id": "geo",
+              "text": "Géographie"
+            },
+            {
+              "id": "econ",
+              "text": "Économie et gestion"
+            },
+            {
+              "id": "art",
+              "text": "Arts visuels"
+            },
+            {
+              "id": "music",
+              "text": "Musique"
+            },
+            {
               "id": "sport",
               "text": "Sport"
+            },
+            {
+              "id": "social",
+              "text": "Philosophie, psychologie et société"
             }
           ],
-          "interpretation": "enjoyment of the subjects the basic interests cannot tell apart; extra dimensions of the interest-fit profile correlation"
+          "interpretation": "enjoyment of each school subject; dimensions of the interest-fit profile correlation, matched to O*NET knowledge where a subject has its own area; at least 10 answered for a result"
         },
         "grades": {
           "scales": {
@@ -3339,11 +2604,11 @@
       }
     },
     "it-CH": {
-      "sha256": "6da542a5caea540afd67ab5c1f65aa9a42bafc37184c86acf4dbc8b95986d627",
+      "sha256": "c7affd7958540c8ab7687f96f0f119007c8c89193cc4982a0da2adfb8dd3a71c",
       "definition": {
         "version": {
-          "interests": "wsis-basic23-2026-10-29.1",
-          "scoring": "wsis-basic-fit-2026-10-29.1",
+          "interests": "wsis-subjects14-activities45-2026-10-29.1",
+          "scoring": "wsis-basic-fit-2026-10-29.2",
           "description": "wsis-response-means-2026-10-14.1"
         },
         "locale": "it-CH",
@@ -3385,24 +2650,9 @@
               "text": "Risolvere un crimine e mettere al sicuro le prove"
             },
             {
-              "id": "physicalScience1",
-              "key": "physicalScience",
-              "text": "Studiare come nascono ed evolvono le galassie"
-            },
-            {
-              "id": "lifeScience1",
-              "key": "lifeScience",
-              "text": "Studiare come funzionano cellule e geni"
-            },
-            {
               "id": "medicalScience1",
               "key": "medicalScience",
               "text": "Cercare la causa di un problema di salute"
-            },
-            {
-              "id": "math1",
-              "key": "math",
-              "text": "Risolvere problemi di matematica"
             },
             {
               "id": "socialScience1",
@@ -3410,29 +2660,9 @@
               "text": "Studiare come la povertà influisce sul successo scolastico"
             },
             {
-              "id": "humanities1",
-              "key": "humanities",
-              "text": "Scoprire come viveva la gente in una cultura antica"
-            },
-            {
               "id": "design1",
               "key": "design",
               "text": "Creare un mobile artistico e funzionale"
-            },
-            {
-              "id": "arts1",
-              "key": "arts",
-              "text": "Fare uno schizzo"
-            },
-            {
-              "id": "music1",
-              "key": "music",
-              "text": "Suonare uno strumento o cantare"
-            },
-            {
-              "id": "writing1",
-              "key": "writing",
-              "text": "Scrivere un romanzo"
             },
             {
               "id": "media1",
@@ -3470,11 +2700,6 @@
               "text": "Analizzare il bilancio di un’azienda"
             },
             {
-              "id": "computing1",
-              "key": "computing",
-              "text": "Creare un nuovo database"
-            },
-            {
               "id": "chk",
               "key": "check",
               "text": "Per mostrare che stai leggendo: scegli 2 qui",
@@ -3506,24 +2731,9 @@
               "text": "Garantire la sicurezza durante un grande evento"
             },
             {
-              "id": "physicalScience2",
-              "key": "physicalScience",
-              "text": "Analizzare un campione di roccia proveniente da Marte"
-            },
-            {
-              "id": "lifeScience2",
-              "key": "lifeScience",
-              "text": "Osservare come vivono gli animali nel loro habitat"
-            },
-            {
               "id": "medicalScience2",
               "key": "medicalScience",
               "text": "Studiare gli effetti collaterali di un farmaco"
-            },
-            {
-              "id": "math2",
-              "key": "math",
-              "text": "Conoscere una nuova teoria di geometria"
             },
             {
               "id": "socialScience2",
@@ -3531,29 +2741,9 @@
               "text": "Studiare l’effetto delle politiche pubbliche sulla riduzione della violenza"
             },
             {
-              "id": "humanities2",
-              "key": "humanities",
-              "text": "Discutere di questioni filosofiche, per esempio che cosa è giusto"
-            },
-            {
               "id": "design2",
               "key": "design",
               "text": "Creare la scenografia per un film o uno spettacolo teatrale"
-            },
-            {
-              "id": "arts2",
-              "key": "arts",
-              "text": "Dipingere un paesaggio"
-            },
-            {
-              "id": "music2",
-              "key": "music",
-              "text": "Comporre musica o produrre un brano"
-            },
-            {
-              "id": "writing2",
-              "key": "writing",
-              "text": "Scrivere racconti"
             },
             {
               "id": "media2",
@@ -3591,11 +2781,6 @@
               "text": "Controllare i saldi dei conti e preparare i rendiconti mensili"
             },
             {
-              "id": "computing2",
-              "key": "computing",
-              "text": "Monitorare ogni giorno le prestazioni dei sistemi informatici"
-            },
-            {
               "id": "chk2",
               "key": "check",
               "text": "Per mostrare che stai leggendo: scegli 4 qui",
@@ -3627,24 +2812,9 @@
               "text": "Controllare che regole e norme siano rispettate"
             },
             {
-              "id": "physicalScience3",
-              "key": "physicalScience",
-              "text": "Studiare le cause di terremoti e tsunami"
-            },
-            {
-              "id": "lifeScience3",
-              "key": "lifeScience",
-              "text": "Studiare come reagiscono le piante a un clima più caldo"
-            },
-            {
               "id": "medicalScience3",
               "key": "medicalScience",
               "text": "Cercare modi per prevenire le malattie"
-            },
-            {
-              "id": "math3",
-              "key": "math",
-              "text": "Usare equazioni per risolvere problemi pratici"
             },
             {
               "id": "socialScience3",
@@ -3652,29 +2822,9 @@
               "text": "Capire perché le persone hanno stereotipi e pregiudizi"
             },
             {
-              "id": "humanities3",
-              "key": "humanities",
-              "text": "Interpretare un romanzo, un film o un’opera d’arte e scriverne"
-            },
-            {
               "id": "design3",
               "key": "design",
               "text": "Progettare allestimento e illuminazione di una mostra"
-            },
-            {
-              "id": "arts3",
-              "key": "arts",
-              "text": "Disegnare le illustrazioni di un libro"
-            },
-            {
-              "id": "music3",
-              "key": "music",
-              "text": "Provare con una band, un coro o un’orchestra"
-            },
-            {
-              "id": "writing3",
-              "key": "writing",
-              "text": "Studiare scrittura creativa"
             },
             {
               "id": "media3",
@@ -3710,11 +2860,6 @@
               "id": "finance3",
               "key": "finance",
               "text": "Calcolare le deduzioni fiscali di un’azienda"
-            },
-            {
-              "id": "computing3",
-              "key": "computing",
-              "text": "Diagnosticare e risolvere problemi hardware o software"
             }
           ],
           "scales": [
@@ -3761,36 +2906,10 @@
               "source": "own"
             },
             {
-              "key": "physicalScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Chemistry",
-                "Physics",
-                "Geography"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "lifeScience",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Biology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "medicalScience",
               "riasec": "I",
               "onetKnowledge": [
                 "Medicine and Dentistry"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "math",
-              "riasec": "I",
-              "onetKnowledge": [
-                "Mathematics"
               ],
               "source": "cabin-net"
             },
@@ -3804,44 +2923,11 @@
               "source": "cabin-net"
             },
             {
-              "key": "humanities",
-              "riasec": "I",
-              "onetKnowledge": [
-                "History and Archeology",
-                "Philosophy and Theology"
-              ],
-              "source": "own"
-            },
-            {
               "key": "design",
               "riasec": "A",
               "onetKnowledge": [
                 "Design",
                 "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "arts",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "cabin-net"
-            },
-            {
-              "key": "music",
-              "riasec": "A",
-              "onetKnowledge": [
-                "Fine Arts"
-              ],
-              "source": "own"
-            },
-            {
-              "key": "writing",
-              "riasec": "A",
-              "onetKnowledge": [
-                "English Language"
               ],
               "source": "cabin-net"
             },
@@ -3900,14 +2986,6 @@
                 "Economics and Accounting"
               ],
               "source": "cabin-net"
-            },
-            {
-              "key": "computing",
-              "riasec": "C",
-              "onetKnowledge": [
-                "Computers and Electronics"
-              ],
-              "source": "cabin-net"
             }
           ],
           "score": "(mean of valid answers - 1) / 4 per basic interest; at least 2 of 3; RIASEC = mean of its basic interests; attention items excluded",
@@ -3926,11 +3004,11 @@
             "longstring": 12,
             "effect": "notice asking to review the answers; ranking unchanged"
           },
-          "sessionMinimum": "all 69 interest items; attention items are not part of any scale",
-          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 17 basic interests; own items for six more; own translations"
+          "sessionMinimum": "all 45 interest items; attention items are not part of any scale",
+          "provenance": "CABIN-NET items (Chu et al., 2025, public domain) for 12 activity scales; own items for three more; school subjects for the areas a subject covers; own translations"
         },
         "subjects": {
-          "instruction": "Quanto ti piacciono queste materie?",
+          "instruction": "Quanto ti piacciono queste materie? Lascia vuote quelle che non hai.",
           "enjoymentLabels": [
             "Per niente",
             "Un po’",
@@ -3940,23 +3018,63 @@
           ],
           "items": [
             {
-              "id": "music",
-              "text": "Musica"
+              "id": "math",
+              "text": "Matematica"
             },
             {
-              "id": "art",
-              "text": "Arti visive"
+              "id": "phys",
+              "text": "Fisica"
+            },
+            {
+              "id": "chem",
+              "text": "Chimica"
+            },
+            {
+              "id": "bio",
+              "text": "Biologia"
+            },
+            {
+              "id": "cs",
+              "text": "Informatica"
+            },
+            {
+              "id": "lang",
+              "text": "Lingua e letteratura"
             },
             {
               "id": "forlang",
               "text": "Lingue straniere"
             },
             {
+              "id": "hist",
+              "text": "Storia"
+            },
+            {
+              "id": "geo",
+              "text": "Geografia"
+            },
+            {
+              "id": "econ",
+              "text": "Economia e gestione"
+            },
+            {
+              "id": "art",
+              "text": "Arti visive"
+            },
+            {
+              "id": "music",
+              "text": "Musica"
+            },
+            {
               "id": "sport",
               "text": "Sport"
+            },
+            {
+              "id": "social",
+              "text": "Filosofia, psicologia e società"
             }
           ],
-          "interpretation": "enjoyment of the subjects the basic interests cannot tell apart; extra dimensions of the interest-fit profile correlation"
+          "interpretation": "enjoyment of each school subject; dimensions of the interest-fit profile correlation, matched to O*NET knowledge where a subject has its own area; at least 10 answered for a result"
         },
         "grades": {
           "scales": {
