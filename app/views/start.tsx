@@ -269,7 +269,7 @@ export function StartView() {
       </section>
 
       <section id={r.anchors.prefs} className="mt-20 scroll-mt-24">
-        <StepTitle n={3} color="var(--lime)" title={t.start.step3} sub={t.start.step3sub} />
+        <StepTitle n={2} color="var(--lime)" title={t.start.step3} sub={t.start.step3sub} />
         <div className="mt-7">
           <PrefsForm />
         </div>
