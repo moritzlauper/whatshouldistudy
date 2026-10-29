@@ -563,7 +563,9 @@ inspected in the Upstash console.
   `{kind: 'profile', basis, code, rank, field}` counter per place. No answers,
   scores, source types or programmes are attached. Counts describe page views
   of results, not people, and carry no empirical validity on their own (see
-  `docs/validation/PILOT_PROTOCOL.md`).
+  `docs/validation/PILOT_PROTOCOL.md`). For the same check without any
+  visitor data, `pnpm validation:profiles` runs synthetic profiles through the
+  scoring.
 - Storage: one aggregate hash per UTC month and one per Swiss calendar day.
   Monthly counters expire 90 days after month end; daily counters expire at
   00:00 UTC 91 days after the day's date (at least 90 days after local day end).

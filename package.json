@@ -7,6 +7,7 @@
   "scripts": {
     "validation:bundle": "node scripts/validation-bundle.ts",
     "validation:check": "node scripts/validation-bundle.ts --check",
+    "validation:profiles": "node scripts/profile-matrix.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
