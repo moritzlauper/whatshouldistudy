@@ -2,6 +2,14 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Fragebogen: Interessen zuerst, Schulfächer als zweiter Reiter (29.10.2026)
+
+- Auf Wunsch des Inhabers umgekehrt: Der Reiter «Schulfächer» steht nach den Interessen, nicht mehr davor. Die Reihenfolge der Antworten bleibt sonst gleich (`app/ui/questionnaire-form.tsx`, `TABS`). Der Standardreiter ist jetzt «Interessen».
+- Das Validierungsmanifest prüft den Quelltext des Formulars. Es wurde mit `npm run validation:bundle` neu erzeugt, nur der Hash von `app/ui/questionnaire-form.tsx` hat sich geändert. `validation:check` läuft durch.
+- Offen für den Inhaber: Der Bericht und das Pilotprotokoll zählen Reihenfolgeeffekte. Die Reiterfolge ist Teil des Verfahrens. Die Kennung `ASSESSMENT_VERSION` ändert sich bei einer Reihenfolge nach der eigenen Regel nicht. Ob das für die Validierung als Verfahrensänderung zählt, entscheidet der Inhaber.
+- Vorher: Der Commit 4d951c2 hatte die Schulfächer zuerst gesetzt. Dieser Abschnitt setzt die Reihenfolge darüber um.
+- Im Browser nicht geprüft. Test 270 (`readings-reasons`) schlägt auch ohne diese Änderung fehl; ursache ist das Laden von `next/link` in Node.
+
 ## Fragebogen und Passung nach dem Literaturbericht (29.10.2026)
 
 - Auftrag: den Bericht «Wissenschaftliche Grundlage für Test und Studiengang-Mapping» im Code umsetzen, ohne eigene Studien. Partneraufgaben (Studienberater:innen als Anker, Hochschule, AIST-R-Lizenz, Längsschnitt) bleiben auf Wunsch des Inhabers aussen vor. Vorgabe des Inhabers: nur fragen, was das Resultat verändert, niemanden langweilen.

@@ -11,15 +11,15 @@ import type { GradeScaleId } from '@/lib/engine/grades.ts'
 import { subjectLabel } from '@/lib/site/labels.ts'
 import { useSite } from './site-context.tsx'
 
-// Subjects first: they are quick and familiar, a good way in.
-const TABS = ['subjects', 'interests'] as const
+// Interests first, school subjects second: the interests are the core of the result; the subjects follow.
+const TABS = ['interests', 'subjects'] as const
 type Tab = (typeof TABS)[number]
 const TAB_COLOR: Record<Tab, string> = { interests: 'var(--pink)', subjects: 'var(--lime)' }
 
 export function QuestionnaireForm({ answers: a, onChange }: { answers: QuestionnaireAnswers; onChange: (answers: QuestionnaireAnswers) => void }) {
   const { t, locale } = useSite()
   const info = instrumentText(locale)
-  const [tab, setTab] = useState<Tab>('subjects')
+  const [tab, setTab] = useState<Tab>('interests')
   // Each person gets an item order of their own before the first answer.
   useEffect(() => {
     if (a.order === undefined) onChange({ ...a, order: newOrderSeed() })
