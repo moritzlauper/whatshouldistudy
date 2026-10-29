@@ -4,18 +4,21 @@ import { useEffect, useState } from 'react'
 import type { QuestionnaireAnswers } from '@/lib/engine/types.ts'
 import { ASSESSMENT_VERSION } from '@/lib/engine/assessment-version.ts'
 import { sessionExport, sessionProfile, sessionReady } from '@/lib/assessment.ts'
-import { BIG5_KEYS, RIASEC_KEYS, SUBJECT_KEYS, VALUE_KEYS } from '@/lib/taxonomy/fields.ts'
-import { big5Label, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
+import { RIASEC_KEYS } from '@/lib/taxonomy/fields.ts'
+import { BASIC_KEYS } from '@/lib/taxonomy/basic-interests.ts'
+import { ASKED_SUBJECTS } from '@/lib/engine/questionnaire.ts'
+import { basicLabel } from '@/lib/site/basic-labels.ts'
+import { riasecLabel, subjectLabel } from '@/lib/site/labels.ts'
 import { withBase } from '@/lib/site.ts'
 import { instrumentText } from '@/lib/site/assessment-text.ts'
-import { fitText } from '@/lib/site/fit-text.ts'
+import { bandText, fitText } from '@/lib/site/fit-text.ts'
 import { professionalText } from '@/lib/site/professional-text.ts'
 import { QuestionnaireForm } from '../ui/questionnaire-form.tsx'
 import { useSite } from '../ui/site-context.tsx'
 
 /** No store, server requests, imports, personal AI or automatic research collection. */
 export function CounsellingView() {
-  const { locale, r, t, conf } = useSite()
+  const { locale, r, t, conf, intl } = useSite()
   const text = instrumentText(locale)
   const grade = fitText(locale)
   const info = professionalText(locale)
@@ -79,20 +82,15 @@ export function CounsellingView() {
       {profile.flags.responsePattern && <p className="mt-3 font-semibold">{text.attention}</p>}
       <h2 className="mt-6 font-display text-2xl">{t.q.tabs.interests}</h2>
       <dl className="mt-3 grid gap-3 sm:grid-cols-2">{RIASEC_KEYS.map((key, i) => <div key={key} className="card-sm flex justify-between gap-4 p-4"><dt>{riasecLabel(key, locale).name}</dt><dd className="whitespace-nowrap font-bold">{value(profile.interestMeans[i])}</dd></div>)}</dl>
-      <h2 className="mt-6 font-display text-2xl">{t.q.tabs.personality}</h2>
-      <p className="mt-2 text-sm text-muted">{text.personality}</p>
-      {profile.personalityMeans ? <dl className="mt-3 grid gap-3 sm:grid-cols-2">{BIG5_KEYS.map(key => <div key={key} className="card-sm flex justify-between gap-4 p-4"><dt>{big5Label(key, locale).name}</dt><dd className="whitespace-nowrap font-bold">{value(profile.personalityMeans![key])}</dd></div>)}</dl> : <p className="mt-3">{text.partial}</p>}
+      <h3 className="mt-5 font-bold">{grade.basicTitle}</h3>
+      <dl className="mt-3 grid gap-3 sm:grid-cols-2">{BASIC_KEYS.map(key => <div key={key} className="card-sm flex justify-between gap-4 p-4"><dt>{basicLabel(key, locale)}</dt><dd className="whitespace-nowrap font-bold">{value(profile.basicMeans[key])}</dd></div>)}</dl>
       {!!Object.keys(profile.subjects ?? {}).length && <>
         <h2 className="mt-6 font-display text-2xl">{t.q.tabs.subjects}</h2><p className="mt-2 text-sm text-muted">{text.subjects}</p>
-        <ul className="mt-3 space-y-2">{SUBJECT_KEYS.filter(key => profile.subjects?.[key]).map(key => <li key={key}><strong>{subjectLabel(key, locale)}</strong>: {t.q.enjoyHead} {profile.subjects?.[key]?.enjoy ?? '—'} / 5</li>)}</ul>
+        <ul className="mt-3 space-y-2">{ASKED_SUBJECTS.filter(key => profile.subjects?.[key]).map(key => <li key={key}><strong>{subjectLabel(key, locale)}</strong>: {t.q.enjoyHead} {profile.subjects?.[key]?.enjoy ?? '—'} / 5</li>)}</ul>
       </>}
       {profile.grades && <>
-        <h2 className="mt-6 font-display text-2xl">{grade.gradesTitle}</h2><p className="mt-2 text-sm text-muted">{grade.gradesWhy}</p>
-        <p className="mt-3">{grade.scales[profile.grades.scale]} · {grade.average}: {profile.grades.average ?? '—'} · {grade.mathLabel}: {profile.grades.math ?? '—'}</p>
-      </>}
-      {!!Object.keys(profile.values ?? {}).length && <>
-        <h2 className="mt-6 font-display text-2xl">{t.q.tabs.values}</h2><p className="mt-2 text-sm text-muted">{text.values}</p>
-        <ul className="mt-3 space-y-2">{VALUE_KEYS.filter(key => profile.values?.[key]).map(key => <li key={key}>{valueLabel(key, locale)}: {value(profile.values![key]!)}</li>)}</ul>
+        <h2 className="mt-6 font-display text-2xl">{grade.gradesCard}</h2><p className="mt-2 text-sm text-muted">{grade.gradesWhy}</p>
+        <p className="mt-3">{grade.bands[profile.grades.math]} ({bandText(profile.grades.math, profile.grades.scale, intl)}, {grade.scales[profile.grades.scale]})</p>
       </>}
       <div className="mt-7 print:hidden">
         <p className="text-sm text-muted">{text.exportNote}</p>

@@ -3,7 +3,8 @@ import assert from 'node:assert/strict'
 import { topFields } from '../lib/engine/classifier.ts'
 import { accumulate } from '../lib/engine/accumulate.ts'
 import { score } from '../lib/engine/scoring.ts'
-import { RIASEC_ITEMS, big5Means, scoreBig5, scoreRiasec, riasecCode } from '../lib/engine/questionnaire.ts'
+import { scoreRiasec, riasecCode } from '../lib/engine/questionnaire.ts'
+import { BASIC_INTERESTS, BASIC_KEYS } from '../lib/taxonomy/basic-interests.ts'
 import { genresToProfile, musicBig5 } from '../lib/engine/music.ts'
 import { FIELDS } from '../lib/taxonomy/fields.ts'
 import { LEXICON } from '../lib/taxonomy/lexicon.ts'
@@ -106,58 +107,61 @@ test('people footprint ranks psychology on top and keeps entertainment out', () 
   assert.ok(top6.includes('culinary-arts'), top6.join())
 })
 
-/** Answers for items 1..n of every type, `level(type, item)` deciding each. */
-const answersFor = (n: number, level: (k: string, i: number) => number) =>
-  Object.fromEntries(['r', 'i', 'a', 's', 'e', 'c'].flatMap((k) => Array.from({ length: n }, (_, i) => [`${k}${i + 1}`, level(k, i)])))
+/** Answers for the three items of every basic interest, `level(key, item)` deciding each. */
+const answersFor = (level: (key: string, i: number) => number, n = 3) =>
+  Object.fromEntries(BASIC_KEYS.flatMap((k) => Array.from({ length: n }, (_, i) => [`${k}${i + 1}`, level(k, i)])))
+/** Likes the basic interests in `liked`, dislikes the rest, with a little variation. */
+const likes = (liked: string[]) => answersFor((k, i) => (liked.includes(k) ? 5 - (i === 2 ? 1 : 0) : 1 + (i === 1 ? 1 : 0)))
 
-test('questionnaire shifts the ranking when there is no footprint', () => {
-  const base: Record<string, number> = { r: 1, i: 4, a: 2, s: 5, e: 2, c: 3 }
-  const answers = {
-    riasec: answersFor(6, (k, i) => Math.max(1, Math.min(5, base[k] + (i % 3 === 2 ? -1 : 0)))),
-    subjects: { bio: { enjoy: 5 }, chem: { enjoy: 4 }, math: { enjoy: 2 }, art: { enjoy: 2 }, social: { enjoy: 4 } },
-    values: { helping: 5, security: 5, salary: 3, creativity: 1 },
-  }
-  const r = score({ summaries: [], answers })
-  const top8 = r.fields.slice(0, 8).map((f) => f.id)
-  assert.ok(top8.some((id) => ['medicine', 'nursing', 'physiotherapy', 'pharmacy', 'veterinary-medicine'].includes(id)), top8.join())
-  // Six of eight items per type: enough for a result, not for «high».
-  assert.equal(r.confidence, 'medium')
-  assert.equal(r.quality?.questionnaireLed, true)
-  assert.equal(riasecCode(scoreRiasec(answers)!)[0], 'S')
+test('the questionnaire ranks fields by basic-interest fit', () => {
+  const care = score({ summaries: [], answers: { interests: likes(['counseling', 'medicalScience', 'socialScience', 'teaching']) } })
+  const top8 = care.fields.slice(0, 8).map((f) => f.id)
+  assert.ok(top8.some((id) => ['psychology', 'nursing', 'social-work', 'medicine'].includes(id)), top8.join())
+  const tech = score({ summaries: [], answers: { interests: likes(['computing', 'math', 'engineering']) } })
+  assert.ok(tech.fields.slice(0, 5).some((f) => f.id === 'computer-science'), tech.fields.slice(0, 5).map((f) => f.id).join())
+  const arts = score({ summaries: [], answers: { interests: likes(['humanities', 'writing']) } })
+  assert.ok(arts.fields.slice(0, 5).some((f) => ['history', 'literature', 'philosophy'].includes(f.id)), arts.fields.slice(0, 5).map((f) => f.id).join())
+  assert.equal(care.quality?.questionnaireLed, true)
+  assert.ok(care.basic && care.basic.counseling! > care.basic.math!)
+  assert.equal(riasecCode(scoreRiasec({ interests: likes(['counseling', 'teaching']) })!)[0], 'S')
+})
+
+test('the four asked subjects tell apart what the basic interests cannot', () => {
+  const interests = likes(['arts', 'music', 'design'])
+  const music = score({ summaries: [], answers: { interests, subjects: { music: { enjoy: 5 }, art: { enjoy: 1 }, forlang: { enjoy: 3 }, sport: { enjoy: 2 } } } })
+  const art = score({ summaries: [], answers: { interests, subjects: { music: { enjoy: 1 }, art: { enjoy: 5 }, forlang: { enjoy: 3 }, sport: { enjoy: 2 } } } })
+  const rank = (r: typeof music, id: string) => r.fields.findIndex((f) => f.id === id)
+  assert.ok(rank(music, 'music') < rank(art, 'music'))
+  assert.ok(rank(art, 'fine-arts') < rank(music, 'fine-arts'))
 })
 
 test('questionnaire quality: no filling-in, flat profiles, careless answering, one gate', async () => {
   const q = await import('../lib/engine/questionnaire.ts')
-  // A type with fewer than six answers isn't «neutral»: no profile yet.
-  assert.equal(q.MIN_PER_TYPE, 6)
-  assert.equal(q.scoreRiasec({ riasec: answersFor(5, () => 4) }), null)
-  assert.ok(q.scoreRiasec({ riasec: answersFor(6, () => 4) }))
-  assert.equal(q.resultsReady({ riasec: { r1: 5 } }, 0), false)
+  assert.equal(q.INTEREST_ITEMS.length, BASIC_INTERESTS.length * 3)
+  assert.equal(q.INTEREST_LIST.length, q.INTEREST_ITEMS.length + 2)
+  // A basic interest with fewer than two answers isn't «neutral»: no profile yet.
+  assert.equal(q.scoreBasic({ interests: answersFor(() => 4, 1) }), null)
+  assert.ok(q.scoreBasic({ interests: answersFor(() => 4, 2) }))
+  assert.equal(q.resultsReady({ interests: { math1: 5 } }, 0), false)
   assert.equal(q.resultsReady({}, 1), true)
   // All threes: flat, low confidence, said so; the run of identical answers is flagged as well.
-  const flatAnswers = { riasec: Object.fromEntries(q.RIASEC_ITEMS.map((i) => [i.id, 3])) }
-  const flat = score({ summaries: [], answers: flatAnswers })
+  const flat = score({ summaries: [], answers: { interests: answersFor(() => 3) } })
   assert.equal(flat.quality?.flat, true)
   assert.equal(flat.confidence, 'low')
   assert.equal(flat.quality?.careless, true)
   const varied = Object.fromEntries(q.INTEREST_LIST.map((i, n) => [i.id, (n % 5) + 1]))
   for (const it of q.ATTENTION_ITEMS) varied[it.id] = it.answer
-  assert.equal(q.careless({ riasec: varied }), false)
-  assert.equal(q.careless({ riasec: { ...varied, chk: 5 } }), true)
-  assert.equal(q.careless({ riasec: { ...varied, chk2: 2 } }), true)
-  assert.deepEqual(q.responseFlags({ riasec: { ...varied, chk2: 2 } }), { attention: true, longstring: false })
-  assert.equal(q.RIASEC_ITEMS.length, 48)
-  assert.equal(q.INTEREST_LIST.filter((i) => i.key === 'check').length, 2)
-  assert.equal(q.INTEREST_LIST[16].id, 'chk')
-  assert.equal(q.INTEREST_LIST[33].id, 'chk2')
-  for (const key of ['R', 'I', 'A', 'S', 'E', 'C']) {
-    assert.equal(q.RIASEC_ITEMS.filter((i) => i.key === key).length, 8)
-  }
-  const run = (n: number) => ({ riasec: Object.fromEntries(q.INTEREST_LIST.slice(0, n).filter((i) => i.key !== 'check').map((i) => [i.id, 4])) })
+  assert.equal(q.careless({ interests: varied }), false)
+  assert.equal(q.careless({ interests: { ...varied, chk: 5 } }), true)
+  assert.deepEqual(q.responseFlags({ interests: { ...varied, chk2: 2 } }), { attention: true, longstring: false })
+  const third = Math.round(q.INTEREST_ITEMS.length / 3)
+  assert.equal(q.INTEREST_LIST[third].id, 'chk')
+  assert.equal(q.INTEREST_LIST[2 * third + 1].id, 'chk2')
+  const run = (n: number) => ({ interests: Object.fromEntries(q.INTEREST_LIST.slice(0, n).filter((i) => i.key !== 'check').map((i) => [i.id, 4])) })
   assert.equal(q.careless(run(q.LONGSTRING - 1)), false)
   assert.equal(q.careless(run(q.LONGSTRING)), true)
   const interrupted = run(q.LONGSTRING)
-  delete interrupted.riasec[q.INTEREST_LIST[5].id]
+  delete interrupted.interests[q.INTEREST_LIST[5].id]
   assert.equal(q.careless(interrupted), false)
 })
 
@@ -166,92 +170,56 @@ test('each person sees the items in an order of their own, and runs are counted 
   const a = q.interestList(12345)
   assert.deepEqual(a.map((i) => i.id), q.interestList(12345).map((i) => i.id), 'the same seed gives the same order')
   assert.notDeepEqual(a.map((i) => i.id), q.interestList(54321).map((i) => i.id))
-  assert.notDeepEqual(a.map((i) => i.id), q.INTEREST_LIST.map((i) => i.id))
   assert.deepEqual([...a.map((i) => i.id)].sort(), [...q.INTEREST_LIST.map((i) => i.id)].sort(), 'a permutation of the same items')
-  assert.equal(a[16].id, 'chk')
-  assert.equal(a[33].id, 'chk2')
-  // Twelve identical answers in a row in this person's order, interleaved in the default order.
-  const riasec = Object.fromEntries(a.filter((i) => i.key !== 'check').map((i, n) => [i.id, n < 12 ? 4 : (n % 5) + 1]))
-  assert.equal(q.longestRun({ riasec, order: 12345 }) >= 12, true)
-  assert.ok(q.longestRun({ riasec }) < 12)
+  const interests = Object.fromEntries(a.filter((i) => i.key !== 'check').map((i, n) => [i.id, n < 12 ? 4 : (n % 5) + 1]))
+  assert.ok(q.longestRun({ interests, order: 12345 }) >= 12)
+  assert.ok(q.longestRun({ interests }) < 12)
 })
 
-test('retained IDs keep saved answers; progress counts the current items', async () => {
+test('progress counts interest items and asked subjects; older answer keys are ignored', async () => {
   const q = await import('../lib/engine/questionnaire.ts')
-  assert.equal(q.RIASEC_ITEMS.find((i) => i.id === 'r5')?.text, 'Grow plants or look after animals')
-  const current = Object.fromEntries(q.INTEREST_LIST.map((i, n) => [i.id, i.key === 'check' ? 2 : n % 5 + 1]))
-  assert.equal(q.riasecCompleteness({ riasec: current }), 1)
-  const big5 = Object.fromEntries(q.BIG5_ITEMS.map((i) => [i.id, 4]))
-  assert.deepEqual(q.questionnaireProgress({ riasec: current, big5 }), { done: 70, total: 92 })
-  assert.deepEqual(q.questionnaireProgress({ riasec: { ...current, retired: 3 } }), { done: 50, total: 92 })
-  const minimal = answersFor(6, (_, i) => i % 5 + 1)
-  assert.equal(q.resultsReady({ riasec: minimal, big5 }, 0), true)
-  assert.equal(q.resultsReady({ riasec: minimal }, 0), true)
-  delete minimal.c6
-  assert.equal(q.resultsReady({ riasec: minimal, big5 }, 0), false)
+  const interests = Object.fromEntries(q.INTEREST_LIST.map((i, n) => [i.id, i.key === 'check' ? 2 : n % 5 + 1]))
+  assert.equal(q.interestCompleteness({ interests }), 1)
+  const total = q.INTEREST_LIST.length + q.ASKED_SUBJECTS.length
+  assert.deepEqual(q.questionnaireProgress({ interests, subjects: { music: { enjoy: 4 }, math: { enjoy: 5 } } }), { done: q.INTEREST_LIST.length + 1, total })
+  const legacy = { riasec: { r1: 5, i1: 5 }, big5: { b1: 4 }, values: { salary: 5 } } as never
+  assert.equal(q.resultsReady(legacy, 0), false)
+  assert.deepEqual(q.questionnaireProgress(legacy), { done: 0, total })
 })
 
-test('results require sufficient interests or imported data; personality is optional', async () => {
-  const q = await import('../lib/engine/questionnaire.ts')
-  const riasec = Object.fromEntries(q.RIASEC_ITEMS.map((i, n) => [i.id, n % 5 + 1]))
-  const big5 = Object.fromEntries(q.BIG5_ITEMS.map((i, n) => [i.id, n % 5 + 1]))
-  assert.equal(q.resultsReady({ riasec }, 0), true)
-  assert.equal(q.resultsReady({}, 0), false)
-  assert.equal(q.resultsReady({}, 1), true, 'a successful import needs no questionnaire answers')
-  assert.equal(q.resultsReady({ riasec: { r1: 5 } }, 1), true, 'partial interests do not block imported data')
-  assert.equal(q.resultsReady({ riasec }, 3), true)
-  assert.equal(q.resultsReady({ big5 }, 0), false, 'personality alone does not replace interests or data')
-  assert.equal(q.resultsReady({ big5 }, 1), true)
-  assert.equal(q.resultsReady({ riasec, big5 }, 0), true)
-  for (const item of q.BIG5_ITEMS) {
-    const partial = { ...big5 }
-    delete partial[item.id]
-    assert.equal(q.big5Answered({ big5: partial }), 19)
-    assert.equal(q.resultsReady({ riasec, big5: partial }, 0), true)
-    assert.equal(q.resultsReady({ big5: partial }, 3), true)
-  }
-  for (const invalid of [0, 6, 1.5, NaN, Infinity]) {
-    const invalidAnswers = { big5: { ...big5, b1: invalid, retired: 3 } }
-    assert.equal(q.big5Answered(invalidAnswers), 19)
-    assert.equal(q.resultsReady(invalidAnswers, 1), true)
-    assert.equal(q.resultsReady({ ...invalidAnswers, riasec }, 0), true)
-    assert.deepEqual(q.questionnaireProgress(invalidAnswers), { done: 19, total: 92 })
-  }
-})
-
-const socialInvestigative = () => answersFor(8, (k, i) => (k === 's' ? 5 : k === 'i' ? 4 : 2) - (i % 4 === 3 ? 1 : 0))
+const careProfile = () => likes(['counseling', 'socialScience', 'teaching', 'medicalScience'])
 
 test('with the questionnaire answered, data are evidence and do not move the ranking', () => {
-  const riasec = socialInvestigative()
-  const base = score({ summaries: [], answers: { riasec } })
+  const interests = careProfile()
+  const base = score({ summaries: [], answers: { interests } })
   const summary = accumulate(engineeringPerson(), { source: 'takeout', label: 'YouTube history' })
-  const both = score({ summaries: [summary], answers: { riasec } })
+  const both = score({ summaries: [summary], answers: { interests } })
   assert.deepEqual(both.fields.map((m) => [m.id, m.match]), base.fields.map((m) => [m.id, m.match]))
   assert.ok(both.fields.find((m) => m.id === 'aerospace-engineering')!.evidence.length > 0, 'the data still show up as evidence')
-  assert.equal(both.quality?.questionnaireLed, true)
+  assert.equal(both.big5, undefined, 'no personality profile from the questionnaire')
 })
 
 test('interest fit is profile shape only: the same shape at another level ranks the same', () => {
-  const shape: Record<string, number> = { r: 1, i: 4, a: 1, s: 2, e: 1, c: 2 }
-  const low = score({ summaries: [], answers: { riasec: answersFor(8, (k) => shape[k]) } })
-  const high = score({ summaries: [], answers: { riasec: answersFor(8, (k) => shape[k] + 1) } })
+  const liked = ['math', 'computing', 'engineering']
+  const low = score({ summaries: [], answers: { interests: answersFor((k) => (liked.includes(k) ? 3 : 1)) } })
+  const high = score({ summaries: [], answers: { interests: answersFor((k) => (liked.includes(k) ? 5 : 3)) } })
   const rounded = (r: typeof low) => r.fields.map((m) => [m.id, Math.round(m.match * 1e9)]).sort()
   assert.deepEqual(rounded(high), rounded(low))
 })
 
-test('values filter, grades inform: neither changes the fit', () => {
-  const riasec = socialInvestigative()
-  const plain = score({ summaries: [], answers: { riasec } })
-  const more = score({ summaries: [], answers: { riasec, values: { salary: 5, creativity: 5, helping: 1 }, grades: { scale: 'ch', average: 4.2, math: 3.5 } } })
+test('the maths grade informs and values filter: neither changes the fit', () => {
+  const interests = careProfile()
+  const plain = score({ summaries: [], answers: { interests } })
+  const more = score({ summaries: [], answers: { interests, grades: { scale: 'ch', math: 'weak' } } })
   assert.deepEqual(more.fields.map((m) => [m.id, m.match]), plain.fields.map((m) => [m.id, m.match]))
   assert.ok(plain.fields.every((m) => Array.isArray(m.offers)))
   assert.ok(plain.fields.some((m) => m.offers!.includes('helping')))
 })
 
-test('fields of similar fit form groups, and alternatives come from other areas', async () => {
+test('fields of similar fit form groups, alternatives come from other areas, reasons name basic interests', async () => {
   const { GROUP_WIDTH } = await import('../lib/engine/scoring.ts')
   const { FIELD_BY_ID } = await import('../lib/taxonomy/fields.ts')
-  const r = score({ summaries: [], answers: { riasec: socialInvestigative(), subjects: { bio: { enjoy: 5 }, math: { enjoy: 2 }, lang: { enjoy: 4 }, art: { enjoy: 1 } } } })
+  const r = score({ summaries: [], answers: { interests: careProfile() } })
   assert.equal(r.fields[0].tier, 1)
   let top = r.fields[0].score
   for (let i = 1; i < r.fields.length; i++) {
@@ -264,59 +232,35 @@ test('fields of similar fit form groups, and alternatives come from other areas'
   const altGroups = r.hidden.map((m) => FIELD_BY_ID[m.id].group)
   assert.ok(altGroups.every((g) => !leadingGroups.has(g)))
   assert.equal(new Set(altGroups).size, altGroups.length)
-  assert.ok(r.hidden.every((m) => m.reasons[0].k === 'hidden' && m.score >= 50))
+  assert.ok(r.fields[0].reasons.some((x) => x.k === 'basic'), JSON.stringify(r.fields[0].reasons))
+  const maths = r.fields.find((m) => m.id === 'mathematics')!
+  assert.ok(maths.reasons.some((x) => x.k === 'basicLow'), JSON.stringify(maths.reasons))
+  assert.ok(maths.reasons.at(-1)!.k.endsWith('Low'), 'what does not fit comes last')
 })
 
-test('grades give a feasibility note for maths-heavy fields only', async () => {
-  const { feasibility, gradeBand, cleanGrades } = await import('../lib/engine/grades.ts')
+test('the maths grade gives a feasibility note for maths-heavy fields only', async () => {
+  const { feasibility, bandRange, cleanGrades } = await import('../lib/engine/grades.ts')
   const { FIELD_BY_ID } = await import('../lib/taxonomy/fields.ts')
-  assert.equal(gradeBand(5.5, 'ch'), 'strong')
-  assert.equal(gradeBand(4.5, 'ch'), 'sufficient')
-  assert.equal(gradeBand(3.5, 'ch'), 'weak')
-  assert.equal(gradeBand(1.7, 'de'), 'strong')
-  assert.equal(gradeBand(3.3, 'de'), 'sufficient')
-  assert.equal(gradeBand(4.7, 'de'), 'weak')
-  assert.equal(feasibility(FIELD_BY_ID.mathematics, { scale: 'ch', math: 3.5 }).math?.band, 'weak')
-  assert.equal(feasibility(FIELD_BY_ID.psychology, { scale: 'ch', math: 3.5 }).math, undefined)
-  assert.equal(cleanGrades({ scale: 'ch', average: 7, math: 5 })?.average, undefined)
-  assert.equal(cleanGrades({ scale: 'xx', average: 5 }), null)
+  assert.deepEqual(bandRange('weak', 'ch'), [1, 4])
+  assert.deepEqual(bandRange('sufficient', 'ch'), [4, 5])
+  assert.deepEqual(bandRange('strong', 'ch'), [5, 6])
+  assert.deepEqual(bandRange('strong', 'de'), [2.5, 1])
+  assert.deepEqual(bandRange('weak', 'de'), [6, 4])
+  assert.equal(feasibility(FIELD_BY_ID.mathematics, { scale: 'ch', math: 'weak' }).math, 'weak')
+  assert.equal(feasibility(FIELD_BY_ID.psychology, { scale: 'ch', math: 'weak' }).math, undefined)
+  assert.equal(cleanGrades({ scale: 'ch', math: 'great' }), null)
+  assert.equal(cleanGrades({ scale: 'xx', math: 'weak' }), null)
 })
 
-test('Mini-IPIP scoring handles reverse-keyed items', () => {
-  const all5 = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`b${i + 1}`, 5]))
-  const all1 = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`b${i + 1}`, 1]))
-  // Agreeing (or disagreeing) with everything cancels out within each two-plus/two-minus scale.
-  const z5 = scoreBig5({ big5: all5 })!
-  const z1 = scoreBig5({ big5: all1 })!
-  for (const k of ['E', 'A', 'C', 'N'] as const) assert.ok(Math.abs(z5[k] - z1[k]) < 1e-9, k)
-  const open = scoreBig5({ big5: { ...all5, b10: 1, b15: 1, b20: 1 } })!
-  assert.ok(open.O > 1)
-})
-
-test('personality reports response means without an assumed norm or imputed missing traits', () => {
-  const neutral = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`b${i + 1}`, 3]))
-  assert.deepEqual(big5Means({ big5: neutral }), { O: 3, C: 3, E: 3, A: 3, N: 3 })
-  assert.deepEqual(scoreBig5({ big5: neutral }), { O: 0, C: 0, E: 0, A: 0, N: 0 })
-  const example = { ...neutral, b1: 5, b6: 1, b11: 4, b16: 2 }
-  assert.equal(big5Means({ big5: example })?.E, 4.5)
-  assert.equal(score({ summaries: [], answers: { big5: example } }).big5?.means?.E, 4.5)
-  const partial = { ...neutral }
-  delete partial.b20
-  assert.equal(big5Means({ big5: partial }), null)
-  assert.equal(scoreBig5({ big5: Object.fromEntries(Object.entries(neutral).slice(0, 10)) }), null)
-  for (const invalid of [NaN, Infinity, -1, 0, 2.5, 6]) {
-    assert.equal(big5Means({ big5: { ...neutral, b20: invalid } }), null)
+test('field basic-interest profiles come from O*NET knowledge and are standardised across fields', async () => {
+  const mean = (xs: number[]) => xs.reduce((s, x) => s + x, 0) / xs.length
+  for (const k of BASIC_KEYS) {
+    assert.ok(Math.abs(mean(FIELDS.map((f) => f.basic[k]))) < 0.02, k)
   }
-})
-
-test('personality is descriptive only in questionnaire rankings, hidden suggestions and reasons', () => {
-  const riasec = Object.fromEntries(RIASEC_ITEMS.map((i, n) => [i.id, (i.key === 'I' ? 5 : i.key === 'R' ? 4 : 2) - (n % 3 === 0 ? 1 : 0)]))
-  const big5 = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`b${i + 1}`, i % 5 + 1]))
-  const without = score({ summaries: [], answers: { riasec } })
-  const withPersonality = score({ summaries: [], answers: { riasec, big5 } })
-  assert.deepEqual(withPersonality.fields, without.fields)
-  assert.deepEqual(withPersonality.hidden, without.hidden)
-  assert.ok(withPersonality.big5?.means)
+  const top = (id: string) => BASIC_KEYS.reduce((a, b) => (FIELDS.find((f) => f.id === id)!.basic[a] >= FIELDS.find((f) => f.id === id)!.basic[b] ? a : b))
+  assert.equal(top('law'), 'law')
+  assert.equal(top('mathematics'), 'math')
+  assert.equal(top('computer-science'), 'computing')
 })
 
 test('music taste gives small, bounded nudges', () => {

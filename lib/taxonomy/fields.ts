@@ -10,6 +10,13 @@
  *               (field-onet.ts, onet-interests.ts), (score - 1) / 6. Derived,
  *               not set by hand; the occupations per field are a documented
  *               choice that a review can change.
+ * - basic       Level on each basic interest (basic-interests.ts): the
+ *               importance of the linked O*NET knowledge areas for the same
+ *               occupations, as in CABIN-NET (Chu et al., 2025), standardised
+ *               across the fields. 0 is the average field, 1 one standard
+ *               deviation above. Standardising keeps knowledge every job
+ *               needs (English, customer service) from dominating each
+ *               profile.
  * - big5        Small tilts (-0.5..0.5) for Openness, Conscientiousness,
  *               Extraversion, Agreeableness, Neuroticism, after the
  *               personality-and-major literature (e.g. Vedel 2016 meta-analysis).
@@ -26,6 +33,9 @@
 
 import { FIELD_ONET } from './field-onet.ts'
 import { ONET_INTERESTS } from './onet-interests.ts'
+import { ONET_KNOWLEDGE, ONET_KNOWLEDGE_AREAS } from './onet-knowledge.ts'
+import { BASIC_INTERESTS } from './basic-interests.ts'
+import type { BasicProfile } from './basic-interests.ts'
 
 export type FieldGroup =
   | 'science'
@@ -82,6 +92,7 @@ export interface Field {
   group: FieldGroup
   blurb: string
   riasec: Riasec
+  basic: BasicProfile
   big5: Partial<Big5>
   subjects: Partial<Record<SubjectKey, number>>
   values: Record<ValueKey, number>
@@ -118,7 +129,7 @@ function onetProfile(id: string): Riasec {
   }) as Riasec
 }
 
-const RAW: Array<Omit<Field, 'riasec'>> = [
+const RAW: Array<Omit<Field, 'riasec' | 'basic'>> = [
   // ── Sciences ──────────────────────────────────────────────────────────────
   {
     id: 'mathematics',
@@ -1328,7 +1339,28 @@ const RAW: Array<Omit<Field, 'riasec'>> = [
   },
 ]
 
-export const FIELDS: Field[] = RAW.map((f) => ({ ...f, riasec: onetProfile(f.id) }))
+/** Mean importance (1..5) of a basic interest's knowledge areas for a field's occupations that have knowledge ratings. */
+function knowledgeLevel(id: string, areas: readonly string[]): number {
+  const codes = FIELD_ONET[id].filter((c) => ONET_KNOWLEDGE[c])
+  const level = (c: string) => areas.reduce((s, a) => s + ONET_KNOWLEDGE[c][ONET_KNOWLEDGE_AREAS.indexOf(a)], 0) / areas.length
+  return codes.reduce((s, c) => s + level(c), 0) / codes.length
+}
+
+/** Each basic interest standardised across all fields, two decimals. */
+function basicProfiles(ids: string[]): Map<string, BasicProfile> {
+  const out = new Map(ids.map((id) => [id, {} as BasicProfile]))
+  for (const b of BASIC_INTERESTS) {
+    const raw = ids.map((id) => knowledgeLevel(id, b.knowledge))
+    const mean = raw.reduce((s, x) => s + x, 0) / raw.length
+    const sd = Math.sqrt(raw.reduce((s, x) => s + (x - mean) ** 2, 0) / raw.length) || 1
+    ids.forEach((id, i) => (out.get(id)![b.key] = Math.round(((raw[i] - mean) / sd) * 100) / 100))
+  }
+  return out
+}
+
+const BASIC = basicProfiles(RAW.map((f) => f.id))
+
+export const FIELDS: Field[] = RAW.map((f) => ({ ...f, riasec: onetProfile(f.id), basic: BASIC.get(f.id)! }))
 
 export const FIELD_BY_ID: Record<string, Field> = Object.fromEntries(FIELDS.map((f) => [f.id, f]))
 export const FIELD_INDEX: Record<string, number> = Object.fromEntries(FIELDS.map((f, i) => [f.id, i]))

@@ -1,6 +1,7 @@
 import type { Insight, Reason } from '../engine/types.ts'
 import type { Kit } from './kit.ts'
 import { big5Label, fmtNumber, riasecLabel, subjectLabel, valueLabel } from './labels.ts'
+import { basicLabel } from './basic-labels.ts'
 
 /** A reason from the scoring as a sentence in the site's language. */
 export function reasonText(r: Reason, k: Pick<Kit, 't' | 'locale'>): string {
@@ -14,6 +15,10 @@ export function reasonText(r: Reason, k: Pick<Kit, 't' | 'locale'>): string {
       return t.reasons.riasec(list(r.types.map((x) => riasecLabel(x, locale).name)))
     case 'riasecLow':
       return t.reasons.riasecLow(list(r.types.map((x) => riasecLabel(x, locale).name)))
+    case 'basic':
+      return t.reasons.basic(list(r.keys.map((x) => basicLabel(x, locale))))
+    case 'basicLow':
+      return t.reasons.basicLow(list(r.keys.map((x) => basicLabel(x, locale))))
     case 'subjects':
       return t.reasons.subjects(list(r.subjects.map((x) => subjectLabel(x, locale))))
     case 'subjectsLow':

@@ -16,8 +16,8 @@ registerHooks({
     let source
     if (url === 'mock:link') source = `import React from 'react'; export default function Link({children,...props}) { return React.createElement('a',props,children) }`
     if (url === 'mock:store') source = `
-      import { RIASEC_ITEMS } from '${new URL('lib/engine/questionnaire.ts', root).href}';
-      export function useAppState() { return {answers:{riasec:Object.fromEntries(RIASEC_ITEMS.map(i=>[i.id,i.key==='I'?5:i.key==='C'?4:2])),values:{tech:5}},summaries:{},prefs:{}} }
+      import { INTEREST_ITEMS } from '${new URL('lib/engine/questionnaire.ts', root).href}';
+      export function useAppState() { return {answers:{interests:Object.fromEntries(INTEREST_ITEMS.map(i=>[i.id,['math','physicalScience','lifeScience','medicalScience','computing','finance'].includes(i.key)?5:2]))},summaries:{},prefs:{}} }
       export function effectiveSummaries() { return [] }
       export function update() {}
     `

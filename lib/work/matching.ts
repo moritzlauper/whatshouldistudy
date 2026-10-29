@@ -1,8 +1,8 @@
 import { scoreRiasec } from '../engine/questionnaire.ts'
 import { sourceProfile } from '../engine/scoring.ts'
 import type { QuestionnaireAnswers, SourceSummary, Studying } from '../engine/types.ts'
-import { FIELD_BY_ID, RIASEC_KEYS, VALUE_KEYS } from '../taxonomy/fields.ts'
-import type { RiasecKey, ValueKey } from '../taxonomy/fields.ts'
+import { FIELD_BY_ID, RIASEC_KEYS } from '../taxonomy/fields.ts'
+import type { RiasecKey } from '../taxonomy/fields.ts'
 import { OCCUPATIONS } from './occupations.ts'
 import type { OccupationId } from './occupations.ts'
 import { jobSector } from './sources.ts'
@@ -12,7 +12,6 @@ export interface OccupationMatch {
   id: OccupationId
   score: number
   interests: RiasecKey[]
-  values: ValueKey[]
   fromData: boolean
 }
 
@@ -22,7 +21,7 @@ const mean = (xs: number[]) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.le
 /** Independent, exploratory job-family ranking. Never reads the paid programme
  * list, unlock state, or study rankings; no Big Five-based employer judgement. */
 export function matchOccupations(answers: QuestionnaireAnswers, summaries: SourceSummary[], studying?: Studying): OccupationMatch[] {
-  const riasec = scoreRiasec({ riasec: Object.fromEntries(Object.entries(answers.riasec ?? {}).filter(([, n]) => validRating(n))) })
+  const riasec = scoreRiasec(answers)
   const signals = summaries.map((s) => sourceProfile(s, studying).fields)
   const hasData = signals.some((s) => s.length)
   if (!riasec && !hasData) return []
@@ -39,13 +38,10 @@ export function matchOccupations(answers: QuestionnaireAnswers, summaries: Sourc
     })
     const subjectWeight = subjectParts.reduce((s, p) => s + p.weight, 0)
     const subject = subjectWeight ? subjectParts.reduce((s, p) => s + p.value * p.weight, 0) / subjectWeight : q
-    const values = VALUE_KEYS.filter((v) => validRating(answers.values?.[v]) && answers.values![v]! >= 4 && mean(fields.map((f) => f.values[v])) >= 0.65)
-    const wanted = VALUE_KEYS.filter((v) => validRating(answers.values?.[v]) && answers.values![v]! >= 4)
-    const value = wanted.length ? mean(wanted.map((v) => mean(fields.map((f) => f.values[v])))) : q
     const shares = signals.filter((s) => s.length).map((s) => s.filter((f) => (occupation.fields as readonly string[]).includes(f.id)).reduce((sum, f) => sum + f.share, 0))
     const data = mean(shares)
-    const score = riasec ? 0.6 * q + 0.25 * subject + 0.15 * value + (hasData ? 0.25 * data : 0) : data
-    return { id: occupation.id, score, interests, values: values.slice(0, 2), fromData: data > 0 }
+    const score = riasec ? 0.75 * q + 0.25 * subject + (hasData ? 0.25 * data : 0) : data
+    return { id: occupation.id, score, interests, fromData: data > 0 }
   }).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id))
 }
 

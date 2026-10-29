@@ -64,7 +64,7 @@ const forbidden = () => { throw new Error('Session accessed storage or network')
 globalThis.window = { localStorage: {getItem: forbidden, setItem: forbidden}, sessionStorage: {getItem: forbidden, setItem: forbidden}, addEventListener: (k, v) => events.set(k,v), removeEventListener: k => events.delete(k), scrollTo() {} }
 globalThis.fetch = forbidden
 const { kit } = await import('../../lib/site/kit.ts')
-const { RIASEC_ITEMS } = await import('../../lib/engine/questionnaire.ts')
+const { INTEREST_ITEMS } = await import('../../lib/engine/questionnaire.ts')
 const { CounsellingView } = await import('../../app/views/counselling.tsx')
 const { QuestionnaireForm } = await import('../../app/ui/questionnaire-form.tsx')
 globalThis.testSite = kit('ch', '/schweiz', 'de-CH')
@@ -80,7 +80,7 @@ tree = render()
 let form = elements(tree).find(e => e.type === QuestionnaireForm)
 assert.deepEqual(form.props.answers, {})
 assert.equal(button(tree, text.result).props.disabled, true)
-const synthetic = { riasec: Object.fromEntries(RIASEC_ITEMS.map((i,n) => [i.id,n%5+1])), big5: Object.fromEntries(Array.from({length:20},(_,i)=>['b'+(i+1),3])) }
+const synthetic = { interests: Object.fromEntries(INTEREST_ITEMS.map((i,n) => [i.id,n%5+1])) }
 form.props.onChange(synthetic)
 tree = render()
 assert.equal(button(tree, text.result).props.disabled, false)
@@ -92,7 +92,7 @@ URL.createObjectURL = blob => { download = blob; return 'blob:synthetic' }
 URL.revokeObjectURL = () => {}
 globalThis.document = { createElement: () => ({ click() {} }) }
 button(tree, text.save).props.onClick()
-assert.deepEqual(JSON.parse(await download.text()).answers.riasec, synthetic.riasec)
+assert.deepEqual(JSON.parse(await download.text()).answers.interests, synthetic.interests)
 button(tree, text.end).props.onClick()
 tree = render()
 assert.ok(!elements(tree).some(e => e.type === 'dd'))

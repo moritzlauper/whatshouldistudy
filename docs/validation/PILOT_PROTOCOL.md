@@ -13,17 +13,16 @@ Schweiz untersuchen. Zielgruppe vorläufig 16–25 Jahre, verschiedene Bildungsw
 und Regionen; endgültige Einschlussregeln mit Forschungspartner festlegen.
 Keine Normierung der Bevölkerung und keine Auswahl- oder Zulassungsdiagnostik.
 
-- Eigene 48 RIASEC-Items, acht je Typ, in zufälliger Reihenfolge je Person,
-  plus zwei Aufmerksamkeitsitems. Alle 48 Interessenantworten im Studienablauf
-  verlangen. Keine Ersetzung fehlender Werte. Der normale Produktmodus erlaubt
-  sechs je Typ; diese abweichende Bedingung ist separat zu untersuchen.
-- Mini-IPIP optional, eigene deutsche Übersetzung; nur Antwortmittelwerte,
-  kein Einfluss auf Fragebogen-Rankings. Ohne 20 gültige Antworten kein Profil.
-- Freude an Schulfächern zählt zur Interessenpassung. Notendurchschnitt und
-  Mathematiknote werden mit Notenskala erfasst und nur als Hinweis zur
-  Machbarkeit gezeigt, nicht in der Rangliste verrechnet.
-- Werte sind ausdrückliche Präferenzen und dienen im Resultat als Filter, den
-  die Person setzt. Sie verändern die Passung nicht.
+- 69 Interessenitems zu 23 Basisinteressen (17 aus CABIN-NET, sechs eigene),
+  in zufälliger Reihenfolge je Person, plus zwei Aufmerksamkeitsitems. Alle 69
+  Interessenantworten im Studienablauf verlangen. Keine Ersetzung fehlender
+  Werte. Der normale Produktmodus erlaubt zwei von drei je Basisinteresse;
+  diese abweichende Bedingung ist separat zu untersuchen.
+- Keine Persönlichkeitsfragen mehr. Freude an vier Schulfächern zählt zur
+  Interessenpassung; der Bereich der letzten Mathematiknote wird nur als
+  Hinweis zur Machbarkeit gezeigt.
+- Werte werden nicht erfragt; im Resultat dienen sie als Filter, den die
+  Person setzt.
 - Keine persönlichen Exporte oder KI im ersten Messpilot. Ein späterer Test
   ihrer Zusatzwirkung erhält ein eigenes Protokoll und eigene Einwilligung.
 

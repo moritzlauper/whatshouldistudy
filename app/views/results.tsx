@@ -13,11 +13,13 @@ import { userTopics } from '@/lib/engine/topics.ts'
 import { SUMMARY_VERSION } from '@/lib/engine/accumulate.ts'
 import type { FieldMatch, Grades, Preferences, Results, SourceSummary } from '@/lib/engine/types.ts'
 import type { FieldStat } from '@/lib/programmes.ts'
-import { BIG5_KEYS, FIELDS, FIELD_BY_ID, RIASEC_KEYS, VALUE_KEYS } from '@/lib/taxonomy/fields.ts'
+import { FIELDS, FIELD_BY_ID, RIASEC_KEYS, VALUE_KEYS } from '@/lib/taxonomy/fields.ts'
+import { BASIC_KEYS } from '@/lib/taxonomy/basic-interests.ts'
+import { basicLabel } from '@/lib/site/basic-labels.ts'
 import type { ValueKey } from '@/lib/taxonomy/fields.ts'
-import { big5Label, emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel, valueLabel } from '@/lib/site/labels.ts'
+import { emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel, valueLabel } from '@/lib/site/labels.ts'
 import { cleanGrades, feasibility } from '@/lib/engine/grades.ts'
-import { fitText, fmtGrade } from '@/lib/site/fit-text.ts'
+import { bandText, fitText } from '@/lib/site/fit-text.ts'
 import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes, TopProgrammes } from '../ui/programmes.tsx'
@@ -33,7 +35,6 @@ import { measureResult } from '@/lib/measure.ts'
 import { measureResultShown } from '@/lib/product-measure.ts'
 
 const CARD_COLORS = ['var(--pink)', 'var(--sky)', 'var(--lime)', 'var(--yellow)', 'var(--orange)', 'var(--violet)']
-const BIG5_COLORS: Record<string, string> = { O: 'var(--pink)', C: 'var(--sky)', E: 'var(--yellow)', A: 'var(--lime)', N: 'var(--orange)' }
 
 export function ResultsView() {
   const k = useSite()
@@ -138,14 +139,12 @@ export function ResultsView() {
     )
   }
 
-  const activeValues = valueFilter ?? (isShared ? [] : VALUE_KEYS.filter((key) => state.answers.values?.[key] === 5))
+  const activeValues = valueFilter ?? []
   const filterable = results.fields.every((m) => m.offers)
   const kept = filterable && activeValues.length ? results.fields.filter((m) => activeValues.every((key) => m.offers!.includes(key))) : results.fields
   // With nothing left the filter would empty the page: it is shown as not applicable instead.
   const view: Results = kept.length && kept !== results.fields ? { ...results, fields: kept } : results
   const [first, ...rest] = view.fields
-  const personalityMeans = results.big5?.means
-  const hasPersonalityMeans = personalityMeans && BIG5_KEYS.every(key => Number.isFinite(personalityMeans[key]) && personalityMeans[key] >= 1 && personalityMeans[key] <= 5)
   const top = rest.slice(0, 9)
   // Place 1 belongs to the paid report; the other places stay free. Without
   // payments set up on this deployment there is nothing to pay, so it's open.
@@ -282,42 +281,7 @@ export function ResultsView() {
             </ul>
           </div>
         </div>
-        <div className="card p-6 sm:p-8">
-          <h2 className="font-display text-3xl">{t.results.big5Title}</h2>
-          {hasPersonalityMeans && results.big5?.from.includes('questionnaire') ? (
-            <>
-              <p className="mt-1 text-sm text-muted">
-                {t.results.big5Sub} {t.results.big5Q}
-              </p>
-              <ul className="mt-6 grid gap-5">
-                {BIG5_KEYS.map((key) => {
-                  const mean = personalityMeans![key]
-                  const pct = (mean - 1) / 4 * 100
-                  const lab = big5Label(key, locale)
-                  return (
-                    <li key={key}>
-                      <div className="flex justify-between text-sm">
-                        <span className="font-bold">{lab.name}</span>
-                        <span className="text-muted">{t.results.scaleMean(mean)}</span>
-                      </div>
-                      <div className="bar mt-1.5" aria-hidden="true">
-                        <span style={{ width: `${pct}%`, background: BIG5_COLORS[key] }} />
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
-              <p className="mt-4 text-xs text-muted">{t.results.meanNote}</p>
-            </>
-          ) : (
-            <p className="mt-3 text-muted">
-              {t.results.big5Missing}{' '}
-              <Link href={`${r.start}#${r.anchors.questionnaire}`} className="font-bold text-accent underline">
-                {t.results.addIt}
-              </Link>
-            </p>
-          )}
-        </div>
+        <BasicInterests results={results} />
       </section>
 
       {!isShared && <GradesNote grades={grades} />}
@@ -912,28 +876,27 @@ function ScoreRing({ value }: { value: number }) {
 
 /** What the maths grade means for a maths-heavy field: shown beside the fit, never part of it. */
 function Feasibility({ m, grades }: { m: FieldMatch; grades?: Grades }) {
-  const { locale, intl } = useSite()
+  const { locale } = useSite()
   const math = feasibility(FIELD_BY_ID[m.id], grades).math
-  if (!math || !grades) return null
+  if (!math) return null
   const f = fitText(locale)
   return (
     <p className="mt-4 rounded-xl border-2 border-soft-line p-3 text-sm">
       <span className="font-bold">{f.feasibility}: </span>
-      {f.math[math.band](fmtGrade(math.grade, grades.scale, intl))}
+      {f.math[math]}
     </p>
   )
 }
 
-/** The grades as entered, and why they stand apart from the ranking. */
+/** The maths grade as entered, and why it stands apart from the ranking. */
 function GradesNote({ grades }: { grades?: Grades }) {
   const { r, locale, intl } = useSite()
   const f = fitText(locale)
-  const show = (v?: number) => (v === undefined || !grades ? '–' : fmtGrade(v, grades.scale, intl))
   return (
     <section className="card-sm mt-6 p-4 text-sm sm:p-5">
       <h2 className="font-bold">{f.gradesCard}</h2>
       {grades ? (
-        <p className="mt-1">{f.gradesShown(show(grades.average), show(grades.math))} · {f.scales[grades.scale]}</p>
+        <p className="mt-1">{f.bands[grades.math]} ({bandText(grades.math, grades.scale, intl)}, {f.scales[grades.scale]})</p>
       ) : (
         <p className="mt-1 text-muted">
           {f.gradesMissing}{' '}
@@ -942,6 +905,44 @@ function GradesNote({ grades }: { grades?: Grades }) {
       )}
       <p className="mt-2 text-xs text-muted">{f.gradesWhy}</p>
     </section>
+  )
+}
+
+/** The profile in its own words: the basic interests liked most and least, not a three-letter code. */
+function BasicInterests({ results }: { results: Results }) {
+  const { t, r, locale } = useSite()
+  const f = fitText(locale)
+  const basic = results.basic
+  if (!basic) {
+    return (
+      <div className="card p-6 sm:p-8">
+        <h2 className="font-display text-3xl">{f.basicTitle}</h2>
+        <p className="mt-3 text-muted">
+          <Link href={`${r.start}#${r.anchors.questionnaire}`} className="font-bold text-accent underline">{t.results.addIt}</Link>
+        </p>
+      </div>
+    )
+  }
+  const sorted = BASIC_KEYS.filter((k) => basic[k] !== undefined).sort((a, b) => basic[b]! - basic[a]!)
+  const row = (k: (typeof BASIC_KEYS)[number]) => (
+    <li key={k}>
+      <div className="flex justify-between text-sm">
+        <span className="font-bold">{basicLabel(k, locale)}</span>
+        <span className="text-muted">{Math.round(basic[k]! * 100)}</span>
+      </div>
+      <div className="bar mt-1.5" aria-hidden="true">
+        <span className="bg-accent" style={{ width: `${Math.round(basic[k]! * 100)}%` }} />
+      </div>
+    </li>
+  )
+  return (
+    <div className="card p-6 sm:p-8">
+      <h2 className="font-display text-3xl">{f.basicTitle}</h2>
+      <div className="mt-4 text-xs font-bold uppercase tracking-wider text-muted">{f.basicTop}</div>
+      <ul className="mt-3 grid gap-4">{sorted.slice(0, 5).map(row)}</ul>
+      <div className="mt-6 text-xs font-bold uppercase tracking-wider text-muted">{f.basicLow}</div>
+      <ul className="mt-3 grid gap-4">{sorted.slice(-3).reverse().map(row)}</ul>
+    </div>
   )
 }
 

@@ -6,7 +6,7 @@ import { OCCUPATIONS, occupationsForJob } from '../lib/work/occupations.ts'
 import { DEFAULT_WORK_PREFERENCES, isCurrentJob, jobUrl } from '../lib/work/types.ts'
 import type { Job, JobsData } from '../lib/work/types.ts'
 import { JOB_SOURCES } from '../lib/work/sources.ts'
-import { RIASEC_ITEMS } from '../lib/engine/questionnaire.ts'
+import { INTEREST_ITEMS } from '../lib/engine/questionnaire.ts'
 import { FIELD_BY_ID } from '../lib/taxonomy/fields.ts'
 import { routes } from '../lib/site/config.ts'
 import { switchHref } from '../lib/site/switch.ts'
@@ -118,11 +118,11 @@ test('job families follow job titles, not employer industry; ambiguous entry sta
 
 test('career matching needs interests, handles invalid answers and uses the existing questionnaire', () => {
   assert.deepEqual(matchOccupations({}, []), [])
-  const answers = { riasec: Object.fromEntries(RIASEC_ITEMS.map((i) => [i.id, i.key === 'I' ? 5 : i.key === 'C' ? 4 : 1])), subjects: { cs: { enjoy: 5 }, math: { enjoy: 5 } }, values: { tech: 5 } }
+  const answers = { interests: Object.fromEntries(INTEREST_ITEMS.map((i) => [i.id, ['computing', 'math', 'physicalScience'].includes(i.key) ? 5 : 1])) }
   const matches = matchOccupations(answers, [])
   assert.ok(matches.slice(0, 6).some((m) => m.id === 'software' || m.id === 'data'))
   assert.ok(matches.find((m) => m.id === 'software')!.score > matches.find((m) => m.id === 'hospitality')!.score)
-  assert.deepEqual(matchOccupations({ riasec: Object.fromEntries(RIASEC_ITEMS.map((i) => [i.id, 100])) }, []), [])
+  assert.deepEqual(matchOccupations({ interests: Object.fromEntries(INTEREST_ITEMS.map((i) => [i.id, 100])) }, []), [])
   for (const occupation of OCCUPATIONS) for (const id of occupation.fields) assert.ok(FIELD_BY_ID[id])
 })
 

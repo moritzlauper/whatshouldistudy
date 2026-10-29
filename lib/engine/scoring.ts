@@ -1,7 +1,9 @@
 import { BIG5_KEYS, FIELDS, RIASEC_KEYS, SUBJECT_KEYS, VALUE_KEYS } from '../taxonomy/fields.ts'
 import type { Big5, Field, Riasec, RiasecKey, SubjectKey, ValueKey } from '../taxonomy/fields.ts'
+import { BASIC_KEYS } from '../taxonomy/basic-interests.ts'
+import type { BasicKey } from '../taxonomy/basic-interests.ts'
 import { musicBig5 } from './music.ts'
-import { careless, profileShape, riasecCode, riasecCompleteness, scoreBig5, scoreRiasec } from './questionnaire.ts'
+import { ASKED_SUBJECTS, careless, interestCompleteness, profileShape, riasecCode, riasecSummary, scoreBasic } from './questionnaire.ts'
 import { correlation } from './programme-fit.ts'
 import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, SourceId, SourceSummary, Studying } from './types.ts'
 import { isGenericTopic } from './classifier.ts'
@@ -12,32 +14,31 @@ import { ASSESSMENT_VERSION } from './assessment-version.ts'
 /**
  * The matching model. Components per field, each in 0..1:
  *
+ *   basic        Interest fit from the questionnaire: the profile correlation
+ *                of your basic interests with the field's (fields.ts, from
+ *                O*NET knowledge), extended by the few school subjects the
+ *                basic interests cannot tell apart.
  *   interest     What you actually spend attention on, from your footprint:
  *                your share of content on the field against how common that
  *                content is for everyone (log-lift), shrunk towards zero when
  *                there are few items, and rewarded for showing up across many
  *                months rather than in one burst.
- *   riasec       Congruence of your Holland profile with the field's. Your
- *                profile comes from the questionnaire and/or is inferred from
- *                which fields you engage with, which also lets interest spread
- *                to related fields you haven't discovered.
- *   personality  Big Five tilts (questionnaire; music taste as a weak stand-in).
- *   subjects     How the school subjects you enjoy line up with what the field
- *                draws on.
+ *   riasec       Without the questionnaire: congruence of the Holland profile
+ *                inferred from which fields you engage with and the field's.
+ *   personality  Without the questionnaire: Big Five tilts from music taste,
+ *                a weak stand-in.
+ *   subjects     Without the questionnaire: how the subjects you enjoy line up
+ *                with what the field draws on.
  *
- * Two modes. With the interest scales answered (the standard), the ranking
- * is interest fit and nothing else: the profile correlation of your Holland
- * profile with the field's, and the same correlation for the school subjects
- * you enjoy (content interests), averaged with equal weights. The profile
- * correlation is the best single interpretable fit index; distance measures
- * add next to nothing (Granillo-Velasquez et al., 2025), so there is no
- * distance part. Equal weights are a declared heuristic, not calibrated.
- * Everything else stays out of the number: grades are shown as a separate
- * note on feasibility (grades.ts), values are a filter the person sets
- * (`offers`), personality is descriptive, and data from exports appear as
- * evidence but do not move the ranking.
+ * Two modes. With the interest questions answered (the standard), the
+ * ranking is `basic` and nothing else. Basic-interest fit predicts better
+ * than RIASEC fit (Chu et al., 2025), the profile correlation is the best
+ * single interpretable fit index, and distance measures add next to nothing
+ * (Granillo-Velasquez et al., 2025). Everything else stays out of the number:
+ * grades are a separate note on feasibility (grades.ts), values a filter the
+ * person sets (`offers`), and data from exports appear as evidence only.
  *
- * Without the interest scales the data lead. That mode is an experiment,
+ * Without the interest questions the data lead. That mode is an experiment,
  * labelled as such, with low confidence.
  */
 
@@ -75,6 +76,18 @@ const ALTERNATIVE_MIN = 50
 const KIND_WEIGHT: Record<string, number> = { watch: 3, search: 3, google: 3, comment: 0.3, like: 1.5, saved: 2, post: 2.5, upload: 2.5, repo: 2.5, subscription: 0.2 }
 
 const FIELD_GROUP = new Map(FIELDS.map((f) => [f.id, f.group]))
+
+/** How much each field draws on the asked subjects, standardised across fields like the basic interests. */
+const SUBJECT_LEVEL: Map<string, Record<string, number>> = (() => {
+  const out = new Map(FIELDS.map((f) => [f.id, {} as Record<string, number>]))
+  for (const k of ASKED_SUBJECTS) {
+    const raw = FIELDS.map((f) => f.subjects[k] ?? 0)
+    const mean = raw.reduce((s, x) => s + x, 0) / raw.length
+    const sd = Math.sqrt(raw.reduce((s, x) => s + (x - mean) ** 2, 0) / raw.length) || 1
+    FIELDS.forEach((f, i) => (out.get(f.id)![k] = (raw[i] - mean) / sd))
+  }
+  return out
+})()
 
 const POP_SUM = FIELDS.reduce((s, f) => s + f.popularity, 0)
 /** Share of a typical person's recognised content that lands in a given field. */
@@ -254,7 +267,8 @@ export function score(input: ScoreInput): Results {
       footRiasec = acc.map((x) => x / max) as Riasec
     }
   }
-  const qRiasec = scoreRiasec(answers)
+  const qBasic = scoreBasic(answers)
+  const qRiasec = qBasic ? riasecSummary(qBasic) : null
   let riasec: Riasec | null = null
   const riasecFrom: string[] = []
   // Answered interest scales stand on their own; data show up separately and as a capped share of the match.
@@ -266,21 +280,12 @@ export function score(input: ScoreInput): Results {
     riasecFrom.push('footprint')
   }
 
-  // Big Five: questionnaire, else music taste (weak).
-  const qBig5 = scoreBig5(answers)
-  let big5: Big5 | null = qBig5
+  // Big Five only from music taste (weak), and only where the data lead.
+  let big5: Big5 | null = null
   // Heuristic weight only; not an empirically established reliability estimate.
-  let big5Conf = qBig5 ? 0.6 : 0
-  const big5From: string[] = qBig5 ? ['questionnaire'] : []
+  const big5Conf = 0.3
   const musicSource = summaries.find((s) => s.music)
-  if (musicSource?.music) {
-    const nudge = musicBig5(musicSource.music)
-    if (!big5) {
-      big5 = { O: 0, C: 0, E: 0, A: 0, N: 0, ...nudge }
-      big5Conf = 0.3
-    }
-    big5From.push('music')
-  }
+  if (musicSource?.music) big5 = { O: 0, C: 0, E: 0, A: 0, N: 0, ...musicBig5(musicSource.music) }
 
   // Subjects: how much each is enjoyed, -1..1. Ability is the grades' part, shown separately.
   const subj: Partial<Record<string, number>> = {}
@@ -292,16 +297,12 @@ export function score(input: ScoreInput): Results {
   // Four answers at least, and not all the same: an even rating says nothing about which subjects.
   const hasSubjects = subjKeys.length >= 4 && new Set(subjKeys.map((k) => subj[k])).size > 1
 
-  const valueWeights: Partial<Record<string, number>> = {}
-  for (const k of VALUE_KEYS) {
-    const v = answers.values?.[k]
-    if (typeof v === 'number') valueWeights[k] = (v - 1) / 4
-  }
-  const hasValues = Object.values(valueWeights).some((w) => (w ?? 0) > 0)
-
   const userR = riasec ? centeredUnit(riasec) : null
-  const questionnaireLed = !!qRiasec
-  const shape = qRiasec ? profileShape(qRiasec) : null
+  const questionnaireLed = !!qBasic
+  const shape = qBasic ? profileShape(BASIC_KEYS.map((k) => qBasic[k])) : null
+  // The person's side of the interest fit: the basic interests, then the asked subjects they answered.
+  const askedKeys = ASKED_SUBJECTS.filter((k) => subj[k] !== undefined)
+  const person = qBasic ? [...BASIC_KEYS.map((k) => qBasic[k]), ...askedKeys.map((k) => (subj[k]! + 1) / 2)] : null
   const fieldValue = (f: Field, k: ValueKey) =>
     k === 'salary' && fieldStats[f.id]?.salaryPercentile !== undefined ? 0.5 * f.values[k] + 0.5 * fieldStats[f.id]!.salaryPercentile! : f.values[k]
 
@@ -324,22 +325,26 @@ export function score(input: ScoreInput): Results {
       // When the questionnaire leads, data are evidence only, not part of the match.
       if (!questionnaireLed) w.interest = BASE_WEIGHTS.interest * (0.4 + 0.6 * footprintConf)
     }
-    if (userR && !shape?.flat) {
+    if (person && !shape?.flat) {
       // Profile correlation: the shape of the two profiles, not how much someone ticks overall.
-      comp.riasec = (cosine(userR, centeredUnit(f.riasec)) + 1) / 2
-      w.riasec = questionnaireLed ? 1 : BASE_WEIGHTS.riasec
+      const level = SUBJECT_LEVEL.get(f.id)!
+      comp.basic = (correlation(person, [...BASIC_KEYS.map((k) => f.basic[k]), ...askedKeys.map((k) => level[k])]) + 1) / 2
+      w.basic = 1
     }
-    // In questionnaire mode personality is descriptive only, including hidden suggestions and reasons.
+    if (!questionnaireLed && userR) {
+      comp.riasec = (cosine(userR, centeredUnit(f.riasec)) + 1) / 2
+      w.riasec = BASE_WEIGHTS.riasec
+    }
     if (big5 && !questionnaireLed) {
       let dot = 0
       for (const k of BIG5_KEYS) dot += (big5[k] ?? 0) * (f.big5[k] ?? 0)
       comp.personality = 0.5 + 0.5 * Math.tanh(dot)
       w.personality = BASE_WEIGHTS.personality * big5Conf
     }
-    // The same profile correlation over the answered subjects: enjoyment against how much the field draws on each.
-    if (hasSubjects && subjKeys.some((k) => (f.subjects[k as SubjectKey] ?? 0) > 0)) {
+    // Without the questionnaire: the profile correlation over the answered subjects.
+    if (!questionnaireLed && hasSubjects && subjKeys.some((k) => (f.subjects[k as SubjectKey] ?? 0) > 0)) {
       comp.subjects = (correlation(subjKeys.map((k) => subj[k]!), subjKeys.map((k) => f.subjects[k as SubjectKey] ?? 0)) + 1) / 2
-      w.subjects = questionnaireLed ? 1 : BASE_WEIGHTS.subjects
+      w.subjects = BASE_WEIGHTS.subjects
     }
     const offers = VALUE_KEYS.filter((k) => fieldValue(f, k) >= OFFERS)
 
@@ -415,21 +420,24 @@ export function score(input: ScoreInput): Results {
       const low = RIASEC_KEYS.filter((_, i) => f.riasec[i] >= 0.7 && riasec![i] <= 0.4 && riasec![i] <= peak - 0.3)
       if (low.length) reasons.push({ k: 'riasecLow', types: low })
     }
-    if (comp.subjects !== undefined && comp.subjects > 0.62) {
+    // The basic interests you like most where the field is clearly above average, and those it needs that you like little.
+    if (comp.basic !== undefined && qBasic) {
+      const liked = BASIC_KEYS.filter((k) => qBasic[k] >= 0.75 && f.basic[k] >= 1).sort((a, b) => qBasic[b] * f.basic[b] - qBasic[a] * f.basic[a])
+      if (liked.length) reasons.push({ k: 'basic', keys: liked.slice(0, 3) })
+      const low = BASIC_KEYS.filter((k) => f.basic[k] >= 1.5 && qBasic[k] <= 0.35).sort((a, b) => f.basic[b] - f.basic[a])
+      if (low.length) reasons.push({ k: 'basicLow', keys: low.slice(0, 2) as BasicKey[] })
+    }
+    if ((comp.subjects ?? comp.basic ?? 0) > 0.62) {
       const liked = Object.entries(f.subjects)
         .filter(([k, d]) => (d ?? 0) >= 0.6 && (subj[k] ?? 0) > 0.3)
         .map(([k]) => k as SubjectKey)
       if (liked.length) reasons.push({ k: 'subjects', subjects: liked })
     }
-    if (comp.subjects !== undefined && comp.subjects < 0.4) {
+    if ((comp.subjects ?? comp.basic ?? 1) < 0.4) {
       const disliked = Object.entries(f.subjects)
         .filter(([k, d]) => (d ?? 0) >= 0.7 && (subj[k] ?? 0) < -0.3)
         .map(([k]) => k as SubjectKey)
       if (disliked.length) reasons.push({ k: 'subjectsLow', subjects: disliked })
-    }
-    if (hasValues) {
-      const offered = VALUE_KEYS.filter((k) => (valueWeights[k] ?? 0) >= 0.75 && fieldValue(f, k) >= 0.75)
-      if (offered.length) reasons.push({ k: 'values', values: offered })
     }
     if (comp.personality !== undefined && comp.personality > 0.62 && big5) {
       const k = BIG5_KEYS.filter((k) => (f.big5[k] ?? 0) * (big5![k] ?? 0) > 0.15)[0]
@@ -438,7 +446,8 @@ export function score(input: ScoreInput): Results {
 
     evidence.sort((a, b) => b.w - a.w)
     // What does not fit comes after what does: a card's summary line shows the first reason.
-    reasons.sort((a, b) => Number(a.k === 'riasecLow' || a.k === 'subjectsLow') - Number(b.k === 'riasecLow' || b.k === 'subjectsLow'))
+    const negative = (r: Reason) => r.k === 'riasecLow' || r.k === 'subjectsLow' || r.k === 'basicLow'
+    reasons.sort((a, b) => Number(negative(a)) - Number(negative(b)))
     return {
       id: f.id,
       match,
@@ -506,14 +515,14 @@ export function score(input: ScoreInput): Results {
     ? footprintConf >= 0.6 ? 'medium' : 'low'
     : flat
       ? 'low'
-      : riasecCompleteness(answers) >= 0.9 && hasSubjects && (shape?.differentiation ?? 0) >= 0.45
+      : interestCompleteness(answers) >= 0.9 && (shape?.differentiation ?? 0) >= 0.45
         ? 'high'
         : 'medium'
   const topTie = sorted.length > 1 && sorted[0].match - sorted[1].match < TIE
 
   return {
     version: 1,
-    method: { interests: ASSESSMENT_VERSION.interests, personality: ASSESSMENT_VERSION.personality, scoring: ASSESSMENT_VERSION.scoring, ...(input.locale ? { locale: input.locale } : {}) },
+    method: { interests: ASSESSMENT_VERSION.interests, scoring: ASSESSMENT_VERSION.scoring, ...(input.locale ? { locale: input.locale } : {}) },
     generatedAt: new Date().toISOString(),
     dataPoints,
     sources: summaries.map((s) => ({ id: s.source, label: s.label, dataPoints: s.dataPoints })),
@@ -523,8 +532,9 @@ export function score(input: ScoreInput): Results {
     riasec: riasec
       ? { profile: riasec.map((x) => Math.round(x * 100) / 100) as Riasec, code: riasecCode(riasec), from: riasecFrom }
       : { profile: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5], code: '', from: [] },
+    ...(qBasic ? { basic: Object.fromEntries(BASIC_KEYS.map((k) => [k, Math.round(qBasic[k] * 100) / 100])) } : {}),
     quality: { flat, careless: isCareless, topTie, differentiation: shape?.differentiation ?? 0, elevation: shape?.elevation ?? 0, questionnaireLed },
-    big5: big5 ? { z: big5, ...(qBig5 ? { means: Object.fromEntries(BIG5_KEYS.map(k => [k, qBig5[k] + 3])) as Big5 } : {}), from: big5From, confidence: big5Conf } : undefined,
+    big5: big5 && !questionnaireLed ? { z: big5, from: ['music'], confidence: big5Conf } : undefined,
     insights: insights(footprint, interest, sorted),
     timeline: timeline(footprint, studying),
   }

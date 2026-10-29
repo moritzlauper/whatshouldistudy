@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readTexts } from '../lib/sources/exports.ts'
+import { INTEREST_ITEMS } from '../lib/engine/questionnaire.ts'
 import { score } from '../lib/engine/scoring.ts'
 import { decodeSnapshot, encodeSnapshot, sharedParam } from '../lib/share.ts'
 
@@ -29,12 +30,13 @@ test('a shared link carries the personal profile but excludes raw history and to
 })
 
 
-test('shared personality results preserve response means and leave legacy norms uninterpreted', () => {
-  const answers = { big5: Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`b${i + 1}`, 3])) }
+test('shared results keep the basic interests and leave legacy personality means uninterpreted', () => {
+  const answers = { interests: Object.fromEntries(INTEREST_ITEMS.map((i, n) => [i.id, n % 5 + 1])) }
   const result = score({ summaries: [], answers })
   const prefs = { level: 'bachelor' as const, countries: ['CH'], maxTuitionEur: 0, origin: 'ch' as const, englishOnly: false }
   const restored = decodeSnapshot(encodeSnapshot(result, prefs))!
-  assert.deepEqual(restored.results.big5?.means, { O: 3, C: 3, E: 3, A: 3, N: 3 })
+  assert.deepEqual(restored.results.basic, result.basic)
+  assert.equal(restored.results.big5, undefined)
   const legacy = { ...result, big5: { z: { O: 1, C: 0, E: 0, A: 0, N: 0 }, from: ['questionnaire'], confidence: .6 } }
   assert.equal(decodeSnapshot(encodeSnapshot(legacy, prefs))!.results.big5?.means, undefined)
 })

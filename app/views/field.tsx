@@ -1,15 +1,15 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { FIELDS, FIELD_BY_ID, RIASEC_KEYS, VALUE_KEYS } from '@/lib/taxonomy/fields.ts'
-import type { Big5Key, SubjectKey } from '@/lib/taxonomy/fields.ts'
-import { riasecCode } from '@/lib/engine/questionnaire.ts'
+import { FIELDS, FIELD_BY_ID, VALUE_KEYS } from '@/lib/taxonomy/fields.ts'
+import type { SubjectKey } from '@/lib/taxonomy/fields.ts'
+import { FitsWhom } from '../ui/fits-whom.tsx'
 import { getMeta, getShard, getStats } from '@/lib/server/data.ts'
 import { flag } from '@/lib/countries.ts'
 import { TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
-import { big5Label, countryLabel, emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
+import { countryLabel, emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 import { Earnings } from '../ui/earnings.tsx'
@@ -85,13 +85,11 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
     .filter(([, d]) => (d ?? 0) >= 0.5)
     .sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0))
   const offers = VALUE_KEYS.filter((k) => f.values[k] >= 0.75)
-  const traits = (Object.entries(f.big5) as Array<[Big5Key, number]>).filter(([, v]) => Math.abs(v) >= 0.15)
   const related = FIELDS.filter((x) => x.id !== f.id)
     .map((x) => ({ x, d: x.riasec.reduce((acc, v, i) => acc + (v - f.riasec[i]) ** 2, 0) + (x.group === f.group ? 0 : 0.15) }))
     .sort((a, b) => a.d - b.d)
     .slice(0, 6)
     .map(({ x }) => x)
-  const code = riasecCode(f.riasec)
 
   // Country sites: the institutions that teach it there.
   const chInstitutions = new Map<string, { name: string; type?: InstType; url?: string; levels: Set<string> }>()
@@ -136,16 +134,8 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
           <h2 className="font-display text-2xl">{t.fields.whoTitle}</h2>
           <div className="mt-3 flex items-center gap-4">
             <Hexagon profile={f.riasec} size={170} label={t.misc.profileLabel} />
-            <div className="text-sm">
-              <div className="font-display text-4xl">{code}</div>
-              <ul className="mt-2 grid gap-1 text-muted">
-                {[...code].map((k) => (
-                  <li key={k}>{riasecLabel(k as (typeof RIASEC_KEYS)[number], locale).short}</li>
-                ))}
-              </ul>
-            </div>
+            <FitsWhom fieldId={id} locale={locale} />
           </div>
-          {traits.length > 0 && <p className="mt-4 text-sm text-muted">{t.fields.traits(traits.map(([k, v]) => (v > 0 ? big5Label(k, locale).high : big5Label(k, locale).low).split(',')[0]).join(', '))}</p>}
         </div>
         <div className="grid gap-5">
           <div className="card p-6">

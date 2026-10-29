@@ -36,16 +36,19 @@ Wichtigste Folgerungen aus den Volltexten:
 - Ein dreistufiges Passungssignal ohne Erklärung hatte keinen Effekt (Moore &
   Cruce, 2020, S. 398, 406).
 
-Umgesetzt am 29.10.2026 (Version `wsis-interest-fit-2026-10-29.1`): 48 Items
-mit zufälliger Reihenfolge und zwei Kontrollitems; Rangliste nur nach
-Profilkorrelation (RIASEC und Freude an Schulfächern, gleich gewichtet), ohne
-Distanzanteil; echte Noten als getrennter Hinweis zur Machbarkeit; Werte als
-Filter; eingelesene Daten ohne Einfluss auf die Rangliste im Fragebogen-Modus;
-Gruppen ähnlicher Passung und Alternativen aus anderen Bereichen; Feldprofile
-aus den O*NET-Profilen ihrer Berufe (`lib/taxonomy/field-onet.ts`); optionales
+Umgesetzt am 29.10.2026 (Versionen `wsis-basic23-2026-10-29.1`,
+`wsis-basic-fit-2026-10-29.1`): Interessen als 23 Basisinteressen, 17 davon mit
+den CABIN-NET-Items, sechs mit eigenen Items; RIASEC als Zusammenfassung;
+Rangliste nur nach Profilkorrelation der Basisinteressen und vier Schulfächer
+mit Feldprofilen aus O*NET-Wissensbereichen (Methode von Chu et al., 2025),
+ohne Distanzanteil; Mathematiknote als grober Bereich und getrennter Hinweis
+zur Machbarkeit; keine Persönlichkeits- und Werte-Fragen, Werte als Filter;
+eingelesene Daten ohne Einfluss auf die Rangliste im Fragebogen-Modus; Gruppen
+ähnlicher Passung und Alternativen aus anderen Bereichen; optionales
 KI-Ensemble aus drei Modellen und je drei Läufen mit gespeicherter Streuung.
-Nicht umgesetzt: CABIN-NET-Basisinteressen, Experten-Anker und Equating für
-die KI-Ratings.
+Nicht umgesetzt: Items der vollen CABIN (Rechte ungeklärt), Basisinteressen-
+Ratings aus O*NET 30.3 (noch nicht veröffentlicht), Experten-Anker und
+Equating für die KI-Ratings.
 
 ## Aktuelle Quellen
 

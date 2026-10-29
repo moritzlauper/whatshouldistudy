@@ -3,49 +3,47 @@ import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { cleanAnswers, instrumentDefinition, sessionExport, sessionProfile, sessionReady } from '../lib/assessment.ts'
 import { ASSESSMENT_VERSION } from '../lib/engine/assessment-version.ts'
-import { RIASEC_ITEMS, scoreRiasec, riasecCompleteness } from '../lib/engine/questionnaire.ts'
+import { INTEREST_ITEMS, scoreBasic, interestCompleteness } from '../lib/engine/questionnaire.ts'
 import { score } from '../lib/engine/scoring.ts'
 import { encodeSnapshot, decodeSnapshot } from '../lib/share.ts'
 import { unmeasured } from '../lib/measure.ts'
 
-const answers = { riasec: Object.fromEntries(RIASEC_ITEMS.map((i, n) => [i.id, n % 5 + 1])) }
+const answers = { interests: Object.fromEntries(INTEREST_ITEMS.map((i, n) => [i.id, n % 5 + 1])) }
 
 test('invalid interest responses do not produce scores, readiness or completeness', () => {
   for (const invalid of [NaN, Infinity, -1, 0, 2.5, 6]) {
-    const input = { riasec: { ...answers.riasec, r1: invalid, r2: invalid, r5: invalid } }
-    assert.equal(scoreRiasec(input), null)
+    const input = { interests: { ...answers.interests, math1: invalid, math2: invalid, law3: invalid } }
+    assert.equal(scoreBasic(input), null)
     assert.equal(sessionReady(input), false)
-    assert.equal(riasecCompleteness(input), 45 / 48)
+    assert.equal(interestCompleteness(input), (INTEREST_ITEMS.length - 3) / INTEREST_ITEMS.length)
   }
-  const partial = { riasec: { ...answers.riasec } }
-  delete partial.riasec.r1
-  assert.ok(scoreRiasec(partial), 'normal exploration still allows partial forms')
-  assert.equal(sessionProfile(partial), null, 'standardised session requires all 48')
+  const partial = { interests: { ...answers.interests } }
+  delete partial.interests.math1
+  assert.ok(scoreBasic(partial), 'normal exploration still allows partial forms')
+  assert.equal(sessionProfile(partial), null, 'standardised session requires every item')
 })
 
 test('session exports whitelist valid items and expose descriptive means, not rankings or hidden state', () => {
-  const input = { ...answers, riasec: { ...answers.riasec, secret: 5 }, big5: Object.fromEntries(Array.from({ length: 20 }, (_, n) => [`b${n + 1}`, 3])), subjects: { math: { enjoy: 5, grade: 2.5 } }, values: { helping: 4, private: 5 }, token: 'never-export', summaries: { takeout: { title: 'private' } } }
+  const input = { ...answers, interests: { ...answers.interests, secret: 5 }, subjects: { music: { enjoy: 5, grade: 2.5 }, math: { enjoy: 4 } }, grades: { scale: 'ch', math: 'strong' }, values: { helping: 4 }, token: 'never-export', summaries: { takeout: { title: 'private' } } } as never
   const exported = sessionExport(input, 'de-CH')
-  assert.deepEqual(cleanAnswers(input).subjects, { math: { enjoy: 5 } })
-  assert.deepEqual(exported.profile?.personalityMeans, { O: 3, C: 3, E: 3, A: 3, N: 3 })
+  assert.deepEqual(cleanAnswers(input).subjects, { music: { enjoy: 5 } })
+  assert.deepEqual(cleanAnswers(input).grades, { scale: 'ch', math: 'strong' })
   assert.equal(exported.definition.version.interests, ASSESSMENT_VERSION.interests)
   assert.equal(exported.definition.norms, null)
-  assert.doesNotMatch(JSON.stringify(exported), /never-export|private|secret|"summaries"|"fields"/)
+  assert.doesNotMatch(JSON.stringify(exported), /never-export|private|secret|"summaries"|"fields"|"values"/)
   assert.equal(exported.profile?.interestMeans.length, 6)
+  assert.equal(Object.keys(exported.profile?.basicMeans ?? {}).length, 23)
 })
 
 test('all language definitions preserve IDs, response scales and explicit provenance', () => {
   for (const locale of ['de-CH', 'de-DE', 'de-AT', 'en', 'fr-CH', 'it-CH'] as const) {
     const form = instrumentDefinition(locale)
-    assert.equal(form.interests.items.length, 50)
-    assert.equal(form.personality.items.length, 20)
+    assert.equal(form.interests.items.length, INTEREST_ITEMS.length + 2)
     assert.equal(form.interests.labels.length, 5)
-    assert.equal(form.personality.labels.length, 5)
-    assert.equal(form.interests.items[16].id, 'chk')
-    assert.equal(form.interests.items[33].id, 'chk2')
-    assert.ok(form.personality.items.some(i => i.reverse))
+    assert.ok(form.interests.items.some(i => i.id === 'chk') && form.interests.items.some(i => i.id === 'chk2'))
     assert.ok(form.interests.items.every(i => i.text.length > 5))
-    assert.match(form.personality.languageStatus, locale === 'en' ? /Original English/ : /Own translation/)
+    if (locale !== 'en') assert.ok(form.interests.items.every(i => i.text !== INTEREST_ITEMS.find(x => x.id === i.id)?.text), `${locale} translates every item`)
+    assert.match(form.interests.provenance, /CABIN-NET/)
   }
 })
 

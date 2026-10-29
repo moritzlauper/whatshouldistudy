@@ -18,6 +18,7 @@ import { kit } from '@/lib/site/kit.ts'
 import type { Kit } from '@/lib/site/kit.ts'
 import { pageUrl } from '@/lib/site/meta.ts'
 import { countryLabel, emoji, fieldBlurb, fieldCareers, fieldName, fmtMoney, levelLabel } from '@/lib/site/labels.ts'
+import { FitsWhom } from '../ui/fits-whom.tsx'
 import { catalogueFacts } from '../ui/catalogue-row.tsx'
 import { JsonLd, breadcrumbLd } from '../ui/json-ld.tsx'
 import { Burst } from '../ui/shapes.tsx'
@@ -310,6 +311,8 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
         <section className="card-sm p-6">
           <h2 className="font-display text-2xl">{ct.aboutTitle(fname)}</h2>
           <p className="mt-2 text-sm text-muted">{fieldBlurb(field, locale)}</p>
+          <h3 className="mt-4 font-bold">{k.t.fields.whoTitle}</h3>
+          <FitsWhom fieldId={field} locale={locale} className="mt-1" />
           <h3 className="mt-4 font-bold">{ct.careers}</h3>
           <p className="mt-1 text-sm text-muted">{fieldCareers(field, locale).join(' · ')}</p>
           {earnings && (

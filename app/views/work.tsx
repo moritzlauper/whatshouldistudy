@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { effectiveSummaries, update, useAppState } from '@/lib/store.ts'
 import { profileShape, scoreRiasec } from '@/lib/engine/questionnaire.ts'
-import { emoji, fieldCareers, riasecLabel, valueLabel } from '@/lib/site/labels.ts'
+import { emoji, fieldCareers, riasecLabel } from '@/lib/site/labels.ts'
 import { OCCUPATIONS } from '@/lib/work/occupations.ts'
 import { companyFit, matchOccupations, normaliseSearch, rankCompanies, rankJobs } from '@/lib/work/matching.ts'
 import { JOB_SOURCES, jobSector } from '@/lib/work/sources.ts'
@@ -90,7 +90,6 @@ export function WorkView({ data, unavailable }: { data: JobsData; unavailable: b
                     <div className="mb-5 mt-4 space-y-2 text-sm text-muted">
                       {match.interests.length > 0 && <p>{w.interestReason}: {match.interests.map((key) => riasecLabel(key, locale).name).join(' · ')}</p>}
                       {match.fromData && <p>{w.dataReason}</p>}
-                      {match.values.length > 0 && <p>{w.valueReason}: {match.values.map((key) => valueLabel(key, locale)).join(' · ')}</p>}
                       {!match.interests.length && !match.fromData && <p>{w.exploratory}</p>}
                     </div>
                     <a href="#jobs" className="mt-auto font-bold text-accent hover:underline" onClick={() => findRoles(match.id)}>{w.choose} →</a>

@@ -1,6 +1,7 @@
 import type { Big5, Big5Key, Riasec, RiasecKey, SubjectKey, ValueKey } from '../taxonomy/fields.ts'
 import type { InstType } from '../institutions.ts'
-import type { GradeScaleId } from './grades.ts'
+import type { GradeBand, GradeScaleId } from './grades.ts'
+import type { BasicKey } from '../taxonomy/basic-interests.ts'
 
 export type SourceId =
   | 'youtube'
@@ -112,21 +113,21 @@ export interface Topic {
 }
 
 export interface QuestionnaireAnswers {
-  riasec?: Record<string, number>
-  /** Seed of this person's item order; absent for answers saved before the order was random. */
+  /** Interest items by ID (`math2`), 1..5. Answers saved under older keys (`riasec`, `big5`, `values`) are ignored. */
+  interests?: Record<string, number>
+  /** Seed of this person's item order. */
   order?: number
-  big5?: Record<string, number>
-  /** How much each subject is enjoyed, 1..5. Earlier versions also stored a self-rated `grade`, now ignored. */
+  /** How much each asked subject is enjoyed, 1..5. */
   subjects?: Partial<Record<SubjectKey, { enjoy?: number }>>
   /** Actual school grades from the latest reports, on the scale named. */
   grades?: Grades
-  values?: Partial<Record<ValueKey, number>>
 }
 
 export interface Grades {
+  /** The scale the band was chosen on, for showing it again. */
   scale: GradeScaleId
-  average?: number
-  math?: number
+  /** The band of the last maths grade. */
+  math: GradeBand
 }
 
 /** `any`: every degree programme; continuing education (MAS, DAS, CAS) only when asked for. */
@@ -159,7 +160,7 @@ export interface FieldMatch {
   match: number
   /** 0..100 for display. */
   score: number
-  components: Partial<Record<'interest' | 'riasec' | 'personality' | 'subjects' | 'values', number>>
+  components: Partial<Record<'basic' | 'interest' | 'riasec' | 'personality' | 'subjects', number>>
   /** Interest strength before squashing (log-lift, shrunk); for debugging and ranking. */
   interest?: number
   reasons: Reason[]
@@ -180,6 +181,8 @@ export type Reason =
   | { k: 'interest'; items: number; months: number }
   | { k: 'riasec'; types: RiasecKey[] }
   | { k: 'riasecLow'; types: RiasecKey[] }
+  | { k: 'basic'; keys: BasicKey[] }
+  | { k: 'basicLow'; keys: BasicKey[] }
   | { k: 'subjects'; subjects: SubjectKey[] }
   | { k: 'subjectsLow'; subjects: SubjectKey[] }
   | { k: 'values'; values: ValueKey[] }
@@ -194,8 +197,8 @@ export interface Insight {
 
 export interface Results {
   version: 1
-  /** Procedure IDs, distinct from wire format version. `locale` is display language, not proof of earlier response language. Absent in older shared results. */
-  method?: { interests: string; personality: string; scoring: string; locale?: string }
+  /** Procedure IDs, distinct from wire format version. `locale` is display language, not proof of earlier response language. Absent in older shared results; older ones also carry `personality`. */
+  method?: { interests: string; personality?: string; scoring: string; locale?: string }
   generatedAt: string
   dataPoints: number
   sources: Array<{ id: SourceId; label: string; dataPoints: number }>
@@ -203,6 +206,8 @@ export interface Results {
   fields: FieldMatch[]
   hidden: FieldMatch[]
   riasec: { profile: Riasec; code: string; from: string[] }
+  /** Basic interests from the questionnaire, 0..1. Absent without the questionnaire and in older shared results. */
+  basic?: Partial<Record<BasicKey, number>>
   /**
    * How the questionnaire was answered. A flat interest profile has no clear
    * direction; careless marks signs of answering without reading; topTie that
