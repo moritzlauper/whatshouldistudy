@@ -4,6 +4,7 @@ import { readFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { instrumentDefinition } from '../lib/assessment.ts'
 import { ASSESSMENT_VERSION } from '../lib/engine/assessment-version.ts'
 import { FIELDS } from '../lib/taxonomy/fields.ts'
+import { FIELD_ONET } from '../lib/taxonomy/field-onet.ts'
 import type { Locale } from '../lib/site/config.ts'
 
 const root = new URL('../', import.meta.url)
@@ -11,7 +12,8 @@ const sha = (text: string) => createHash('sha256').update(text).digest('hex')
 const files = [
   'lib/engine/questionnaire.ts', 'lib/engine/scoring.ts', 'lib/engine/programme-fit.ts',
   'lib/engine/recency.ts', 'lib/engine/topics.ts', 'lib/engine/classifier.ts', 'lib/engine/text.ts',
-  'lib/engine/accumulate.ts', 'lib/engine/music.ts', 'lib/taxonomy/fields.ts', 'lib/assessment.ts',
+  'lib/engine/accumulate.ts', 'lib/engine/music.ts', 'lib/engine/grades.ts', 'lib/taxonomy/fields.ts',
+  'lib/taxonomy/field-onet.ts', 'lib/taxonomy/onet-interests.ts', 'lib/assessment.ts', 'lib/site/fit-text.ts',
   'app/ui/questionnaire-form.tsx', 'app/views/counselling.tsx', 'lib/site/assessment-text.ts',
   'lib/server/personal-fit.ts', 'lib/server/content-analysis.ts', 'lib/engine/content-analysis.ts',
   'lib/infomaniak.ts', 'lib/site/dict.ts', 'lib/site/regional.ts',
@@ -31,10 +33,10 @@ const manifest = {
 }
 const review = {
   schema: 'wsis-field-review-v1',
-  status: 'unreviewed-product-heuristics',
+  status: 'riasec-derived-from-onet-other-values-unreviewed',
   instructions: 'Two independent reviewers first; cite curriculum URLs, retrieval dates and relevant content. Record conflicts and disagreements. Do not infer empirical validation from completed reviews.',
   fields: FIELDS.map(f => ({
-    id: f.id, name: f.name, proposed: { riasec: f.riasec, subjects: f.subjects, values: f.values },
+    id: f.id, name: f.name, proposed: { riasec: f.riasec, riasecOccupations: FIELD_ONET[f.id], subjects: f.subjects, values: f.values },
     curriculumEvidence: [], independentReviews: [], adjudication: null, status: 'unreviewed',
   })),
 }

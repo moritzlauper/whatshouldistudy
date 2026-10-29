@@ -15,12 +15,12 @@ test('invalid interest responses do not produce scores, readiness or completenes
     const input = { riasec: { ...answers.riasec, r1: invalid, r2: invalid, r5: invalid } }
     assert.equal(scoreRiasec(input), null)
     assert.equal(sessionReady(input), false)
-    assert.equal(riasecCompleteness(input), 21 / 24)
+    assert.equal(riasecCompleteness(input), 45 / 48)
   }
   const partial = { riasec: { ...answers.riasec } }
   delete partial.riasec.r1
   assert.ok(scoreRiasec(partial), 'normal exploration still allows partial forms')
-  assert.equal(sessionProfile(partial), null, 'standardised session requires all 24')
+  assert.equal(sessionProfile(partial), null, 'standardised session requires all 48')
 })
 
 test('session exports whitelist valid items and expose descriptive means, not rankings or hidden state', () => {
@@ -37,11 +37,12 @@ test('session exports whitelist valid items and expose descriptive means, not ra
 test('all language definitions preserve IDs, response scales and explicit provenance', () => {
   for (const locale of ['de-CH', 'de-DE', 'de-AT', 'en', 'fr-CH', 'it-CH'] as const) {
     const form = instrumentDefinition(locale)
-    assert.equal(form.interests.items.length, 25)
+    assert.equal(form.interests.items.length, 50)
     assert.equal(form.personality.items.length, 20)
     assert.equal(form.interests.labels.length, 5)
     assert.equal(form.personality.labels.length, 5)
-    assert.equal(form.interests.items[12].id, 'chk')
+    assert.equal(form.interests.items[16].id, 'chk')
+    assert.equal(form.interests.items[33].id, 'chk2')
     assert.ok(form.personality.items.some(i => i.reverse))
     assert.ok(form.interests.items.every(i => i.text.length > 5))
     assert.match(form.personality.languageStatus, locale === 'en' ? /Original English/ : /Own translation/)

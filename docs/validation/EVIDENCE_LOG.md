@@ -5,6 +5,48 @@ für eine Produktentscheidung und noch nicht geprüfte Annahmen. Es ist weder
 eine Validierungsstudie noch ein Ersatz für die im Pilotprotokoll verlangte
 unabhängige Prüfung.
 
+## Volltextstand (29.10.2026)
+
+Ab diesem Stand gilt: In Produkttexten, Code-Kommentaren und Berichten wird nur
+zitiert, was im Zotero-Projekt `whatshouldistudy` als Volltext vorliegt und
+gelesen wurde (Zotero-Tag `volltext-gelesen`, 29 Quellen). Kennwerte mit
+Seitenangaben stehen im Bericht «wasstudieren: Wissenschaftliche Grundlage für
+Test und Studiengang-Mapping» (https://claude.ai/artifact/S4KP2rNMbHaefe8Ndxw3hb).
+
+Folgende unten aufgeführte Einträge haben **keinen** Volltext in Zotero und
+gelten bis zur Prüfung als nicht belegt: Donnellan et al. (2006), Youyou et al.
+(2015), Holland (1997), Nye et al. (2012, 2017), Tracey & Robbins (2006),
+Allen & Robbins (2010), Hanna & Rounds (2020) sowie alle weiteren Einträge ohne
+Tag `volltext-gelesen`. Beaton et al. (2000) ist inzwischen im Volltext
+ausgewertet. Beim Verb-Interessentest liegt nur die Itemliste vor, keine
+Kennwerte.
+
+Wichtigste Folgerungen aus den Volltexten:
+
+- Interessenpassung sagt Studienleistung kaum voraus (ρ = .01, ohne
+  Grossstichproben .10), Verbleib und Zufriedenheit schwach (de Vries et al.,
+  2024, S. 10). Schulnoten sind für Leistung stärker (ρ = .46; Trapmann et al.,
+  2007, S. 14).
+- Profilkorrelation ist der beste interpretierbare Passungsindex; Distanzmasse
+  tragen fast nichts bei (Granillo-Velasquez et al., 2025, S. 7–10).
+- Basisinteressen-Fit übertrifft RIASEC-Fit (Chu et al., 2025, S. 16);
+  CABIN-NET ist public domain.
+- KI-Ratings von Umwelten nur mit Experten-Ankern, mehreren Modellen und
+  Läufen, Equating und Review (Liu et al., 2026, O*NET Report 031).
+- Ein dreistufiges Passungssignal ohne Erklärung hatte keinen Effekt (Moore &
+  Cruce, 2020, S. 398, 406).
+
+Umgesetzt am 29.10.2026 (Version `wsis-interest-fit-2026-10-29.1`): 48 Items
+mit zufälliger Reihenfolge und zwei Kontrollitems; Rangliste nur nach
+Profilkorrelation (RIASEC und Freude an Schulfächern, gleich gewichtet), ohne
+Distanzanteil; echte Noten als getrennter Hinweis zur Machbarkeit; Werte als
+Filter; eingelesene Daten ohne Einfluss auf die Rangliste im Fragebogen-Modus;
+Gruppen ähnlicher Passung und Alternativen aus anderen Bereichen; Feldprofile
+aus den O*NET-Profilen ihrer Berufe (`lib/taxonomy/field-onet.ts`); optionales
+KI-Ensemble aus drei Modellen und je drei Läufen mit gespeicherter Streuung.
+Nicht umgesetzt: CABIN-NET-Basisinteressen, Experten-Anker und Equating für
+die KI-Ratings.
+
 ## Aktuelle Quellen
 
 | Bereich | Quelle | Was sie für wasstudieren stützt | Was sie nicht stützt |

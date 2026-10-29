@@ -11,10 +11,13 @@ import { score, sourceProfile } from '@/lib/engine/scoring.ts'
 import { resultsReady } from '@/lib/engine/questionnaire.ts'
 import { userTopics } from '@/lib/engine/topics.ts'
 import { SUMMARY_VERSION } from '@/lib/engine/accumulate.ts'
-import type { FieldMatch, Preferences, Results, SourceSummary } from '@/lib/engine/types.ts'
+import type { FieldMatch, Grades, Preferences, Results, SourceSummary } from '@/lib/engine/types.ts'
 import type { FieldStat } from '@/lib/programmes.ts'
-import { BIG5_KEYS, FIELDS, FIELD_BY_ID, RIASEC_KEYS } from '@/lib/taxonomy/fields.ts'
-import { big5Label, emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel } from '@/lib/site/labels.ts'
+import { BIG5_KEYS, FIELDS, FIELD_BY_ID, RIASEC_KEYS, VALUE_KEYS } from '@/lib/taxonomy/fields.ts'
+import type { ValueKey } from '@/lib/taxonomy/fields.ts'
+import { big5Label, emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel, valueLabel } from '@/lib/site/labels.ts'
+import { cleanGrades, feasibility } from '@/lib/engine/grades.ts'
+import { fitText, fmtGrade } from '@/lib/site/fit-text.ts'
 import { insightText, reasonText } from '@/lib/site/explain.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Programmes, TopProgrammes } from '../ui/programmes.tsx'
@@ -95,6 +98,9 @@ export function ResultsView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [own])
   const prefs: Preferences = isShared ? { ...state.prefs, institutionType: undefined, ...(shared as Snapshot).prefs } : state.prefs
+  // Values are a filter the person sets, not part of the fit. Preselected: what they rated essential.
+  const [valueFilter, setValueFilter] = useState<ValueKey[] | null>(null)
+  const grades = isShared ? undefined : cleanGrades(state.answers.grades) ?? undefined
   // The step from analysis to result, for ads and the usage counters: that it happened, nothing of what it says.
   useEffect(() => {
     if (own && resultsReady(state.answers, summaries.length)) {
@@ -132,7 +138,12 @@ export function ResultsView() {
     )
   }
 
-  const [first, ...rest] = results.fields
+  const activeValues = valueFilter ?? (isShared ? [] : VALUE_KEYS.filter((key) => state.answers.values?.[key] === 5))
+  const filterable = results.fields.every((m) => m.offers)
+  const kept = filterable && activeValues.length ? results.fields.filter((m) => activeValues.every((key) => m.offers!.includes(key))) : results.fields
+  // With nothing left the filter would empty the page: it is shown as not applicable instead.
+  const view: Results = kept.length && kept !== results.fields ? { ...results, fields: kept } : results
+  const [first, ...rest] = view.fields
   const personalityMeans = results.big5?.means
   const hasPersonalityMeans = personalityMeans && BIG5_KEYS.every(key => Number.isFinite(personalityMeans[key]) && personalityMeans[key] >= 1 && personalityMeans[key] <= 5)
   const top = rest.slice(0, 9)
@@ -195,7 +206,11 @@ export function ResultsView() {
         </>
       )}
 
-      {unlocked ? <TopMatch m={first} stat={stats[first.id]} /> : <LockedTop shared={isShared} score={first.score} />}
+      {filterable && (
+        <ValueFilter active={activeValues} onChange={setValueFilter} hidden={results.fields.length - view.fields.length} empty={activeValues.length > 0 && !kept.length} />
+      )}
+
+      {unlocked ? <TopMatch m={first} stat={stats[first.id]} grades={grades} sameTier={view.fields.filter((m) => m.tier === 1).length - 1} /> : <LockedTop shared={isShared} score={first.score} />}
       {!isShared && (
         <div className="card-sm mt-6 grid gap-2 p-4 sm:grid-cols-[1fr_1.2fr] sm:items-center">
           <div>
@@ -205,16 +220,17 @@ export function ResultsView() {
           <InstitutionTypeSelect />
         </div>
       )}
-      <TopProgrammes results={results} prefs={prefs} topics={topics} unlocked={unlocked} shared={isShared}
+      <TopProgrammes results={view} prefs={prefs} topics={topics} unlocked={unlocked} shared={isShared}
         token={isShared ? ((shared as Snapshot).token ?? null) : paid ? state.unlock!.token : null} />
       {/* Browsing the programmes sits right under the top list: the main thing on this page. */}
-      <Programmes results={results} prefs={prefs} topics={topics} hideFirst={!unlocked} shared={isShared} />
+      <Programmes results={view} prefs={prefs} topics={topics} hideFirst={!unlocked} shared={isShared} />
 
       <section className="mt-16">
         <h2 className="font-display text-4xl">{t.results.next}</h2>
+        {top.some((m) => m.tier) && <p className="mt-2 max-w-2xl text-sm text-muted">{fitText(locale).tierNote}</p>}
         <div className="mt-7 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {top.map((m, i) => (
-            <FieldCard key={m.id} m={m} rank={i + 2} stat={stats[m.id]} color={CARD_COLORS[i % CARD_COLORS.length]} />
+            <FieldCard key={m.id} m={m} rank={i + 2} stat={stats[m.id]} color={CARD_COLORS[i % CARD_COLORS.length]} grades={grades} />
           ))}
         </div>
       </section>
@@ -246,15 +262,15 @@ export function ResultsView() {
         <div className="card p-6 sm:p-8">
           <h2 className="font-display text-3xl">{t.results.riasecTitle}</h2>
           <p className="mt-1 text-sm text-muted">
-            {t.results.riasecSub(results.riasec.from.map((x) => (x === 'questionnaire' ? t.results.from.questionnaire : t.results.from.footprint)).join(t.results.from.and) || t.results.from.footprint, '')}
-            <strong className="sticker ml-1 align-middle text-base">{results.riasec.code}</strong>
+            {t.results.riasecSub(results.riasec.from.map((x) => (x === 'questionnaire' ? t.results.from.questionnaire : t.results.from.footprint)).join(t.results.from.and) || t.results.from.footprint)}
           </p>
           <div className="mt-6 flex flex-col items-center gap-6 sm:flex-row">
             <Hexagon profile={results.riasec.profile} label={t.misc.profileLabel} />
             <ul className="grid gap-2 text-sm">
               {RIASEC_KEYS.map((key, i) => {
                 const lab = riasecLabel(key, locale)
-                const on = results.riasec.code.includes(key)
+                // The strongest areas, not a three-letter code: codes from different sources rarely agree (Eggerth et al., 2005).
+                const on = results.riasec.from.length > 0 && results.riasec.profile[i] >= Math.max(...results.riasec.profile) - 0.1
                 return (
                   <li key={key} className={on ? '' : 'text-muted'}>
                     <span className={`mr-2 inline-flex h-6 w-6 items-center justify-center rounded-md border-2 text-xs font-extrabold ${on ? 'border-line bg-accent text-accent-ink' : 'border-soft-line'}`}>{key}</span>
@@ -304,6 +320,8 @@ export function ResultsView() {
         </div>
       </section>
 
+      {!isShared && <GradesNote grades={grades} />}
+
       {results.insights.length > 0 && (
         <section className="mt-16">
           <h2 className="font-display text-4xl">{t.results.insightsTitle}</h2>
@@ -336,7 +354,7 @@ export function ResultsView() {
                       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-extrabold text-accent-ink" title={t.results.yearRank(i + 1)}>
                         {i + 1}
                       </span>
-                      {f.id === first.id && !unlocked ? (
+                      {f.id === results.fields[0].id && !unlocked ? (
                         <>🔒 {t.results.lockedChip}</>
                       ) : (
                         <>
@@ -380,18 +398,24 @@ function QualityNotes({ results }: { results: Results }) {
   const notes = [
     q && !q.questionnaireLed && tq.explore,
     q?.flat && tq.flat,
-    q?.careless && tq.careless,
     q?.topTie && !q.flat && tq.topTie,
   ].filter(Boolean) as string[]
   return (
     <div className="mt-6 grid gap-3">
+      {/* Careless answering: a notice and the way back to the questions, not a quietly lowered confidence. */}
+      {q?.careless && (
+        <div className="card-sm flex flex-wrap items-center justify-between gap-3 border-l-8 p-4 text-sm" style={{ borderLeftColor: 'var(--orange)' }}>
+          <p className="max-w-3xl">{tq.careless}</p>
+          <Link href={`${r.start}#${r.anchors.questionnaire}`} className="btn btn-ghost btn-sm">{fitText(locale).review}</Link>
+        </div>
+      )}
       {notes.map((n) => (
         <p key={n} className="card-sm border-l-8 p-4 text-sm" style={{ borderLeftColor: 'var(--yellow)' }}>
           {n}
         </p>
       ))}
       <p className="text-sm text-muted">
-        {professional.notice} {tq.limits}{' '}
+        {professional.notice} {tq.limits} {fitText(locale).nextSteps}{' '}
         <Link href={r.professional} className="font-semibold text-accent underline">{professional.link}</Link>
         {tq.counselling && (
           <>
@@ -452,7 +476,7 @@ function Evidence({ m, n }: { m: FieldMatch; n: number }) {
   )
 }
 
-function TopMatch({ m, stat }: { m: FieldMatch; stat?: FieldStat }) {
+function TopMatch({ m, stat, grades, sameTier }: { m: FieldMatch; stat?: FieldStat; grades?: Grades; sameTier: number }) {
   const k = useSite()
   const { t, r, locale, intl } = k
   const f = FIELD_BY_ID[m.id]
@@ -479,6 +503,8 @@ function TopMatch({ m, stat }: { m: FieldMatch; stat?: FieldStat }) {
               </li>
             ))}
           </ul>
+          {m.tier === 1 && sameTier > 0 && <p className="mt-4 text-sm text-muted">{fitText(locale).sameTier(sameTier)}</p>}
+          <Feasibility m={m} grades={grades} />
           <div className="mt-6 grid gap-4">
             <Contributions m={m} />
             <Evidence m={m} n={8} />
@@ -814,7 +840,7 @@ function LockedTop({ shared = false, score }: { shared?: boolean; score: number 
   )
 }
 
-function FieldCard({ m, rank, stat, color }: { m: FieldMatch; rank: number; stat?: FieldStat; color: string }) {
+function FieldCard({ m, rank, stat, color, grades }: { m: FieldMatch; rank: number; stat?: FieldStat; color: string; grades?: Grades }) {
   const k = useSite()
   const { t, r, locale, intl } = k
   const f = FIELD_BY_ID[m.id]
@@ -822,7 +848,8 @@ function FieldCard({ m, rank, stat, color }: { m: FieldMatch; rank: number; stat
   return (
     <article className="card card-pop flex flex-col overflow-hidden">
       <div className="on-color flex items-center justify-between border-b-2 border-line px-5 py-2.5" style={{ background: color }}>
-        <span className="font-display text-xl">#{rank}</span>
+        {/* A group of similar fit, not an exact place; older shared results have only the place. */}
+        <span className="font-display text-xl">{m.tier ? fitText(locale).tier(m.tier) : `#${rank}`}</span>
         <span className="rounded-full border-2 border-line bg-surface px-2.5 py-0.5 text-sm font-extrabold text-ink">{t.results.matchPct(m.score)}</span>
       </div>
       <div className="flex flex-1 flex-col p-5">
@@ -847,6 +874,7 @@ function FieldCard({ m, rank, stat, color }: { m: FieldMatch; rank: number; stat
         {open && (
           <div className="mt-3 grid gap-3 border-t-2 border-soft-line pt-3">
             <Components m={m} />
+            <Feasibility m={m} grades={grades} />
             <Evidence m={m} n={5} />
             {m.reasons.slice(1).map((x) => (
               <p key={x.k} className="text-xs text-muted">
@@ -879,5 +907,65 @@ function ScoreRing({ value }: { value: number }) {
         <tspan fontSize={13}>%</tspan>
       </text>
     </svg>
+  )
+}
+
+/** What the maths grade means for a maths-heavy field: shown beside the fit, never part of it. */
+function Feasibility({ m, grades }: { m: FieldMatch; grades?: Grades }) {
+  const { locale, intl } = useSite()
+  const math = feasibility(FIELD_BY_ID[m.id], grades).math
+  if (!math || !grades) return null
+  const f = fitText(locale)
+  return (
+    <p className="mt-4 rounded-xl border-2 border-soft-line p-3 text-sm">
+      <span className="font-bold">{f.feasibility}: </span>
+      {f.math[math.band](fmtGrade(math.grade, grades.scale, intl))}
+    </p>
+  )
+}
+
+/** The grades as entered, and why they stand apart from the ranking. */
+function GradesNote({ grades }: { grades?: Grades }) {
+  const { r, locale, intl } = useSite()
+  const f = fitText(locale)
+  const show = (v?: number) => (v === undefined || !grades ? '–' : fmtGrade(v, grades.scale, intl))
+  return (
+    <section className="card-sm mt-6 p-4 text-sm sm:p-5">
+      <h2 className="font-bold">{f.gradesCard}</h2>
+      {grades ? (
+        <p className="mt-1">{f.gradesShown(show(grades.average), show(grades.math))} · {f.scales[grades.scale]}</p>
+      ) : (
+        <p className="mt-1 text-muted">
+          {f.gradesMissing}{' '}
+          <Link href={`${r.start}#${r.anchors.questionnaire}`} className="font-semibold text-accent underline">→</Link>
+        </p>
+      )}
+      <p className="mt-2 text-xs text-muted">{f.gradesWhy}</p>
+    </section>
+  )
+}
+
+/** Values as a filter the person sets themselves. */
+function ValueFilter({ active, onChange, hidden, empty }: { active: ValueKey[]; onChange: (keys: ValueKey[]) => void; hidden: number; empty: boolean }) {
+  const { locale } = useSite()
+  const f = fitText(locale)
+  const toggle = (key: ValueKey) => onChange(active.includes(key) ? active.filter((x) => x !== key) : [...active, key])
+  return (
+    <section className="card-sm mt-6 p-4 sm:p-5">
+      <h2 className="font-bold">{f.filterTitle}</h2>
+      <p className="mt-1 text-xs text-muted">{f.filterHint}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {VALUE_KEYS.map((key) => {
+          const on = active.includes(key)
+          return (
+            <button key={key} type="button" aria-pressed={on} onClick={() => toggle(key)}
+              className={`rounded-full border-2 px-3 py-1 text-sm font-semibold transition ${on ? 'on-color border-line bg-yellow' : 'border-soft-line hover:border-line'}`}>
+              {valueLabel(key, locale)}
+            </button>
+          )
+        })}
+      </div>
+      {(empty || hidden > 0) && <p className="mt-2 text-xs text-muted">{empty ? f.filterEmpty : f.filterHidden(hidden)}</p>}
+    </section>
   )
 }

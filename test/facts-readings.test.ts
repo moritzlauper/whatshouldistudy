@@ -103,3 +103,23 @@ test('a specialisation or a distinctive sentence is kept only as a name, known t
   assert.equal(validStoredFact({ ...ok, distinctive: ['x'.repeat(161)] }), null)
   assert.equal(validStoredFact({ ...ok, topics: ['society'] }), null)
 })
+
+test('an ensemble rating keeps mean and spread, and replaces the single rating only for the page it rated', async () => {
+  const { normaliseRating, summariseRatings } = await import('../scrapers/lib/facts.ts')
+  assert.deepEqual(normaliseRating({ id: 'p1', riasec: { R: 1, I: 4, A: 0, S: 2, E: 1, C: 3 } }), [1, 4, 0, 2, 1, 3])
+  assert.equal(normaliseRating({ riasec: { R: 1, I: 6, A: 0, S: 2, E: 1, C: 3 } }), null)
+  assert.equal(normaliseRating({ riasec: { R: 1 } }), null)
+  const hash = 'a'.repeat(64)
+  assert.equal(summariseRatings([[1, 4, 0, 2, 1, 3]], hash, ['m']), null, 'one rating is no ensemble')
+  const rating = summariseRatings([[1, 4, 0, 2, 1, 3], [1, 5, 0, 2, 1, 3], [1, 3, 0, 2, 1, 3]], hash, ['a', 'b', 'b'])!
+  assert.deepEqual(rating.mean, [1, 4, 0, 2, 1, 3])
+  assert.deepEqual(rating.sd, [0, 1, 0, 0, 0, 0])
+  assert.deepEqual(rating.models, ['a', 'b'])
+  const ok = { id: 'p1', url: 'https://www.unibe.ch/p1', hash, at: '2026-10-01', riasec: [1, 4, 2, 3, 1, 5], subjects: ['math'], topics: [], specialisations: [], distinctive: [], enough: true, checks: { de: 'Prüfen.', fr: 'Vérifier.', it: 'Verificare.', en: 'Check.' } }
+  const withRating = { ...ok, rating: { ...rating, mean: [1.33, 4, 0.67, 2, 1, 3] } }
+  assert.deepEqual(validStoredFact(withRating), withRating)
+  assert.equal(validStoredFact({ ...ok, rating: { ...rating, mean: [9, 4, 0, 2, 1, 3] } }), null)
+  assert.equal(storedFactProblem({ ...ok, rating: { ...rating, n: 1 } }), 'rating')
+  assert.deepEqual(factsForLocale(withRating, 'en').riasec, [1.33, 4, 0.67, 2, 1, 3])
+  assert.deepEqual(factsForLocale({ ...withRating, hash: 'b'.repeat(64) }, 'en').riasec, ok.riasec, 'a changed page falls back to its own reading')
+})

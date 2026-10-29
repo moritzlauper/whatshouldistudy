@@ -1,5 +1,6 @@
 import type { Big5, Big5Key, Riasec, RiasecKey, SubjectKey, ValueKey } from '../taxonomy/fields.ts'
 import type { InstType } from '../institutions.ts'
+import type { GradeScaleId } from './grades.ts'
 
 export type SourceId =
   | 'youtube'
@@ -112,9 +113,20 @@ export interface Topic {
 
 export interface QuestionnaireAnswers {
   riasec?: Record<string, number>
+  /** Seed of this person's item order; absent for answers saved before the order was random. */
+  order?: number
   big5?: Record<string, number>
-  subjects?: Partial<Record<SubjectKey, { enjoy?: number; grade?: number }>>
+  /** How much each subject is enjoyed, 1..5. Earlier versions also stored a self-rated `grade`, now ignored. */
+  subjects?: Partial<Record<SubjectKey, { enjoy?: number }>>
+  /** Actual school grades from the latest reports, on the scale named. */
+  grades?: Grades
   values?: Partial<Record<ValueKey, number>>
+}
+
+export interface Grades {
+  scale: GradeScaleId
+  average?: number
+  math?: number
 }
 
 /** `any`: every degree programme; continuing education (MAS, DAS, CAS) only when asked for. */
@@ -157,12 +169,17 @@ export interface FieldMatch {
   sources: SourceId[]
   /** Share of the match from each source and questionnaire part, largest first. */
   contributions?: Array<{ key: string; share: number }>
+  /** Group of similar fit, 1 = best; fields in one group are no real order. Absent in older shared results. */
+  tier?: number
+  /** Values the field typically offers, for the person's own filter. Absent in older shared results. */
+  offers?: ValueKey[]
 }
 
 /** Why a field matches; rendered per language by the site. */
 export type Reason =
   | { k: 'interest'; items: number; months: number }
   | { k: 'riasec'; types: RiasecKey[] }
+  | { k: 'riasecLow'; types: RiasecKey[] }
   | { k: 'subjects'; subjects: SubjectKey[] }
   | { k: 'subjectsLow'; subjects: SubjectKey[] }
   | { k: 'values'; values: ValueKey[] }

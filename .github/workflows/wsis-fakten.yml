@@ -42,6 +42,11 @@ on:
         required: false
         default: false
         type: boolean
+      ensemble:
+        description: 'Also rate the interest profile with three models in three runs each (Haiku, Sonnet, Opus 5.5); about 6 US cents per page, within max_usd'
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: wsis-fakten
@@ -145,9 +150,11 @@ jobs:
           MAX_USD: ${{ inputs.max_usd || '1' }}
           REREAD: ${{ inputs.reread }}
           TRANSLATE_ONLY: ${{ inputs.translate_only }}
+          ENSEMBLE: ${{ inputs.ensemble }}
         run: |
           EXTRA=""
           if [ "$REREAD" = "true" ]; then EXTRA="--reread"; fi
+          if [ "$ENSEMBLE" = "true" ]; then EXTRA="$EXTRA --ensemble"; fi
           if [ "$TRANSLATE_ONLY" = "true" ]; then EXTRA="--translate-only"; fi
           node scrapers/programme-facts.ts --data data-in --previous facts-prev/facts.json \
             --out facts-out/facts.json --country "$COUNTRY" --limit "$LIMIT" --max-usd "$MAX_USD" --pages page-index/pages.json $EXTRA

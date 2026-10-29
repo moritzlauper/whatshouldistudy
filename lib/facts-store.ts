@@ -1,4 +1,4 @@
-import { CHECK_LANGUAGES, TOPIC_KEYS, validDistinctiveTranslations, type CheckLanguage, type Specialisation, type StoredFact } from '../scrapers/lib/facts.ts'
+import { CHECK_LANGUAGES, TOPIC_KEYS, validDistinctiveTranslations, type CheckLanguage, type Rating, type Specialisation, type StoredFact } from '../scrapers/lib/facts.ts'
 import type { ProgrammeFacts } from './engine/programme-fit.ts'
 import type { Locale } from './site/config.ts'
 import { SUBJECT_KEYS } from './taxonomy/fields.ts'
@@ -115,9 +115,24 @@ export function validStoredFact(raw: unknown): StoredFact | null {
     if (typeof c !== 'string' || c.length > 300) return null
     checks[l] = c
   }
+  if (x.rating !== undefined && !validRating(x.rating)) return null
   return { ...(Number.isInteger(x.version) && Number(x.version) > 0 ? { version: Number(x.version) } : {}), id, url, hash, at, riasec, subjects, topics, specialisations, distinctive,
-    ...(x.distinctiveTranslations !== undefined ? { distinctiveTranslations: x.distinctiveTranslations as StoredFact['distinctiveTranslations'] } : {}), enough, checks }
+    ...(x.distinctiveTranslations !== undefined ? { distinctiveTranslations: x.distinctiveTranslations as StoredFact['distinctiveTranslations'] } : {}), enough, checks,
+    ...(x.rating !== undefined ? { rating: x.rating as Rating } : {}) }
 }
+
+/** An ensemble rating: page hash, six means and spreads within the scale, a count and the model names. */
+function validRating(raw: unknown): raw is Rating {
+  if (!raw || typeof raw !== 'object') return false
+  const r = raw as Record<string, unknown>
+  const six = (v: unknown, max: number) => Array.isArray(v) && v.length === 6 && v.every((n) => typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= max)
+  return typeof r.hash === 'string' && /^[0-9a-f]{64}$/.test(r.hash) && six(r.mean, 5) && six(r.sd, 5) &&
+    Number.isInteger(r.n) && (r.n as number) >= 2 && (r.n as number) <= 50 &&
+    Array.isArray(r.models) && r.models.length > 0 && r.models.length <= 5 && r.models.every((m) => typeof m === 'string' && m.length > 0 && m.length <= 60)
+}
+
+/** The interest profile to compare against: the ensemble mean where it rated this very page, else the reader's own rating. */
+export const readingRiasec = (f: StoredFact): number[] => (f.rating && f.rating.hash === f.hash ? f.rating.mean : f.riasec)
 
 /**
  * The first field of a reading that is not as it may be stored, by name only; null when the reading is valid.
@@ -140,6 +155,7 @@ export function storedFactProblem(raw: unknown): string | null {
   if ((x.distinctiveTranslations !== undefined || Number(x.version) >= 6) && !validDistinctiveTranslations(x.distinctiveTranslations, (x.distinctive as string[] | undefined)?.length ?? 0)) return 'distinctiveTranslations'
   const given = x.checks as Record<string, unknown>
   for (const l of CHECK_LANGUAGES) if (typeof given[l] !== 'string' || (given[l] as string).length > 300) return `checks.${l}`
+  if (x.rating !== undefined && !validRating(x.rating)) return 'rating'
   return null
 }
 
@@ -174,7 +190,7 @@ const LANGUAGE: Record<Locale, CheckLanguage> = {
 export function factsForLocale(f: StoredFact, locale: Locale): ProgrammeFacts {
   return {
     id: f.id,
-    riasec: f.riasec,
+    riasec: readingRiasec(f),
     subjects: f.subjects,
     topics: f.topics ?? [],
     specialisations: f.specialisations ?? [],

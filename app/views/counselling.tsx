@@ -8,6 +8,7 @@ import { BIG5_KEYS, RIASEC_KEYS, SUBJECT_KEYS, VALUE_KEYS } from '@/lib/taxonomy
 import { big5Label, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import { withBase } from '@/lib/site.ts'
 import { instrumentText } from '@/lib/site/assessment-text.ts'
+import { fitText } from '@/lib/site/fit-text.ts'
 import { professionalText } from '@/lib/site/professional-text.ts'
 import { QuestionnaireForm } from '../ui/questionnaire-form.tsx'
 import { useSite } from '../ui/site-context.tsx'
@@ -16,6 +17,7 @@ import { useSite } from '../ui/site-context.tsx'
 export function CounsellingView() {
   const { locale, r, t, conf } = useSite()
   const text = instrumentText(locale)
+  const grade = fitText(locale)
   const info = professionalText(locale)
   const [answers, setAnswers] = useState<QuestionnaireAnswers>({})
   const [stage, setStage] = useState<'intro' | 'answers' | 'profile' | 'ended'>('intro')
@@ -82,7 +84,11 @@ export function CounsellingView() {
       {profile.personalityMeans ? <dl className="mt-3 grid gap-3 sm:grid-cols-2">{BIG5_KEYS.map(key => <div key={key} className="card-sm flex justify-between gap-4 p-4"><dt>{big5Label(key, locale).name}</dt><dd className="whitespace-nowrap font-bold">{value(profile.personalityMeans![key])}</dd></div>)}</dl> : <p className="mt-3">{text.partial}</p>}
       {!!Object.keys(profile.subjects ?? {}).length && <>
         <h2 className="mt-6 font-display text-2xl">{t.q.tabs.subjects}</h2><p className="mt-2 text-sm text-muted">{text.subjects}</p>
-        <ul className="mt-3 space-y-2">{SUBJECT_KEYS.filter(key => profile.subjects?.[key]).map(key => <li key={key}><strong>{subjectLabel(key, locale)}</strong>: {t.q.enjoyHead} {profile.subjects?.[key]?.enjoy ?? '—'} / 5 · {t.q.goodHead} {profile.subjects?.[key]?.grade ?? '—'} / 5</li>)}</ul>
+        <ul className="mt-3 space-y-2">{SUBJECT_KEYS.filter(key => profile.subjects?.[key]).map(key => <li key={key}><strong>{subjectLabel(key, locale)}</strong>: {t.q.enjoyHead} {profile.subjects?.[key]?.enjoy ?? '—'} / 5</li>)}</ul>
+      </>}
+      {profile.grades && <>
+        <h2 className="mt-6 font-display text-2xl">{grade.gradesTitle}</h2><p className="mt-2 text-sm text-muted">{grade.gradesWhy}</p>
+        <p className="mt-3">{grade.scales[profile.grades.scale]} · {grade.average}: {profile.grades.average ?? '—'} · {grade.mathLabel}: {profile.grades.math ?? '—'}</p>
       </>}
       {!!Object.keys(profile.values ?? {}).length && <>
         <h2 className="mt-6 font-display text-2xl">{t.q.tabs.values}</h2><p className="mt-2 text-sm text-muted">{text.values}</p>

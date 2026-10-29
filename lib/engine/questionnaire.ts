@@ -3,8 +3,8 @@ import type { Big5, Riasec, RiasecKey } from '../taxonomy/fields.ts'
 import type { QuestionnaireAnswers } from './types.ts'
 
 /**
- * The questionnaire fills in what no digital footprint shows: how someone
- * describes themselves, which school subjects they like and are good at, and
+ * The questionnaire fills in what no digital footprint shows: what someone
+ * likes doing, which school subjects they enjoy, their actual grades, and
  * what they want from a career. Personality items are optional.
  */
 
@@ -17,13 +17,13 @@ export interface LikertItem {
 }
 
 /**
- * Activity items, four per Holland type, rated for liking: 1 (dislike) .. 5
+ * Activity items, eight per Holland type, rated for liking: 1 (dislike) .. 5
  * (love). Short concrete activities rather than job titles, written to be
  * gender-neutral (no «-in», no stereotyped hobbies) and to cover the fields in
- * the taxonomy. This is a custom short form, not a validated scale; item
- * selection preserves concrete activities and breadth, not measured reliability.
- * They are shown interleaved (R, I, A, S, E, C, R, …) so that no block of one
- * type invites answering on autopilot.
+ * the taxonomy, including the humanities that common inventories leave out
+ * (Su et al., 2019). This is a custom form, not a validated scale. Eight items
+ * per type sit between the 8-item public-domain markers (Armstrong et al.,
+ * 2008) and the 10-item O*NET short form (Rounds et al., 2010).
  */
 const BY_TYPE: Record<RiasecKey, string[]> = {
   R: [
@@ -33,6 +33,8 @@ const BY_TYPE: Record<RiasecKey, string[]> = {
     'Set up and test electronics, a robot or a 3D printer',
     'Grow plants or look after animals',
     'Measure or build something on a construction site',
+    'Install or repair the wiring, plumbing or heating of a building',
+    'Look after a forest, a river or a nature reserve',
   ],
   I: [
     'Figure out why something in nature works the way it does',
@@ -41,6 +43,8 @@ const BY_TYPE: Record<RiasecKey, string[]> = {
     'Read up on a scientific question until you really understand it',
     'Find the cause of an illness or a technical fault',
     'Look for patterns in data',
+    'Find out how the human body or the brain works',
+    'Test a claim against facts and sources',
   ],
   A: [
     'Write a story, song, script or article',
@@ -49,6 +53,8 @@ const BY_TYPE: Record<RiasecKey, string[]> = {
     'Take photos or film and edit them',
     'Draw, paint or make something from your own ideas',
     'Play with language: translate, write poems, find the right word',
+    'Compose music or produce a track',
+    'Interpret a novel, a film or a work of art and write about it',
   ],
   S: [
     'Teach or explain something to others',
@@ -57,6 +63,8 @@ const BY_TYPE: Record<RiasecKey, string[]> = {
     'Organise an activity for children or young people',
     'Listen to someone and help them find their own solution',
     'Work with people from other cultures or backgrounds',
+    'Settle a conflict between two people',
+    'Work on a project that improves life in your neighbourhood',
   ],
   E: [
     'Convince a group to back your idea',
@@ -65,6 +73,8 @@ const BY_TYPE: Record<RiasecKey, string[]> = {
     'Negotiate a good deal or price',
     'Present a plan in front of people and defend it',
     "Stand up for someone's case, for example in court",
+    'Market a product or an idea so that people want it',
+    'Decide how a company or organisation spends its money',
   ],
   C: [
     'Organise information so that everything is accurate',
@@ -73,25 +83,62 @@ const BY_TYPE: Record<RiasecKey, string[]> = {
     'Check a document for mistakes and inconsistencies',
     'Build a spreadsheet that keeps everything in order',
     'Plan schedules, routes or stock so that nothing goes wrong',
+    'Keep records and files complete and up to date',
+    'Check that rules and regulations are followed',
   ],
 }
 
-/** One instructed item in the middle of the list: answering it as asked shows the list is being read. */
-export const ATTENTION_ITEM: LikertItem = { id: 'chk', key: 'check', text: 'To show you are reading: choose 2 here' }
-export const ATTENTION_ANSWER = 2
+/**
+ * Two instructed items (Meade & Craig, 2012): someone answering at random
+ * misses at least one of them with a probability of 1 - (1/5)² = 96 %.
+ */
+export const ATTENTION_ITEMS: Array<LikertItem & { answer: number }> = [
+  { id: 'chk', key: 'check', text: 'To show you are reading: choose 2 here', answer: 2 },
+  { id: 'chk2', key: 'check', text: 'To show you are reading: choose 4 here', answer: 4 },
+]
 
-// Original one-based item numbers keep saved answers and translations stable.
-const SELECTED: Record<RiasecKey, number[]> = {
-  R: [1, 2, 5, 6], I: [1, 2, 3, 6], A: [1, 2, 3, 5],
-  S: [1, 2, 3, 4], E: [1, 2, 3, 4], C: [1, 2, 4, 6],
-}
-export const ITEMS_PER_TYPE = 4
+export const ITEMS_PER_TYPE = 8
+/** Item IDs are one-based per type (r1 … r8) and stay stable for saved answers and translations. */
 export const RIASEC_ITEMS: LikertItem[] = Array.from({ length: ITEMS_PER_TYPE }, (_, n) => n).flatMap((n) =>
-  RIASEC_KEYS.map((k) => ({ id: `${k.toLowerCase()}${SELECTED[k][n]}`, key: k, text: BY_TYPE[k][SELECTED[k][n] - 1] })),
+  RIASEC_KEYS.map((k) => ({ id: `${k.toLowerCase()}${n + 1}`, key: k, text: BY_TYPE[k][n] })),
 )
 
-/** The interest list as shown: the attention item sits after the first half. */
-export const INTEREST_LIST: LikertItem[] = [...RIASEC_ITEMS.slice(0, 12), ATTENTION_ITEM, ...RIASEC_ITEMS.slice(12)]
+/** Deterministic pseudo-random numbers (mulberry32), so one person always sees the same order. */
+function random(seed: number): () => number {
+  let a = seed >>> 0
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0
+    let t = a
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/** A fresh order seed for someone who has not answered yet. */
+export const newOrderSeed = () => Math.floor(Math.random() * 2 ** 31) + 1
+
+/**
+ * The interest list as shown. With a seed the items come in a random order of
+ * their own, which a run of identical answers needs to mean anything; without
+ * one (answers saved before the seed existed) they stay interleaved R, I, A, S,
+ * E, C, R, …. The attention items sit after the first and the second third.
+ */
+export function interestList(seed?: number): LikertItem[] {
+  const items = [...RIASEC_ITEMS]
+  if (seed) {
+    const next = random(seed)
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(next() * (i + 1))
+      ;[items[i], items[j]] = [items[j], items[i]]
+    }
+  }
+  const third = Math.round(items.length / 3)
+  return [...items.slice(0, third), ATTENTION_ITEMS[0], ...items.slice(third, 2 * third), ATTENTION_ITEMS[1], ...items.slice(2 * third)]
+}
+
+/** The default order, for item listings that belong to nobody in particular. */
+export const INTEREST_LIST: LikertItem[] = interestList()
 
 /**
  * Mini-IPIP (Donnellan, Oswald, Baird & Lucas, 2006): 20 items, four per Big
@@ -133,8 +180,8 @@ export function riasecCompleteness(a: QuestionnaireAnswers): number {
   return RIASEC_ITEMS.filter((i) => isLikert(a.riasec![i.id])).length / RIASEC_ITEMS.length
 }
 
-/** Answers per Holland type needed before its scale counts. Fewer would be noise, and a missing type is not «neutral». */
-export const MIN_PER_TYPE = Math.ceil(ITEMS_PER_TYPE / 2)
+/** Answers per Holland type needed before its scale counts: three quarters. Fewer would be noise, and a missing type is not «neutral». */
+export const MIN_PER_TYPE = 6
 
 /** RIASEC profile in 0..1 from the activity items, or null until every type has enough answers. */
 export function scoreRiasec(a: QuestionnaireAnswers): Riasec | null {
@@ -164,17 +211,16 @@ export function profileShape(p: Riasec): { elevation: number; differentiation: n
   return { elevation: avg(p), differentiation, flat: differentiation < FLAT_BELOW }
 }
 
-/**
- * Signs of answering without reading: the attention item answered otherwise
- * than asked, or ten or more identical answers in a row in the interest
- * list. Only the wording of the result changes; nobody is locked out.
- */
-export function careless(a: QuestionnaireAnswers): boolean {
+/** Identical answers in a row that count as answering on autopilot, in a randomly ordered list of 50. */
+export const LONGSTRING = 12
+
+/** Longest run of identical answers in the order the person saw the items. */
+export function longestRun(a: QuestionnaireAnswers): number {
   const r = a.riasec ?? {}
-  if (isLikert(r[ATTENTION_ITEM.id]) && r[ATTENTION_ITEM.id] !== ATTENTION_ANSWER) return true
   let run = 0
+  let best = 0
   let last: number | undefined
-  for (const it of INTEREST_LIST) {
+  for (const it of interestList(a.order)) {
     const v = r[it.id]
     if (!isLikert(v)) {
       last = undefined
@@ -183,9 +229,28 @@ export function careless(a: QuestionnaireAnswers): boolean {
     }
     run = v === last ? run + 1 : 1
     last = v
-    if (run >= 10) return true
+    best = Math.max(best, run)
   }
-  return false
+  return best
+}
+
+/**
+ * Signs of answering without reading, each its own index (Meade & Craig,
+ * 2012): an instructed item answered otherwise than asked, and a long run of
+ * identical answers. They lead to a notice asking to go through the
+ * questions again; the ranking itself stays as answered.
+ */
+export function responseFlags(a: QuestionnaireAnswers): { attention: boolean; longstring: boolean } {
+  const r = a.riasec ?? {}
+  return {
+    attention: ATTENTION_ITEMS.some((it) => isLikert(r[it.id]) && r[it.id] !== it.answer),
+    longstring: longestRun(a) >= LONGSTRING,
+  }
+}
+
+export function careless(a: QuestionnaireAnswers): boolean {
+  const f = responseFlags(a)
+  return f.attention || f.longstring
 }
 
 /** Count only valid responses to the twenty current personality items. */
@@ -237,7 +302,7 @@ export function questionnaireProgress(a: QuestionnaireAnswers): { done: number; 
   const done =
     INTEREST_LIST.filter((i) => isLikert(a.riasec?.[i.id])).length +
     big5Answered(a) +
-    Object.values(a.subjects ?? {}).filter((s) => s && (s.enjoy || s.grade)).length +
+    Object.values(a.subjects ?? {}).filter((s) => s?.enjoy).length +
     Object.keys(a.values ?? {}).length
   return { done, total }
 }

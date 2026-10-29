@@ -123,9 +123,9 @@ export async function HowView({ site, base, locale }: SiteProps) {
         <p>Chaque élément est comparé à un lexique multilingue et à des thèmes associés aux domaines. Un abonnement ou un projet créé pèse davantage qu’une consultation isolée. Nous tenons compte de la répétition dans le temps, puis comparons la part de chaque domaine à sa fréquence générale. Les signaux provenant de sources différentes peuvent se renforcer.</p>
         <h2>3. Tes réponses complètent l’analyse</h2>
         <ul>
-          <li><strong>Intérêts :</strong> le modèle RIASEC de John Holland décrit six types d’intérêts. Le questionnaire et les thèmes de ton historique contribuent à ton profil.</li>
+          <li><strong>Intérêts :</strong> le modèle RIASEC de John Holland décrit six types d’intérêts. 48 questions, huit par type, forment ton profil. Si tu as répondu au questionnaire, le classement repose uniquement sur la correspondance des intérêts ; ton historique apparaît comme exemples sans modifier le classement.</li>
           <li><strong>Personnalité :</strong> le Mini-IPIP de Donnellan et ses collègues (2006) contient 20 questions issues de l’International Personality Item Pool. Cette partie est facultative ; tu peux consulter ton résultat sans y répondre. Cette partie ne modifie pas le classement des domaines en mode questionnaire ; elle ajoute un profil de personnalité et peut contribuer à la comparaison facultative par IA.</li>
-          <li><strong>Matières et priorités :</strong> tes matières préférées, tes points forts et ce que tu recherches dans un métier sont comparés aux contenus des domaines.</li>
+          <li><strong>Matières, notes et priorités :</strong> les matières que tu aimes sont comparées à ce dont les domaines ont besoin. Tes notes figurent à part comme indication de faisabilité, et ce que tu recherches dans un métier sert de filtre que tu choisis toi-même.</li>
         </ul>
         <h2>4. Ce que le résultat ne dit pas</h2>
         <ul>
@@ -158,9 +158,9 @@ export async function HowView({ site, base, locale }: SiteProps) {
         <p>Ogni elemento viene confrontato con un lessico multilingue e con i temi associati alle aree. Un’iscrizione o un progetto creato pesa più di una visita isolata. Consideriamo la ricorrenza nel tempo e confrontiamo la quota di ogni area con la sua frequenza generale. Segnali provenienti da fonti diverse possono rafforzarsi.</p>
         <h2>3. Le tue risposte completano l’analisi</h2>
         <ul>
-          <li><strong>Interessi:</strong> il modello RIASEC di John Holland descrive sei tipi di interesse. Al profilo contribuiscono il questionario e i temi della tua cronologia.</li>
+          <li><strong>Interessi:</strong> il modello RIASEC di John Holland descrive sei tipi di interesse. 48 domande, otto per tipo, formano il tuo profilo. Se hai risposto al questionario, la classifica si basa solo sulla compatibilità degli interessi; la cronologia compare come esempi senza cambiare la classifica.</li>
           <li><strong>Personalità:</strong> il Mini-IPIP di Donnellan e colleghi (2006) contiene 20 domande tratte dall’International Personality Item Pool. Questa parte è facoltativa; puoi vedere il risultato senza rispondere. Questa parte non cambia la classifica delle aree in modalità questionario; aggiunge un profilo di personalità e può contribuire al confronto facoltativo tramite IA.</li>
-          <li><strong>Materie e priorità:</strong> confrontiamo le materie che ti piacciono, i tuoi punti di forza e ciò che cerchi in un lavoro con i contenuti delle aree.</li>
+          <li><strong>Materie, voti e priorità:</strong> confrontiamo le materie che ti piacciono con ciò di cui le aree hanno bisogno. I voti compaiono a parte come indicazione sulla fattibilità, e ciò che cerchi in un lavoro è un filtro che scegli tu.</li>
         </ul>
         <h2>4. Cosa non indica il risultato</h2>
         <ul>
@@ -328,17 +328,17 @@ export async function HowView({ site, base, locale }: SiteProps) {
       <h2>4. The psychology</h2>
       <ul>
         <li>
-          <strong>Interests (RIASEC):</strong> John Holland’s six interest types (Realistic, Investigative, Artistic, Social, Enterprising, Conventional) underpin most career guidance. Every field has a RIASEC profile; yours comes from 24 activity questions and from the fields you engage with. Congruence between the two is one of the best-replicated predictors of satisfaction and persistence in a major.
+          <strong>Interests (RIASEC):</strong> John Holland’s six interest types (Realistic, Investigative, Artistic, Social, Enterprising, Conventional) underpin most career guidance. Every field has a RIASEC profile; yours comes from 48 activity questions (or, without them, from the fields you engage with). Interest fit relates to satisfaction and persistence in a major only weakly, and to grades hardly at all (de Vries et al., 2024). It is a guide for exploring, not a forecast.
         </li>
         <li>
           <strong>Personality (Big Five):</strong> 20 items from the published Mini-IPIP (Donnellan et al., 2006). Our translations and the complete procedure have not been empirically validated; representative norms are unavailable. This part is optional; you can view your result without answering it. This part does not change the field ranking in questionnaire mode. It shows descriptive response means; the AI comparison does not receive this personality profile. Music taste may contribute a weak heuristic internally, but is not reported as a personality assessment.
         </li>
         <li>
-          <strong>School subjects and values:</strong> what you enjoy and are good at, and what you want from work (salary, security, creativity, helping, impact), compared with what each field draws on and offers. For salary, US graduate earnings data is mixed in.
+          <strong>School subjects, grades and values:</strong> the subjects you enjoy are compared with what each field draws on. Your grades are shown separately as a note on feasibility, because grades predict study grades far better than interests do. What you want from work (salary, security, creativity, helping, impact) is a filter you set yourself. For salary, graduate earnings data is mixed in.
         </li>
       </ul>
       <p>
-        The final match blends these components. Weights adapt: with lots of footprint data, interest leads; with little, the questionnaire carries more. Scores are relative: 90+ means a field stands out for you among all {FIELDS.length}, not that success is guaranteed.
+        With the interest questions answered, the ranking is interest fit alone: the profile correlation of your RIASEC profile with the field’s, and of the subjects you enjoy with what the field draws on, weighted equally. Footprint data appear as evidence but do not move it. Without the questions, the footprint leads and the ranking is an experiment. Fields less than 5 points apart are shown as one group. Scores are relative: 90+ means a field stands out for you among all {FIELDS.length}, not that success is guaranteed.
       </p>
 
       <h2>Limits, honestly</h2>

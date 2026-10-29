@@ -1,7 +1,8 @@
-import { BIG5_KEYS, FIELDS, SUBJECT_KEYS, VALUE_KEYS } from '../taxonomy/fields.ts'
-import type { Big5, Field, Riasec, RiasecKey, SubjectKey } from '../taxonomy/fields.ts'
+import { BIG5_KEYS, FIELDS, RIASEC_KEYS, SUBJECT_KEYS, VALUE_KEYS } from '../taxonomy/fields.ts'
+import type { Big5, Field, Riasec, RiasecKey, SubjectKey, ValueKey } from '../taxonomy/fields.ts'
 import { musicBig5 } from './music.ts'
 import { careless, profileShape, riasecCode, riasecCompleteness, scoreBig5, scoreRiasec } from './questionnaire.ts'
+import { correlation } from './programme-fit.ts'
 import type { FieldMatch, Insight, QuestionnaireAnswers, Reason, Results, SourceId, SourceSummary, Studying } from './types.ts'
 import { isGenericTopic } from './classifier.ts'
 import { isStudyInfo } from './text.ts'
@@ -9,7 +10,7 @@ import { activityAgeWeight } from './recency.ts'
 import { ASSESSMENT_VERSION } from './assessment-version.ts'
 
 /**
- * The matching model. Five components per field, each in 0..1:
+ * The matching model. Components per field, each in 0..1:
  *
  *   interest     What you actually spend attention on, from your footprint:
  *                your share of content on the field against how common that
@@ -21,17 +22,23 @@ import { ASSESSMENT_VERSION } from './assessment-version.ts'
  *                which fields you engage with, which also lets interest spread
  *                to related fields you haven't discovered.
  *   personality  Big Five tilts (questionnaire; music taste as a weak stand-in).
- *   subjects     School subjects you enjoy and are good at, against what the
- *                field draws on.
- *   values       What you want from work against what the field offers.
+ *   subjects     How the school subjects you enjoy line up with what the field
+ *                draws on.
  *
- * Two modes. With the interest scales answered (the standard), the
- * questionnaire decides: interest fit 50 %, school subjects 36 %, values
- * 14 %, and data from exports moves a field by at most a quarter. These are
- * product heuristics, not empirically calibrated weights or reliability
- * estimates for this procedure. Personality is descriptive only in this
- * mode. Without the interest scales, the data lead and the result is an
- * exploration with low confidence.
+ * Two modes. With the interest scales answered (the standard), the ranking
+ * is interest fit and nothing else: the profile correlation of your Holland
+ * profile with the field's, and the same correlation for the school subjects
+ * you enjoy (content interests), averaged with equal weights. The profile
+ * correlation is the best single interpretable fit index; distance measures
+ * add next to nothing (Granillo-Velasquez et al., 2025), so there is no
+ * distance part. Equal weights are a declared heuristic, not calibrated.
+ * Everything else stays out of the number: grades are shown as a separate
+ * note on feasibility (grades.ts), values are a filter the person sets
+ * (`offers`), personality is descriptive, and data from exports appear as
+ * evidence but do not move the ranking.
+ *
+ * Without the interest scales the data lead. That mode is an experiment,
+ * labelled as such, with low confidence.
  */
 
 // Product weights: YouTube leads My Activity; situational Google searches and News remain supplementary.
@@ -48,19 +55,26 @@ export const SOURCE_RELIABILITY: Record<SourceId, number> = {
   questionnaire: 1,
 }
 
-const BASE_WEIGHTS = { interest: 0.56, riasec: 0.16, personality: 0.05, subjects: 0.15, values: 0.08 }
-/** With the interest scales answered: the questionnaire's own weights, personality shown but not counted. */
-// Interests lead, but a school subject someone loves and is good at must not
-// vanish behind one low RIASEC scale (review of a real result: computer
-// science at 5/5 ended up hidden).
-const Q_WEIGHTS = { riasec: 0.5, subjects: 0.36, values: 0.14, personality: 0 }
-/** The most a field's data can move its match when the questionnaire leads. */
-const DATA_SHARE = 0.25
+/** Data-only mode (experiment): what the data show leads, the questionnaire parts present refine it. */
+const BASE_WEIGHTS = { interest: 0.6, riasec: 0.17, personality: 0.05, subjects: 0.18 }
 /** Closer than this, two fields are a tie the questionnaire can't separate. */
 const TIE = 0.03
+/**
+ * Fields within this many points of the best in their group form one group.
+ * Field profiles are coded by hand and coding sources disagree (Eggerth et
+ * al., 2005), so a few points apart is no real order.
+ */
+export const GROUP_WIDTH = 5
+/** A field «offers» a value from this level of its 0..1 profile on. */
+export const OFFERS = 0.6
+/** Alternatives from other areas: at most this many, at least this score. */
+const ALTERNATIVES = 4
+const ALTERNATIVE_MIN = 50
 
 /** For showing evidence: what you watched and searched first, old subscriptions last. */
 const KIND_WEIGHT: Record<string, number> = { watch: 3, search: 3, google: 3, comment: 0.3, like: 1.5, saved: 2, post: 2.5, upload: 2.5, repo: 2.5, subscription: 0.2 }
+
+const FIELD_GROUP = new Map(FIELDS.map((f) => [f.id, f.group]))
 
 const POP_SUM = FIELDS.reduce((s, f) => s + f.popularity, 0)
 /** Share of a typical person's recognised content that lands in a given field. */
@@ -268,16 +282,15 @@ export function score(input: ScoreInput): Results {
     big5From.push('music')
   }
 
-  // Subjects: enjoyment counts more than grades.
+  // Subjects: how much each is enjoyed, -1..1. Ability is the grades' part, shown separately.
   const subj: Partial<Record<string, number>> = {}
   for (const k of SUBJECT_KEYS) {
-    const s = answers.subjects?.[k]
-    if (!s || (!s.enjoy && !s.grade)) continue
-    const e = s.enjoy ?? s.grade!
-    const g = s.grade ?? s.enjoy!
-    subj[k] = (0.6 * e + 0.4 * g - 3) / 2
+    const e = answers.subjects?.[k]?.enjoy
+    if (typeof e === 'number' && Number.isInteger(e) && e >= 1 && e <= 5) subj[k] = (e - 3) / 2
   }
-  const hasSubjects = Object.keys(subj).length >= 4
+  const subjKeys = Object.keys(subj)
+  // Four answers at least, and not all the same: an even rating says nothing about which subjects.
+  const hasSubjects = subjKeys.length >= 4 && new Set(subjKeys.map((k) => subj[k])).size > 1
 
   const valueWeights: Partial<Record<string, number>> = {}
   for (const k of VALUE_KEYS) {
@@ -289,9 +302,8 @@ export function score(input: ScoreInput): Results {
   const userR = riasec ? centeredUnit(riasec) : null
   const questionnaireLed = !!qRiasec
   const shape = qRiasec ? profileShape(qRiasec) : null
-  // Relative to its own peak, like the fields' profiles, for the distance part of the fit.
-  const userPeak = riasec ? riasec.map((x) => x / (Math.max(...riasec!) || 1)) : null
-  const lambda = DATA_SHARE * footprintConf
+  const fieldValue = (f: Field, k: ValueKey) =>
+    k === 'salary' && fieldStats[f.id]?.salaryPercentile !== undefined ? 0.5 * f.values[k] + 0.5 * fieldStats[f.id]!.salaryPercentile! : f.values[k]
 
   // Per source and label, the field where an evidence item weighs most.
   const bestEvidence = new Map<SourceId, Map<string, number>>()
@@ -309,15 +321,13 @@ export function score(input: ScoreInput): Results {
 
     if (footprintConf > 0 && it) {
       comp.interest = sigmoid(1.7 * (it.value - 0.8))
-      // When the questionnaire leads, data enter as a capped share below, not as a component.
+      // When the questionnaire leads, data are evidence only, not part of the match.
       if (!questionnaireLed) w.interest = BASE_WEIGHTS.interest * (0.4 + 0.6 * footprintConf)
     }
-    if (userR && userPeak && !shape?.flat) {
-      // Shape (correlation of the centred profiles) and level (distance), as in profile-matching practice.
-      const cos = cosine(userR, centeredUnit(f.riasec))
-      const dist = Math.sqrt(userPeak.reduce((s, x, i) => s + (x - f.riasec[i]) ** 2, 0))
-      comp.riasec = questionnaireLed ? 0.7 * ((cos + 1) / 2) + 0.3 * (1 - dist / Math.sqrt(6)) : (cos + 1) / 2
-      w.riasec = questionnaireLed ? Q_WEIGHTS.riasec : 0.12
+    if (userR && !shape?.flat) {
+      // Profile correlation: the shape of the two profiles, not how much someone ticks overall.
+      comp.riasec = (cosine(userR, centeredUnit(f.riasec)) + 1) / 2
+      w.riasec = questionnaireLed ? 1 : BASE_WEIGHTS.riasec
     }
     // In questionnaire mode personality is descriptive only, including hidden suggestions and reasons.
     if (big5 && !questionnaireLed) {
@@ -326,38 +336,12 @@ export function score(input: ScoreInput): Results {
       comp.personality = 0.5 + 0.5 * Math.tanh(dot)
       w.personality = BASE_WEIGHTS.personality * big5Conf
     }
-    if (hasSubjects) {
-      let num = 0
-      let den = 0
-      for (const [k, demand] of Object.entries(f.subjects)) {
-        const s = subj[k]
-        if (s === undefined || !demand) continue
-        num += demand * s
-        den += demand
-      }
-      if (den > 0) {
-        comp.subjects = 0.5 + 0.5 * Math.max(-1, Math.min(1, num / den))
-        w.subjects = questionnaireLed ? Q_WEIGHTS.subjects : BASE_WEIGHTS.subjects
-      }
+    // The same profile correlation over the answered subjects: enjoyment against how much the field draws on each.
+    if (hasSubjects && subjKeys.some((k) => (f.subjects[k as SubjectKey] ?? 0) > 0)) {
+      comp.subjects = (correlation(subjKeys.map((k) => subj[k]!), subjKeys.map((k) => f.subjects[k as SubjectKey] ?? 0)) + 1) / 2
+      w.subjects = questionnaireLed ? 1 : BASE_WEIGHTS.subjects
     }
-    if (hasValues) {
-      let num = 0
-      let den = 0
-      for (const k of VALUE_KEYS) {
-        const uw = valueWeights[k] ?? 0
-        if (!uw) continue
-        let fv = f.values[k]
-        if (k === 'salary' && fieldStats[f.id]?.salaryPercentile !== undefined) {
-          fv = 0.5 * fv + 0.5 * fieldStats[f.id]!.salaryPercentile!
-        }
-        num += uw * fv
-        den += uw
-      }
-      if (den > 0) {
-        comp.values = num / den
-        w.values = questionnaireLed ? Q_WEIGHTS.values : BASE_WEIGHTS.values
-      }
-    }
+    const offers = VALUE_KEYS.filter((k) => fieldValue(f, k) >= OFFERS)
 
     let num = 0
     let den = 0
@@ -366,10 +350,7 @@ export function score(input: ScoreInput): Results {
       den += wk
     }
     let match = den ? num / den : 0
-    if (questionnaireLed) {
-      // Data refine, they don't decide: at most a quarter of the match.
-      if (comp.interest !== undefined) match = (1 - lambda) * match + lambda * comp.interest
-    } else if (comp.interest !== undefined) {
+    if (!questionnaireLed && comp.interest !== undefined) {
       // Data alone: a field you hardly engage with drops.
       match -= 0.7 * Math.max(0, 0.5 - comp.interest) * footprintConf
     }
@@ -377,10 +358,7 @@ export function score(input: ScoreInput): Results {
     // Where the match comes from: the interest part split by source, the
     // questionnaire parts as they are.
     const parts: Record<string, number> = {}
-    const weights = questionnaireLed && comp.interest !== undefined && den
-      ? { ...Object.fromEntries(Object.entries(w).map(([k, v]) => [k, ((1 - lambda) * v) / den])), interest: lambda }
-      : w
-    for (const [k, wk] of Object.entries(weights)) {
+    for (const [k, wk] of Object.entries(w)) {
       const c = wk * (comp[k as keyof typeof comp] ?? 0)
       if (k !== 'interest') {
         // Without a questionnaire the interest type is inferred from the data.
@@ -431,6 +409,12 @@ export function score(input: ScoreInput): Results {
       const shared = [...code].filter((c) => fieldCode.includes(c))
       if (shared.length) reasons.push({ k: 'riasec', types: shared as RiasecKey[] })
     }
+    // What does not fit: a type the field lives on that you like clearly less than your strongest.
+    if (comp.riasec !== undefined && riasec) {
+      const peak = Math.max(...riasec)
+      const low = RIASEC_KEYS.filter((_, i) => f.riasec[i] >= 0.7 && riasec![i] <= 0.4 && riasec![i] <= peak - 0.3)
+      if (low.length) reasons.push({ k: 'riasecLow', types: low })
+    }
     if (comp.subjects !== undefined && comp.subjects > 0.62) {
       const liked = Object.entries(f.subjects)
         .filter(([k, d]) => (d ?? 0) >= 0.6 && (subj[k] ?? 0) > 0.3)
@@ -443,8 +427,8 @@ export function score(input: ScoreInput): Results {
         .map(([k]) => k as SubjectKey)
       if (disliked.length) reasons.push({ k: 'subjectsLow', subjects: disliked })
     }
-    if (comp.values !== undefined && comp.values > 0.7) {
-      const offered = VALUE_KEYS.filter((k) => (valueWeights[k] ?? 0) >= 0.75 && f.values[k] >= 0.75)
+    if (hasValues) {
+      const offered = VALUE_KEYS.filter((k) => (valueWeights[k] ?? 0) >= 0.75 && fieldValue(f, k) >= 0.75)
       if (offered.length) reasons.push({ k: 'values', values: offered })
     }
     if (comp.personality !== undefined && comp.personality > 0.62 && big5) {
@@ -453,6 +437,8 @@ export function score(input: ScoreInput): Results {
     }
 
     evidence.sort((a, b) => b.w - a.w)
+    // What does not fit comes after what does: a card's summary line shows the first reason.
+    reasons.sort((a, b) => Number(a.k === 'riasecLow' || a.k === 'subjectsLow') - Number(b.k === 'riasecLow' || b.k === 'subjectsLow'))
     return {
       id: f.id,
       match,
@@ -468,6 +454,7 @@ export function score(input: ScoreInput): Results {
       terms: [...terms.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([t]) => t),
       persistence: it?.persistence,
       sources: it?.sources ?? [],
+      offers,
     }
   })
 
@@ -482,32 +469,44 @@ export function score(input: ScoreInput): Results {
     for (const m of sorted) m.score = Math.round(100 * sigmoid((m.match - mean) / sd * 1.1))
   }
 
-  const top = sorted.slice(0, 12)
-  const topIds = new Set(top.map((m) => m.id))
+  // Groups of similar fit instead of a seemingly exact order.
+  let tier = 0
+  let tierTop = Infinity
+  for (const m of sorted) {
+    if (m.score < tierTop - GROUP_WIDTH) {
+      tier++
+      tierTop = m.score
+    }
+    m.tier = tier
+  }
+
+  // Alternatives: the best field of each area that has none among the first ten,
+  // so the result does not narrow the choice to one corner (Su et al., 2009).
+  const leading = sorted.slice(0, 10)
+  const leadingGroups = new Set(leading.map((m) => FIELD_GROUP.get(m.id)))
+  const seen = new Set<string>()
   const hidden = sorted
-    .filter((m) => !topIds.has(m.id))
-    .filter((m) => (m.components.interest ?? 0) < 0.4)
-    .map((m) => {
-      const parts = (['riasec', 'subjects', 'personality', 'values'] as const)
-        .map((k) => m.components[k])
-        .filter((x): x is number => x !== undefined)
-      return { m, fit: parts.length ? parts.reduce((s, x) => s + x, 0) / parts.length : 0 }
+    .slice(10)
+    .filter((m) => {
+      const g = FIELD_GROUP.get(m.id)!
+      if (leadingGroups.has(g) || seen.has(g)) return false
+      seen.add(g)
+      return m.score >= ALTERNATIVE_MIN
     })
-    .filter((x) => x.fit > 0.6)
-    .sort((a, b) => b.fit - a.fit)
-    .slice(0, 4)
-    .map((x) => ({ ...x.m, reasons: [{ k: 'hidden' } as Reason, ...x.m.reasons] }))
+    .slice(0, ALTERNATIVES)
+    .map((m) => ({ ...m, reasons: [{ k: 'hidden' } as Reason, ...m.reasons] }))
 
   const dataPoints = summaries.reduce((s, x) => s + x.dataPoints, 0)
-  // With the questionnaire, confidence rests on how complete and how clear it is.
+  // With the questionnaire, confidence rests on how complete and how clear it is. Signs of careless
+  // answering lead to a notice of their own instead of quietly lowering it.
   // Data alone can carry a solid result when there is plenty of it; «high» needs the questionnaire.
   const isCareless = careless(answers)
   const flat = !!shape?.flat
   const confidence: Results['confidence'] = !questionnaireLed
     ? footprintConf >= 0.6 ? 'medium' : 'low'
-    : flat || isCareless
+    : flat
       ? 'low'
-      : riasecCompleteness(answers) >= 0.9 && hasSubjects && hasValues && (shape?.differentiation ?? 0) >= 0.45
+      : riasecCompleteness(answers) >= 0.9 && hasSubjects && (shape?.differentiation ?? 0) >= 0.45
         ? 'high'
         : 'medium'
   const topTie = sorted.length > 1 && sorted[0].match - sorted[1].match < TIE

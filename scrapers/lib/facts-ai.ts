@@ -4,8 +4,8 @@ import type { Completion, CompletionRequest } from '../../lib/infomaniak.ts'
 export const FACTS_MODEL = 'claude-haiku-5-5'
 export const factsAiConfigured = () => !!process.env.ANTHROPIC_API_KEY?.trim()
 
-/** Separate from the app's Infomaniak transport; no provider fallback or hidden retries. */
-export async function completeFacts(request: CompletionRequest): Promise<Completion> {
+/** Separate from the app's Infomaniak transport; no provider fallback or hidden retries. The rating ensemble names its own model. */
+export async function completeFacts(request: CompletionRequest, model: string = FACTS_MODEL): Promise<Completion> {
   if (!factsAiConfigured()) throw new Error('ANTHROPIC_API_KEY required for public programme readings')
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -13,7 +13,7 @@ export async function completeFacts(request: CompletionRequest): Promise<Complet
       signal: AbortSignal.timeout(request.timeoutMs ?? 120_000),
       headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY!, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
-        model: FACTS_MODEL, max_tokens: request.maxTokens, system: request.system,
+        model, max_tokens: request.maxTokens, system: request.system,
         messages: [{ role: 'user', content: request.input }],
         output_config: { effort: 'low', ...(request.schema ? { format: { type: 'json_schema', schema: request.schema } } : {}) },
       }),

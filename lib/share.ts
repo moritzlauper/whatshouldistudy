@@ -30,6 +30,8 @@ function slim(m: FieldMatch): FieldMatch {
     terms: [],
     sources: [],
     contributions: m.contributions?.map((c) => ({ key: c.key, share: r(c.share) })),
+    ...(m.tier ? { tier: m.tier } : {}),
+    ...(m.offers ? { offers: m.offers } : {}),
   }
 }
 

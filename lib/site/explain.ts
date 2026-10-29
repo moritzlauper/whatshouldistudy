@@ -12,6 +12,8 @@ export function reasonText(r: Reason, k: Pick<Kit, 't' | 'locale'>): string {
       return t.reasons.interest(r.items, r.months)
     case 'riasec':
       return t.reasons.riasec(list(r.types.map((x) => riasecLabel(x, locale).name)))
+    case 'riasecLow':
+      return t.reasons.riasecLow(list(r.types.map((x) => riasecLabel(x, locale).name)))
     case 'subjects':
       return t.reasons.subjects(list(r.subjects.map((x) => subjectLabel(x, locale))))
     case 'subjectsLow':

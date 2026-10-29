@@ -1,10 +1,13 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { QuestionnaireAnswers } from '@/lib/engine/types.ts'
 import { instrumentText } from '@/lib/site/assessment-text.ts'
-import { BIG5_ITEMS, INTEREST_LIST, big5Answered, isLikert } from '@/lib/engine/questionnaire.ts'
+import { fitText } from '@/lib/site/fit-text.ts'
+import { BIG5_ITEMS, big5Answered, interestList, isLikert, newOrderSeed } from '@/lib/engine/questionnaire.ts'
 import type { LikertItem } from '@/lib/engine/questionnaire.ts'
+import { GRADE_SCALES, GRADE_SCALE_IDS, defaultGradeScale, isGrade } from '@/lib/engine/grades.ts'
+import type { GradeScaleId } from '@/lib/engine/grades.ts'
 import { SUBJECT_KEYS, VALUE_KEYS } from '@/lib/taxonomy/fields.ts'
 import type { SubjectKey } from '@/lib/taxonomy/fields.ts'
 import { subjectLabel, valueLabel } from '@/lib/site/labels.ts'
@@ -18,6 +21,12 @@ export function QuestionnaireForm({ answers: a, onChange }: { answers: Questionn
   const { t, locale } = useSite()
   const info = instrumentText(locale)
   const [tab, setTab] = useState<Tab>('interests')
+  // Each person gets an item order of their own before the first answer; answers saved earlier keep the fixed order.
+  useEffect(() => {
+    if (a.order === undefined && !Object.keys(a.riasec ?? {}).length) onChange({ ...a, order: newOrderSeed() })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const interests = interestList(a.order)
   const card = useRef<HTMLDivElement>(null)
   // A new part starts at its first question: on a phone the button to the next part sits far down the page.
   // 80 px: the top of the card is hidden under the sticky header (64 px).
@@ -28,9 +37,9 @@ export function QuestionnaireForm({ answers: a, onChange }: { answers: Questionn
   }
 
   const count: Record<Tab, [number, number]> = {
-    interests: [INTEREST_LIST.filter((i) => isLikert(a.riasec?.[i.id])).length, INTEREST_LIST.length],
+    interests: [interests.filter((i) => isLikert(a.riasec?.[i.id])).length, interests.length],
     personality: [big5Answered(a), BIG5_ITEMS.length],
-    subjects: [Object.values(a.subjects ?? {}).filter((s) => s?.enjoy || s?.grade).length, SUBJECT_KEYS.length],
+    subjects: [Object.values(a.subjects ?? {}).filter((s) => s?.enjoy).length, SUBJECT_KEYS.length],
     values: [Object.keys(a.values ?? {}).length, VALUE_KEYS.length],
   }
 
@@ -69,7 +78,7 @@ export function QuestionnaireForm({ answers: a, onChange }: { answers: Questionn
         <p className="mb-4 font-semibold text-muted">{t.q.hints[tab]}</p>
         <p className="mb-4 text-sm text-muted">{info[tab]}</p>
         {tab === 'interests' && (
-          <LikertList items={localise(INTEREST_LIST, t.q.riasec)} values={a.riasec ?? {}} labels={t.q.likertInterest} onChange={(id, v) => setLikert('riasec', id, v)} color={TAB_COLOR.interests} />
+          <LikertList items={localise(interests, t.q.riasec)} values={a.riasec ?? {}} labels={t.q.likertInterest} onChange={(id, v) => setLikert('riasec', id, v)} color={TAB_COLOR.interests} />
         )}
         {tab === 'personality' && <>
           <p className="mb-2 font-semibold">{t.q.personalityOptional}</p>
@@ -77,7 +86,10 @@ export function QuestionnaireForm({ answers: a, onChange }: { answers: Questionn
           <LikertList items={localise(BIG5_ITEMS, t.q.big5)} values={a.big5 ?? {}} labels={t.q.likertAccuracy} onChange={(id, v) => setLikert('big5', id, v)} color={TAB_COLOR.personality} />
           <p className="mt-4 text-xs text-muted">{t.q.ipipNote}</p>
         </>}
-        {tab === 'subjects' && <Subjects answers={a} onChange={onChange} />}
+        {tab === 'subjects' && <>
+          <Grades answers={a} onChange={onChange} />
+          <Subjects answers={a} onChange={onChange} />
+        </>}
         {tab === 'values' && <Values answers={a} onChange={onChange} />}
         {next && (
           <div className="mt-7 flex justify-end">
@@ -153,36 +165,70 @@ function LikertList({ items, values, labels, onChange, color }: { items: LikertI
 
 function Subjects({ answers, onChange }: { answers: QuestionnaireAnswers; onChange: (answers: QuestionnaireAnswers) => void }) {
   const { t, locale } = useSite()
-  const set = (k: SubjectKey, part: 'enjoy' | 'grade', v: number) =>
-    onChange({ ...answers, subjects: { ...(answers.subjects ?? {}), [k]: { ...(answers.subjects?.[k] ?? {}), [part]: v } } })
+  const set = (k: SubjectKey, v: number) => onChange({ ...answers, subjects: { ...(answers.subjects ?? {}), [k]: { enjoy: v } } })
   return (
     <div>
-      <div className="mb-2 hidden grid-cols-[1fr_auto_auto] gap-6 text-xs font-semibold text-muted sm:grid">
-        <span />
-        <span className="w-[14.5rem] text-center">{t.q.enjoyHead}</span>
-        <span className="w-[14.5rem] text-center">{t.q.goodHead}</span>
+      <div className="mb-2 hidden justify-end text-xs font-semibold text-muted sm:flex">
+        <span>{t.q.enjoyHead}</span>
       </div>
-      <p className="mb-2 text-xs font-semibold text-muted sm:hidden">
-        {t.q.enjoyHead} · {t.q.goodHead}
-      </p>
       <ul className="divide-y-2 divide-soft-line">
         {SUBJECT_KEYS.map((k) => {
           const name = subjectLabel(k, locale)
           return (
-            <li key={k} className="grid gap-2 py-3.5 sm:grid-cols-[1fr_auto_auto] sm:items-center sm:gap-6">
+            <li key={k} className="flex flex-col gap-2 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
               <span className="font-medium">{name}</span>
-              <div className="flex items-center gap-2">
-                <span className="w-14 shrink-0 text-xs text-muted sm:hidden">{t.q.enjoy}</span>
-                <Scale value={answers.subjects?.[k]?.enjoy} onChange={(v) => set(k, 'enjoy', v)} labels={t.q.enjoyScale} name={`${t.q.enjoy}: ${name}`} color="var(--lime)" />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-14 shrink-0 text-xs text-muted sm:hidden">{t.q.goodAt}</span>
-                <Scale value={answers.subjects?.[k]?.grade} onChange={(v) => set(k, 'grade', v)} labels={t.q.goodScale} name={`${t.q.goodAt}: ${name}`} color="var(--sky)" />
-              </div>
+              <Scale value={answers.subjects?.[k]?.enjoy} onChange={(v) => set(k, v)} labels={t.q.enjoyScale} name={`${t.q.enjoy}: ${name}`} color="var(--lime)" ends />
             </li>
           )
         })}
       </ul>
+    </div>
+  )
+}
+
+/** Actual grades from the latest reports, on the scale the person knows; kept out of the ranking. */
+function Grades({ answers, onChange }: { answers: QuestionnaireAnswers; onChange: (answers: QuestionnaireAnswers) => void }) {
+  const { locale, site } = useSite()
+  const f = fitText(locale)
+  const scale: GradeScaleId = answers.grades?.scale ?? defaultGradeScale(site)
+  const range = GRADE_SCALES[scale]
+  const set = (part: 'average' | 'math', raw: string) => {
+    const value = raw.trim() === '' ? undefined : Number(raw.replace(',', '.'))
+    const grades = { ...answers.grades, scale, [part]: value }
+    if (value === undefined || !isGrade(value, scale)) delete grades[part]
+    onChange({ ...answers, grades })
+  }
+  const field = (part: 'average' | 'math', label: string) => (
+    <label className="grid gap-1 text-sm font-semibold">
+      {label}
+      <input
+        type="number"
+        inputMode="decimal"
+        min={range.min}
+        max={range.max}
+        step={range.step}
+        defaultValue={answers.grades?.[part] ?? ''}
+        key={`${scale}-${part}`}
+        onChange={(e) => set(part, e.target.value)}
+        className="input w-32"
+      />
+    </label>
+  )
+  return (
+    <div className="mb-6 rounded-xl border-2 border-soft-line p-4">
+      <div className="font-bold">{f.gradesTitle}</div>
+      <p className="mt-1 text-sm text-muted">{f.gradesHint}</p>
+      <div className="mt-3 flex flex-wrap items-end gap-4">
+        <label className="grid gap-1 text-sm font-semibold">
+          {f.scale}
+          {/* A new scale clears the grades: a 5 means something else on each. */}
+          <select value={scale} onChange={(e) => onChange({ ...answers, grades: { scale: e.target.value as GradeScaleId } })} className="input">
+            {GRADE_SCALE_IDS.map((id) => <option key={id} value={id}>{f.scales[id]}</option>)}
+          </select>
+        </label>
+        {field('average', f.average)}
+        {field('math', f.mathLabel)}
+      </div>
     </div>
   )
 }

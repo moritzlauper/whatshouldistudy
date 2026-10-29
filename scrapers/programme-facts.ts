@@ -7,8 +7,13 @@
  * request every 1.5 seconds, and only where robots.txt allows it, as the Swiss
  * university scraper does.
  *
+ * With --ensemble the interest profile of each read page is also rated by
+ * three models in three runs each (RATING_MODELS × RATING_RUNS), and the mean
+ * and spread are kept with the reading. A page is rated again only when its
+ * text changed. All calls count against the same --max-usd cap.
+ *
  *   node scrapers/programme-facts.ts --data <dir> --previous <file> --out <file>
- *        [--country CH] [--limit 20] [--max-usd 3] [--reread]
+ *        [--country CH] [--limit 20] [--max-usd 3] [--reread] [--ensemble]
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -19,7 +24,7 @@ import { programmeCountry } from '../lib/programme-countries.ts'
 import { isContinuing } from '../lib/programmes.ts'
 import { emptyPageIndex, programmePage, type PageIndex } from './lib/programme-pages.ts'
 import { programmePageText } from './lib/programme-page-text.ts'
-import { FACTS_SCHEMA, FACTS_SYSTEM, batches, costMicroUsd, hashText, isUnchanged, mergeFacts, normaliseFact, type PageMember, type StoredFact } from './lib/facts.ts'
+import { FACTS_SCHEMA, FACTS_SYSTEM, RATING_MODELS, RATING_PRICES, RATING_RUNS, RATING_SCHEMA, RATING_SYSTEM, batches, costMicroUsd, hashText, isUnchanged, mergeFacts, normaliseFact, normaliseRating, summariseRatings, type PageMember, type StoredFact } from './lib/facts.ts'
 import { storedFactProblem } from '../lib/facts-store.ts'
 import { translateStoredFacts } from './lib/facts-translations.ts'
 import { log } from './lib/common.ts'
@@ -87,6 +92,7 @@ async function main() {
   if (!Number.isFinite(maxUsd) || maxUsd <= 0) throw new Error('Invalid --max-usd')
   // Read every page again, also those whose text did not change (after a change to the prompt).
   const reread = process.argv.includes('--reread')
+  const ensemble = process.argv.includes('--ensemble')
   const translateOnly = process.argv.includes('--translate-only')
   if (!outFile || (translateOnly ? !previousFile : !dataDir)) throw new Error('usage: --data <dir> --out <file> [--previous <file>] [--country CH] [--limit N] [--max-usd 3]; or --translate-only --previous <file> --out <file>')
   if (!factsAiConfigured()) throw new Error('ANTHROPIC_API_KEY is required')
@@ -125,6 +131,8 @@ async function main() {
 
   const robots = new Map<string, string>()
   const toRead: Array<{ r: Row; text: string; page: PageMember }> = []
+  // Every page read in this run, for the rating ensemble, which also rates unchanged pages not yet rated.
+  const fetched = new Map<string, { r: Row; page: PageMember }>()
   const stats = { pages: 0, unchanged: 0, unreadable: 0, refused: 0, calls: 0, fresh: 0, spendMicro: 0 }
 
   for (const [url, members] of byUrl) {
@@ -149,6 +157,7 @@ async function main() {
       continue
     }
     const hash = hashText(text)
+    for (const { r } of members) fetched.set(r.id, { r, page: { url, hash, text } })
     for (const { r } of members) {
       if (!reread && isUnchanged(previous[r.id], url, hash)) stats.unchanged++
       else toRead.push({ r, text, page: { url, hash, text } })
@@ -200,6 +209,7 @@ async function main() {
   // Readings of programmes that left the data go; the others keep theirs when this run did not read them.
   const known = new Set(rows.map((r) => r.id))
   const merged = Object.fromEntries(Object.entries(mergeFacts(previous, storable)).filter(([id]) => known.has(id)))
+  if (ensemble) await rateEnsemble(merged, fetched, stats, maxUsd)
   mkdirSync(dirname(outFile), { recursive: true })
   writeFileSync(outFile, `${JSON.stringify({ updated: new Date().toISOString(), country, programmes: merged }, null, 1)}\n`)
   if (pagesFile) {
@@ -210,6 +220,67 @@ async function main() {
     `done: ${Object.keys(merged).length} readings kept; ${stats.fresh} new, ${stats.unchanged} pages unchanged, ` +
       `${stats.unreadable} unreadable, ${stats.refused} refused by robots.txt; ${stats.calls} model calls, about $${(stats.spendMicro / 1e6).toFixed(3)}`,
   )
+}
+
+/**
+ * Rates the interest profile of every read page that has no current ensemble
+ * rating: each model in each run, three programmes per call. A page keeps the
+ * mean and spread of whatever ratings came back, at least two.
+ */
+async function rateEnsemble(
+  merged: Record<string, StoredFact>,
+  fetched: Map<string, { r: Row; page: PageMember }>,
+  stats: { calls: number; spendMicro: number },
+  maxUsd: number,
+) {
+  const due = Object.values(merged)
+    .filter((f) => f.enough && fetched.get(f.id)?.page.hash === f.hash && f.rating?.hash !== f.hash)
+    .map((f) => fetched.get(f.id)!)
+  log(`ensemble: ${due.length} pages to rate with ${RATING_MODELS.length} models × ${RATING_RUNS} runs`)
+  let rated = 0
+  for (const group of batches(due, 3)) {
+    const input = `Programmes:\n${group.map((x) => block(x.r, x.page.text)).join('\n\n')}`
+    const ratings = new Map<string, { scores: number[][]; models: string[] }>(group.map((x) => [x.r.id, { scores: [], models: [] }]))
+    for (const model of RATING_MODELS) {
+      const price = RATING_PRICES[model]
+      // Input at the model's price plus a generous output allowance, reserved before the call.
+      const reserveMicro = Math.ceil(((RATING_SYSTEM.length + input.length) / 3) * price.in + 4000 * price.out)
+      for (let run = 0; run < RATING_RUNS; run++) {
+        if (stats.spendMicro + reserveMicro > maxUsd * 1_000_000) break
+        stats.spendMicro += reserveMicro
+        stats.calls++
+        try {
+          const response = await completeFacts({ maxTokens: 4000, schema: RATING_SCHEMA, timeoutMs: 120_000, system: RATING_SYSTEM, input }, model)
+          stats.spendMicro += costMicroUsd(response.usage, price) - reserveMicro
+          if (!response.complete) throw new Error('Incomplete rating')
+          for (const raw of (JSON.parse(response.text) as { programmes?: unknown[] }).programmes ?? []) {
+            const id = raw && typeof raw === 'object' ? (raw as { id?: unknown }).id : undefined
+            const scores = normaliseRating(raw)
+            const slot = typeof id === 'string' ? ratings.get(id) : undefined
+            if (slot && scores && slot.scores.length < RATING_MODELS.length * RATING_RUNS) {
+              slot.scores.push(scores)
+              slot.models.push(model)
+            }
+          }
+        } catch {
+          log(`rating call to ${model} failed for ${group.length} programmes`)
+        }
+      }
+    }
+    for (const x of group) {
+      const got = ratings.get(x.r.id)!
+      const rating = summariseRatings(got.scores, x.page.hash, got.models)
+      if (rating) {
+        merged[x.r.id] = { ...merged[x.r.id], rating }
+        rated++
+      }
+    }
+    if (stats.spendMicro >= maxUsd * 1_000_000) {
+      log(`spending cap of $${maxUsd} reached during the ensemble; the rest is rated in the next run`)
+      break
+    }
+  }
+  log(`ensemble: ${rated} pages rated`)
 }
 
 main().catch((e) => {

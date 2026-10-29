@@ -13,17 +13,17 @@ Schweiz untersuchen. Zielgruppe vorläufig 16–25 Jahre, verschiedene Bildungsw
 und Regionen; endgültige Einschlussregeln mit Forschungspartner festlegen.
 Keine Normierung der Bevölkerung und keine Auswahl- oder Zulassungsdiagnostik.
 
-- Eigene 24 RIASEC-Items, vier je Typ, plus separates Aufmerksamkeitsitem.
-  Alle 24 Interessenantworten im Studienablauf verlangen. Keine Ersetzung
-  fehlender Werte. Der normale Produktmodus erlaubt weiterhin zwei je Typ;
-  diese abweichende Bedingung ist separat zu untersuchen.
+- Eigene 48 RIASEC-Items, acht je Typ, in zufälliger Reihenfolge je Person,
+  plus zwei Aufmerksamkeitsitems. Alle 48 Interessenantworten im Studienablauf
+  verlangen. Keine Ersetzung fehlender Werte. Der normale Produktmodus erlaubt
+  sechs je Typ; diese abweichende Bedingung ist separat zu untersuchen.
 - Mini-IPIP optional, eigene deutsche Übersetzung; nur Antwortmittelwerte,
   kein Einfluss auf Fragebogen-Rankings. Ohne 20 gültige Antworten kein Profil.
-- Freude an Schulfächern und selbst eingeschätzte Stärke getrennt. Das interne
-  Feld `grade` ist keine tatsächliche Schulnote. Tatsächliche Noten wären eine
-  neue, separat zu erhebende Variable einschliesslich Land und Notensystem.
-- Werte sind ausdrückliche Präferenzen. Die normalen Rankinggewichte bleiben
-  Produktheuristiken, nicht nachgewiesene latente Skalen oder Prognosegewichte.
+- Freude an Schulfächern zählt zur Interessenpassung. Notendurchschnitt und
+  Mathematiknote werden mit Notenskala erfasst und nur als Hinweis zur
+  Machbarkeit gezeigt, nicht in der Rangliste verrechnet.
+- Werte sind ausdrückliche Präferenzen und dienen im Resultat als Filter, den
+  die Person setzt. Sie verändern die Passung nicht.
 - Keine persönlichen Exporte oder KI im ersten Messpilot. Ein späterer Test
   ihrer Zusatzwirkung erhält ein eigenes Protokoll und eigene Einwilligung.
 

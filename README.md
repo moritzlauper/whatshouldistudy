@@ -29,7 +29,7 @@ in addition to the existing paid access check.
 **Separate questionnaire session:** `/beratung` on country sites
 (`/schweiz/beratung` locally), `/counselling` globally. Available from the manual,
 teacher and organisation pages. It starts empty, uses tab memory only and shows
-descriptive profiles after all 24 interest items. It does not mount imports,
+descriptive profiles after all 48 interest items. It does not mount imports,
 personal AI, measurement or organisation capture, and does not expose the paid
 programme ranking. Entry uses a full page navigation to unload previously loaded
 scripts. Explicit print/JSON copies are personal data; ending a session does not
