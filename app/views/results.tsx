@@ -105,7 +105,7 @@ export function ResultsView() {
   useEffect(() => {
     if (own && resultsReady(state.answers, summaries.length)) {
       measureResult()
-      measureResultShown()
+      measureResultShown(own)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [own])

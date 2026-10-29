@@ -518,6 +518,7 @@ Read a report locally (set `USAGE_REPORT_URL` to your deployed site and
 ```sh
 pnpm usage:report 2026-10
 pnpm usage:report 2026-10-20
+pnpm usage:report 2026-10 --min=10
 ```
 
 If Vercel Bot Protection is enabled, also set `VERCEL_AUTOMATION_BYPASS_SECRET`
@@ -538,7 +539,9 @@ history from an empty report. Monthly counters remain unchanged; summing Swiss
 days can differ from a UTC month around its boundaries.
 Both reports are ordered by frequency and require the admin secret as a Bearer header; it must
 not be placed in URLs or browser code. The script prints event, source and programme
-tables. The same counters can be inspected in the Upstash console.
+tables, plus profile codes and their first fields. `--min=N` (default 5) hides
+profile combinations counted fewer than N times. The same counters can be
+inspected in the Upstash console.
 
 - Imports: count recognised source types only after a successful upload,
   sign-in or GitHub import. No filenames, contents, questionnaire answers or
@@ -551,12 +554,22 @@ tables. The same counters can be inspected in the Upstash console.
   and `unlocked`. Only authorised responses count; bulk CSV requests over 100
   items are excluded. Counts describe API output, not confirmed screen views
   or unique people. Reloads, retries and filters can count again.
+- Profiles: with each `result` event the browser sends the result's coarse
+  profile class and its first three fields, to check whether interests lead to
+  plausible fields. The class is whether the profile rests on the
+  questionnaire, imported data or both, and the three-letter Holland code, or
+  `flat`/`careless` instead of the code. The server accepts only these
+  allowlisted values (`parseProfile` in `lib/usage-stats.ts`) and counts one
+  `{kind: 'profile', basis, code, rank, field}` counter per place. No answers,
+  scores, source types or programmes are attached. Counts describe page views
+  of results, not people, and carry no empirical validity on their own (see
+  `docs/validation/PILOT_PROTOCOL.md`).
 - Storage: one aggregate hash per UTC month and one per Swiss calendar day.
   Monthly counters expire 90 days after month end; daily counters expire at
   00:00 UTC 91 days after the day's date (at least 90 days after local day end).
   One persistent calendar date marks when daily collection began.
   No individual event records, exact timestamps, IPs, user agents,
-  cookies, visitor IDs or links between imports and results are stored.
+  cookies, visitor IDs or links of source types or programmes to single results are stored.
   Upstash receives server-side counter commands, not visitor requests.
 - No new consent prompt, browser storage access, or advertising integration.
   Existing Google measurement remains separately controlled. Hosting providers

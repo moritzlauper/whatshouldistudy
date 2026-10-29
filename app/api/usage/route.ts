@@ -1,11 +1,11 @@
 import { timingSafeEqual } from 'node:crypto'
 import { after, NextResponse } from 'next/server'
-import { eventCounter, parseUsage, sourceCounter, USAGE_DAY_TIMEZONE, validDay, validMonth } from '@/lib/usage-stats.ts'
+import { eventCounter, parseUsage, profileCounters, sourceCounter, USAGE_DAY_TIMEZONE, validDay, validMonth } from '@/lib/usage-stats.ts'
 import { countUsage, readDailySince, readUsage, usageConfigured } from '@/lib/server/usage.ts'
 
 const headers = { 'Cache-Control': 'private, no-store' }
 
-/** Only source categories and shown results. No body, IP, referrer or user-agent is retained. */
+/** Only source categories, shown results and their coarse profile class. No body, IP, referrer or user-agent is retained. */
 export async function POST(req: Request) {
   if (!usageConfigured()) return new Response(null, { status: 204, headers })
   if (req.headers.get('sec-fetch-site') === 'cross-site') return new Response(null, { status: 403, headers })
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const { done, value } = await reader.read()
     if (done) break
     size += value.byteLength
-    if (size > 128) {
+    if (size > 256) {
       await reader.cancel()
       return new Response(null, { status: 413, headers })
     }
@@ -28,8 +28,8 @@ export async function POST(req: Request) {
   let body
   try { body = parseUsage(JSON.parse(Buffer.concat(chunks).toString('utf8'))) } catch { body = null }
   if (!body) return new Response(null, { status: 400, headers })
-  const counter = 'event' in body ? eventCounter(body.event) : sourceCounter(body.source)
-  after(() => countUsage([counter]))
+  const counters = 'event' in body ? [eventCounter(body.event), ...(body.profile ? profileCounters(body.profile) : [])] : [sourceCounter(body.source)]
+  after(() => countUsage(counters))
   return new Response(null, { status: 204, headers })
 }
 
