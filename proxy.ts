@@ -41,7 +41,7 @@ const redirectTo = (url: NextRequest['nextUrl'], pathname: string) => {
 }
 
 export function proxy(req: NextRequest) {
-  // AI training crawlers and SEO tools get no page: rendering ~200,000 programme pages for them used most of the server time.
+  // SEO analysis tools get no page: they crawl ~200,000 programme pages and bring no visitors.
   if (isHeavyBot(req.headers.get('user-agent'))) return new NextResponse(null, { status: 403 })
   const url = req.nextUrl
   const path = url.pathname
