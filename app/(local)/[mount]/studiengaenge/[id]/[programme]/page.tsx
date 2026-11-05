@@ -6,7 +6,8 @@ import { catalogueMeta } from '@/lib/site/meta.ts'
 import { FIELD_ID_BY_SLUG_DE } from '@/lib/site/slugs-de.ts'
 import { ProgrammeView, programmeText } from '../../../../../views/programme.tsx'
 
-export const revalidate = 86400
+// The programme data changes once a week (wsis-daten, Mondays); a daily re-render for every crawler visit cost most of the server time.
+export const revalidate = 604800
 
 /** `id` holds the field's German address (informatik), `programme` the programme's slug. */
 type Params = { params: Promise<{ mount: string; id: string; programme: string }> }

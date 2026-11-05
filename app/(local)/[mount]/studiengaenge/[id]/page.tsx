@@ -7,7 +7,8 @@ import { catalogueMeta } from '@/lib/site/meta.ts'
 import { FIELD_ID_BY_SLUG_DE, fieldSlugDe } from '@/lib/site/slugs-de.ts'
 import { CountryFieldView, countryFieldText } from '../../../../views/catalogue.tsx'
 
-export const revalidate = 86400
+// The programme data changes once a week (wsis-daten, Mondays); a daily re-render for every crawler visit cost most of the server time.
+export const revalidate = 604800
 
 /** The segment holds the German address (informatik), not the field id. */
 type Params = { params: Promise<{ mount: string; id: string }> }

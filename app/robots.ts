@@ -4,6 +4,7 @@ import { BASE_PATH, frItHosts, siteForHost, siteUrl } from '@/lib/site.ts'
 import { CH_FR_IT_URL, LOCAL_SITES, SITES } from '@/lib/site/config.ts'
 import { getMeta } from '@/lib/server/data.ts'
 import { sitemapFiles } from '@/lib/site/sitemaps.ts'
+import { HEAVY_BOTS } from '@/lib/site/bots.ts'
 
 const LOCAL_PRIVATE = ['/callback/', '/resultat', '/freigeschaltet']
 
@@ -24,5 +25,5 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   // The programme pages have sitemaps of their own, next to the main one.
   const { meta, sample } = await getMeta()
   const programmes = sample ? [] : sitemapFiles(host, (cc) => (meta?.byCountry?.[cc]?.programmes ?? 0) + (meta?.byCountry?.[cc]?.continuing ?? 0)).map((f) => sitemap.replace(/\/sitemap\.xml$/, `/sitemaps/${f}`))
-  return { rules: [{ userAgent: '*', allow: '/', disallow }], sitemap: [sitemap, ...programmes] }
+  return { rules: [{ userAgent: HEAVY_BOTS, disallow: '/' }, { userAgent: '*', allow: '/', disallow }], sitemap: [sitemap, ...programmes] }
 }

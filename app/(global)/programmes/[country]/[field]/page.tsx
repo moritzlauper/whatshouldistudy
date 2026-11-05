@@ -4,7 +4,8 @@ import { countryBySlug } from '@/lib/catalogue.ts'
 import { catalogueMeta } from '@/lib/site/meta.ts'
 import { CountryFieldView, countryFieldText } from '../../../../views/catalogue.tsx'
 
-export const revalidate = 86400
+// The programme data changes once a week (wsis-daten, Mondays); a daily re-render for every crawler visit cost most of the server time.
+export const revalidate = 604800
 
 type Params = { params: Promise<{ country: string; field: string }> }
 

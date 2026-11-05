@@ -29,8 +29,9 @@ function remoteBase(): string | null {
 type Loaded<T> = { value: T | null; sample: boolean }
 // A warm function must not retain every field and country a crawler visits.
 // Parsed objects use more memory than their JSON; this caps retained source
-// bytes at 32 MiB, not the function's total RSS.
-const cache = new DataCache<Loaded<unknown>>(32 * 1024 * 1024, TTL)
+// bytes at 96 MiB, not the function's total RSS. At 32 MiB the US catalogue
+// (34 MB) never stayed and was downloaded and parsed again on every request.
+const cache = new DataCache<Loaded<unknown>>(96 * 1024 * 1024, TTL)
 const pending = new Map<string, Promise<Loaded<unknown>>>()
 
 /**

@@ -6,7 +6,8 @@ import { fmtNumber } from '@/lib/site/labels.ts'
 import { catalogueMeta } from '@/lib/site/meta.ts'
 import { CatalogueIndexView, countryTotals } from '../../views/catalogue.tsx'
 
-export const revalidate = 86400
+// The programme data changes once a week (wsis-daten, Mondays); a daily re-render for every crawler visit cost most of the server time.
+export const revalidate = 604800
 
 const ct = catalogueText('en')
 

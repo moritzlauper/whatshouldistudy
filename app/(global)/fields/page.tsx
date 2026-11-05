@@ -4,7 +4,8 @@ import { FIELDS } from '@/lib/taxonomy/fields.ts'
 import { dict } from '@/lib/site/dict.ts'
 import { FieldsView } from '../../views/fields.tsx'
 
-export const revalidate = 86400
+// The programme data changes once a week (wsis-daten, Mondays); a daily re-render for every crawler visit cost most of the server time.
+export const revalidate = 604800
 
 const t = dict('en')
 
