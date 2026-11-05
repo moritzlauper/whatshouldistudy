@@ -111,7 +111,7 @@ const SOURCES: Array<Omit<SourceStatus, 'ok' | 'count' | 'fetchedAt' | 'error'>>
   },
   {
     id: 'at-studienwahl',
-    name: 'Studiengänge (BMFWF, studienwahl.at, data.gv.at)',
+    name: 'Studiengänge (BMFWF, studienwahl.at, data.gv.at); JKU Linz und Universität Graz von ihren Websites, mit Zustimmung',
     countries: ['AT'],
     url: 'https://www.studienwahl.at/',
     licence: 'CC BY 4.0',

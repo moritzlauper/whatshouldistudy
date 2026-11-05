@@ -1,13 +1,14 @@
 name: whatshouldistudy facts
 
-# Reads verified programme pages in CH, FR, GB, NL, NO, FI, AU, KR and US
+# Reads verified programme pages in CH, FR, GB, NL, NO, FI, AU, KR, US and AT
+# (AT: only JKU Linz and Universität Graz, which agreed; lib/programme-countries.ts)
 # and keeps what the AI says about it: the facts database, which the site uses to
 # rank programmes. Pages that have not changed since the last run are not read
 # again. The readings go to a private database (lib/facts-store.ts), not to the
 # public data branch: they are part of the paid comparison.
 #
 # After a successful catalogue refresh (weekly and on scraper changes), or by hand.
-# Limits and spending caps apply PER COUNTRY (nine countries for ALL).
+# Limits and spending caps apply PER COUNTRY (ten countries for ALL).
 #
 # Secret: ANTHROPIC_API_KEY (public programme pages only). The readings reach the site's private store with this
 # run's GitHub Actions token (id-token), which the site checks: no database secret
@@ -21,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       country:
-        description: 'ALL or CH, FR, GB (UK), NL, NO, FI, AU, KR, US'
+        description: 'ALL or CH, FR, GB (UK), NL, NO, FI, AU, KR, US, AT'
         required: false
         default: 'ALL'
       limit:
@@ -29,7 +30,7 @@ on:
         required: false
         default: '150'
       max_usd:
-        description: 'Spending cap PER COUNTRY in USD (ALL = up to nine times this cap)'
+        description: 'Spending cap PER COUNTRY in USD (ALL = up to ten times this cap)'
         required: false
         default: '1'
       reread:

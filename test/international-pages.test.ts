@@ -9,9 +9,9 @@ import { programmePageText } from '../scrapers/lib/programme-page-text.ts'
 import { parseDbh } from '../scrapers/no-dbh.ts'
 
 test('all requested countries support stored readings, with UK normalized and DE/AT excluded', () => {
-  assert.deepEqual(FACTS_COUNTRIES, ['CH', 'FR', 'GB', 'NL', 'NO', 'FI', 'AU', 'KR', 'US'])
+  assert.deepEqual(FACTS_COUNTRIES, ['CH', 'FR', 'GB', 'NL', 'NO', 'FI', 'AU', 'KR', 'US', 'AT'])
   assert.equal(programmeCountry(' uk '), 'GB')
-  for (const cc of ['DE', 'AT', 'ALL', 'XX']) assert.throws(() => programmeCountry(cc))
+  for (const cc of ['DE', 'ALL', 'XX']) assert.throws(() => programmeCountry(cc))
 })
 
 const row = (country = 'US'): PageRow => ({ id: 'abc123', name: "Bachelor's in Computer Science", country, level: 'bachelor', institutionUrl: 'https://example.edu/' })

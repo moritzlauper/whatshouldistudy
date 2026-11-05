@@ -34,7 +34,7 @@ import { Cta, countryTotals, crumbs, fmtDate, inCountry } from './catalogue.tsx'
 const RELATED = 12
 
 /** Countries whose programme pages show what was read on the official page. */
-const READING_COUNTRIES = new Set(['CH'])
+const READING_COUNTRIES = new Set(['CH', 'AT'])
 
 const lang = (locale: Locale) => (locale === 'en' ? 'en' : locale.startsWith('de-') ? 'de' : locale === 'fr-CH' ? 'fr' : 'it')
 

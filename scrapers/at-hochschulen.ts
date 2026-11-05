@@ -15,6 +15,8 @@ import type { AtType } from '../lib/at-institutions.ts'
 import { OUT, fetchRetry, isMain, log, writeJson } from './lib/common.ts'
 import type { ScrapeOutput } from './lib/common.ts'
 import { germanFields } from './lib/de-titles.ts'
+import { fetchSite } from './lib/site-fetch.ts'
+import { AT_PERMITTED, readPermitted, type SiteProgramme } from './sites/at-permitted.ts'
 
 export const DATA_URL = 'https://extapp.noc-science.at/apex/shibb/api/v1/studien'
 
@@ -111,6 +113,54 @@ export function parseItem(it: ListItem, fetchedAt: string): Programme | null {
   }
 }
 
+const KIND: Record<string, string> = { bachelor: 'Bachelorstudium', master: 'Masterstudium', professional: 'Diplomstudium' }
+// «Klassische Philologie (Latein/Griechisch)» and «Klassische Philologie» are one programme.
+const norm = (s: string) => s.normalize('NFC').toLowerCase().replace(/\([^)]*\)/g, '').replace(/[^a-z0-9äöüß]+/g, '')
+const slugOf = (url?: string) => (url ?? '').replace(/[?#].*$/, '').replace(/\/+$/, '').split('/').pop() ?? ''
+
+/**
+ * Programmes of the universities that agreed (scrapers/sites/at-permitted.ts)
+ * as their own website lists them: a programme in the dataset gets the page,
+ * language, ECTS, duration, degree and mode from the website and keeps its
+ * id; one only on the website is added. Rows of the dataset the website does
+ * not list stay as they are.
+ */
+export function mergeSite(programmes: Programme[], site: SiteProgramme[], fetchedAt: string): { matched: number; added: number } {
+  const byName = new Map<string, Programme>()
+  const bySlug = new Map<string, Programme>()
+  for (const p of programmes) {
+    byName.set(`${p.institution}|${p.level}|${norm(p.name)}`, p)
+    if (p.url) bySlug.set(`${p.institution}|${p.level}|${slugOf(p.url)}`, p)
+  }
+  let matched = 0
+  let added = 0
+  for (const s of site) {
+    let p = byName.get(`${s.institution}|${s.level}|${norm(s.name)}`) ?? bySlug.get(`${s.institution}|${s.level}|${slugOf(s.url)}`)
+    if (!p) {
+      // «Psychologie» on the website, «Psychologie Schwerpunkt Technologie und Wirtschaft» in the dataset: only when unambiguous.
+      const n = norm(s.name)
+      const near = programmes.filter((x) => x.institution === s.institution && x.level === s.level && n.length >= 8 && norm(x.name).length >= 8 && (norm(x.name).startsWith(n) || n.startsWith(norm(x.name))))
+      if (near.length === 1) p = near[0]
+    }
+    if (p) matched++
+    else {
+      const key = AT_PERMITTED.find((x) => x.institution === s.institution)?.key ?? 'site'
+      p = parseItem({ id: `${key}-${slugOf(s.url)}`, name: s.name, institution: s.institution, kind: KIND[s.level], place: s.cities?.[0] ?? '', hochschule: 'Universität', link: s.url }, fetchedAt) ?? undefined
+      if (!p) continue
+      programmes.push(p)
+      added++
+    }
+    p.url = s.url
+    if (s.languages) p.languages = s.languages
+    if (s.otherLanguages) p.otherLanguages = s.otherLanguages
+    if (s.ects) p.ects = s.ects
+    if (s.durationYears) p.durationYears = s.durationYears
+    if (s.degreeTitle) p.degreeTitle = s.degreeTitle
+    if (s.mode) p.mode = s.mode
+  }
+  return { matched, added }
+}
+
 async function main() {
   const fetchedAt = new Date().toISOString()
   const body = (await (await fetchRetry(DATA_URL, {}, 3)).json()) as { items?: AtRecord[] }
@@ -130,6 +180,14 @@ async function main() {
     else if (atLevel(it.kind)) unclassified.push(it.name)
   }
   log(`AT: ${body.items.length} records, ${programmes.length} programmes`)
+  try {
+    const site = await readPermitted(fetchSite, log)
+    const { matched, added } = mergeSite(programmes, site, fetchedAt)
+    log(`AT websites with permission: ${site.length} programmes, ${matched} matched in the dataset, ${added} added`)
+  } catch (e) {
+    // The dataset alone is still a complete list.
+    log(`AT websites with permission failed: ${(e as Error).message}`)
+  }
   log(`AT kinds: ${JSON.stringify([...kinds])}`)
   log(`AT institutions not in our list (${unknown.size}): ${[...unknown].slice(0, 60).join(' || ')}`)
   log(`AT unclassified (${unclassified.length}): ${unclassified.slice(0, 400).join(' || ')}`)
