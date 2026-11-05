@@ -332,7 +332,7 @@ Strava (sports).
 
 ## Programme database
 
-`scrapers/` with a weekly GitHub Action (`.github/workflows/wsis-daten.yml`):
+`scrapers/` with a monthly GitHub Action (`.github/workflows/wsis-daten.yml`):
 
 | Scraper | Coverage | Licence |
 | --- | --- | --- |
@@ -752,7 +752,7 @@ Only public programme information goes to this offline reader, never user profil
 The workflow accepts `ALL` or one country (`UK` is normalized to `GB`). Each country
 has its own job, cached page index and reading cursor; one failure does not stop the
 others. Defaults: 150 reading attempts and at most USD 1 **per country** (USD 9
-for ALL), after the weekly catalogue refresh and after scraper changes. Missing pages are found through institution sitemaps, at most
+for ALL), after the monthly catalogue refresh and after scraper changes. Missing pages are found through institution sitemaps, at most
 five institutions and 100 pages per institution per run; successive runs rotate
 institutions and page batches. This builds coverage incrementally, not a promise
 that every listed programme already has a reading. DE/AT remain excluded.

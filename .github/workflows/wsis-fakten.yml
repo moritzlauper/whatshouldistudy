@@ -7,7 +7,7 @@ name: whatshouldistudy facts
 # again. The readings go to a private database (lib/facts-store.ts), not to the
 # public data branch: they are part of the paid comparison.
 #
-# After a successful catalogue refresh (weekly and on scraper changes), or by hand.
+# After a successful catalogue refresh (monthly and on scraper changes), or by hand.
 # Limits and spending caps apply PER COUNTRY (ten countries for ALL).
 #
 # Secret: ANTHROPIC_API_KEY (public programme pages only). The readings reach the site's private store with this

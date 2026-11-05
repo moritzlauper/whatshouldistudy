@@ -258,7 +258,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
 
         <h2 id="daten">Woher die Studiengänge kommen</h2>
         <LocalData k={k} />
-        <p>Fürs Ausland kommen offene Daten aus den Nachbarländern, den USA, Grossbritannien und Frankreich dazu, für 60 weitere Länder OpenAlex. Alles wird jede Woche automatisch aktualisiert.</p>
+        <p>Fürs Ausland kommen offene Daten aus den Nachbarländern, den USA, Grossbritannien und Frankreich dazu, für 60 weitere Länder OpenAlex. Alles wird jeden Monat automatisch aktualisiert.</p>
         <DataSources k={k} sources={sources} updated={meta?.updated} sample={sample} />
         <p className="mt-10">
           <Link href={k.r.start}>Probier’s aus →</Link>
@@ -345,7 +345,7 @@ export async function HowView({ site, base, locale }: SiteProps) {
       </ul>
 
       <h2 id="data">Programme data</h2>
-      <p>Programmes come from official open data, refreshed every week by an automated pipeline. Switzerland comes from the Federal Statistical Office: where a university has Bachelor or Master students in a subject, it teaches it.</p>
+      <p>Programmes come from official open data, refreshed every month by an automated pipeline. Switzerland comes from the Federal Statistical Office: where a university has Bachelor or Master students in a subject, it teaches it.</p>
       <DataSources k={k} sources={sources} updated={meta?.updated} sample={sample} />
       <p>Fees shown are the published statutory or institutional fee for your citizenship where available, otherwise marked as approximate. Always check the programme page before applying.</p>
       <p className="mt-10">
@@ -695,7 +695,7 @@ export function TermsView({ site, base, locale }: SiteProps) {
       <Page title="Conditions">
         <p><strong>Traduction :</strong> en cas de divergence, la version allemande fait foi.</p>
         <h2>Service</h2><p>{k.conf.name} fournit une orientation, pas une garantie. Les correspondances sont des estimations fondées sur tes données et sur des informations publiques qui peuvent être incomplètes ou obsolètes. Vérifie les formations, les frais et les délais auprès de l’établissement avant de déposer ta candidature.</p>
-        <h2>Rapport complet</h2><p>Un paiement unique débloque le rapport complet dans le navigateur utilisé lors de l’achat, pour une durée de 12 mois. Les mises à jour hebdomadaires sont incluses.</p>
+        <h2>Rapport complet</h2><p>Un paiement unique débloque le rapport complet dans le navigateur utilisé lors de l’achat, pour une durée de 12 mois. Les mises à jour mensuelles sont incluses.</p>
         <h2>YouTube et utilisation équitable</h2><p>En connectant YouTube, tu acceptes ses <a href="https://www.youtube.com/t/terms">conditions d’utilisation</a>. N’extrais pas automatiquement les données de l’interface des formations et ne revends pas ses résultats. Les données ouvertes restent disponibles auprès de leurs éditeurs selon leurs licences.</p>
         <h2>Sources des données</h2><p>Suisse : Office fédéral de la statistique (OFS), libre utilisation avec indication de la source. États-Unis : College Scorecard (domaine public). Royaume-Uni : Discover Uni (Office for Students, CC BY 4.0). France : Parcoursup (Licence Ouverte 2.0). Pays-Bas : DUO (CC BY). Norvège : DBH (HK-dir, NLOD 2.0). Finlande : Opintopolku (Opetushallitus, CC BY 4.0). Australie : CRICOS (Department of Education, CC BY 2.5 AU). Corée du Sud : 대학알리미 (ministère de l’Éducation, utilisation libre). Ainsi qu’OpenAlex (CC0) et University Domains List (MIT). Le classement par domaine est le nôtre. Pour l’Allemagne et l’Autriche, nous renvoyons vers les recherches officielles, sans reprendre leurs données.</p>
         <Withdrawal locale={k.locale} />
@@ -708,7 +708,7 @@ export function TermsView({ site, base, locale }: SiteProps) {
       <Page title="Condizioni">
         <p><strong>Traduzione:</strong> in caso di differenze, fa fede la versione tedesca.</p>
         <h2>Servizio</h2><p>{k.conf.name} offre un orientamento, non una garanzia. Le corrispondenze sono stime basate sui dati forniti e su informazioni pubbliche che possono essere incomplete o non aggiornate. Prima di candidarti, verifica corsi, tasse e scadenze presso l’istituto.</p>
-        <h2>Report completo</h2><p>Un pagamento unico sblocca il report completo nel browser usato per l’acquisto per 12 mesi. Gli aggiornamenti settimanali sono inclusi.</p>
+        <h2>Report completo</h2><p>Un pagamento unico sblocca il report completo nel browser usato per l’acquisto per 12 mesi. Gli aggiornamenti mensili sono inclusi.</p>
         <h2>YouTube e uso corretto</h2><p>Collegando YouTube accetti i suoi <a href="https://www.youtube.com/t/terms">termini di servizio</a>. Non estrarre automaticamente i dati dall’interfaccia dei corsi e non rivendere i risultati. I dati aperti restano disponibili presso gli editori originali secondo le relative licenze.</p>
         <h2>Fonti dei dati</h2><p>Svizzera: Ufficio federale di statistica (UST), libera utilizzazione con indicazione della fonte. Stati Uniti: College Scorecard (pubblico dominio). Regno Unito: Discover Uni (Office for Students, CC BY 4.0). Francia: Parcoursup (Licence Ouverte 2.0). Paesi Bassi: DUO (CC BY). Norvegia: DBH (HK-dir, NLOD 2.0). Finlandia: Opintopolku (Opetushallitus, CC BY 4.0). Australia: CRICOS (Department of Education, CC BY 2.5 AU). Corea del Sud: 대학알리미 (ministero dell’istruzione, uso libero). Inoltre OpenAlex (CC0) e University Domains List (MIT). L’assegnazione alle aree è nostra. Per Germania e Austria rimandiamo alle ricerche ufficiali, senza riprenderne i dati.</p>
         <Withdrawal locale={k.locale} />
@@ -725,7 +725,7 @@ export function TermsView({ site, base, locale }: SiteProps) {
         </p>
         <h2>Der volle Report</h2>
         <p>
-          Eine einmalige Zahlung schaltet den vollen Report frei, in dem Browser, in dem du bezahlt hast, für 12 Monate. Die wöchentlichen Aktualisierungen in dieser Zeit sind inbegriffen. Der Preis steht vor der Zahlung in deiner Währung.
+          Eine einmalige Zahlung schaltet den vollen Report frei, in dem Browser, in dem du bezahlt hast, für 12 Monate. Die monatlichen Aktualisierungen in dieser Zeit sind inbegriffen. Der Preis steht vor der Zahlung in deiner Währung.
         </p>
         <h2>YouTube</h2>
         <p>
@@ -756,7 +756,7 @@ export function TermsView({ site, base, locale }: SiteProps) {
       </p>
       <h2>The full report</h2>
       <p>
-        A one-time payment unlocks the full programme report in the browser you used to pay, for 12 months, including the weekly data updates during that time.
+        A one-time payment unlocks the full programme report in the browser you used to pay, for 12 months, including the monthly data updates during that time.
       </p>
       <h2>YouTube</h2>
       <p>

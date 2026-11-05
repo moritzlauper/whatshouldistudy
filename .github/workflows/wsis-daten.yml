@@ -1,6 +1,6 @@
 name: whatshouldistudy data
 
-# Refreshes the study programme database of whatshouldistudy every Monday:
+# Refreshes the study programme database of whatshouldistudy once a month:
 # US (College Scorecard), UK (Discover Uni), France (Parcoursup), Switzerland
 # (BFS enrolment by institution and subject, graduate salaries, the
 # studyprogrammes.ch catalogue), South Korea (대학알리미), research
@@ -18,7 +18,9 @@ name: whatshouldistudy data
 
 on:
   schedule:
-    - cron: '23 2 * * 1' # Mondays 02:23 UTC
+    # Monthly: programme lists change about once a semester, and every data run
+    # also starts the paid facts run (wsis-fakten.yml).
+    - cron: '23 2 1 * *' # 1st of the month, 02:23 UTC
   workflow_dispatch:
     inputs:
       only:
