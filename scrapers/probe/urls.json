@@ -1,1 +1,19 @@
-{}
+{
+ "graz-robots": "https://www.uni-graz.at/robots.txt",
+ "graz-studium": "https://www.uni-graz.at/de/studium/",
+ "graz-ba": "https://www.uni-graz.at/de/studium/bachelorstudien/",
+ "graz-ma": "https://www.uni-graz.at/de/studium/masterstudien/",
+ "graz-di": "https://www.uni-graz.at/de/studium/diplomstudien/",
+ "graz-la": "https://www.uni-graz.at/de/studium/lehramtsstudien/",
+ "graz-angebot": "https://www.uni-graz.at/de/studium/studienangebot/",
+ "graz-ba-alte": "https://www.uni-graz.at/de/studium/bachelorstudien/alte-geschichte-und-altertumskunde",
+ "graz-ma-ethik": "https://www.uni-graz.at/de/studium/masterstudien/angewandte-ethik",
+ "graz-ma-ams": "https://www.uni-graz.at/en/studies/master-programmes/advanced-materials-science",
+ "graz-sitemap": "https://www.uni-graz.at/sitemap.xml",
+ "jku-studienarten": "https://www.jku.at/studium/studienarten/",
+ "jku-ba-bwl": "https://www.jku.at/studium/studienarten/bachelordiplom/ba-betriebswirtschaftslehre/",
+ "jku-ma-lehramt": "https://www.jku.at/studium/studienarten/master/ma-lehramt-sekundarstufe/",
+ "jku-ds-re": "https://www.jku.at/studium/studienarten/bachelordiplom/ds-rechtswissenschaften/",
+ "jku-ba-hm": "https://www.jku.at/studium/studienarten/bachelordiplom/ba-humanmedizin/",
+ "jku-ma-gm": "https://www.jku.at/studium/studienarten/master/ma-general-management-austria-france/"
+}
