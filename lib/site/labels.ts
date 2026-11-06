@@ -12,7 +12,7 @@ import { regionalize } from './regional.ts'
 /** Localised names for everything the taxonomy defines in English. */
 
 export const FIELD_EMOJI: Record<string, string> = {
-  mathematics: '∑',
+  mathematics: '➗',
   'statistics-data-science': '📊',
   'computer-science': '💻',
   'artificial-intelligence': '🤖',
