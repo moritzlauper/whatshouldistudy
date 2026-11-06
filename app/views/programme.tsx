@@ -279,8 +279,8 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
           )}
         </div>
         <section className="card-sm mt-8 max-w-3xl p-5 sm:p-6">
-          <h2 className="font-display text-2xl sm:text-3xl">{ct.fieldCtaTitle(fname)}</h2>
-          <FitsWhom fieldId={field} locale={locale} className="mt-3" against />
+          <h2 className="font-display text-2xl sm:text-3xl">{ct.programmeCtaTitle}</h2>
+          <FitsWhom fieldId={field} locale={locale} className="mt-4" against detailed />
           <Link href={r.start} className="btn btn-primary btn-lg mt-5">
             {t.fields.findOut} →
           </Link>

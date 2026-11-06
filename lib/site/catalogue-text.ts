@@ -147,6 +147,7 @@ const en = {
   listSub: (n: string) => `All ${n} programmes with their exact title. Each has its own page with degree, language, duration, admission and links.`,
   specialisations: (names: string) => `Specialisations: ${names}`,
   fieldCtaTitle: (f: string) => `Is ${f} right for you?`,
+  programmeCtaTitle: 'Is this programme right for you?',
 }
 
 export type CatalogueText = typeof en
@@ -282,6 +283,7 @@ const deCH: CatalogueText = {
   listSub: (n) => `Alle ${n} Studiengänge mit genauem Titel. Jeder hat eine eigene Seite mit Abschluss, Sprache, Dauer, Zulassung und Links.`,
   specialisations: (names) => `Vertiefungen: ${names}`,
   fieldCtaTitle: (f) => `Passt ${f} zu dir?`,
+  programmeCtaTitle: 'Passt dieses Studium zu dir?',
 }
 
 const IN_FR: Record<string, string> = { CH: 'en Suisse', DE: 'en Allemagne', AT: 'en Autriche', FR: 'en France', KR: 'en Corée du Sud', US: 'aux États-Unis', GB: 'au Royaume-Uni' }
@@ -398,6 +400,7 @@ const frCH: CatalogueText = {
   listSub: (n) => `Les ${n} filières avec leur titre exact. Chacune a sa page avec le diplôme, la langue, la durée, l’admission et les liens.`,
   specialisations: (names) => `Spécialisations : ${names}`,
   fieldCtaTitle: (f) => `${f}, est-ce fait pour toi?`,
+  programmeCtaTitle: 'Ces études sont-elles faites pour toi ?',
 }
 
 const itCH: CatalogueText = {
@@ -511,6 +514,7 @@ const itCH: CatalogueText = {
   listSub: (n) => `Tutti i ${n} corsi con il titolo esatto. Ognuno ha la sua pagina con titolo di studio, lingua, durata, ammissione e link.`,
   specialisations: (names) => `Specializzazioni: ${names}`,
   fieldCtaTitle: (f) => `${f} fa per te?`,
+  programmeCtaTitle: 'Questo corso fa per te?',
 }
 
 const deDE = regionalizeDeep(deCH, 'de-DE')

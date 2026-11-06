@@ -21,7 +21,7 @@
     "lib/taxonomy/field-onet.ts": "9f363f313f824aff831115d8a5a6f554e9f7da29d14cc334cc4dc2732bd8c943",
     "lib/taxonomy/onet-interests.ts": "4ed12b9eb884367a02b70436396e72cbfb42f65bae6c8a06fc7f1dc0326b8ab1",
     "lib/assessment.ts": "ae9815f02b4ddbbc9973a916407b082524ec8b2ef205b4e098a461245a38c46d",
-    "lib/site/fit-text.ts": "ce6f1e1480bc0a377b27ab5e8d0154043c7be5ec4bf6059f6923ab223c1eeadb",
+    "lib/site/fit-text.ts": "461b2ffb2dff38f8693b19edc4b77b734b63f80b4d607ba08e71aef6a4f74942",
     "app/ui/questionnaire-form.tsx": "d2f9a520b40ba5ffc87601630835f84d956cab01f34f9a860411e202ded393d4",
     "app/views/counselling.tsx": "9eceb70feaa4c825cc9d95030f702692bc4919df5a25ba75699b759986aba8f9",
     "lib/site/assessment-text.ts": "7e58fba572137ef295d134c99a453d019de63216c9c6facff40e0f7c21b67fb4",
