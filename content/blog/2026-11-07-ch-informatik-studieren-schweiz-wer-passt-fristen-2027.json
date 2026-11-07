@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-07",
+  "site": "ch",
+  "fields": [
+    "computer-science",
+    "information-systems",
+    "cybersecurity"
+  ],
+  "sources": [
+    {
+      "title": "Szenarien für das Bildungssystem, Portal Statistik Schweiz",
+      "url": "https://statistik.admin.ch/de/themen/bildung-wissenschaft/szenarien-fuer-bildungssystem"
+    },
+    {
+      "title": "Frauenanteil in der ICT-Ausbildung wächst, Inside IT",
+      "url": "https://www.inside-it.ch/frauenanteil-in-der-ict-ausbildung-waechst-20260928"
+    },
+    {
+      "title": "Bachelor Informatik, ZHAW",
+      "url": "https://www.zhaw.ch/de/engineering/studium/bachelorstudium/informatik"
+    },
+    {
+      "title": "Bachelor of Science in Computer Science, FHNW (English)",
+      "url": "https://www.fhnw.ch/en/computer-science/degree-programmes/offerings/programmes/computer-science"
+    },
+    {
+      "title": "Neues Informatikstudium zieht Quereinsteiger und Frauen an, OST Magazin",
+      "url": "https://magazin.ost.ch/bildung/neues-informatikstudium-zieht-quereinsteiger-und-frauen-an"
+    },
+    {
+      "title": "Bachelor Computer Science, OST",
+      "url": "https://www.ost.ch/en/degree-programs/computer-science/bachelor-computer-science"
+    },
+    {
+      "title": "Application, University of Basel",
+      "url": "https://www.unibas.ch/en/Studies/Before-My-Studies/Application-Admission/Application.html"
+    },
+    {
+      "title": "Bewerbungsfristen, UZH",
+      "url": "https://www.uzh.ch/de/studies/application/deadlines.html"
+    },
+    {
+      "title": "Start im Frühlingssemester, Bachelor Studiengang Informatik, FHNW",
+      "url": "https://www.fhnw.ch/plattformen/css-fhnw/start-im-fs/"
+    }
+  ],
+  "de": {
+    "slug": "informatik-studieren-schweiz-wer-passt-fristen-2027",
+    "title": "Informatik studieren in der Schweiz: Wer dazugehört und welche Fristen 2027 gelten",
+    "description": "Wer Informatik an einer Schweizer Hochschule studieren kann, wie es um den Frauenanteil steht und wann ZHAW, FHNW und Uni Basel 2027 Anmeldungen annehmen.",
+    "body": "Am Samstag, 7. November 2026 führt die ZHAW ihren Infotag durch. Wer Informatik an der ZHAW studieren will, meldet sich bis 30. April an. Zwischen diesen beiden Daten liegt ein halbes Jahr, in dem du prüfen kannst, ob dir das Fach liegt. Dieser Beitrag zeigt, was das Studium verlangt, wie es um den Frauenanteil steht und welche Fristen 2027 gelten.\n\n## Was Informatik ist und wer anfangen kann\n\nInformatik ist eines der 80 Studienfelder, die wasstudieren vergleicht. Das Fach umfasst Algorithmen, Betriebssysteme, Computernetze, künstliche Intelligenz und Sicherheit. Die OST bietet Vertiefungen in Software Engineering, Cybersecurity, Data Science sowie Network and Cloud Infrastructure an. Ob das Fach zu deinen Interessen passt, kannst du mit dem kostenlosen [Fragebogen auf wasstudieren](start) prüfen.\n\nFür den Einstieg braucht es keine Programmiererfahrung. Die FHNW nimmt Studierende mit wenig Vorkenntnissen ins Modul «Einstieg in die Informatik» auf. Dort lernst du den Umgang mit der Shell, mit einem Code-Versionierungssystem und mit einer professionellen Entwicklungsumgebung. Wer schon programmiert, beginnt mit «Programmieren 1» und erhält gleich zu Beginn Credits angerechnet. Der Test im Einstieg umfasst prozedurale Programmierung und Arrays.\n\nDer Bachelor an der ZHAW dauert sechs Semester in Vollzeit und acht Semester berufsbegleitend. Er umfasst 180 ECTS-Credits und startet Mitte September. Die Studiengebühren betragen CHF 720 pro Semester, dazu kommen weitere Kosten.\n\nAuch die OST verlangt ein klares Profil. Ihr Bachelor Computer Science beginnt mit Grundlagen in Algorithmen, Betriebssystemen und Computernetzen. Später kommen künstliche Intelligenz und Sicherheit dazu. Die Projekte der Studiengänge sind praxisnah und oft mit echten Auftraggebern verbunden.\n\n## Wie der Arbeitsmarkt aussieht\n\nDas Bundesamt für Statistik rechnet bis 2035 mit rund 305’000 Studierenden auf Bachelor- und Masterstufe. Das wären 21% mehr als 2026. Das Wachstum entsteht vor allem durch Bevölkerungswachstum und mehr ausländische Studierende.\n\nIm Bildungsfeld Informatik erwartet das BFS besonders starke Zuwächse. Auf Masterstufe sollen es zwischen 2026 und 2035 46% mehr Studierende werden. Der Anteil der MINT-Fächer an allen Studierenden stieg zwischen 2004 und 2025 von 10% auf 19%. Auf der Stufe der höheren Fachschulen rechnet das BFS im Bereich Informatik und Kommunikationstechnologie mit einem Plus von 18%.\n\n## Wie es um den Frauenanteil steht\n\nDer Frauenanteil bei den ICT-Studierenden hat sich laut dem Techface Women in Tech Index verändert. Die Auswertung beruht auf Daten des BFS. An den Universitäten stieg der Anteil von 7.8% im Jahr 1997 auf zuletzt 21.4%. An den Fachhochschulen wuchs er von 1.7% auf zuletzt 20.3%.\n\nIn 2025/26 lag der Frauenanteil an den meisten Schweizer Hochschulen unter 25%. An der Universität Zürich waren es 29.6%, an der EPFL und an der FHNW je 21.6%. Im Beruf sieht es ähnlich aus. 2024 lag der Frauenanteil bei den ICT-Berufen bei 13.8%. Das entspricht ungefähr dem Anteil, den Frauen 2012/13 an den ICT-Studierenden der Universitäten hatten (13.9%).\n\nEine vorläufige Studie aus sieben Kantonen fand für 2024 eine ICT-Arbeitslosigkeit von 2.92% bei Frauen und 2.26% bei Männern. Die Studie ist noch nicht abschliessend, zeigt aber dieselbe Richtung wie die Zahlen zu den Studierenden.\n\nEin Gegenbeispiel liefert die OST. Ihr Bachelor Digital Design startete im Herbst 2024 mit 34 Anmeldungen, davon 17 Frauen. Die OST sagt, dass Informatik-Studiengänge in der Schweiz selten mehr als 20% Frauen haben. Der Studiengang ist ein Teilzeitstudium mit 2.5 Tagen Präsenzunterricht und richtet sich auch an Personen ohne Programmiererfahrung.\n\n## Fristen für 2027\n\nDie Fristen unterscheiden sich je nach Hochschule. Die Fristen fallen in verschiedene Monate, deshalb lohnt sich ein Kalender mit allen Daten. Diese Angaben gelten für die Studienbeginne 2027, wenn nicht anders vermerkt:\n\n- ZHAW Bachelor Informatik: Anmeldung bis 30. April. Online-Infoabend am 24. November 2026, Informatik-Infoabend am 20. Januar 2027.\n- FHNW Bachelor Informatik: Start am 1. März 2027 im Frühling (Brugg-Windisch und ab dem Frühling auch Basel) sowie am 20. September 2027 im Herbst. Es gibt Teilzeit-, Vollzeit- und praxisintegrierte Varianten.\n- Universität Basel: Für das Frühjahrssemester 2027 endete die Frist für Personen mit Schweizer Abschluss am 30. November 2026. Die Anmeldung für Herbst 2027 öffnet am 1. Februar 2027, Frist ist der 30. April 2027.\n- Universität Zürich: Für die meisten Bachelor gilt der Zeitraum vom 1. Januar bis 30. April. Danach gibt es ein Spätfenster vom 1. Mai bis 31. Juli. Für Inhaber eines Schweizer Schulabschlusses kostet es dann CHF 300 Zuschlag. Ausgenommen ist Medizin.\n\nDie Zulassung zu einer Fachhochschule ist in der ganzen Schweiz geregelt. Die OST nimmt Angaben über ein Online-Formular entgegen und erklärt den Ablauf auf einer eigenen Seite. An der OST ist die Anmeldung bis 30. April möglich, solange noch Plätze frei sind.\n\nWer zwischen Universität und Fachhochschule schwankt, sollte beide Fristen nebeneinanderlegen und die Unterlagen parallel vorbereiten. Die Basler Frist für das Frühjahr 2027 liegt drei Wochen nach dem ZHAW-Infotag."
+  }
+}
