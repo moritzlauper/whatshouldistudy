@@ -127,6 +127,9 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
         <div className="text-7xl" aria-hidden="true">{emoji(id)}</div>
         <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-7xl">{name}</h1>
         <p className="mt-5 max-w-3xl text-xl text-muted">{fieldBlurb(id, locale)}</p>
+        <Link href={r.start} className="btn btn-primary btn-lg mt-7">
+          {t.fields.topCta} <span aria-hidden="true">→</span>
+        </Link>
       </div>
 
       <div className="mt-12 grid gap-5 md:grid-cols-[1fr_1.2fr]">
@@ -135,6 +138,10 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
           <div className="mt-3 flex items-center gap-4">
             <Hexagon profile={f.riasec} size={170} label={t.misc.profileLabel} />
             <FitsWhom fieldId={id} locale={locale} against />
+          </div>
+          <div className="mt-4 border-t-2 border-soft-line pt-4">
+            <h3 className="font-bold">{t.fields.profileTitle}</h3>
+            <p className="mt-1 text-sm leading-relaxed text-muted">{t.fields.profileText}</p>
           </div>
         </div>
         <div className="grid gap-5">
