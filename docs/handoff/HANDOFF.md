@@ -5,6 +5,7 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 ## Konzept Schweiz: Umsatz und Resultatseite (12.11.2026)
 
 - Konzept in `docs/handoff/KONZEPT-SCHWEIZ-2026-11.md`. Pakete A bis D (Resultatseite, Geld-zurück-Hinweis, Startseite, Eltern) sind am 12.11. umgesetzt, Details im Abschnitt «Umsetzung» dort. Der Report kostet seit dem 12.11. CHF 19 statt 9 (EUR und USD bleiben 9). Ads-Test und Outreach entscheidet der Inhaber.
+- Offener Fehler: Die Organisationspreise in Stripe sind doppelt so hoch wie auf der Website, und der Abo-Checkout prüft den Betrag nicht. Details am Ende des Konzepts.
 
 ## Fragebogen: Interessen zuerst, Schulfächer als zweiter Reiter (29.10.2026)
 
