@@ -2,6 +2,10 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Konzept Schweiz: Umsatz und Resultatseite (12.11.2026)
+
+- Konzept in `docs/handoff/KONZEPT-SCHWEIZ-2026-11.md`, nicht umgesetzt. Pakete A bis D (Resultatseite, Geld-zurück-Hinweis, Startseite, Eltern) sind ausgearbeitet; Preis, Ads-Test und Outreach entscheidet der Inhaber.
+
 ## Fragebogen: Interessen zuerst, Schulfächer als zweiter Reiter (29.10.2026)
 
 - Auf Wunsch des Inhabers umgekehrt: Der Reiter «Schulfächer» steht nach den Interessen, nicht mehr davor. Die Reihenfolge der Antworten bleibt sonst gleich (`app/ui/questionnaire-form.tsx`, `TABS`). Der Standardreiter ist jetzt «Interessen».
