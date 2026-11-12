@@ -20,6 +20,7 @@ import { GitHubMark } from '../ui/trust.tsx'
 import { JsonLd, homeLd } from '../ui/json-ld.tsx'
 import { SOURCE_URL } from '@/lib/site.ts'
 import type { LandingSource } from '@/lib/site/dict.ts'
+import { withdrawalText } from '@/lib/site/withdrawal-text.ts'
 
 /** A spread of fields for the browse card, so it does not show six kinds of computing. */
 const SAMPLE_FIELDS = ['psychology', 'medicine', 'computer-science', 'law', 'architecture', 'biology']
@@ -96,7 +97,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
                 </a>
               </div>
               {!SALES_PAUSED[site] && <a href="#pricing" className="mt-4 inline-block text-sm font-semibold text-accent underline underline-offset-4">
-                {t.landing.aiReport}: <Price site={site} /> · {t.landing.oneTime}
+                {t.landing.aiReport}: <Price site={site} /> · {t.landing.oneTime} · {withdrawalText(locale).guarantee}
               </a>}
               {!SALES_PAUSED[site] && <PayWithTwint className="mt-3" />}
             </GoogleAdsEntry>
@@ -146,39 +147,6 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
           </p>
         )}
 
-        {/* Extra data is deliberately tucked away: the questionnaire is the complete default start. */}
-        <details className="group card card-pop mt-10 overflow-hidden bg-surface">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 text-left [&::-webkit-details-marker]:hidden">
-            <span>
-              <span className="block font-semibold">{t.start.dataOptionalTitle}</span>
-              <span className="mt-1 block text-sm text-muted">{t.start.dataOptionalNote}</span>
-            </span>
-            <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-line bg-lime text-2xl text-on-color transition-transform group-open:rotate-45">+</span>
-          </summary>
-          <div className="on-color grid gap-8 border-t-2 border-line p-7 sm:p-9 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]" style={{ background: 'var(--lime)' }}>
-            <div>
-              <span className="rounded-full border-2 border-line bg-surface px-3 py-0.5 text-xs font-extrabold text-ink">{t.landing.upload.tag}</span>
-              <h2 className="mt-4 font-display text-3xl sm:text-4xl">{t.landing.upload.title}</h2>
-              <p className="mt-3 leading-relaxed text-muted">{t.landing.upload.text}</p>
-              <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
-                <span className="font-semibold">{t.landing.upload.also}</span>
-                {sources.filter((s) => s.id !== 'takeout').map((s) => (
-                  <span key={s.id} className="rounded-full border-2 border-line bg-surface px-3 py-1 font-semibold text-ink"><span aria-hidden="true">{s.glyph}</span> {s.name}</span>
-                ))}
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div className="rounded-2xl border-2 border-line bg-surface p-6 text-ink">
-                <p className="font-display text-xl">{t.landing.upload.pointsTitle}</p>
-                <ul className="mt-4 grid gap-2.5 text-sm leading-relaxed">
-                  {t.landing.upload.points.map((point) => <li key={point} className="flex gap-2.5"><span className="font-extrabold text-accent" aria-hidden="true">✓</span> {point}</li>)}
-                </ul>
-              </div>
-              <p className="mt-4 text-sm leading-relaxed text-muted">🔒 {t.landing.upload.privacy}</p>
-              <a href="#sources" className="mt-3 font-semibold underline underline-offset-4">{t.landing.upload.cta} →</a>
-            </div>
-          </div>
-        </details>
       </section>
 
       {/* Concrete AI benefits; importing history remains optional. */}
@@ -308,6 +276,19 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
         </div>
       </section>
 
+      {/* Parents buy for their child: the access link in the payment email works on any device. */}
+      {!SALES_PAUSED[site] && (
+        <section className="mx-auto max-w-6xl px-4 pt-14 sm:px-6" aria-labelledby="parents-title">
+          <div className="card-sm flex flex-wrap items-center justify-between gap-5 p-6 sm:p-8">
+            <div className="max-w-3xl">
+              <h2 id="parents-title" className="font-display text-2xl sm:text-3xl">{t.landing.parents.title}</h2>
+              <p className="mt-3 leading-relaxed text-muted">{t.landing.parents.text}</p>
+            </div>
+            <a href="#pricing" className="btn btn-ghost">{t.landing.parents.cta} <span aria-hidden="true">↓</span></a>
+          </div>
+        </section>
+      )}
+
       {/* Pricing */}
       <section id="pricing" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <h2 className="max-w-3xl font-display text-4xl sm:text-5xl">{t.landing.priceTitle}</h2>
@@ -401,8 +382,7 @@ function HeroCard({ k }: { k: Kit }) {
           <Hexagon profile={[0.92, 0.88, 0.35, 0.12, 0.3, 0.5]} size={104} label={t.misc.profileLabel} />
           <div className="min-w-0">
             <div className="text-xs font-bold uppercase tracking-wider text-muted">{t.landing.code}</div>
-            <div className="font-display text-4xl">RIC</div>
-            <div className="text-xs text-muted">{t.landing.codeSub}</div>
+            <div className="mt-1 font-display text-lg leading-snug">{t.landing.codeSub}</div>
           </div>
         </div>
         <div className="mt-3 rounded-xl border-2 border-line bg-accent-soft p-3">

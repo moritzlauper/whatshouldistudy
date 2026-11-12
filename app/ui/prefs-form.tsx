@@ -12,6 +12,17 @@ import { useSite } from './site-context.tsx'
 const ORIGINS: Array<Preferences['origin']> = ['eu', 'ch', 'uk', 'us', 'other']
 const BUDGETS = [0, 500, 1500, 3000, 6000, 12000, 25000, 45000]
 
+/**
+ * The budget filter compares in EUR (fee.eur in lib/server/rank.ts). Sites in francs show it
+ * converted, rounded, for reading only; 1 CHF is about 1.06 EUR (FX_FALLBACK in scrapers/build.ts).
+ */
+const EUR_TO_CHF = 1 / 1.06
+const roughChf = (eur: number) => {
+  const chf = eur * EUR_TO_CHF
+  const step = chf < 1000 ? 50 : 100
+  return Math.round(chf / step) * step
+}
+
 export function PrefsForm() {
   const { t, intl, site, conf } = useSite()
   const home = conf.country
@@ -71,7 +82,7 @@ export function PrefsForm() {
           <select value={prefs.maxTuitionEur} onChange={(e) => set({ maxTuitionEur: Number(e.target.value) })} className="input">
             {BUDGETS.map((b) => (
               <option key={b} value={b}>
-                {b === 0 ? t.prefs.noLimit : fmtMoney(b, 'EUR', intl)}
+                {b === 0 ? t.prefs.noLimit : conf.currency === 'CHF' ? `≈ ${fmtMoney(roughChf(b), 'CHF', intl)}` : fmtMoney(b, 'EUR', intl)}
               </option>
             ))}
           </select>

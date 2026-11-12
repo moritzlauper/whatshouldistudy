@@ -8,7 +8,7 @@ import { effectiveSummaries, useAppState } from '@/lib/store.ts'
 import { decodeSnapshot, encodeSnapshot, sharedParam } from '@/lib/share.ts'
 import type { Snapshot } from '@/lib/share.ts'
 import { score, sourceProfile } from '@/lib/engine/scoring.ts'
-import { resultsReady } from '@/lib/engine/questionnaire.ts'
+import { questionnaireProgress, resultsReady } from '@/lib/engine/questionnaire.ts'
 import { userTopics } from '@/lib/engine/topics.ts'
 import { SUMMARY_VERSION } from '@/lib/engine/accumulate.ts'
 import type { FieldMatch, Grades, Preferences, Results, SourceSummary } from '@/lib/engine/types.ts'
@@ -28,7 +28,9 @@ import { ReportOffer } from '../ui/report-offer.tsx'
 import { InstitutionTypeSelect, StudyingControl } from '../ui/prefs-form.tsx'
 import { Earnings } from '../ui/earnings.tsx'
 import { Contributions } from '../ui/contributions.tsx'
-import { useConfig } from '../ui/price.tsx'
+import { Price, useConfig } from '../ui/price.tsx'
+import { SALES_PAUSED } from '@/lib/site/config.ts'
+import { withdrawalText } from '@/lib/site/withdrawal-text.ts'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 import { useSite } from '../ui/site-context.tsx'
 import { measureResult } from '@/lib/measure.ts'
@@ -151,12 +153,49 @@ export function ResultsView() {
   const paid = !!state.unlock && state.unlock.expiresAt > Date.now()
   const unlocked = (isShared ? sharedPaid : paid) || config?.payments === 'off'
   const sourceList = results.sources.map((s) => t.sourceNames[s.id] ?? s.label).join(', ') || t.results.yourAnswers
+  // Without imports there are no signals to count: name the answers instead of «0 signals».
+  const heading = results.sources.length
+    ? t.results.signalsFrom(fmtNumber(results.dataPoints, intl), sourceList)
+    : isShared ? t.results.fromQuestionnaire : t.results.fromAnswers(questionnaireProgress(state.answers).done)
+  const selling = !unlocked && !isShared
+
+  // The programmes: the main thing once paid, behind the free fields before.
+  const programmesBlock = (
+    <>
+      {!isShared && (
+        <div className="card-sm mt-6 grid gap-2 p-4 sm:grid-cols-[1fr_1.2fr] sm:items-center">
+          <div>
+            <div className="font-bold">{t.prefs.institutionType}</div>
+            <div className="text-xs text-muted">{t.prefs.institutionTypeHint}</div>
+          </div>
+          <InstitutionTypeSelect />
+        </div>
+      )}
+      {/* Locked, the top list would only repeat the offer and the purchase box. */}
+      {!selling && (
+        <TopProgrammes results={view} prefs={prefs} topics={topics} unlocked={unlocked} shared={isShared}
+          token={isShared ? ((shared as Snapshot).token ?? null) : paid ? state.unlock!.token : null} />
+      )}
+      <Programmes results={view} prefs={prefs} topics={topics} hideFirst={!unlocked} shared={isShared} />
+    </>
+  )
+  const nextFields = (
+    <section className="mt-16">
+      <h2 className="font-display text-4xl">{t.results.next}</h2>
+      {top.some((m) => m.tier) && <p className="mt-2 max-w-2xl text-sm text-muted">{fitText(locale).tierNote}</p>}
+      <div className="mt-7 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {top.map((m, i) => (
+          <FieldCard key={m.id} m={m} rank={i + 2} stat={stats[m.id]} color={CARD_COLORS[i % CARD_COLORS.length]} grades={grades} />
+        ))}
+      </div>
+    </section>
+  )
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-10 pt-12 sm:px-6">
+    <div className={`mx-auto max-w-6xl px-4 pt-12 sm:px-6 ${selling ? 'pb-32 lg:pb-10' : 'pb-10'}`}>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-semibold text-muted">{t.results.signalsFrom(fmtNumber(results.dataPoints, intl), sourceList)}</p>
+          <p className="font-semibold text-muted">{heading}</p>
           <h1 className="mt-1 font-display text-5xl sm:text-6xl">{t.results.title}</h1>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -173,7 +212,7 @@ export function ResultsView() {
         {t.results.explorationNotice}
       </p>
 
-      {!unlocked && !isShared && <ReportOffer />}
+      <QualityNotes results={results} />
 
       {unlocked && !isShared && (
         <div className="mt-6">
@@ -181,28 +220,13 @@ export function ResultsView() {
         </div>
       )}
 
-      <QualityNotes results={results} />
-      {results.method && <p className="mt-3 break-words text-xs text-muted">{results.method.scoring} · {results.method.locale ?? locale}</p>}
-
-      {isShared ? (
+      {isShared && (
         <div className="card-sm mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent-soft p-4">
           <p className="text-sm font-semibold">{t.share.banner(new Date((shared as Snapshot).at).toLocaleDateString(intl, { dateStyle: 'medium' }))}</p>
           <Link href={r.start} className="btn btn-primary btn-sm">
             {t.share.own}
           </Link>
         </div>
-      ) : (
-        <>
-          <ShareCard results={results} prefs={prefs} token={paid ? state.unlock!.token : undefined} />
-          <div className="card-sm mt-4 grid gap-2 p-4 sm:grid-cols-[1fr_1.2fr] sm:items-center">
-            <div>
-              <div className="font-bold">{t.prefs.studying}</div>
-              <div className="text-xs text-muted">{t.prefs.studyingHint}</div>
-            </div>
-            <StudyingControl />
-          </div>
-          <StudyInfoNote summaries={summaries} />
-        </>
       )}
 
       {filterable && (
@@ -210,29 +234,20 @@ export function ResultsView() {
       )}
 
       {unlocked ? <TopMatch m={first} stat={stats[first.id]} grades={grades} sameTier={view.fields.filter((m) => m.tier === 1).length - 1} /> : <LockedTop shared={isShared} score={first.score} />}
-      {!isShared && (
-        <div className="card-sm mt-6 grid gap-2 p-4 sm:grid-cols-[1fr_1.2fr] sm:items-center">
-          <div>
-            <div className="font-bold">{t.prefs.institutionType}</div>
-            <div className="text-xs text-muted">{t.prefs.institutionTypeHint}</div>
-          </div>
-          <InstitutionTypeSelect />
-        </div>
-      )}
-      <TopProgrammes results={view} prefs={prefs} topics={topics} unlocked={unlocked} shared={isShared}
-        token={isShared ? ((shared as Snapshot).token ?? null) : paid ? state.unlock!.token : null} />
-      {/* Browsing the programmes sits right under the top list: the main thing on this page. */}
-      <Programmes results={view} prefs={prefs} topics={topics} hideFirst={!unlocked} shared={isShared} />
 
-      <section className="mt-16">
-        <h2 className="font-display text-4xl">{t.results.next}</h2>
-        {top.some((m) => m.tier) && <p className="mt-2 max-w-2xl text-sm text-muted">{fitText(locale).tierNote}</p>}
-        <div className="mt-7 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {top.map((m, i) => (
-            <FieldCard key={m.id} m={m} rank={i + 2} stat={stats[m.id]} color={CARD_COLORS[i % CARD_COLORS.length]} grades={grades} />
-          ))}
-        </div>
-      </section>
+      {/* Before paying, the free fields come first: the offer follows what the result already shows. */}
+      {unlocked ? (
+        <>
+          {programmesBlock}
+          {nextFields}
+        </>
+      ) : (
+        <>
+          {nextFields}
+          {selling && <ReportOffer />}
+          {programmesBlock}
+        </>
+      )}
 
       {results.hidden.length > 0 && (
         <section className="card relative mt-16 overflow-hidden bg-surface-2 p-6 sm:p-9">
@@ -255,6 +270,20 @@ export function ResultsView() {
             })}
           </div>
         </section>
+      )}
+
+      {!isShared && (
+        <div className="mt-16">
+          <ShareCard results={results} prefs={prefs} token={paid ? state.unlock!.token : undefined} />
+          <div className="card-sm mt-4 grid gap-2 p-4 sm:grid-cols-[1fr_1.2fr] sm:items-center">
+            <div>
+              <div className="font-bold">{t.prefs.studying}</div>
+              <div className="text-xs text-muted">{t.prefs.studyingHint}</div>
+            </div>
+            <StudyingControl />
+          </div>
+          <StudyInfoNote summaries={summaries} />
+        </div>
       )}
 
       <section className="mt-16 grid gap-6 lg:grid-cols-2">
@@ -339,6 +368,8 @@ export function ResultsView() {
 
       {summaries.some((s) => s.source !== 'questionnaire') && <SourceInsights summaries={summaries} unlocked={unlocked} studying={state.prefs.studying} />}
 
+      <Limits results={results} />
+
       <section className="mt-10 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-soft-line p-4" aria-label={t.work.title}>
         <div className="max-w-2xl">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -349,6 +380,7 @@ export function ResultsView() {
         </div>
         <Link href={r.work} className="btn btn-ghost btn-sm">{t.work.cta}</Link>
       </section>
+      {selling && <StickyUnlock />}
     </div>
   )
 }
@@ -356,7 +388,6 @@ export function ResultsView() {
 /** What the result can say: notes on how the questionnaire was answered, and its limits. */
 function QualityNotes({ results }: { results: Results }) {
   const { t, r, locale } = useSite()
-  const professional = professionalText(locale)
   const q = results.quality
   const tq = t.results.quality
   const notes = [
@@ -364,6 +395,7 @@ function QualityNotes({ results }: { results: Results }) {
     q?.flat && tq.flat,
     q?.topTie && !q.flat && tq.topTie,
   ].filter(Boolean) as string[]
+  if (!q?.careless && !notes.length) return null
   return (
     <div className="mt-6 grid gap-3">
       {/* Careless answering: a notice and the way back to the questions, not a quietly lowered confidence. */}
@@ -378,6 +410,17 @@ function QualityNotes({ results }: { results: Results }) {
           {n}
         </p>
       ))}
+    </div>
+  )
+}
+
+/** What the questionnaire can and cannot say, and the procedure's version: at the end of the page. */
+function Limits({ results }: { results: Results }) {
+  const { t, r, locale } = useSite()
+  const professional = professionalText(locale)
+  const tq = t.results.quality
+  return (
+    <div className="mt-16 grid gap-2">
       <p className="text-sm text-muted">
         {professional.notice} {tq.limits} {fitText(locale).nextSteps}{' '}
         <Link href={r.professional} className="font-semibold text-accent underline">{professional.link}</Link>
@@ -390,6 +433,48 @@ function QualityNotes({ results }: { results: Results }) {
           </>
         )}
       </p>
+      {results.method && <p className="break-words text-xs text-muted">{results.method.scoring} · {results.method.locale ?? locale}</p>}
+    </div>
+  )
+}
+
+/**
+ * On a phone the purchase box is far down. Once place 1 has scrolled away and the box is not
+ * in view, a slim bar leads to it. It only links to the box; the purchase happens there.
+ */
+function StickyUnlock() {
+  const { t, r, site, locale } = useSite()
+  const config = useConfig(site)
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    // A scroll check, not an IntersectionObserver: a fast flick from below place 1 to above it
+    // never makes it intersect, and the observer would not report the change.
+    let frame = 0
+    const check = () => {
+      frame = 0
+      const top = document.querySelector('[data-locked-top]')
+      const box = document.getElementById(r.anchors.unlock)?.getBoundingClientRect()
+      const past = !!top && top.getBoundingClientRect().bottom < 0
+      const boxVisible = !!box && box.top < window.innerHeight && box.bottom > 0
+      setShow(past && !boxVisible)
+    }
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(check) }
+    check()
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    return () => {
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+      cancelAnimationFrame(frame)
+    }
+  }, [r.anchors.unlock])
+  if (!show || !config || config.payments === 'off' || SALES_PAUSED[site]) return null
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-line bg-bg/95 px-4 py-3 backdrop-blur lg:hidden">
+      <a href={`#${r.anchors.unlock}`} className="btn btn-primary w-full whitespace-normal text-center">
+        🔒 {t.results.stickyCta} · <Price site={site} />
+      </a>
+      <p className="mt-1 text-center text-xs text-muted">{withdrawalText(locale).guarantee}</p>
     </div>
   )
 }
@@ -754,7 +839,7 @@ function LockedTop({ shared = false, score }: { shared?: boolean; score: number 
   const { t, r } = useSite()
   const bar = (w: string) => <span className="block h-3 rounded-full bg-surface-2" style={{ width: w }} />
   return (
-    <section className="card pop-in relative mt-9 overflow-hidden">
+    <section data-locked-top className="card pop-in relative mt-9 overflow-hidden">
       <div className="on-color relative flex flex-wrap items-center gap-4 border-b-2 border-line bg-yellow px-6 py-4 sm:px-10">
         <span className="sticker" style={{ background: 'var(--surface)', color: 'var(--ink)' }}>🏆 {t.results.best}</span>
         <span className="rounded-full border-2 border-line bg-surface px-3 py-1 font-display text-lg text-ink">{t.results.matchPct(score)}</span>

@@ -14,6 +14,8 @@ export interface WithdrawalText {
   form: string[]
   /** One sentence for the checkout button and the Stripe payment page. */
   note: string
+  /** The same right in a few words, shown beside the price. */
+  guarantee: string
   termsLink: string
 }
 
@@ -43,6 +45,7 @@ const TEXTS: Record<'de' | 'en' | 'fr' | 'it', WithdrawalText> = {
       'Datum:',
     ],
     note: 'Der Report wird nach der Zahlung sofort freigeschaltet. Du kannst den Kauf innert 14 Tagen ohne Angabe von Gründen widerrufen, auch nach dem Öffnen.',
+    guarantee: '14 Tage Geld zurück, ohne Begründung',
     termsLink: 'AGB und Widerrufsbelehrung',
   },
   en: {
@@ -65,6 +68,7 @@ const TEXTS: Record<'de' | 'en' | 'fr' | 'it', WithdrawalText> = {
       'Date:',
     ],
     note: 'The report unlocks right after payment. You can withdraw within 14 days without giving a reason, even after opening it.',
+    guarantee: '14-day money back, no reason needed',
     termsLink: 'Terms and right of withdrawal',
   },
   fr: {
@@ -87,6 +91,7 @@ const TEXTS: Record<'de' | 'en' | 'fr' | 'it', WithdrawalText> = {
       'Date :',
     ],
     note: 'Le rapport est débloqué dès le paiement. Tu peux te rétracter dans les 14 jours sans motif, même après l’avoir ouvert.',
+    guarantee: 'Remboursé pendant 14 jours, sans motif',
     termsLink: 'Conditions et droit de rétractation',
   },
   it: {
@@ -109,6 +114,7 @@ const TEXTS: Record<'de' | 'en' | 'fr' | 'it', WithdrawalText> = {
       'Data:',
     ],
     note: 'Il report si sblocca subito dopo il pagamento. Puoi recedere entro 14 giorni senza indicarne il motivo, anche dopo averlo aperto.',
+    guarantee: 'Rimborso entro 14 giorni, senza motivo',
     termsLink: 'Condizioni e diritto di recesso',
   },
 }
@@ -119,6 +125,7 @@ const regional = (t: WithdrawalText, locale: 'de-DE' | 'de-AT'): WithdrawalText 
   formHeading: t.formHeading,
   form: t.form.map((s) => regionalize(s, locale)),
   note: regionalize(t.note, locale),
+  guarantee: regionalize(t.guarantee, locale),
   termsLink: t.termsLink,
 })
 const DE_DE = regional(TEXTS.de, 'de-DE')

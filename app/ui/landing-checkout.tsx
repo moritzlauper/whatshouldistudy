@@ -58,13 +58,14 @@ export function LandingCheckout({ entry = false }: { entry?: boolean }) {
       {error && <p role="alert" className="mt-3 rounded-xl bg-surface p-3 text-sm font-semibold text-bad">{error}</p>}
       {entry ? (
         <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-xs text-muted sm:text-sm">
-          <span>{offer.landingReassurance}</span>
+          <span>{offer.landingReassurance} · {withdrawalText(locale).guarantee}</span>
           <PayWithTwint compact className="border-l border-soft-line pl-3" />
         </div>
       ) : (
         <>
           <PayWithTwint className="mt-3 justify-center" />
-          <p className="mt-3 text-center text-sm">{t.landing.buyNote}</p>
+          <p className="mt-3 text-center text-sm font-semibold">✓ {withdrawalText(locale).guarantee}</p>
+          <p className="mt-2 text-center text-sm">{t.landing.buyNote}</p>
           {config?.payments === 'stripe' && <p className="mt-2 text-center text-sm font-semibold">{t.programmes.boxNote}</p>}
           <p className="mt-2 text-center text-xs opacity-80">{withdrawalText(locale).note} {t.programmes.minors}{' '}<Link href={r.terms} className="underline">{withdrawalText(locale).termsLink}</Link></p>
         </>

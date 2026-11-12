@@ -1,6 +1,6 @@
 # Konzept wasstudieren.ch: Umsatz und Resultatseite (12.11.2026)
 
-Stand: Konzept, nicht umgesetzt. Grundlage sind der Usage-Report, der Bericht zum Ads-Test, die Search Console und ein Durchlauf des Fragebogens auf einem lokalen Server.
+Stand 12.11.2026: Pakete A bis D umgesetzt (Abschnitt «Umsetzung» am Ende). E und F warten auf den Entscheid des Inhabers. Grundlage sind der Usage-Report, der Bericht zum Ads-Test, die Search Console und ein Durchlauf des Fragebogens auf einem lokalen Server.
 
 ## Ausgangslage
 
@@ -112,4 +112,16 @@ Ob A und B wirken, lässt sich bei dieser Besucherzahl nicht in zwei Wochen bele
 - Die Handy-Ansicht und die französische und italienische Fassung.
 - Die Anzeige «0 Studiengänge» kam aus alten Filtern im lokalen Speicher (ETH, 6 Länder), nicht aus den Standardwerten eines neuen Besuchers.
 - Der Hinweis «1 Issue» im lokalen Next-Overlay.
-- Ein Test schlägt schon vor jeder Änderung fehl (`pnpm test`, «actual 1, expected 0»), vermutlich derselbe wie im Abschnitt vom 29.10. in `HANDOFF.md`.
+- Ein Test schlug beim ersten Lauf am 12.11. fehl («actual 1, expected 0»). Nach der Umsetzung laufen alle 354 Tests durch, einer ist übersprungen (Redis-Integration ohne lokale Datenbank).
+
+## Umsetzung (12.11.2026)
+
+- **A, Resultatseite** (`app/views/results.tsx`): Für Nichtkäufer folgen auf Platz 1 die Plätze 2 bis 10, dann Verkaufsblock und Studiengänge. Die gesperrte Karte «Top 5 Studiengänge» fällt für sie weg. «Teilen», «Studierst du schon etwas?» und der Hinweis auf veraltete Importe stehen nach den Alternativen. Der Absatz zu den Grenzen und die Versionskennung stehen am Ende (`Limits`), die Hinweise zum Antwortmuster bleiben oben (`QualityNotes`). Für Käufer bleibt die Reihenfolge Platz 1, Studiengänge, übrige Fächer.
+- **Kaufleiste auf dem Handy** (`StickyUnlock`, unter `lg`): erscheint, sobald Platz 1 ganz aus dem Bild ist und die Kaufbox nicht sichtbar ist. Sie verlinkt nur auf `#unlock`. Umgesetzt mit einer Scroll-Prüfung statt `IntersectionObserver`, weil ein schneller Sprung über Platz 1 hinweg keine Schnittänderung meldet.
+- **Anzeigefehler:** Titel «Aus deinen 61 Antworten» ohne Import, «Aus dem Fragebogen» auf geteilten Links. `contrib.parts.basic` ergänzt, `Contributions` blendet sich bei nur einem Teil aus. `boxList` hat in allen sechs Fassungen einen Satz ohne Zahl, bei 0 Treffern steht `noneHint` mit Link zu den Filtern. Das Budget zeigt auf der Schweizer Seite «≈ CHF …», umgerechnet mit 1.06 und gerundet; der Filter rechnet weiter in EUR.
+- **B, Geld-zurück:** `guarantee` in `lib/site/withdrawal-text.ts`, angezeigt im Hero, unter den Kaufknöpfen (`LandingCheckout`, Kaufbox), im Verkaufsblock und in der Kaufleiste. Auch in der Kurzzeile des Ads-Einstiegs («Kein Abo · 14 Tage Geld zurück»), weil der Inhaber das Konzept mit «neben jedem Preis» freigegeben hat. Zurücknehmen in `app/ui/landing-checkout.tsx`, falls die Zeile wieder kurz sein soll.
+- **C, Startseite:** Beispielkarte zeigt ein Fragebogen-Resultat (liebste Tätigkeiten, Gründe, Alternative), kein Code und keine Kanäle mehr. Dauer überall «etwa 8 Minuten». Gratis-Liste ohne Big Five und Verlauf. FAQ in allen sechs Fassungen: Report, Rückerstattung, Eltern zuerst, YouTube weiter unten. Der Export-Aufklapper im Abschnitt mit den drei Schritten ist weg, `#sources` bleibt.
+- **D, Eltern:** Abschnitt «Für Eltern» vor den Preisen (Sie-Form, auf FR vous, auf IT Lei), FAQ-Frage, Satz in der Zahlungsmail zum Weiterleiten.
+- Validierungsmanifest neu erzeugt, nur die Prüfsumme von `lib/site/dict.ts` hat sich geändert. Typprüfung und Tests grün.
+- Im Browser geprüft (lokal, Zahlungen im Gratis-Modus): Startseite DE und FR, Resultatseite DE auf Desktop und 400 px Breite, Kaufleiste erscheint und verschwindet bei der Kaufbox. Nicht geprüft: Italienisch, Deutschland und Österreich, der globale englische Auftritt, eine echte Zahlung und die Zahlungsmail.
+- Messen: Quote Kauf pro Resultat aus `pnpm usage:report`, Oktober als Vergleich, frühestens Mitte Dezember auswerten.

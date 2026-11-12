@@ -3,6 +3,7 @@
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
 import { reportOfferText } from '@/lib/site/report-offer.ts'
 import { SALES_PAUSED } from '@/lib/site/config.ts'
+import { withdrawalText } from '@/lib/site/withdrawal-text.ts'
 import { useConfig } from './price.tsx'
 import { useSite } from './site-context.tsx'
 
@@ -14,7 +15,10 @@ export function ReportOffer() {
   return <section className="card mt-7 bg-accent p-6 text-accent-ink sm:p-8">
     <div className="flex flex-wrap items-start justify-between gap-4">
       <h2 className="max-w-2xl font-display text-3xl sm:text-4xl">{offer.title}</h2>
-      {!SALES_PAUSED[site] && <span className="chip on-color bg-lime">{offer.price(formatPrice(config?.price ?? priceForSite(site), intl))}</span>}
+      {!SALES_PAUSED[site] && <div className="flex flex-wrap gap-2">
+        <span className="chip on-color bg-lime">{offer.price(formatPrice(config?.price ?? priceForSite(site), intl))}</span>
+        <span className="chip on-color bg-surface">✓ {withdrawalText(locale).guarantee}</span>
+      </div>}
     </div>
     <p className="mt-3 max-w-3xl opacity-90">{offer.intro}</p>
     <ol className="mt-6 grid gap-3 md:grid-cols-3">

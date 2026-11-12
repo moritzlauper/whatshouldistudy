@@ -21,24 +21,28 @@ const COPY = {
     subject: 'Dein bezahlter Studienwahl-Report – Zugangslink',
     intro: 'Vielen Dank! Deine Zahlung ist angekommen. Hier kannst du deinen vollständigen Studienwahl-Report freischalten:',
     instructions: 'Öffne den Link möglichst im selben Browser und auf demselben Gerät, auf dem du den Fragebogen ausgefüllt oder Daten importiert hast. Dein Profil liegt in diesem Browser. Falls es dort noch kein Profil gibt, führt dich die Seite zuerst zum Fragebogen. Du musst nicht nochmals bezahlen.',
+    gift: 'Du hast den Report für jemand anderen gekauft? Dann leite diese E-Mail weiter. Der Link funktioniert auf jedem Gerät.',
     footer: 'Dein Zugang gilt 12 Monate. Bewahre diese E-Mail auf und teile den persönlichen Link nicht öffentlich. Den Report kannst du auf der Ergebnisseite ansehen und über die E-Mail-Funktion mitsamt deinem Ergebnis sichern.',
   },
   en: {
     subject: 'Your paid study-choice report – access link',
     intro: 'Thank you! Your payment has arrived. Use this link to unlock your full study-choice report:',
     instructions: 'Open the link in the same browser and on the same device where you completed the questionnaire or imported data, if possible. Your profile is stored in that browser. If there is no profile yet, the site will take you to the questionnaire first. You do not need to pay again.',
+    gift: 'Bought the report for someone else? Forward this email. The link works on any device.',
     footer: 'Your access is valid for 12 months. Keep this email and do not share your personal link publicly. View your report on the results page and use its email feature to save a link that includes your result.',
   },
   fr: {
     subject: 'Ton rapport payé sur le choix des études – lien d’accès',
     intro: 'Merci ! Ton paiement a bien été reçu. Ce lien te permet de débloquer ton rapport complet :',
     instructions: 'Ouvre si possible ce lien dans le même navigateur et sur le même appareil que pour le questionnaire ou l’importation des données. Ton profil est conservé dans ce navigateur. Si aucun profil n’y est présent, le site te guidera d’abord vers le questionnaire. Tu ne dois pas payer à nouveau.',
+    gift: 'Tu as acheté le rapport pour quelqu’un d’autre ? Transfère-lui cet e-mail. Le lien fonctionne sur n’importe quel appareil.',
     footer: 'Ton accès est valable 12 mois. Conserve cet e-mail et ne partage pas ce lien personnel publiquement. Consulte ton rapport sur la page des résultats et utilise sa fonction e-mail pour sauvegarder un lien contenant aussi ton résultat.',
   },
   it: {
     subject: 'Il tuo report pagato sulla scelta degli studi – link di accesso',
     intro: 'Grazie! Il tuo pagamento è stato ricevuto. Puoi sbloccare il report completo con questo link:',
     instructions: 'Apri il link preferibilmente nello stesso browser e sullo stesso dispositivo usati per compilare il questionario o importare i dati. Il tuo profilo è conservato in quel browser. Se non è ancora presente un profilo, il sito ti guiderà prima al questionario. Non devi pagare di nuovo.',
+    gift: 'Hai acquistato il report per un’altra persona? Inoltrale questa email. Il link funziona su qualsiasi dispositivo.',
     footer: 'Il tuo accesso è valido per 12 mesi. Conserva questa email e non condividere pubblicamente il link personale. Puoi consultare il report nella pagina dei risultati e usare la funzione email per salvare un link che includa anche il tuo risultato.',
   },
 } as const
@@ -65,7 +69,7 @@ export function paymentEmail(session: PaidSession) {
   const copy = COPY[language as keyof typeof COPY] ?? COPY.en
   // The confirmation on a durable medium carries the withdrawal notice and form (§ 312f BGB).
   const withdrawal = withdrawalPlain(withdrawalText(copy === COPY.en ? 'en' : session.metadata?.locale || language))
-  return { to: email, subject: copy.subject, text: `${copy.intro}\n\n${url}\n\n${copy.instructions}\n\n${copy.footer}\n\n${withdrawal}\n\n${CONTACT}` }
+  return { to: email, subject: copy.subject, text: `${copy.intro}\n\n${url}\n\n${copy.instructions}\n\n${copy.gift}\n\n${copy.footer}\n\n${withdrawal}\n\n${CONTACT}` }
 }
 
 export async function sendPaymentEmail(session: PaidSession) {

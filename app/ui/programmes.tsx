@@ -467,6 +467,12 @@ function Locked({ teaser, config, hideFirst, onUnlocked }: { teaser: Teaser | nu
             <div className="card p-6 sm:p-7">
               <div className="font-display text-6xl">{fmtNumber(teaser.total, intl)}</div>
               <div className="mt-1 font-semibold text-muted">{t.programmes.matchCount}</div>
+              {teaser.total === 0 && (
+                <p className="mt-3 text-sm">
+                  {t.programmes.noneHint}{' '}
+                  <Link href={`${r.start}#${r.anchors.prefs}`} className="font-bold text-accent underline">{t.programmes.change}</Link>
+                </p>
+              )}
               <div className="mt-5 flex flex-wrap gap-2">
                 {Object.entries(teaser.facets.countries)
                   .sort((a, b) => b[1] - a[1])
@@ -521,7 +527,7 @@ function Locked({ teaser, config, hideFirst, onUnlocked }: { teaser: Teaser | nu
           </ul>
         </div>
         <ul className="mt-5 grid gap-2 text-sm font-medium">
-          {t.programmes.boxList(teaser ? fmtNumber(teaser.total, intl) : '').map((x) => (
+          {t.programmes.boxList(teaser?.total ? fmtNumber(teaser.total, intl) : '').map((x) => (
             <li key={x}>★ {x}</li>
           ))}
         </ul>
@@ -545,6 +551,7 @@ function Locked({ teaser, config, hideFirst, onUnlocked }: { teaser: Teaser | nu
           </button>
         )}
         {error && <p className="mt-3 rounded-xl bg-surface p-2 text-sm font-semibold text-bad">{error}</p>}
+        {!org && !SALES_PAUSED[site] && config?.payments !== 'off' && <p className="mt-3 text-center text-sm font-semibold">✓ {withdrawalText(locale).guarantee}</p>}
         {!org && !SALES_PAUSED[site] && <PayWithTwint className="mt-3 justify-center" />}
         {!org && !SALES_PAUSED[site] && config?.payments === 'stripe' && <p className="mt-3 text-center text-sm font-semibold">{t.programmes.boxNote}</p>}
         {config?.payments !== 'off' && !(SALES_PAUSED[site] && !org) && (

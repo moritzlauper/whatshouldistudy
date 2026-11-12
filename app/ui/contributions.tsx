@@ -15,6 +15,7 @@ const COLOR: Record<string, string> = {
   'spotify-export': 'var(--lime)',
   footprint: 'var(--soft-line)',
   riasecData: 'var(--accent)',
+  basic: 'var(--yellow)',
   riasec: 'var(--yellow)',
   subjects: 'var(--yellow)',
   values: 'var(--yellow)',
@@ -25,7 +26,8 @@ const COLOR: Record<string, string> = {
 export function Contributions({ m }: { m: FieldMatch }) {
   const { t } = useSite()
   const list = m.contributions ?? []
-  if (!list.length) return null
+  // A single part would always read 100 %: nothing to compare.
+  if (list.length < 2) return null
   const c = t.contrib
   const label = (k: string) => (c.parts as Record<string, string>)[k] ?? t.sourceNames[k] ?? k
   return (
