@@ -1,6 +1,6 @@
 /**
- * One-time price of the full report: CHF/EUR/USD 9, with fixed local
- * prices in other currencies and no discount. Country sites use their own currency; the global site follows
+ * One-time price of the full report: CHF 19, EUR/USD 9, with fixed local
+ * prices in other currencies and no discount. CHF 19 since 12 November 2026. Country sites use their own currency; the global site follows
  * the visitor's country (Vercel geo header), with USD as its fallback.
  */
 
@@ -9,7 +9,7 @@ import type { SiteId } from './site/config.ts'
 
 /** Price in major units per currency. */
 export const PRICES: Record<string, number> = {
-  CHF: 9,
+  CHF: 19,
   EUR: 9,
   USD: 9,
   GBP: 15,

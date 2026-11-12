@@ -6,26 +6,26 @@ test('country sites keep their advertised currency even for visitors abroad', ()
   for (const country of ['CH', 'DE', 'US', 'GB', null, undefined]) {
     assert.deepEqual(priceForSite('de', country), { amount: 9, currency: 'EUR' })
     assert.deepEqual(priceForSite('at', country), { amount: 9, currency: 'EUR' })
-    assert.deepEqual(priceForSite('ch', country), { amount: 9, currency: 'CHF' })
+    assert.deepEqual(priceForSite('ch', country), { amount: 19, currency: 'CHF' })
   }
 })
 
 test('the global site uses the visitor currency, with USD when location is unknown', () => {
   assert.deepEqual(priceForSite('global', 'DE'), { amount: 9, currency: 'EUR' })
-  assert.deepEqual(priceForSite('global', 'CH'), { amount: 9, currency: 'CHF' })
+  assert.deepEqual(priceForSite('global', 'CH'), { amount: 19, currency: 'CHF' })
   assert.deepEqual(priceForSite('global', 'GB'), { amount: 15, currency: 'GBP' })
   assert.deepEqual(priceForSite('global', null), { amount: 9, currency: 'USD' })
 })
 
 test('price follows the visitor country, with round local prices', () => {
-  assert.deepEqual(priceFor('CH'), { amount: 9, currency: 'CHF' })
+  assert.deepEqual(priceFor('CH'), { amount: 19, currency: 'CHF' })
   assert.deepEqual(priceFor('DE'), { amount: 9, currency: 'EUR' })
   assert.deepEqual(priceFor('AT'), { amount: 9, currency: 'EUR' })
   assert.deepEqual(priceFor('GB'), { amount: 15, currency: 'GBP' })
   assert.deepEqual(priceFor('SE'), { amount: 189, currency: 'SEK' })
   assert.deepEqual(priceFor('BR'), { amount: 89, currency: 'BRL' })
   assert.deepEqual(priceFor('KE'), { amount: 9, currency: 'USD' })
-  assert.deepEqual(priceFor(null, 'CHF'), { amount: 9, currency: 'CHF' })
+  assert.deepEqual(priceFor(null, 'CHF'), { amount: 19, currency: 'CHF' })
 })
 
 test('Stripe amounts use the right unit', () => {
@@ -36,14 +36,16 @@ test('Stripe amounts use the right unit', () => {
 })
 
 test('the report has a fixed price without a discount in every currency', () => {
-  for (const currency of ['CHF', 'EUR', 'USD']) {
+  for (const currency of ['EUR', 'USD']) {
     assert.deepEqual(priceFor(null, currency), { amount: 9, currency })
     assert.equal(stripeAmount(priceFor(null, currency)), 900)
   }
+  assert.deepEqual(priceFor(null, 'CHF'), { amount: 19, currency: 'CHF' })
+  assert.equal(stripeAmount(priceFor(null, 'CHF')), 1900)
   for (const [currency, amount] of Object.entries(PRICES)) {
     assert.deepEqual(priceFor(null, currency), { amount, currency })
   }
-  assert.match(formatPrice(priceForSite('ch'), 'de-CH'), /CHF\s?9$/)
+  assert.match(formatPrice(priceForSite('ch'), 'de-CH'), /CHF\s?19$/)
 })
 
 test('organisation plans are not discounted', () => {

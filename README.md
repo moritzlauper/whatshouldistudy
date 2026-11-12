@@ -202,7 +202,7 @@ development. `.env.example` lists everything else.
 | Path | `/` | `/schweiz` | `/deutschland` | `/oesterreich` |
 | Language | English | Swiss Standard German | German (Germany) | German (Austria) |
 | Default filter | anywhere | Switzerland, Swiss citizenship | Germany, EU citizenship | Austria, EU citizenship |
-| Price | 9 CHF/EUR/USD | CHF 9 | EUR 9 | EUR 9 |
+| Price | CHF 19, EUR/USD 9 | CHF 19 | EUR 9 | EUR 9 |
 | Browser storage | `wsis:v1` | `wsis:v1:ch` | `wsis:v1:de` | `wsis:v1:at` |
 
 All four render the same views (`app/views/`, `app/ui/`). The global routes are
@@ -631,10 +631,10 @@ recorded buyer only. The optional locale corrects old Swiss language redirects.
 It uses the same duplicate protection; it cannot grant access to an unpaid session.
 
 Price: country sites always use their own currency (Germany/Austria EUR 9,
-Switzerland CHF 9), for both the displayed price and checkout, including
+Switzerland CHF 19 since 12 November 2026, before CHF 9), for both the displayed price and checkout, including
 organisation plans. The global site uses the visitor's currency
 (`lib/pricing.ts`, country from Vercel's
-`x-vercel-ip-country`): CHF 9, EUR 9, USD 9, GBP 15, CAD 23, AUD 25, SEK 189,
+`x-vercel-ip-country`): CHF 19, EUR 9, USD 9, GBP 15, CAD 23, AUD 25, SEK 189,
 NOK 189, DKK 125, PLN 75, JPY 2,600, INR 1,099 and more. Checkout uses the
 Stripe price with lookup key `wsis_report` (or `STRIPE_PRICE_ID`) only when
 its amount matches the displayed price in the selected currency. Otherwise

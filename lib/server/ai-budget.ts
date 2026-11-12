@@ -69,7 +69,7 @@ export async function aiSpend(p: AiPurpose, model: string, usage: { input_tokens
 }
 
 /**
- * Budget per purchase (one report, CHF 9): at most this much AI spend for the
+ * Budget per purchase (one report, CHF 19 or EUR/USD 9): at most this much AI spend for the
  * AI rating of one report. Above it the report asks people to write to us.
  * Without the counter store nothing is counted.
  */

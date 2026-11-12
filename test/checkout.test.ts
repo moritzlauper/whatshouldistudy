@@ -37,7 +37,7 @@ test('landing checkout preserves the site, language, fixed price and safe return
       assert.equal((await response.json()).url, 'https://checkout.stripe.com/test-session');
       assert.equal(form.get('cancel_url'), 'https://preview.example' + cancel);
       assert.equal(form.get('success_url'), 'https://preview.example' + success + '?session_id={CHECKOUT_SESSION_ID}');
-      assert.equal(form.get('line_items[0][price_data][unit_amount]'), '900');
+      assert.equal(form.get('line_items[0][price_data][unit_amount]'), currency === 'chf' ? '1900' : '900');
       assert.equal(form.get('line_items[0][price_data][currency]'), currency);
       assert.equal(form.get('mode'), 'payment');
       assert.equal(form.get('metadata[product]'), 'wsis_report');

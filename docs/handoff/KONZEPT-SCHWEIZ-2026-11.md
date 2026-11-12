@@ -1,6 +1,6 @@
 # Konzept wasstudieren.ch: Umsatz und Resultatseite (12.11.2026)
 
-Stand 12.11.2026: Pakete A bis D umgesetzt (Abschnitt «Umsetzung» am Ende). E und F warten auf den Entscheid des Inhabers. Grundlage sind der Usage-Report, der Bericht zum Ads-Test, die Search Console und ein Durchlauf des Fragebogens auf einem lokalen Server.
+Stand 12.11.2026: Pakete A bis D umgesetzt (Abschnitt «Umsetzung» am Ende). E umgesetzt: CHF 19 seit 12.11.2026, EUR und USD bleiben bei 9. F wartet auf den Entscheid des Inhabers. Grundlage sind der Usage-Report, der Bericht zum Ads-Test, die Search Console und ein Durchlauf des Fragebogens auf einem lokalen Server.
 
 ## Ausgangslage
 
@@ -81,7 +81,7 @@ Es fehlt nur die Ansprache:
 
 Am Backend ändert sich nichts. Die Antworten bleiben im Browser des Kindes, die Eltern sehen sie nur, wenn das Kind sein Resultat über «Teilen» schickt.
 
-## E. Preis (Entscheid des Inhabers)
+## E. Preis (umgesetzt am 12.11.2026: CHF 19)
 
 Bei 16 Käufen im Monat liefert ein A/B-Test kein Ergebnis. Empfehlung: direkt auf CHF 19 gehen und vier bis sechs Wochen beobachten. Der Umsatz sinkt erst, wenn die Kaufquote um mehr als 53% fällt. Bei CHF 14 liegt diese Grenze bei 36%.
 
@@ -125,3 +125,10 @@ Ob A und B wirken, lässt sich bei dieser Besucherzahl nicht in zwei Wochen bele
 - Validierungsmanifest neu erzeugt, nur die Prüfsumme von `lib/site/dict.ts` hat sich geändert. Typprüfung und Tests grün.
 - Im Browser geprüft (lokal, Zahlungen im Gratis-Modus): Startseite DE und FR, Resultatseite DE auf Desktop und 400 px Breite, Kaufleiste erscheint und verschwindet bei der Kaufbox. Nicht geprüft: Italienisch, Deutschland und Österreich, der globale englische Auftritt, eine echte Zahlung und die Zahlungsmail.
 - Messen: Quote Kauf pro Resultat aus `pnpm usage:report`, Oktober als Vergleich, frühestens Mitte Dezember auswerten.
+
+## Preis CHF 19 (12.11.2026)
+
+- Auf Entscheid des Inhabers kostet der Report in CHF neu 19 statt 9 (`PRICES.CHF` in `lib/pricing.ts`). Das gilt für wasstudieren.ch, whatshouldistudy.ch/fr und /it und für Besucher der globalen Seite aus der Schweiz und Liechtenstein. EUR, USD und die anderen Währungen bleiben unverändert, ebenso die Organisationspläne.
+- Alle Preisangaben auf den Seiten kommen aus `priceForSite`, feste «CHF 9» gab es nur im README, in einem Kommentar und in den Tests.
+- Der Checkout schickt den Betrag als `price_data`, solange der Stripe-Preis mit Lookup-Key `wsis_report` nicht 19 CHF hat. Der neue Preis gilt also ab dem Deploy, auch ohne `stripe:setup`.
+- Auswertung: Quote Kauf pro Resultat aus `pnpm usage:report`, Oktober (9 CHF) gegen die Wochen ab Mitte November. Bei dieser Besucherzahl frühestens nach vier bis sechs Wochen. Der Umsatz sinkt erst, wenn die Quote um mehr als 53% fällt.
