@@ -73,6 +73,21 @@ export function typeShifts(p: ProgrammeProfile): Array<{ k: RiasecKey; more: boo
 }
 
 /**
+ * How a rated profile differs from a field in shape: each profile less its own mean, so that a rating that runs high
+ * on every type (as single model ratings do) does not read as «more of everything». Both in 0..1.
+ */
+export function shapeShifts(riasec: readonly number[], base: readonly number[]): Array<{ k: RiasecKey; more: boolean }> {
+  const mean = (xs: readonly number[]) => xs.reduce((s, x) => s + x, 0) / xs.length
+  const mr = mean(riasec)
+  const mb = mean(base)
+  return RIASEC_KEYS.map((k, i) => ({ k, d: riasec[i] - mr - (base[i] - mb) }))
+    .filter((x) => Math.abs(x.d) >= TYPE_SHIFT)
+    .sort((a, b) => Math.abs(b.d) - Math.abs(a.d))
+    .slice(0, 2)
+    .map((x) => ({ k: x.k, more: x.d > 0 }))
+}
+
+/**
  * What speaks for the programme: at most four interests or subjects that stand out in the mix. Each field brings
  * its own two strongest that still stand out, so a second field shows up instead of being drowned by the first.
  */

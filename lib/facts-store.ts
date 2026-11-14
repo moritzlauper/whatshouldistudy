@@ -1,13 +1,15 @@
 import { CHECK_LANGUAGES, TOPIC_KEYS, validDistinctiveTranslations, type CheckLanguage, type Rating, type Specialisation, type StoredFact } from '../scrapers/lib/facts.ts'
 import type { ProgrammeFacts } from './engine/programme-fit.ts'
 import type { Locale } from './site/config.ts'
-import { SUBJECT_KEYS } from './taxonomy/fields.ts'
+import { FIELD_BY_ID, SUBJECT_KEYS } from './taxonomy/fields.ts'
+import type { RiasecKey } from './taxonomy/fields.ts'
+import { profileTypes, shapeShifts } from './programme-profile.ts'
 
 /**
  * The facts database: one Redis hash per country, a field per programme with what
  * the AI read about its official page (scrapers/lib/facts.ts). It is private: the
  * readings belong to the paid comparison, and public pages get only what
- * specialisationNames and publicReading let through. The weekly job writes it
+ * specialisationNames, publicReading and readingFit let through. The weekly job writes it
  * through /api/facts/ingest, the site reads it from the same store.
  */
 
@@ -235,6 +237,33 @@ export function publicReading(f: StoredFact | undefined, locale: Locale): Public
   if (!names.length && !distinctive.length) return null
   const url = webAddress(f.url)
   return { specialisations: names, distinctive, at: f.at, ...(url ? { url } : {}) }
+}
+
+/**
+ * What a programme page shows of the interest profile the reading gives the programme: words, never the numbers.
+ * At most three types, how it differs from its first field, the school subjects it relies on and the fields its
+ * content covers. Null when the page said too little, or when the rating is flat and so says nothing.
+ */
+export interface ReadingFit {
+  types: RiasecKey[]
+  shifts: Array<{ k: RiasecKey; more: boolean }>
+  subjects: string[]
+  topics: string[]
+  at: string
+}
+
+export function readingFit(f: StoredFact | undefined, firstField: string): ReadingFit | null {
+  if (!f?.enough) return null
+  const r = readingRiasec(f).map((v) => v / 5)
+  if (Math.max(...r) - Math.min(...r) < 0.2) return null
+  const base = FIELD_BY_ID[firstField]?.riasec
+  return {
+    types: profileTypes(r),
+    shifts: base ? shapeShifts(r, base) : [],
+    subjects: f.subjects.slice(0, 3),
+    topics: (f.topics ?? []).filter((t) => FIELD_BY_ID[t]).slice(0, 6),
+    at: f.at,
+  }
 }
 
 function webAddress(url: string): string | undefined {

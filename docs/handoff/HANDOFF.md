@@ -4,7 +4,7 @@ Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zu
 
 ## Konzept Studiengangsseite (14.11.2026)
 
-- Konzept in `docs/handoff/KONZEPT-STUDIENGANGSSEITE-2026-11.md`. Stufe 1 ist am 14.11. umgesetzt: Kacheln, kürzere Passungskarte aus den Fächern des Studiengangs mit Abgleich gegen die Antworten im Browser, Besonderheiten als Karten, Korrekturen bei Zulassung, Berufen und Lohn. Offen sind Entscheid 1 (grobes Profil aus der Lesung öffentlich) und Leser-Version 7 mit API-Kosten.
+- Konzept in `docs/handoff/KONZEPT-STUDIENGANGSSEITE-2026-11.md`. Stufe 1 ist am 14.11. umgesetzt: Kacheln, kürzere Passungskarte aus den Fächern des Studiengangs mit Abgleich gegen die Antworten im Browser, Besonderheiten als Karten, Korrekturen bei Zulassung, Berufen und Lohn. Stufe 2 seit 14.11.: Wo eine Lesung den Studiengang einschätzt, zeigt die Karte deren Typen, Schulfächer und Themen als Wörter, ohne Zahlen. Offen ist Leser-Version 7.
 
 ## Konzept Schweiz: Umsatz und Resultatseite (12.11.2026)
 

@@ -1,6 +1,6 @@
 # Konzept Studiengangsseite (14.11.2026)
 
-Stand 14.11.2026: Stufe 1 umgesetzt (Abschnitt «Umsetzung» am Ende), Stufe 2 und 3 offen. Auftrag des Inhabers: Die Karte «Passt dieses Studium zu dir?» ist zu lang, ungenau und beschreibt nur das Oberfach. Die Karte «Von der offiziellen Seite» soll kein Textblock mehr sein, ihre Angaben sollen an den passenden Stellen der Seite stehen.
+Stand 14.11.2026: Stufe 1 und 2 umgesetzt (Abschnitte «Umsetzung» am Ende), Stufe 3 offen. Auftrag des Inhabers: Die Karte «Passt dieses Studium zu dir?» ist zu lang, ungenau und beschreibt nur das Oberfach. Die Karte «Von der offiziellen Seite» soll kein Textblock mehr sein, ihre Angaben sollen an den passenden Stellen der Seite stehen.
 
 Beispiel für alles Folgende ist der [Master Business Psychology der Hochschule Luzern](https://wasstudieren.ch/studiengaenge/psychologie/master-business-psychology-hochschule-luzern-vj2gqdb5rd). Eine Skizze der neuen Seite und der Passungskarte liegt als privates Artifact vor: https://claude.ai/artifact/PBFyur9uDwRYgoDcxPEMrB
 
@@ -132,3 +132,13 @@ Auftrag des Inhabers am 14.11.: «setze das handoff um». Umgesetzt ist Stufe 1 
 - Neue Texte in `lib/site/programme-text.ts` (DE, FR, IT, EN, DE und AT regionalisiert), `masterAdmission` in `lib/site/catalogue-text.ts`. `lib/site/fit-text.ts` ist unverändert, das Validierungsmanifest also auch.
 - Geprüft: Typprüfung, 361 Tests (neu `test/programme-profile.test.ts`), 360 bestanden, einer übersprungen. Lokal im Browser: HSLU Business Psychology auf Desktop und 420 px, mit und ohne Fragebogenantworten, FR-Fassung, Master Psychologie UZH (ein Fach), Bachelor Architektur BFH (Katalog-Schwerpunkte).
 - Nicht geprüft: Besonderheiten aus einer echten Lesung (lokal kein Zugang zum Store), Italienisch und Englisch im Browser, Deutschland und Österreich.
+
+## Umsetzung Stufe 2 (14.11.2026)
+
+Auf «fahre fort» des Inhabers nach der Liste der offenen Entscheide. Entscheid 1 gilt damit als freigegeben.
+
+- `readingFit` in `lib/facts-store.ts` gibt der Seite aus einer Lesung mit `enough` nur Wörter weiter: höchstens drei Typen, den Unterschied zum ersten Fach, bis drei Schulfächer und die Themen (Fach-IDs). Bei einem flachen Profil (Spanne unter 1 von 5 Punkten) gibt es nichts. Der Unterschied wird nach Abzug des Mittelwerts beider Profile gerechnet (`shapeShifts`), weil einzelne Modellbewertungen insgesamt zu hoch liegen.
+- Die Passungskarte zeigt bei einer Lesung die Typen als Chips ohne Balken. «Dafür spricht» beginnt mit den Schulfächern der Lesung und wird mit dem Fachprofil aufgefüllt. Der Hinweis unten nennt die Lesung als Quelle. Im ausgelieferten HTML stehen keine Werte der Lesung (geprüft: nur `"v":0`).
+- «Was diesen Studiengang ausmacht» zeigt die Themen der Lesung als «Inhalte» mit Link auf die Fachseite, ohne die Fächer, die schon im Kopf stehen.
+- Zurücknehmen: In `app/views/programme.tsx` `rf` auf `null` setzen.
+- Geprüft: Typprüfung, 362 Tests (neu: kein Wert der Lesung in `readingFit`), lokal mit nachgebildetem Store und einer Testlesung für HSLU Business Psychology. Wie viele echte Lesungen ein `enough` und ein nicht flaches Profil haben, ist weiter offen.

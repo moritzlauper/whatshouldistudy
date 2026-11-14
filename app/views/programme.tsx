@@ -3,7 +3,7 @@ import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { LEVEL_ORDER, programmeSlug } from '@/lib/catalogue.ts'
 import { TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
-import { publicReading } from '@/lib/facts-store.ts'
+import { publicReading, readingFit } from '@/lib/facts-store.ts'
 import type { PublicReading } from '@/lib/facts-store.ts'
 import { toCatalogueEntry } from '@/lib/programmes.ts'
 import type { CatalogueEntry, Programme } from '@/lib/programmes.ts'
@@ -24,7 +24,7 @@ import { programmeCareers } from '@/lib/site/programme-careers.ts'
 import type { ProgrammeText } from '@/lib/site/programme-text.ts'
 import { profileRemote, profileStandouts, profileTypes, programmeProfile, typeShifts } from '@/lib/programme-profile.ts'
 import { FIELD_BY_ID, RIASEC_KEYS } from '@/lib/taxonomy/fields.ts'
-import type { SubjectKey } from '@/lib/taxonomy/fields.ts'
+import type { RiasecKey, SubjectKey } from '@/lib/taxonomy/fields.ts'
 import type { BasicKey } from '@/lib/taxonomy/basic-interests.ts'
 import { ProgrammeFit } from '../ui/programme-fit.tsx'
 import type { FitChip, FitTypeBar } from '../ui/programme-fit.tsx'
@@ -93,11 +93,11 @@ const CARD_COLOURS = ['bg-accent-soft', 'on-color bg-lime', 'on-color bg-sky']
  * What sets the programme apart: the points from the reading of its official page as cards, its specialisations
  * and the focus areas of the catalogue. Null when there is none of these.
  */
-function AboutProgramme({ reading, focus, locale, intl, tx }: { reading: PublicReading | null; focus: string[]; locale: Locale; intl: string; tx: ProgrammeText }) {
+function AboutProgramme({ reading, focus, topics, locale, intl, tx }: { reading: PublicReading | null; focus: string[]; topics: Array<{ id: string; href: string }>; locale: Locale; intl: string; tx: ProgrammeText }) {
   const ct = catalogueText(locale)
   const o = ct.official
   const tags = [...new Set([...(reading?.specialisations ?? []), ...focus])]
-  if (!reading?.distinctive.length && !tags.length) return null
+  if (!reading?.distinctive.length && !tags.length && !topics.length) return null
   return (
     <section className="card flex flex-col gap-4 p-5 sm:p-6">
       <h2 className="font-display text-2xl sm:text-3xl">{tx.aboutTitle}</h2>
@@ -117,6 +117,20 @@ function AboutProgramme({ reading, focus, locale, intl, tx }: { reading: PublicR
             {tags.map((n) => (
               <li key={n} className="chip">
                 {n}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {topics.length > 0 && (
+        <div>
+          <h3 className="text-sm text-muted">{tx.contents}</h3>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {topics.map((x) => (
+              <li key={x.id}>
+                <Link href={x.href} className="chip hover:-translate-y-0.5">
+                  {emoji(x.id)} {fieldName(x.id, locale)}
+                </Link>
               </li>
             ))}
           </ul>
@@ -245,27 +259,46 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
   const shown = new Set([d.degree, d.institution, d.place, d.language, d.otherLanguages, d.duration, d.mode, d.focus, d.fields])
   const moreFacts = catalogueFacts(p, cc, locale, (f) => r.countryField(cc, f)).filter(([key]) => !shown.has(key))
 
-  // The fit card: the programme's own profile, mixed from its fields; one field alone says that it describes the field.
+  // The fit card: the reading of the official page where it rated the programme, else the profile mixed from its
+  // fields. One field alone says that it describes the field. The reading's profile goes out as words only.
   const prof = programmeProfile(p.fields)
+  const rf = prof ? readingFit(facts?.[full.id], prof.fields[0]) : null
   const fit = prof
     ? (() => {
         const mixed = prof.fields.length > 1
         const first = fieldName(prof.fields[0], locale)
+        const lower = (key: RiasecKey) => riasecLabel(key, locale).name.toLowerCase()
+        const sentence = (shifts: Array<{ k: RiasecKey; more: boolean }>) =>
+          shifts.length ? tx.shift(shifts.filter((x) => x.more).map((x) => lower(x.k)), shifts.filter((x) => !x.more).map((x) => lower(x.k)), first, listOf) : undefined
+        const chip = (key: string): FitChip => ({ key, label: levelLabelOf(key, locale) })
+        const standouts = profileStandouts(prof)
+        const remote = profileRemote(prof)
+        if (rf) {
+          // The subjects the page says the programme relies on come first, the mixed profile of the fields fills up.
+          const needed = rf.subjects.map((k) => `s:${k}`)
+          return {
+            title: tx.fitTitle,
+            bars: rf.types.map((key): FitTypeBar => ({ k: key, label: riasecLabel(key, locale).name, v: 0, top: true })),
+            showBars: false,
+            shift: sentence(rf.shifts),
+            pro: [...new Set([...needed, ...standouts])].slice(0, 4).map(chip),
+            contra: remote.filter((k) => !needed.includes(k)).map(chip),
+            note: tx.readingNote(fmtDate(rf.at, intl)),
+          }
+        }
         const tops = new Set(profileTypes(prof.riasec))
         const base = FIELD_BY_ID[prof.fields[0]].riasec
         const bars: FitTypeBar[] = RIASEC_KEYS.map((key, i) => ({ k: key, label: riasecLabel(key, locale).name, v: prof.riasec[i], ...(mixed ? { base: base[i] } : {}), top: tops.has(key) }))
           .sort((a, b) => b.v - a.v)
-        const shifts = typeShifts(prof)
-        const lower = (key: (typeof shifts)[number]['k']) => riasecLabel(key, locale).name.toLowerCase()
-        const chip = (key: string): FitChip => ({ key, label: levelLabelOf(key, locale) })
         return {
           title: mixed ? tx.fitTitle : tx.fieldFitTitle(first),
           bars,
+          showBars: true,
           barsNote: mixed ? tx.barsNote(first) : undefined,
-          shift: shifts.length ? tx.shift(shifts.filter((x) => x.more).map((x) => lower(x.k)), shifts.filter((x) => !x.more).map((x) => lower(x.k)), first, listOf) : undefined,
-          pro: profileStandouts(prof).map(chip),
-          contra: profileRemote(prof).map(chip),
-          fieldOnly: mixed ? undefined : tx.fieldOnly(first),
+          shift: sentence(typeShifts(prof)),
+          pro: standouts.map(chip),
+          contra: remote.map(chip),
+          note: mixed ? undefined : tx.fieldOnly(first),
         }
       })()
     : null
@@ -377,7 +410,7 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
       {/* On a phone the fit card follows what sets the programme apart; on a wide screen it stands to the right. */}
       <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:grid-rows-[auto_auto_auto_1fr] lg:items-start">
         <div className="lg:col-start-1 empty:hidden">
-          <AboutProgramme reading={reading} focus={p.focus ?? []} locale={locale} intl={intl} tx={tx} />
+          <AboutProgramme reading={reading} focus={p.focus ?? []} topics={(rf?.topics ?? []).filter((id) => !p.fields.includes(id)).map((id) => ({ id, href: r.countryField(cc, id) }))} locale={locale} intl={intl} tx={tx} />
         </div>
         {fit && (
           <div className="lg:col-start-2 lg:row-span-4 lg:row-start-1">

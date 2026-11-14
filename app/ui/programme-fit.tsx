@@ -8,7 +8,11 @@ import { useAppState } from '@/lib/store.ts'
 import type { RiasecKey } from '@/lib/taxonomy/fields.ts'
 import { useSite } from './site-context.tsx'
 
-/** One interest type of the programme: its level, the first field's level when the programme mixes fields, and whether it is one of the programme's own types. */
+/**
+ * One interest type of the programme: its level, the first field's level when the programme mixes fields, and whether
+ * it is one of the programme's own types. A profile from the reading of the official page goes out without levels
+ * (`v` 0, `showBars` false): the page shows its types as words only.
+ */
 export interface FitTypeBar {
   k: RiasecKey
   label: string
@@ -38,7 +42,7 @@ function Check({ label }: { label: string }) {
  * and how it differs from its first field. With a finished questionnaire in this browser it marks what matches
  * the answers. That comparison runs here and shows no score and no rank: those stay in the paid report.
  */
-export function ProgrammeFit({ title, bars, barsNote, shift, pro, contra, fieldOnly }: { title: string; bars: FitTypeBar[]; barsNote?: string; shift?: string; pro: FitChip[]; contra: FitChip[]; fieldOnly?: string }) {
+export function ProgrammeFit({ title, bars, showBars, barsNote, shift, pro, contra, note }: { title: string; bars: FitTypeBar[]; showBars: boolean; barsNote?: string; shift?: string; pro: FitChip[]; contra: FitChip[]; note?: string }) {
   const { locale, r } = useSite()
   const tx = programmePageText(locale)
   const { answers } = useAppState()
@@ -57,7 +61,7 @@ export function ProgrammeFit({ title, bars, barsNote, shift, pro, contra, fieldO
 
       <div>
         <p className="text-sm text-muted">{tx.types}</p>
-        <ul className="mt-2 flex flex-wrap gap-2 sm:hidden">
+        <ul className={`mt-2 flex flex-wrap gap-2 ${showBars ? 'sm:hidden' : ''}`}>
           {tops.map((b) => (
             <li key={b.k} className={`chip ${mine?.has(b.k) ? 'on-color bg-lime' : 'bg-accent-soft'}`}>
               {mine?.has(b.k) && <Check label={tx.liked} />}
@@ -65,7 +69,7 @@ export function ProgrammeFit({ title, bars, barsNote, shift, pro, contra, fieldO
             </li>
           ))}
         </ul>
-        <ul className="mt-2 hidden gap-1.5 sm:grid">
+        {showBars && <ul className="mt-2 hidden gap-1.5 sm:grid">
           {bars.map((b) => (
             <li key={b.k} className="grid grid-cols-[8.5rem_1fr] items-center gap-3">
               <span className={`flex items-center gap-1 text-sm ${b.top ? 'font-bold' : 'text-muted'}`}>
@@ -78,8 +82,8 @@ export function ProgrammeFit({ title, bars, barsNote, shift, pro, contra, fieldO
               </span>
             </li>
           ))}
-        </ul>
-        {barsNote && <p className="mt-2 hidden text-xs text-muted sm:block">{barsNote}</p>}
+        </ul>}
+        {showBars && barsNote && <p className="mt-2 hidden text-xs text-muted sm:block">{barsNote}</p>}
       </div>
 
       {side ? (
@@ -117,7 +121,7 @@ export function ProgrammeFit({ title, bars, barsNote, shift, pro, contra, fieldO
         </div>
       )}
 
-      {fieldOnly && <p className="text-xs text-muted">{fieldOnly}</p>}
+      {note && <p className="text-xs text-muted">{note}</p>}
 
       <div>
         <Link href={side ? r.results : r.start} className="btn btn-primary btn-lg w-full whitespace-normal text-center">

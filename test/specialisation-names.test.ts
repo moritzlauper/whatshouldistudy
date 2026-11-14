@@ -51,3 +51,18 @@ test('the source is linked only when it is a web address', () => {
   assert.equal(publicReading({ ...reading, url: 'https://' }, 'de-CH')?.url, undefined)
   assert.equal(publicReading(reading, 'de-CH')?.url, 'https://www.unibe.ch/p1')
 })
+
+test('a programme page gets the reading’s profile as words, never its numbers', async () => {
+  const { readingFit } = await import('../lib/facts-store.ts')
+  // Social and enterprising, rated high across the board as single model ratings tend to be.
+  const rated: StoredFact = { ...reading, riasec: [1, 3, 2, 5, 5, 3], subjects: ['econ', 'social'], topics: ['psychology', 'business-management', 'no-such-field'] }
+  const fit = readingFit(rated, 'psychology')!
+  assert.deepEqual(fit.types, ['S', 'E'])
+  assert.deepEqual(fit.shifts, [{ k: 'E', more: true }, { k: 'I', more: false }])
+  assert.deepEqual(fit.subjects, ['econ', 'social'])
+  assert.deepEqual(fit.topics, ['psychology', 'business-management'])
+  assert.ok(!/\d\.\d|"riasec"|"check"|Zulassung/.test(JSON.stringify(fit)), JSON.stringify(fit))
+  assert.equal(readingFit({ ...rated, enough: false }, 'psychology'), null)
+  assert.equal(readingFit({ ...rated, riasec: [3, 3, 3, 3, 3, 3] }, 'psychology'), null)
+  assert.equal(readingFit(undefined, 'psychology'), null)
+})
