@@ -2,6 +2,10 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Konzept Studiengangsseite (14.11.2026)
+
+- Konzept in `docs/handoff/KONZEPT-STUDIENGANGSSEITE-2026-11.md`, nichts umgesetzt. Die Passungskarte soll kürzer werden und den Studiengang statt des Oberfachs beschreiben, die Angaben der Lesung sollen in Steckbrief und Karten stehen statt in einem Textblock. Offen sind drei Entscheide des Inhabers: Grobes Profil aus der Lesung öffentlich, Abgleich mit den eigenen Antworten gratis, Leser-Version 7 mit API-Kosten.
+
 ## Konzept Schweiz: Umsatz und Resultatseite (12.11.2026)
 
 - Konzept in `docs/handoff/KONZEPT-SCHWEIZ-2026-11.md`. Pakete A bis D (Resultatseite, Geld-zurück-Hinweis, Startseite, Eltern) sind am 12.11. umgesetzt, Details im Abschnitt «Umsetzung» dort. Der Report kostet seit dem 12.11. CHF 19 statt 9 (EUR und USD bleiben 9). Ads-Test und Outreach entscheidet der Inhaber.
