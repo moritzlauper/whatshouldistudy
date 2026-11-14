@@ -1,6 +1,6 @@
 # Konzept Studiengangsseite (14.11.2026)
 
-Stand 14.11.2026: Stufe 1 und 2 umgesetzt (Abschnitte «Umsetzung» am Ende), Stufe 3 offen. Auftrag des Inhabers: Die Karte «Passt dieses Studium zu dir?» ist zu lang, ungenau und beschreibt nur das Oberfach. Die Karte «Von der offiziellen Seite» soll kein Textblock mehr sein, ihre Angaben sollen an den passenden Stellen der Seite stehen.
+Stand 14.11.2026: Stufe 1 und 2 umgesetzt, Stufe 3 im Code bereit, Leser-Version noch 6 (Abschnitte am Ende). Auftrag des Inhabers: Die Karte «Passt dieses Studium zu dir?» ist zu lang, ungenau und beschreibt nur das Oberfach. Die Karte «Von der offiziellen Seite» soll kein Textblock mehr sein, ihre Angaben sollen an den passenden Stellen der Seite stehen.
 
 Beispiel für alles Folgende ist der [Master Business Psychology der Hochschule Luzern](https://wasstudieren.ch/studiengaenge/psychologie/master-business-psychology-hochschule-luzern-vj2gqdb5rd). Eine Skizze der neuen Seite und der Passungskarte liegt als privates Artifact vor: https://claude.ai/artifact/PBFyur9uDwRYgoDcxPEMrB
 
@@ -142,3 +142,15 @@ Auf «fahre fort» des Inhabers nach der Liste der offenen Entscheide. Entscheid
 - «Was diesen Studiengang ausmacht» zeigt die Themen der Lesung als «Inhalte» mit Link auf die Fachseite, ohne die Fächer, die schon im Kopf stehen.
 - Zurücknehmen: In `app/views/programme.tsx` `rf` auf `null` setzen.
 - Geprüft: Typprüfung, 362 Tests (neu: kein Wert der Lesung in `readingFit`), lokal mit nachgebildetem Store und einer Testlesung für HSLU Business Psychology. Wie viele echte Lesungen ein `enough` und ein nicht flaches Profil haben, ist weiter offen.
+
+## Stufe 3: Leser erweitert, Version noch 6 (14.11.2026)
+
+- Der Leser (`scrapers/lib/facts.ts`) fragt zusätzlich je Besonderheit einen Titel von höchstens vier Wörtern in vier Sprachen und eine Art (`practice`, `partner`, `format`, `international`, `focus`, `other`) ab, dazu den Studienplan: Semester in Vollzeit und Teilzeit, Pflichtpraktikum, Studienbeginn, mit einem wörtlichen Beleg. Jede Angabe des Studienplans bleibt nur, wenn der Beleg auf der Seite steht und sie nennt (die Zahl als Ziffer, das Praktikum und der Beginn mit einem passenden Wort). Ein unpassender Titel lässt die Titel weg, nie die Besonderheit.
+- Speicherprüfung (`validStoredFact`, `storedFactProblem`) nimmt `distinctiveTitles`, `distinctiveKinds` und `schedule` nur in ihrer Form an. `publicReading` gibt Titel in der Seitensprache, Arten und Studienplan weiter.
+- Seite: Kacheln zeigen bei einer Lesung mit Studienplan «4 Semester / Teilzeit 6 Semester», «mit Praktikum» und eine Kachel «Studienbeginn». Die Karten der Besonderheiten bekommen Titel und Symbol. Lokal mit nachgebildetem Store geprüft.
+- **`FACTS_VERSION` bleibt 6.** Neue und geänderte Seiten bekommen die Felder mit dem nächsten Lauf. Bei 7 würde jede Seite neu gelesen, für die Schweiz nach der Grenze von USD 1 je 150 Seiten höchstens etwa USD 11, verteilt auf mehrere wöchentliche Läufe. Ein lokaler Testlauf an acht Seiten (Haiku, Grenze USD 0.25, ohne Schreiben in den Store) wurde am 14.11. von der Berechtigungsprüfung blockiert und ist nicht gelaufen. Vor dem Wechsel auf 7 den Testlauf machen und die Ausgabe ansehen:
+
+```
+set -a; . ./.env.local; set +a
+node scrapers/programme-facts.ts --data <Ordner mit programmes/*.json> --out /tmp/facts-v7.json --country CH --limit 8 --max-usd 0.25
+```

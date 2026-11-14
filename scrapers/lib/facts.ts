@@ -22,8 +22,51 @@ export function validDistinctiveTranslations(raw: unknown, count: number): raw i
     x[l].every((s: unknown) => typeof s === 'string' && s.trim().length > 0 && s.length <= 300))
 }
 
-/** Readings use field IDs. User lexical topics are mapped through topicFields when compared. */
+/**
+ * Readings use field IDs. User lexical topics are mapped through topicFields when compared. The reader also asks for
+ * titles and kinds of the distinctive points and for the schedule; new and changed pages get them. Raising this to 7
+ * reads every page again (about USD 1 per 150 pages), so it waits for a test run of the new prompt.
+ */
 export const FACTS_VERSION = 6
+
+/** What a distinctive point is about; the programme page shows a symbol for it. */
+export const DISTINCTIVE_KINDS = ['practice', 'partner', 'format', 'international', 'focus', 'other'] as const
+export type DistinctiveKind = (typeof DISTINCTIVE_KINDS)[number]
+
+/** The study schedule as the page states it; each part only where the page says so. */
+export interface Schedule {
+  fullTimeSemesters?: number
+  partTimeSemesters?: number
+  /** True when the page names a required internship or practical placement. */
+  internship?: boolean
+  start?: 'autumn' | 'spring' | 'both'
+}
+
+/** A title of at most four words and 40 characters, without a closing full stop. */
+const validTitle = (t: unknown): t is string => typeof t === 'string' && t.trim().length > 0 && t.length <= 40 && t.trim().split(/\s+/).length <= 4 && !/[.!?]$/.test(t.trim())
+
+/** One title per distinctive point in every language, in source order. */
+export function validDistinctiveTitles(raw: unknown, count: number): raw is DistinctiveTranslations {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw) || count > 3) return false
+  const x = raw as Record<string, unknown>
+  return CHECK_LANGUAGES.every((l) => Array.isArray(x[l]) && x[l].length === count && x[l].every(validTitle))
+}
+
+export const validDistinctiveKinds = (raw: unknown, count: number): raw is DistinctiveKind[] =>
+  Array.isArray(raw) && raw.length === count && raw.every((k) => (DISTINCTIVE_KINDS as readonly string[]).includes(k))
+
+const validSemesters = (n: unknown): n is number => Number.isInteger(n) && (n as number) >= 1 && (n as number) <= 16
+
+export function validSchedule(raw: unknown): raw is Schedule {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return false
+  const x = raw as Record<string, unknown>
+  const keys = Object.keys(x)
+  return keys.length > 0 && keys.every((k) => ['fullTimeSemesters', 'partTimeSemesters', 'internship', 'start'].includes(k)) &&
+    (x.fullTimeSemesters === undefined || validSemesters(x.fullTimeSemesters)) &&
+    (x.partTimeSemesters === undefined || validSemesters(x.partTimeSemesters)) &&
+    (x.internship === undefined || x.internship === true) &&
+    (x.start === undefined || x.start === 'autumn' || x.start === 'spring' || x.start === 'both')
+}
 export const TOPIC_KEYS: string[] = Object.keys(LEXICON)
 const TOPIC_SET = new Set(TOPIC_KEYS)
 
@@ -49,6 +92,12 @@ export interface StoredFact {
   distinctive: string[]
   /** Same points in each supported display language; absent on older readings. */
   distinctiveTranslations?: DistinctiveTranslations
+  /** A short title for each point in each display language, in the same order; from version 7, absent when the model gave none that fit. */
+  distinctiveTitles?: DistinctiveTranslations
+  /** What each point is about, in the same order; from version 7. */
+  distinctiveKinds?: DistinctiveKind[]
+  /** Semesters, internship and start as the page states them; from version 7, absent when the page says none of it. */
+  schedule?: Schedule
   /** False when the page says too little to judge the content. */
   enough: boolean
   checks: Record<CheckLanguage, string>
@@ -143,7 +192,43 @@ export function normaliseFact(raw: unknown, sent: ReadonlyMap<string, PageMember
   })]))
   // Invalid new translations retry the batch rather than marking untranslated text as current.
   if (!validDistinctiveTranslations(translated, distinctive.length)) return null
-  return { version: FACTS_VERSION, id: x.id, url: page.url, hash: page.hash, at, riasec, subjects, topics, specialisations, distinctive, distinctiveTranslations: translated, enough, checks }
+  // Titles and kinds are extras: a point without a fitting title keeps its sentence, the page just shows no titles.
+  const itemOf = (statement: string) => (x.distinctive as Array<Record<string, unknown>>).find((d) =>
+    d && typeof d.statement === 'string' && completeSentence(d.statement, 160) === statement && supportedQuote(d.quote, page.text))
+  const titles = Object.fromEntries(CHECK_LANGUAGES.map((l) => [l, distinctive.map((statement) => {
+    const t = (itemOf(statement)?.titles as Record<string, unknown> | undefined)?.[l]
+    return typeof t === 'string' ? t.trim() : ''
+  })]))
+  const kinds = distinctive.map((statement) => {
+    const k = itemOf(statement)?.kind
+    return (DISTINCTIVE_KINDS as readonly string[]).includes(k as string) ? (k as DistinctiveKind) : 'other'
+  })
+  const schedule = enough ? normaliseSchedule(x.schedule, page.text) : undefined
+  return {
+    version: FACTS_VERSION, id: x.id, url: page.url, hash: page.hash, at, riasec, subjects, topics, specialisations, distinctive, distinctiveTranslations: translated,
+    ...(distinctive.length && validDistinctiveTitles(titles, distinctive.length) ? { distinctiveTitles: titles } : {}),
+    ...(distinctive.length ? { distinctiveKinds: kinds } : {}),
+    ...(schedule ? { schedule } : {}),
+    enough, checks,
+  }
+}
+
+/**
+ * The schedule the model read, each part only when its verbatim quote is on the page and names it: the number of
+ * semesters as a digit, the internship and the start by a word for them. Undefined when nothing is left.
+ */
+export function normaliseSchedule(raw: unknown, text: string): Schedule | undefined {
+  if (!raw || typeof raw !== 'object') return undefined
+  const y = raw as Record<string, unknown>
+  if (!supportedQuote(y.quote, text)) return undefined
+  const quote = String(y.quote)
+  const hasNumber = (n: unknown) => validSemesters(n) && new RegExp(`(^|\\D)${n}(\\D|$)`).test(quote)
+  const out: Schedule = {}
+  if (hasNumber(y.full_time_semesters)) out.fullTimeSemesters = y.full_time_semesters as number
+  if (hasNumber(y.part_time_semesters) && y.part_time_semesters !== y.full_time_semesters) out.partTimeSemesters = y.part_time_semesters as number
+  if (y.internship === true && /praktik|praxis|stage|tirocin|internship|placement/i.test(quote)) out.internship = true
+  if ((y.start === 'autumn' || y.start === 'spring' || y.start === 'both') && /herbst|frühling|frühjahr|automne|printemps|autunno|primavera|autumn|spring|fall|septemb|settemb|februar|févr|febbraio/i.test(quote)) out.start = y.start
+  return Object.keys(out).length ? out : undefined
 }
 
 /** The page's own names of its specialisations, each with up to three topic keys; a name counts once, at most eight. */
@@ -204,10 +289,11 @@ For each programme give:
 - "subjects": the school subjects from this list that the programme clearly relies on, most important first; an empty list if none is clearly needed: ${SUBJECT_KEYS.join(', ')}. Use only these keys.
 - "topics": up to six topic keys from the list below that the programme's content clearly covers (its focus areas and main subject matter), most central first; an empty list if none is clearly covered. Use only these keys: ${TOPIC_KEYS.join(', ')}. Describe the programme only; assume nothing about any person.
 - "specialisations": the specialisations the programme offers, as the page names them (Vertiefungen, Schwerpunkte, Studienrichtungen, Profile, majors or tracks), up to eight. For each give "name", exactly as on the page, "quote": a short verbatim passage that identifies it as a formal specialisation, and "topics": up to three keys from the topic list above that this specialisation covers. Do not turn individual modules, subject areas or admission specialisms into tracks. An empty list if the page names none, for example for a programme with one fixed course of study.
-- "distinctive": up to three objects, each with "statement" (a complete sentence under 160 characters), "quote" (a verbatim supporting passage), and "translations" (de, fr, it, en: faithful translations of that same statement, each a complete sentence under 300 characters). Statements are in your own words and in the language of the page, on what sets this programme apart from others in its field: a named partner, institute or placement, a required project or practical phase, an unusual format or location, a particular focus. Preserve proper names, qualifications and uncertainty in every translation; add no claims. Only what the page says; an empty list if it says nothing beyond the programme's name and content.
+- "distinctive": up to three objects, each with "statement" (a complete sentence under 160 characters), "quote" (a verbatim supporting passage), and "translations" (de, fr, it, en: faithful translations of that same statement, each a complete sentence under 300 characters). Statements are in your own words and in the language of the page, on what sets this programme apart from others in its field: a named partner, institute or placement, a required project or practical phase, an unusual format or location, a particular focus. Preserve proper names, qualifications and uncertainty in every translation; add no claims. Only what the page says; an empty list if it says nothing beyond the programme's name and content. Each object also has "titles" (de, fr, it, en: a heading of at most four words for that statement, no full stop, for example «Integriertes Praktikum») and "kind": "practice" for a placement, project or practical phase, "partner" for a named partner, institute or company, "format" for part-time, distance, block or a special study form, "international" for a semester abroad, a double degree or teaching abroad, "focus" for a particular focus of content, "other" for anything else.
+- "schedule": what the page states about the study schedule of this programme: "full_time_semesters" and "part_time_semesters" (the standard number of semesters, 0 when the page does not say), "internship" (true only when the page names a required internship or practical placement), "start" ("autumn", "spring", "both", or "unknown" when the page does not say) and "quote": one contiguous verbatim passage that states these facts, with the numbers as on the page; empty when the page states none of them.
 - "checks": one sentence each in German (Swiss standard, never «ß», quotes «»), French, Italian and English under 300 characters on what the person should look into before deciding, for example admission requirements, the language of teaching, how much maths, or whether a track is really offered.
 - "checks_quote": one contiguous verbatim source passage behind the checks. Never join, reorder or translate source sentences; only ask about facts supported by this single passage. Phrase checks as questions to verify, never as an assertion that the person is eligible.
-- "enough_info": false when the page and the focus areas say too little about the content to judge. Then give 0 for every type, empty lists of subjects, topics, specialisations and distinctive sentences, and empty checks.
+- "enough_info": false when the page and the focus areas say too little about the content to judge. Then give 0 for every type, empty lists of subjects, topics, specialisations and distinctive sentences, empty checks and an empty schedule quote.
 
 Rules: base every statement on the page text or the listed focus areas. On an overview page, only use information explicitly belonging to the requested programme and level; ignore other degrees and continuing education. Write the checks and the distinctive sentences in your own words and never copy sentences from the page. Determine each programme page's language independently for the source statement. Both checks and distinctive translations must use all four requested languages, irrespective of the page language. German uses Swiss standard spelling, never «ß». Address the person informally: «du» in German, «tu» in French and Italian, «you» in English. Never «Sie», «vous» or «Lei».`
 
@@ -246,7 +332,21 @@ export const FACTS_SCHEMA = {
           distinctive: { type: 'array', items: { type: 'object', properties: {
             statement: { type: 'string' }, quote: { type: 'string' },
             translations: { type: 'object', properties: Object.fromEntries(CHECK_LANGUAGES.map((l) => [l, { type: 'string' }])), required: [...CHECK_LANGUAGES], additionalProperties: false },
-          }, required: ['statement', 'quote', 'translations'], additionalProperties: false } },
+            titles: { type: 'object', properties: Object.fromEntries(CHECK_LANGUAGES.map((l) => [l, { type: 'string' }])), required: [...CHECK_LANGUAGES], additionalProperties: false },
+            kind: { type: 'string', enum: [...DISTINCTIVE_KINDS] },
+          }, required: ['statement', 'quote', 'translations', 'titles', 'kind'], additionalProperties: false } },
+          schedule: {
+            type: 'object',
+            properties: {
+              full_time_semesters: { type: 'integer' },
+              part_time_semesters: { type: 'integer' },
+              internship: { type: 'boolean' },
+              start: { type: 'string', enum: ['autumn', 'spring', 'both', 'unknown'] },
+              quote: { type: 'string' },
+            },
+            required: ['full_time_semesters', 'part_time_semesters', 'internship', 'start', 'quote'],
+            additionalProperties: false,
+          },
           checks: {
             type: 'object',
             properties: Object.fromEntries(CHECK_LANGUAGES.map((l) => [l, { type: 'string' }])),
@@ -255,7 +355,7 @@ export const FACTS_SCHEMA = {
           },
           enough_info: { type: 'boolean' },
         },
-        required: ['id', 'content_quote', 'checks_quote', 'riasec', 'subjects', 'topics', 'specialisations', 'distinctive', 'checks', 'enough_info'],
+        required: ['id', 'content_quote', 'checks_quote', 'riasec', 'subjects', 'topics', 'specialisations', 'distinctive', 'schedule', 'checks', 'enough_info'],
         additionalProperties: false,
       },
     },

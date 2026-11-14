@@ -5,6 +5,7 @@ import { TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
 import { publicReading, readingFit } from '@/lib/facts-store.ts'
 import type { PublicReading } from '@/lib/facts-store.ts'
+import type { DistinctiveKind } from '@/scrapers/lib/facts.ts'
 import { toCatalogueEntry } from '@/lib/programmes.ts'
 import type { CatalogueEntry, Programme } from '@/lib/programmes.ts'
 import { getCatalogue, getMeta, getStats } from '@/lib/server/data.ts'
@@ -89,6 +90,24 @@ const levelLabelOf = (key: string, locale: Locale) => (key.startsWith('s:') ? su
 /** Colours of the cards with what sets a programme apart, in turn. */
 const CARD_COLOURS = ['bg-accent-soft', 'on-color bg-lime', 'on-color bg-sky']
 
+/** Paths of a stroke icon per kind of distinctive point (24 × 24). */
+const KIND_ICON: Record<DistinctiveKind, string[]> = {
+  practice: ['M3 9h18v11H3z', 'M8 9V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3', 'M3 14h18'],
+  partner: ['M4 21V8l8-5 8 5v13', 'M9 21v-6h6v6', 'M4 11h16'],
+  format: ['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', 'M12 7v5l3 2'],
+  international: ['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', 'M3 12h18', 'M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z'],
+  focus: ['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', 'M12 11.5v1'],
+  other: ['M12 3l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z'],
+}
+
+function KindIcon({ kind }: { kind: DistinctiveKind }) {
+  return (
+    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+      {KIND_ICON[kind].map((d) => <path key={d} d={d} />)}
+    </svg>
+  )
+}
+
 /**
  * What sets the programme apart: the points from the reading of its official page as cards, its specialisations
  * and the focus areas of the catalogue. Null when there is none of these.
@@ -104,8 +123,14 @@ function AboutProgramme({ reading, focus, topics, locale, intl, tx }: { reading:
       {reading && reading.distinctive.length > 0 && (
         <ul className="grid gap-3 sm:grid-cols-2">
           {reading.distinctive.map((d, i) => (
-            <li key={d} className={`rounded-2xl border-2 border-line p-4 text-sm leading-relaxed ${CARD_COLOURS[i % CARD_COLOURS.length]}`}>
-              {d}
+            <li key={d} className={`flex flex-col gap-2 rounded-2xl border-2 border-line p-4 ${CARD_COLOURS[i % CARD_COLOURS.length]}`}>
+              {reading.titles?.[i] && (
+                <span className="flex items-center gap-2 font-bold leading-snug">
+                  <KindIcon kind={reading.kinds?.[i] ?? 'other'} />
+                  {reading.titles[i]}
+                </span>
+              )}
+              <span className="text-sm leading-relaxed">{d}</span>
             </li>
           ))}
         </ul>
@@ -250,11 +275,17 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
   const num = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 })
   const languages = p.languages?.length ? p.languages.map((l) => languageName(l, locale)).join(', ') : null
   const others = p.otherLanguages?.length ? p.otherLanguages.map((l) => (/^[a-z]{2}$/.test(l) ? languageName(l, locale) : l)).join(', ') : null
+  // The official page's schedule, where the reading has it, before the catalogue's standard duration and mode.
+  const plan = reading?.schedule
+  const mode = plan?.fullTimeSemesters && plan.partTimeSemesters ? 'both' : p.mode
   const tiles: Array<{ label: string; value: string; sub?: string | null }> = [
     { label: d.degree, value: levelLabel(p.level, locale), sub: p.ects ? `${num.format(p.ects)} ECTS` : null },
-    ...(p.durationYears ? [{ label: d.duration, value: ct.years(num.format(p.durationYears)) }] : []),
-    ...(p.mode ? [{ label: d.mode, value: ct.modes[p.mode] }] : []),
+    ...(plan?.fullTimeSemesters
+      ? [{ label: d.duration, value: tx.semesters(plan.fullTimeSemesters), sub: plan.partTimeSemesters ? tx.partTime(plan.partTimeSemesters) : null }]
+      : p.durationYears ? [{ label: d.duration, value: ct.years(num.format(p.durationYears)) }] : []),
+    ...(mode ? [{ label: d.mode, value: ct.modes[mode], sub: plan?.internship ? tx.withInternship : null }] : plan?.internship ? [{ label: tx.practice, value: tx.internship }] : []),
     ...(languages ? [{ label: d.language, value: languages, sub: others ? tx.partly(others) : null }] : []),
+    ...(plan?.start ? [{ label: tx.start, value: tx.starts[plan.start] }] : []),
   ]
   const shown = new Set([d.degree, d.institution, d.place, d.language, d.otherLanguages, d.duration, d.mode, d.focus, d.fields])
   const moreFacts = catalogueFacts(p, cc, locale, (f) => r.countryField(cc, f)).filter(([key]) => !shown.has(key))

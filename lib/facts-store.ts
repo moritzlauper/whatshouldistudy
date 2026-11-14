@@ -1,4 +1,4 @@
-import { CHECK_LANGUAGES, TOPIC_KEYS, validDistinctiveTranslations, type CheckLanguage, type Rating, type Specialisation, type StoredFact } from '../scrapers/lib/facts.ts'
+import { CHECK_LANGUAGES, TOPIC_KEYS, validDistinctiveKinds, validDistinctiveTitles, validDistinctiveTranslations, validSchedule, type CheckLanguage, type DistinctiveKind, type Rating, type Schedule, type Specialisation, type StoredFact } from '../scrapers/lib/facts.ts'
 import type { ProgrammeFacts } from './engine/programme-fit.ts'
 import type { Locale } from './site/config.ts'
 import { FIELD_BY_ID, SUBJECT_KEYS } from './taxonomy/fields.ts'
@@ -118,8 +118,14 @@ export function validStoredFact(raw: unknown): StoredFact | null {
     checks[l] = c
   }
   if (x.rating !== undefined && !validRating(x.rating)) return null
+  if (x.distinctiveTitles !== undefined && !validDistinctiveTitles(x.distinctiveTitles, distinctive.length)) return null
+  if (x.distinctiveKinds !== undefined && !validDistinctiveKinds(x.distinctiveKinds, distinctive.length)) return null
+  if (x.schedule !== undefined && !validSchedule(x.schedule)) return null
   return { ...(Number.isInteger(x.version) && Number(x.version) > 0 ? { version: Number(x.version) } : {}), id, url, hash, at, riasec, subjects, topics, specialisations, distinctive,
-    ...(x.distinctiveTranslations !== undefined ? { distinctiveTranslations: x.distinctiveTranslations as StoredFact['distinctiveTranslations'] } : {}), enough, checks,
+    ...(x.distinctiveTranslations !== undefined ? { distinctiveTranslations: x.distinctiveTranslations as StoredFact['distinctiveTranslations'] } : {}),
+    ...(x.distinctiveTitles !== undefined ? { distinctiveTitles: x.distinctiveTitles as StoredFact['distinctiveTitles'] } : {}),
+    ...(x.distinctiveKinds !== undefined ? { distinctiveKinds: x.distinctiveKinds as DistinctiveKind[] } : {}),
+    ...(x.schedule !== undefined ? { schedule: x.schedule as Schedule } : {}), enough, checks,
     ...(x.rating !== undefined ? { rating: x.rating as Rating } : {}) }
 }
 
@@ -158,6 +164,10 @@ export function storedFactProblem(raw: unknown): string | null {
   const given = x.checks as Record<string, unknown>
   for (const l of CHECK_LANGUAGES) if (typeof given[l] !== 'string' || (given[l] as string).length > 300) return `checks.${l}`
   if (x.rating !== undefined && !validRating(x.rating)) return 'rating'
+  const count = (x.distinctive as string[] | undefined)?.length ?? 0
+  if (x.distinctiveTitles !== undefined && !validDistinctiveTitles(x.distinctiveTitles, count)) return 'distinctiveTitles'
+  if (x.distinctiveKinds !== undefined && !validDistinctiveKinds(x.distinctiveKinds, count)) return 'distinctiveKinds'
+  if (x.schedule !== undefined && !validSchedule(x.schedule)) return 'schedule'
   return null
 }
 
@@ -220,6 +230,12 @@ export interface PublicReading {
   specialisations: string[]
   /** What sets the programme apart, in the page's language. */
   distinctive: string[]
+  /** A short title for each point, in the page's language, where the reading has them for every point. */
+  titles?: string[]
+  /** What each point is about. */
+  kinds?: DistinctiveKind[]
+  /** Semesters, internship and start as the official page states them. */
+  schedule?: Schedule
   /** When the official page was read, YYYY-MM-DD. */
   at: string
   /** The page that was read, when it is a web address. */
@@ -234,9 +250,11 @@ export function publicReading(f: StoredFact | undefined, locale: Locale): Public
   if (!f) return null
   const { specialisations = [], distinctive = [] } = factsForLocale(f, locale)
   const names = specialisations.map((s) => s.name)
-  if (!names.length && !distinctive.length) return null
+  if (!names.length && !distinctive.length && !f.schedule) return null
   const url = webAddress(f.url)
-  return { specialisations: names, distinctive, at: f.at, ...(url ? { url } : {}) }
+  const titles = distinctive.length && validDistinctiveTitles(f.distinctiveTitles, distinctive.length) ? f.distinctiveTitles[LANGUAGE[locale]] : undefined
+  const kinds = distinctive.length && validDistinctiveKinds(f.distinctiveKinds, distinctive.length) ? f.distinctiveKinds : undefined
+  return { specialisations: names, distinctive, ...(titles ? { titles } : {}), ...(kinds ? { kinds } : {}), ...(f.schedule ? { schedule: f.schedule } : {}), at: f.at, ...(url ? { url } : {}) }
 }
 
 /**
