@@ -1,6 +1,6 @@
 # Konzept Studiengangsseite (14.11.2026)
 
-Stand 14.11.2026: Konzept, nichts umgesetzt. Auftrag des Inhabers: Die Karte «Passt dieses Studium zu dir?» ist zu lang, ungenau und beschreibt nur das Oberfach. Die Karte «Von der offiziellen Seite» soll kein Textblock mehr sein, ihre Angaben sollen an den passenden Stellen der Seite stehen.
+Stand 14.11.2026: Stufe 1 umgesetzt (Abschnitt «Umsetzung» am Ende), Stufe 2 und 3 offen. Auftrag des Inhabers: Die Karte «Passt dieses Studium zu dir?» ist zu lang, ungenau und beschreibt nur das Oberfach. Die Karte «Von der offiziellen Seite» soll kein Textblock mehr sein, ihre Angaben sollen an den passenden Stellen der Seite stehen.
 
 Beispiel für alles Folgende ist der [Master Business Psychology der Hochschule Luzern](https://wasstudieren.ch/studiengaenge/psychologie/master-business-psychology-hochschule-luzern-vj2gqdb5rd). Eine Skizze der neuen Seite und der Passungskarte liegt als privates Artifact vor: https://claude.ai/artifact/PBFyur9uDwRYgoDcxPEMrB
 
@@ -120,3 +120,15 @@ Die Skizze zeigt das Zielbild nach Stufe 3. In Stufe 1 steht im Steckbrief «2 J
 - Das Interessenprofil der Lesung stammt von einem einzelnen Modell. Der Ensemble-Lauf, der es verlässlicher macht, ist laut Handoff noch nicht gelaufen (5 bis 6 US-Cent je Studiengang). Für drei Typen als Wörter reicht das einzelne Profil vermutlich, gemessen ist das nicht.
 - Die Live-Seite zeigt «Studienform: Vollzeit» und «Deutsch, Englisch». Im Datenzweig vom 5.11. steht für denselben Studiengang `mode: both` und nur Deutsch. Welcher Stand ausgeliefert wird, ist offen.
 - Die Skizze ist nicht in der App gebaut und nicht auf dem Handy geprüft.
+
+## Umsetzung Stufe 1 (14.11.2026)
+
+Auftrag des Inhabers am 14.11.: «setze das handoff um». Umgesetzt ist Stufe 1 mit dem Abgleich aus Entscheid 2. Entscheid 1 (Profil aus der Lesung öffentlich) und Leser-Version 7 (API-Kosten) sind nicht umgesetzt und brauchen ein eigenes Ja.
+
+- **Profil pro Studiengang** (`lib/programme-profile.ts`): Mischung der Fachprofile mit 60% für das erste Fach, höchstens drei Typen, der Satz zum Unterschied ab 0.15, höchstens vier Chips dafür (je Fach die zwei stärksten) und drei dagegen. Studiengänge mit nur einem Fach zeigen das Fachprofil mit dem Hinweis, dass es das Fach beschreibt.
+- **Passungskarte** (`app/ui/programme-fit.tsx`, Client): sechs Balken ab `sm`, darunter drei Chips. Mit fertigem Fragebogen im Browser (`personalSide`) Haken bei den zwei stärksten Typen der Person und bei Interessen ab 0.75, orange bei gemochten Dingen in «Eher nicht», ein Satz mit den Treffern, Knopf zum Resultat. Keine Zahl, kein Rang, nichts wird gesendet. Wer den Abgleich wieder entfernen will, setzt `side` in der Komponente auf `null`.
+- **Seitenaufbau** (`app/views/programme.tsx`): Kacheln für Abschluss mit ECTS, Dauer, Studienform und Sprache. Darunter links «Was diesen Studiengang ausmacht» (Besonderheiten als farbige Karten, Vertiefungen oder Katalog-Schwerpunkte, Quellenzeile), «Nach dem Studium» und «Weitere Angaben», rechts die Passungskarte. Auf dem Handy folgt die Karte auf «Was diesen Studiengang ausmacht». Die Tabelle «Das Wichtigste» und `OfficialReading` sind weg, ebenso die Detailansicht von `FitsWhom`.
+- **Korrekturen:** Master zeigen «Ein Bachelorabschluss in passender Richtung …» statt der Maturaregel (`catalogueFacts`, wirkt auch in den Katalogzeilen; die Schweizer Quelle hat bei 191 Mastern einen Maturatext). Berufe aus allen Fächern abwechselnd (`lib/site/programme-careers.ts`), an Schweizer FH und PH ohne Psychotherapie, Klinische und Schulpsychologie, Anwalt, Richter und Staatsanwalt. Der Lohn nennt zuerst den passenden Wert (Uni-Master, FH-Bachelor, PH) und sagt sonst, dass es keinen eigenen Wert gibt. Der Schluss-CTA heisst «Welcher Studiengang passt zu dir?», weil die Karte schon nach dem Fach fragt.
+- Neue Texte in `lib/site/programme-text.ts` (DE, FR, IT, EN, DE und AT regionalisiert), `masterAdmission` in `lib/site/catalogue-text.ts`. `lib/site/fit-text.ts` ist unverändert, das Validierungsmanifest also auch.
+- Geprüft: Typprüfung, 361 Tests (neu `test/programme-profile.test.ts`), 360 bestanden, einer übersprungen. Lokal im Browser: HSLU Business Psychology auf Desktop und 420 px, mit und ohne Fragebogenantworten, FR-Fassung, Master Psychologie UZH (ein Fach), Bachelor Architektur BFH (Katalog-Schwerpunkte).
+- Nicht geprüft: Besonderheiten aus einer echten Lesung (lokal kein Zugang zum Store), Italienisch und Englisch im Browser, Deutschland und Österreich.

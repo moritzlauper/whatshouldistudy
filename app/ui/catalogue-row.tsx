@@ -25,8 +25,13 @@ export function catalogueFacts(p: CatalogueEntry, country: string, locale: Local
   const languages = p.languages?.length ? p.languages.map((l) => languageName(l, locale)).join(', ') : null
   const type = p.institutionType && p.institutionType in TYPE_STYLE ? (p.institutionType as InstType) : undefined
   // The programme's own rule where the source has one (in German, Switzerland), otherwise the rule for its kind of institution.
-  // Continuing education has its own entry rules; the Matura rule of the institution type does not apply.
-  const admission = isContinuing(p.level) ? d.continuingAdmission : (locale.startsWith('de-') ? p.admission : undefined) ?? admissionText(country, type, lang(locale))
+  // Continuing education and master's programmes have their own entry rules; the Matura rule of the institution type
+  // (and the Swiss source's admission text, which is always about the Matura) does not apply to them.
+  const admission = isContinuing(p.level)
+    ? d.continuingAdmission
+    : p.level === 'master'
+      ? p.priorStudies?.length ? null : d.masterAdmission
+      : (locale.startsWith('de-') ? p.admission : undefined) ?? admissionText(country, type, lang(locale))
   const otherLanguages = p.otherLanguages?.length ? p.otherLanguages.map((l) => (/^[a-z]{2}$/.test(l) ? languageName(l, locale) : l)).join(', ') : null
   const ects = p.ects ? `${new Intl.NumberFormat(locale).format(p.ects)} ECTS` : null
   const facts: Array<[string, React.ReactNode]> = [
