@@ -87,8 +87,8 @@ function nearby(all: Programme[], p: Programme): Programme[] {
 /** A basic interest or a school subject (`s:math`) by its label. */
 const levelLabelOf = (key: string, locale: Locale) => (key.startsWith('s:') ? subjectLabel(key.slice(2) as SubjectKey, locale) : basicLabel(key as BasicKey, locale))
 
-/** Colours of the cards with what sets a programme apart, in turn. */
-const CARD_COLOURS = ['bg-accent-soft', 'on-color bg-lime', 'on-color bg-sky']
+/** Colours of the icons beside what sets a programme apart, in turn. */
+const ICON_COLOURS = ['bg-accent-soft', 'on-color bg-lime', 'on-color bg-sky']
 
 /** Paths of a stroke icon per kind of distinctive point (24 × 24). */
 const KIND_ICON: Record<DistinctiveKind, string[]> = {
@@ -102,7 +102,7 @@ const KIND_ICON: Record<DistinctiveKind, string[]> = {
 
 function KindIcon({ kind }: { kind: DistinctiveKind }) {
   return (
-    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
       {KIND_ICON[kind].map((d) => <path key={d} d={d} />)}
     </svg>
   )
@@ -116,21 +116,20 @@ function AboutProgramme({ reading, focus, topics, locale, intl, tx }: { reading:
   const ct = catalogueText(locale)
   const o = ct.official
   const tags = [...new Set([...(reading?.specialisations ?? []), ...focus])]
-  if (!reading?.distinctive.length && !tags.length && !topics.length) return null
   return (
-    <section className="card flex flex-col gap-4 p-5 sm:p-6">
+    <section className="flex flex-col gap-4">
       <h2 className="font-display text-2xl sm:text-3xl">{tx.aboutTitle}</h2>
       {reading && reading.distinctive.length > 0 && (
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className={`grid gap-x-6 gap-y-4 ${reading.distinctive.length > 1 ? 'sm:grid-cols-2' : ''}`}>
           {reading.distinctive.map((d, i) => (
-            <li key={d} className={`flex flex-col gap-2 rounded-2xl border-2 border-line p-4 ${CARD_COLOURS[i % CARD_COLOURS.length]}`}>
-              {reading.titles?.[i] && (
-                <span className="flex items-center gap-2 font-bold leading-snug">
-                  <KindIcon kind={reading.kinds?.[i] ?? 'other'} />
-                  {reading.titles[i]}
-                </span>
-              )}
-              <span className="text-sm leading-relaxed">{d}</span>
+            <li key={d} className="flex gap-3">
+              <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-line ${ICON_COLOURS[i % ICON_COLOURS.length]}`}>
+                <KindIcon kind={reading.kinds?.[i] ?? 'other'} />
+              </span>
+              <span className="flex flex-col gap-0.5">
+                {reading.titles?.[i] && <span className="font-bold leading-snug">{reading.titles[i]}</span>}
+                <span className="text-sm leading-snug text-muted">{d}</span>
+              </span>
             </li>
           ))}
         </ul>
@@ -138,7 +137,7 @@ function AboutProgramme({ reading, focus, topics, locale, intl, tx }: { reading:
       {tags.length > 0 && (
         <div>
           <h3 className="text-sm text-muted">{reading?.specialisations.length ? o.specialisations : tx.focus}</h3>
-          <ul className="mt-2 flex flex-wrap gap-2">
+          <ul className="mt-1.5 flex flex-wrap gap-1.5">
             {tags.map((n) => (
               <li key={n} className="chip">
                 {n}
@@ -150,7 +149,7 @@ function AboutProgramme({ reading, focus, topics, locale, intl, tx }: { reading:
       {topics.length > 0 && (
         <div>
           <h3 className="text-sm text-muted">{tx.contents}</h3>
-          <ul className="mt-2 flex flex-wrap gap-2">
+          <ul className="mt-1.5 flex flex-wrap gap-1.5">
             {topics.map((x) => (
               <li key={x.id}>
                 <Link href={x.href} className="chip hover:-translate-y-0.5">
@@ -162,7 +161,7 @@ function AboutProgramme({ reading, focus, topics, locale, intl, tx }: { reading:
         </div>
       )}
       {reading && (
-        <p className="text-xs text-muted">
+        <p className="text-xs leading-snug text-muted">
           {o.note(fmtDate(reading.at, intl))}
           {reading.url && (
             <>
@@ -182,7 +181,7 @@ function AboutProgramme({ reading, focus, topics, locale, intl, tx }: { reading:
 /** One tile of the key facts at the top. */
 function Tile({ label, value, sub }: { label: string; value: string; sub?: string | null }) {
   return (
-    <div className="card-flat flex min-w-[9.5rem] flex-1 flex-col gap-0.5 rounded-2xl px-4 py-3">
+    <div className="flex min-w-[8rem] flex-1 flex-col gap-0.5">
       <dt className="text-xs text-muted">{label}</dt>
       <dd className="font-bold leading-snug">{value}</dd>
       {sub && <dd className="text-xs text-muted">{sub}</dd>}
@@ -194,12 +193,12 @@ function Related({ k, cc, title, items, showInstitution, more }: { k: Kit; cc: s
   if (!items.length) return null
   return (
     <section className="mt-12">
-      <h2 className="font-display text-3xl">{title}</h2>
-      <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+      <h2 className="font-display text-2xl sm:text-3xl">{title}</h2>
+      <ul className="mt-4 grid gap-x-8 sm:grid-cols-2">
         {items.map((q) => (
-          <li key={q.id}>
-            <Link href={href(k, cc, q)} prefetch={false} className="card-sm card-pop block h-full p-4">
-              <span className="block font-bold leading-snug">{q.name}</span>
+          <li key={q.id} className="border-b border-line/15">
+            <Link href={href(k, cc, q)} prefetch={false} className="group block py-3">
+              <span className="block font-bold leading-snug group-hover:text-accent">{q.name}</span>
               <span className="mt-0.5 block text-xs text-muted">{[levelLabel(q.level, k.locale), showInstitution ? q.institution : null, q.city].filter(Boolean).join(' · ')}</span>
             </Link>
           </li>
@@ -334,6 +333,9 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
       })()
     : null
 
+  const topics = (rf?.topics ?? []).filter((id) => !p.fields.includes(id)).map((id) => ({ id, href: r.countryField(cc, id) }))
+  const hasAbout = !!(reading?.distinctive.length || reading?.specialisations.length || p.focus?.length || topics.length)
+
   const url = pageUrl(site, (x) => x.programme(cc, field, slug), locale)
   const trail: Array<[string, string]> = [...crumbs(k, cc, { id: field, name: fname }), [p.name, url]]
   const months = p.durationYears ? Math.round(p.durationYears * 12) : 0
@@ -424,7 +426,7 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
         </div>
       </div>
 
-      <dl className="mt-6 flex flex-wrap gap-3">
+      <dl className="mt-8 flex flex-wrap gap-x-8 gap-y-4 border-y-2 border-line/15 py-4">
         {tiles.map((x) => (
           <Tile key={x.label} {...x} />
         ))}
@@ -439,16 +441,18 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
       )}
 
       {/* On a phone the fit card follows what sets the programme apart; on a wide screen it stands to the right. */}
-      <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:grid-rows-[auto_auto_auto_1fr] lg:items-start">
-        <div className="lg:col-start-1 empty:hidden">
-          <AboutProgramme reading={reading} focus={p.focus ?? []} topics={(rf?.topics ?? []).filter((id) => !p.fields.includes(id)).map((id) => ({ id, href: r.countryField(cc, id) }))} locale={locale} intl={intl} tx={tx} />
-        </div>
+      <div className="mt-10 grid gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:grid-rows-[auto_auto_auto_1fr] lg:items-start">
+        {hasAbout && (
+          <div className="lg:col-start-1">
+            <AboutProgramme reading={reading} focus={p.focus ?? []} topics={topics} locale={locale} intl={intl} tx={tx} />
+          </div>
+        )}
         {fit && (
           <div className="lg:col-start-2 lg:row-span-4 lg:row-start-1">
             <ProgrammeFit {...fit} />
           </div>
         )}
-        <section className="card-sm flex flex-col gap-4 p-5 sm:p-6 lg:col-start-1">
+        <section className={`flex flex-col gap-4 lg:col-start-1 ${hasAbout ? 'border-t-2 border-line/15 pt-6' : ''}`}>
           <h2 className="font-display text-2xl sm:text-3xl">{tx.afterTitle}</h2>
           {careers.length > 0 && (
             <div>
@@ -478,7 +482,7 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
           </div>
         </section>
         {moreFacts.length > 0 && (
-          <section className="card-sm p-5 sm:p-6 lg:col-start-1">
+          <section className="border-t-2 border-line/15 pt-6 lg:col-start-1">
             <h2 className="font-display text-2xl">{tx.moreFacts}</h2>
             <dl className="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
               {moreFacts.map(([key, v]) => (
