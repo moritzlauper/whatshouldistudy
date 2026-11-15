@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { allPosts, findPost, showsOn } from '@/lib/blog.ts'
+import { blogPosts } from '@/lib/server/blog.ts'
 import { localMount } from '@/lib/site/local-mount.ts'
 import { blogMeta } from '@/lib/site/meta.ts'
 import { regionalize } from '@/lib/site/regional.ts'
@@ -7,7 +8,8 @@ import { PostView } from '../../../../views/blog.tsx'
 
 type Params = { params: Promise<{ mount: string; slug: string }> }
 
-export const dynamicParams = false
+// Posts published on the blog branch after the build are rendered on their first request; a new one shows within the hour.
+export const revalidate = 3600
 
 // Every German post on every mount: PostView answers 404 where a post doesn't belong (another country, French, Italian).
 export function generateStaticParams() {
@@ -17,7 +19,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { mount, slug } = await params
   const { site, locale } = localMount(mount)
-  const post = findPost(site, 'de', slug)
+  const post = findPost(site, 'de', slug, await blogPosts())
   if (!post?.de) return {}
   // Country posts are written in their country's German already.
   const rz = (s: string) => (post.site ? s : regionalize(s, locale))

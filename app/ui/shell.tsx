@@ -43,6 +43,7 @@ export function Shell({ site, base, locale, children }: SiteProps & { children: 
   const ct = catalogueText(k.locale)
   const languages = languageOptions(site, base)
   const lang = blogLang(k.locale)
+  // The posts in the repo decide whether the menu has a blog link; every site with a blog has some there, and so no page waits for the blog branch.
   const blog = lang && postsFor(site, lang).length ? blogText(k.locale) : null
   return (
     <SiteProvider site={site} base={base} locale={locale}>

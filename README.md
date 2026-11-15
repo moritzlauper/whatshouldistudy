@@ -828,15 +828,23 @@ and written in that country's German; once a week the global site gets an
 English one. Such a post has a `site` and appears on that site only. The first
 post was written for every site at once, in English and Swiss German, which
 Germany and Austria get through `regionalize()`. French and Italian have no
-blog. Each post is a JSON file in `content/blog` (`content/blog/index.ts`
-imports them all, `pnpm blog:index` rewrites it), written in a small Markdown
+blog. Posts up to 15 November 2026 are JSON files in `content/blog`
+(`content/blog/index.ts` imports them all, `pnpm blog:index` rewrites it).
+Newer ones live on the branch `whatshouldistudy-blog` (one file per post in
+`posts/`, all of them in `posts.json`), which `lib/server/blog.ts` reads at
+runtime, at most once an hour, and merges with the ones in the repo; the blog
+pages revalidate hourly and render a new post on its first request. That way a
+post needs no deployment, and the ISR cache of the programme pages survives it
+(each deployment starts with an empty one). The data branch can't hold the
+posts, since every data run replaces it. Posts are written in a small Markdown
 subset (`app/ui/markdown.tsx`) with links to field pages (`field:<id>`) and the
 questionnaire (`start`). Every article says that it was written with AI and
 lists its sources.
 
 The posts are researched and written with AI in a GitHub Action of the
-private repository, which checks out this one, adds the posts, runs
-typecheck, tests and a production build and pushes to `main`. That separate
+private repository, which checks out this one, copies the posts of the blog
+branch into `content/blog`, adds the new ones, runs typecheck, tests and a
+production build and pushes the new posts to `whatshouldistudy-blog`. That separate
 automation configures its own provider and is not part of the website's
 Infomaniak migration. The comparison script's provider SDK is a development-only
 dependency. `checkPost()` in
@@ -846,7 +854,20 @@ connectors and the spelling of its country (Swiss: no ß, «», 1’250, 14.7;
 German and Austrian: „“, 1.250; everywhere 83% and a capital after a colon).
 `test/blog.test.ts` applies it to every published post.
 
-To take a post down, delete its JSON file and run `pnpm blog:index`.
+To take a post down: in `content/blog`, delete its JSON file and run
+`pnpm blog:index`; on the blog branch, delete it from `posts/` and from
+`posts.json`. It disappears within the hour.
+
+## Programme pages and search engines
+
+Every programme with an open licence has a page, some 200,000 in all. Each is
+rendered on its first request and stored in the ISR cache, once per
+deployment. Crawlers visiting all of them cost more ISR writes and origin
+transfer than the hosting plan allows, so only the pages of CH and AT
+(`INDEXED_PROGRAMME_COUNTRIES` in `lib/catalogue.ts`) are in the sitemaps; the
+others carry `noindex` and stay reachable from the field lists. Commits that
+only touch docs, tests or scripts don't deploy (`ignoreCommand` in
+`vercel.json`).
 
 ## Deploy on Vercel
 

@@ -4,6 +4,9 @@ import { blogMeta } from '@/lib/site/meta.ts'
 import { blogText } from '@/lib/site/blog-text.ts'
 import { BlogView } from '../../../views/blog.tsx'
 
+// New posts come from the blog branch at runtime (lib/server/blog.ts).
+export const revalidate = 3600
+
 export async function generateMetadata({ params }: { params: Promise<{ mount: string }> }): Promise<Metadata> {
   const { site, locale } = localMount((await params).mount)
   const b = blogText(locale)

@@ -40,7 +40,7 @@ const pending = new Map<string, Promise<Loaded<unknown>>>()
  * (a 500 at runtime). They are fetched outside Next's fetch and kept in the
  * in-memory cache above instead.
  */
-function getUntracked(url: string): Promise<{ status: number; body: string }> {
+export function getUntracked(url: string): Promise<{ status: number; body: string }> {
   return new Promise((resolve, reject) => {
     const req = (url.startsWith('https:') ? httpsGet : httpGet)(url, (res) => {
       const chunks: Buffer[] = []

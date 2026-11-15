@@ -30,18 +30,21 @@ test('a programme lives under its main field', () => {
   assert.equal(routes('ch', '', 'fr-CH').programme('CH', 'computer-science', 'x-abc123'), '/fr/studiengaenge/informatik/x-abc123')
 })
 
-test('programme sitemaps: per host, per country, under the 50,000 limit', () => {
+test('programme sitemaps: per host, only the indexed countries, under the 50,000 limit', () => {
   const groups = sitemapGroups('whatshouldistudy.com')
-  assert.ok(groups.some((g) => g.site === 'global' && g.country === 'US'))
+  // US, GB, FR … keep their pages, but without sitemap and with noindex (indexesProgrammes).
+  assert.ok(!groups.some((g) => g.country === 'US' || g.country === 'GB'))
   assert.ok(!groups.some((g) => g.country === 'DE'))
   assert.ok(groups.some((g) => g.country === 'AT'))
   assert.ok(groups.some((g) => g.site === 'global' && g.country === 'CH'))
   assert.ok(sitemapGroups('wasstudieren.ch').some((g) => g.site === 'ch' && g.country === 'CH'))
-  const files = sitemapFiles('whatshouldistudy.com', (cc) => (cc === 'US' ? 97_538 : 1000))
-  assert.deepEqual(files.filter((f) => f.startsWith('global-us-')), ['global-us-0.xml', 'global-us-1.xml', 'global-us-2.xml'])
-  const us = sitemapFile('whatshouldistudy.com', 'global-us-2.xml')
-  assert.equal(us?.part, 2)
-  assert.ok(perFile(us!.group) * us!.group.locales.length <= 50_000)
+  const files = sitemapFiles('whatshouldistudy.com', (cc) => (cc === 'CH' ? 97_538 : 1000))
+  assert.deepEqual(files.filter((f) => f.startsWith('global-ch-')), ['global-ch-0.xml', 'global-ch-1.xml', 'global-ch-2.xml'])
+  assert.ok(!files.some((f) => f.startsWith('global-us-')))
+  const ch = sitemapFile('whatshouldistudy.com', 'global-ch-0.xml')
+  assert.equal(ch?.part, 0)
+  assert.ok(perFile(ch!.group) * ch!.group.locales.length <= 50_000)
+  assert.equal(sitemapFile('whatshouldistudy.com', 'global-us-0.xml'), null)
   assert.equal(sitemapFile('whatshouldistudy.com', 'global-de-0.xml'), null)
   assert.equal(sitemapFile('whatshouldistudy.com', '../etc.xml'), null)
   const xml = sitemapXml([{ loc: 'https://x.com/a?b=1&c=2', alternates: { 'de-CH': 'https://x.ch/a' } }])

@@ -72,6 +72,14 @@ export const PROGRAMME_PAGES_PENDING: Record<string, string> = {}
 /** Countries whose programmes get a page each: an open licence, see LINK_ONLY and PROGRAMME_PAGES_PENDING. */
 export const hasProgrammePages = (cc: string) => CATALOGUE_COUNTRIES.includes(cc) && !LINK_ONLY[cc] && !PROGRAMME_PAGES_PENDING[cc]
 
+/**
+ * Countries whose programme pages search engines are asked to index. The others (some 190,000 pages: US, GB, FR,
+ * KR …) stay reachable, but are left out of the sitemaps and carry noindex: every page a crawler fetches is rendered
+ * and stored once per deployment, which cost more than the hosting plan allows (ISR writes, 15.11.2026).
+ */
+export const INDEXED_PROGRAMME_COUNTRIES: readonly string[] = ['CH', 'AT']
+export const indexesProgrammes = (cc: string) => INDEXED_PROGRAMME_COUNTRIES.includes(cc)
+
 /** The order levels are listed in. */
 export const LEVEL_ORDER: Level[] = ['bachelor', 'integrated', 'professional', 'master', 'short', 'doctorate', 'mas', 'das', 'cas']
 

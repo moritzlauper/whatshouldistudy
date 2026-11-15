@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { allPosts, blogLang, showsOn } from '../lib/blog.ts'
+import { allPosts, blogLang, isPost, mergePosts, showsOn } from '../lib/blog.ts'
 import { checkPost, linkTarget } from '../lib/blog-check.ts'
 import type { Post } from '../lib/blog-check.ts'
 import { FIELDS } from '../lib/taxonomy/fields.ts'
@@ -106,4 +106,15 @@ test('a country post shows on its own site only', () => {
   const { de: _de, ...english } = post()
   assert.equal(showsOn({ ...english, site: 'global' }, 'global', 'en'), true)
   assert.equal(showsOn({ ...english, site: 'global' }, 'ch', 'de'), false)
+})
+
+test('posts from the blog branch: valid ones are added once, broken ones dropped', () => {
+  const own = post()
+  const published = { ...post({ de: { slug: 'neu-auf-dem-zweig' }, en: { slug: 'new-on-the-branch' } }), date: '2026-11-17', site: 'ch' }
+  assert.equal(isPost(published), true)
+  assert.equal(isPost({ ...published, site: 'xx' }), false)
+  assert.equal(isPost({ ...published, de: { ...published.de, slug: 'Kein Slug' } }), false)
+  assert.equal(isPost({ date: '2026-11-17', fields: [], sources: [] }), false)
+  const merged = mergePosts([own], [published, published, { ...own }, null, 'x'])
+  assert.deepEqual(merged.map((p) => p.de?.slug), ['studienwahl-so-gehts', 'neu-auf-dem-zweig'])
 })

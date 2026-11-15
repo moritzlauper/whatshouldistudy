@@ -7,6 +7,8 @@ import { blogLanguages, catalogueLanguages, languages, pageUrl, variants } from 
 import type { Page } from '@/lib/site/meta.ts'
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
 import { allPosts, blogLang, showsOn } from '@/lib/blog.ts'
+import type { Post } from '@/lib/blog.ts'
+import { blogPosts } from '@/lib/server/blog.ts'
 import type { BlogPage } from '@/lib/site/meta.ts'
 import { CATALOGUE_COUNTRIES } from '@/lib/catalogue.ts'
 import { getMeta } from '@/lib/server/data.ts'
@@ -37,9 +39,9 @@ function priority(page: Page): number {
 }
 
 /** The blog in English and German; a post has an address per language and may exist on one site only. */
-const BLOG: Array<{ page: BlogPage; priority: number; date?: string }> = [
+const blogPages = (posts: Post[]): Array<{ page: BlogPage; priority: number; date?: string }> => [
   { page: () => (r) => r.blog, priority: 0.6 },
-  ...allPosts().map((p) => ({ page: ((lang, site) => (showsOn(p, site, lang) ? (r) => r.post(p[lang]!.slug) : null)) as BlogPage, priority: 0.5, date: p.date })),
+  ...allPosts(posts).map((p) => ({ page: ((lang, site) => (showsOn(p, site, lang) ? (r) => r.post(p[lang]!.slug) : null)) as BlogPage, priority: 0.5, date: p.date })),
 ]
 
 /**
@@ -66,7 +68,7 @@ function catalogue(meta: DataMeta | null, site: SiteId, locale: Locale) {
 }
 
 // No lastModified on the fixed pages: they carry no real edit date, and "now" on every request teaches crawlers to ignore it.
-const entries = (site: SiteId, meta: DataMeta | null, frIt?: boolean) =>
+const entries = (site: SiteId, meta: DataMeta | null, posts: Post[], frIt?: boolean) =>
   variants()
     .filter((v) => v.site === site && (frIt === undefined || isChFrIt(v.locale) === frIt))
     .flatMap((v) => {
@@ -74,7 +76,7 @@ const entries = (site: SiteId, meta: DataMeta | null, frIt?: boolean) =>
       return [
         ...PAGES.map((page) => ({ url: pageUrl(site, page, v.locale), priority: priority(page), alternates: { languages: languages(page) } })),
         ...(lang
-          ? BLOG.flatMap((b) => {
+          ? blogPages(posts).flatMap((b) => {
               const page = b.page(lang, site)
               return page ? [{ url: pageUrl(site, page, v.locale), priority: b.priority, ...(b.date ? { lastModified: b.date } : {}), alternates: { languages: blogLanguages(b.page) } }] : []
             })
@@ -89,9 +91,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const own = siteForHost(host)
   const { meta, sample } = await getMeta()
   const data = sample ? null : meta
+  const posts = await blogPosts()
   // With a domain of their own, the Swiss French and Italian pages are listed there and only there.
-  if (own === 'ch' && CH_FR_IT_URL) return entries('ch', data, frItHosts().includes(host))
-  if (own) return entries(own, data)
+  if (own === 'ch' && CH_FR_IT_URL) return entries('ch', data, posts, frItHosts().includes(host))
+  if (own) return entries(own, data, posts)
   // Country sites without a domain of their own are part of the global one.
-  return [...entries('global', data), ...LOCAL_SITES.filter((s) => !SITES[s].domainUrl).flatMap((s) => entries(s, data))]
+  return [...entries('global', data, posts), ...LOCAL_SITES.filter((s) => !SITES[s].domainUrl).flatMap((s) => entries(s, data, posts))]
 }

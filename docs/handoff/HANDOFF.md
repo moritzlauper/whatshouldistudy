@@ -2,6 +2,15 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Hosting-Kosten: ISR Writes (15.11.2026)
+
+- Anlass: In fünf Tagen 348'000 ISR Writes und 3,4 GB Fast Origin Transfer, hochgerechnet mehr als der Hobby-Plan von Vercel erlaubt. Eine Studiengangsseite hat rund 70 KB HTML und 39 KB RSC-Payload, Vercel zählt eine Write Unit pro 8 KB, und jedes Deployment beginnt mit einem eigenen, leeren ISR-Cache.
+- `vercel.json`: Der `ignoreCommand` übersprang nur leere Commits. Jetzt baut Vercel nicht, wenn sich seit dem letzten Deployment (`VERCEL_GIT_PREVIOUS_SHA`) nur `docs`, `test`, `scripts`, Agenten-Dateien oder Markdown geändert haben. `scrapers/` bleibt drin, weil die App Typen von dort importiert.
+- Auf Entscheid des Inhabers: Nur noch die Studiengangsseiten von CH und AT stehen in den Sitemaps (`INDEXED_PROGRAMME_COUNTRIES` in `lib/catalogue.ts`). Die übrigen rund 190'000 (US 98'000, GB 30'000, FR 23'000, KR 21'000, AU, NL, FI, NO) bleiben erreichbar, tragen aber `noindex`. Crawler besuchen sie erst mit der Zeit seltener. Wenn das nicht reicht, wäre der nächste Schritt ein `Disallow` in `robots.txt` für diese Länder.
+- Auf Entscheid des Inhabers: Neue Blogartikel kommen auf den Zweig `whatshouldistudy-blog` statt auf `main` und lösen kein Deployment mehr aus. `lib/server/blog.ts` liest `posts.json` von dort höchstens stündlich und mischt die Artikel mit denen in `content/blog`. Die Blogseiten haben `revalidate = 3600`, neue Slugs werden beim ersten Aufruf gebaut. Die Kopfzeile prüft für den Blog-Link nur die Artikel im Repo. Der Zweig ist in `vercel.json` von Deployments ausgenommen.
+- Die Blog-Action im Outreach-Repo (`.github/workflows/blog.yml`) ist angepasst, aber dort nur committet. Bis der Inhaber das Outreach-Repo pusht, landen neue Artikel weiter auf `main`, was weiterhin funktioniert.
+- Offen: Wirkung in der Vercel-Auswertung prüfen (Usage, ISR nach Route). Der Vercel-Connector war in dieser Sitzung nicht autorisiert.
+
 ## Österreich: Universität Innsbruck von ihrer Website (15.11.2026)
 
 - Zusage per Mail von Lisa Maria Marchl (Kommunikation): «für uns ist es in Ordnung, wenn ihr die öffentlich sichtbaren Infos/Fakten zu unseren Studien abruft und auf eurer Seite anzeigt.» Festgehalten im Outreach-Repo als Feld `reply` in `letters/2026-10-24-uibk-studiengaenge.json`. Die Antworten von JKU und Graz liegen dort entgegen dem Abschnitt vom 5.11. nicht. Frau Marchl fragt zurück, wie häufig der Fragebogen genutzt wird und wie viele Personen aus Österreich die Seite besuchen. Die Antwort steht noch aus.

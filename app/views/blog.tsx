@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { blogLang, findPost, postsFor } from '@/lib/blog.ts'
+import { blogPosts } from '@/lib/server/blog.ts'
 import type { Post } from '@/lib/blog.ts'
 import { kit } from '@/lib/site/kit.ts'
 import { blogText } from '@/lib/site/blog-text.ts'
@@ -28,12 +29,12 @@ function localText(post: Post, locale: Locale) {
   return { ...t, title: rz(t.title), description: rz(t.description), rz }
 }
 
-export function BlogView({ site, base, locale: selectedLocale }: SiteProps) {
+export async function BlogView({ site, base, locale: selectedLocale }: SiteProps) {
   const { r, locale, intl } = kit(site, base, selectedLocale)
   const b = blogText(locale)
   if (!b) notFound()
   const lang = blogLang(locale)
-  const posts = lang ? postsFor(site, lang) : []
+  const posts = lang ? postsFor(site, lang, await blogPosts()) : []
   return (
     <div className="mx-auto max-w-3xl px-4 pt-12 sm:px-6">
       <div className="relative">
@@ -76,11 +77,11 @@ function postLd(site: SiteId, locale: Locale, post: Post, title: string, descrip
   }
 }
 
-export function PostView({ site, base, locale: selectedLocale, slug }: SiteProps & { slug: string }) {
+export async function PostView({ site, base, locale: selectedLocale, slug }: SiteProps & { slug: string }) {
   const { r, locale, intl } = kit(site, base, selectedLocale)
   const b = blogText(locale)
   const lang = blogLang(locale)
-  const post = lang ? findPost(site, lang, slug) : undefined
+  const post = lang ? findPost(site, lang, slug, await blogPosts()) : undefined
   const p = post && localText(post, locale)
   if (!b || !post || !p) notFound()
   return (

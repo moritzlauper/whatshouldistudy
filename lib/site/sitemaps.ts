@@ -1,4 +1,4 @@
-import { CATALOGUE_COUNTRIES, hasProgrammePages } from '../catalogue.ts'
+import { CATALOGUE_COUNTRIES, hasProgrammePages, indexesProgrammes } from '../catalogue.ts'
 import { frItHosts, siteForHost } from '../site.ts'
 import { CH_FR_IT_URL, LOCAL_SITES, SITES, isChFrIt } from './config.ts'
 import type { Locale, SiteId } from './config.ts'
@@ -27,7 +27,7 @@ function localesOn(site: SiteId, frIt?: boolean): Locale[] {
 }
 
 const groupsFor = (site: SiteId, locales: Locale[]): SitemapGroup[] =>
-  (site === 'global' ? CATALOGUE_COUNTRIES : [SITES[site].country!]).filter(hasProgrammePages).map((country) => ({ site, locales, country }))
+  (site === 'global' ? CATALOGUE_COUNTRIES : [SITES[site].country!]).filter((cc) => hasProgrammePages(cc) && indexesProgrammes(cc)).map((country) => ({ site, locales, country }))
 
 export function sitemapGroups(host: string): SitemapGroup[] {
   const h = host.split(':')[0].toLowerCase()
