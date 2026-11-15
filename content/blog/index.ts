@@ -20,5 +20,6 @@ import p16 from './2026-11-07-ch-informatik-studieren-schweiz-wer-passt-fristen-
 import p17 from './2026-11-09-ch-primarlehrperson-trotz-sinkendem-bedarf-ph-frist-2027.json' with { type: 'json' }
 import p18 from './2026-11-11-ch-hsg-eignungstest-2027-termine-anmeldefrist.json' with { type: 'json' }
 import p19 from './2026-11-13-ch-zwischenjahr-nach-der-matura-fh-einstieg-nutzen.json' with { type: 'json' }
+import p20 from './2026-11-15-ch-interesse-oder-jobaussicht-sagw-studie-geisteswissenschaften.json' with { type: 'json' }
 
-export const POSTS = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19] as Post[]
+export const POSTS = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20] as Post[]
