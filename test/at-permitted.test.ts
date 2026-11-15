@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { grazList, jkuList, siteFacts } from '../scrapers/sites/at-permitted.ts'
+import { grazList, jkuList, siteFacts, uibkList } from '../scrapers/sites/at-permitted.ts'
 import { mergeSite, parseItem } from '../scrapers/at-hochschulen.ts'
 
 const finder = `<script> studyFinder = {"courses":{"430":{"title":"Bachelor"},"432":{"title":"Master"},"436":{"title":"Doktorat\\/PhD"}},"studies":[
@@ -21,6 +21,28 @@ test('Uni Graz list: only links under the list path', () => {
   assert.deepEqual(grazList(html, 'https://www.uni-graz.at/de/studium/masterstudien/', 'master'), [
     { name: 'Angewandte Ethik', level: 'master', url: 'https://www.uni-graz.at/de/studium/masterstudien/angewandte-ethik/' },
   ])
+})
+
+test('Uni Innsbruck list: bachelor, master and diploma without the level in the name, no doctorates', () => {
+  const card = (href: string, title: string) => `<div class="card-body"><h2 class="card-title"><a href="${href}" class="stretched-link">\n\t\t\t\t\t${title}\n\t\t\t\t</a></h2></div>`
+  const html = [
+    card('/de/studien/ba-informatik/', 'Infor&shy;ma&shy;tik (Ba&shy;che&shy;lor)'),
+    card('/de/studien/ba-informatik/', 'Informatik (Bachelor)'),
+    card('/de/studien/ma-banking-and-finance/', 'Banking and Finance (Master)'),
+    card('/de/studien/d-rechtswissenschaften/', 'Rechtswissenschaften (Diplom)'),
+    card('/de/studien/phd-informatik/', 'Informatik (PhD)'),
+    card('/de/studien/uf-sekundaerstufe/mathematik/', 'Mathematik (Lehramt)'),
+  ].join('')
+  assert.deepEqual(uibkList(html, 'https://www.uibk.ac.at/de/studien/'), [
+    { name: 'Informatik', level: 'bachelor', url: 'https://www.uibk.ac.at/de/studien/ba-informatik/' },
+    { name: 'Banking and Finance', level: 'master', url: 'https://www.uibk.ac.at/de/studien/ma-banking-and-finance/' },
+    { name: 'Rechtswissenschaften', level: 'professional', url: 'https://www.uibk.ac.at/de/studien/d-rechtswissenschaften/' },
+  ])
+})
+
+test('info box of Innsbruck programme pages', () => {
+  const html = `<div class="uibk-well uibk-grey-semifill uibk-mb-0 h-100" id="prgInfoBox"><p><strong>Master of Science</strong></p><p><strong>Dauer/ECTS-AP</strong><br> 4 Semester/120 ECTS-AP </p><p><strong>Studienart</strong><br> Vollzeit </p><p><strong>Unterrichtssprache</strong><br> Deutsch, Englisch, Italienisch </p><p><strong>Voraussetzung</strong><br> Bachelorabschluss und <a href="/x">Sprachnachweis</a></p></div>`
+  assert.deepEqual(siteFacts(html), { degreeTitle: 'Master of Science', durationYears: 2, ects: 120, mode: 'full-time', languages: ['de', 'en', 'it'] })
 })
 
 test('key facts of JKU and Graz programme pages', () => {

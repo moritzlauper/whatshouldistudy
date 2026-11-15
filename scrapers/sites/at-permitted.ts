@@ -37,6 +37,8 @@ export const AT_PERMITTED: AtPermission[] = [
       { url: 'https://www.uni-graz.at/de/studium/diplomstudien/', level: 'professional' },
     ],
   },
+  // Lisa Marchl, Kommunikation, 15.11.2026: «in Ordnung, wenn ihr die öffentlich sichtbaren Infos/Fakten zu unseren Studien abruft».
+  { key: 'uibk', institution: 'Universität Innsbruck', granted: '2026-11-15', lists: [{ url: 'https://www.uibk.ac.at/de/studien/' }] },
 ]
 
 
@@ -115,13 +117,44 @@ export function grazList(html: string, base: string, level: Level): SiteListed[]
   return out
 }
 
-/** Label → value pairs of a programme page: JKU «Key Facts», Graz info boxes. */
+const UIBK_LEVELS: Record<string, Level> = { ba: 'bachelor', ma: 'master', d: 'professional' }
+
+/**
+ * Uni Innsbruck: one page with a card per study, «Informatik (Bachelor)». The slug's prefix gives the level;
+ * doctorates (phd-, dr-), extension studies (es-) and teaching subjects (uf-) are left out.
+ */
+export function uibkList(html: string, base: string): SiteListed[] {
+  const out: SiteListed[] = []
+  const seen = new Set<string>()
+  for (const m of html.matchAll(/<h2 class="card-title"><a href="(\/de\/studien\/(ba|ma|d)-[^"/#?]+\/)"[^>]*>([\s\S]*?)<\/a>/g)) {
+    const url = absolute(m[1], base)
+    if (seen.has(url)) continue
+    seen.add(url)
+    out.push({ name: text(m[3]).replace(/\s*\((Bachelor|Master|Diplom)\)$/, ''), level: UIBK_LEVELS[m[2]], url })
+  }
+  return out
+}
+
+const LIST_READERS: Record<string, (html: string, base: string, level?: Level) => SiteListed[]> = {
+  jku: jkuList,
+  unigraz: (html, base, level) => grazList(html, base, level!),
+  uibk: uibkList,
+}
+
+/** Label → value pairs of a programme page: JKU «Key Facts», Graz and Innsbruck info boxes. */
 export function factPairs(html: string): Array<[string, string]> {
   const pairs: Array<[string, string]> = []
   // JKU: <p><strong>ECTS</strong></p> <p>120 Punkte</p>
   for (const m of html.matchAll(/<div class="info_element">\s*<p><strong>([\s\S]*?)<\/strong><\/p>\s*<p>([\s\S]*?)<\/p>/g)) pairs.push([text(m[1]), text(m[2].replace(/<br\s*\/?>/g, ' · '))])
   // Graz: <div class="info-item"> <h3>ECTS</h3> <p>120</p>
   for (const m of html.matchAll(/<div class="info-item">\s*<h3>([\s\S]*?)<\/h3>\s*<p>([\s\S]*?)<\/p>/g)) pairs.push([text(m[1]), text(m[2])])
+  // Innsbruck: <div id="prgInfoBox"><p><strong>Master of Science</strong></p><p><strong>Dauer/ECTS-AP</strong><br> 4 Semester/120 ECTS-AP </p>
+  const box = /id="prgInfoBox">([\s\S]*?)<\/div>/.exec(html)?.[1]
+  if (box) {
+    const degree = /^\s*<p><strong>([\s\S]*?)<\/strong><\/p>/.exec(box)
+    if (degree) pairs.push(['Abschluss', text(degree[1])])
+    for (const m of box.matchAll(/<p><strong>([^<]*)<\/strong><br\s*\/?>([\s\S]*?)<\/p>/g)) pairs.push([text(m[1]), text(m[2])])
+  }
   return pairs
 }
 
@@ -134,6 +167,12 @@ export function siteFacts(html: string): SiteFacts {
       const n = Number(/\d+/.exec(value)?.[0])
       if (n >= 30 && n <= 400) facts.ects ??= n
     } else if (/^studiendauer$/i.test(label)) facts.durationYears ??= durationIn(value)
+    else if (/^dauer\s*\/\s*ects/i.test(label)) {
+      // «4 Semester/120 ECTS-AP»
+      facts.durationYears ??= durationIn(value)
+      const n = Number(/(\d+)\s*ECTS/i.exec(value)?.[1])
+      if (n >= 30 && n <= 400) facts.ects ??= n
+    }
     else if (/^(unterrichts)?sprache$/i.test(label)) {
       // «Deutsch (Level B2) · · (Einige Lehrveranstaltungen werden auf Englisch angeboten)»
       const [main, ...rest] = value.split(/\(einige|\(some|·\s*·/i)
@@ -143,7 +182,7 @@ export function siteFacts(html: string): SiteFacts {
     } else if (/^studienort\b/i.test(label)) {
       const city = label.replace(/^studienort\s*/i, '').trim() || value.split('·')[0].trim()
       for (const c of city.split(/\s+und\s+|\s*,\s*/)) if (c && c.length < 40) cities.push(c)
-    } else if (/^(studienform|typ)$/i.test(label)) {
+    } else if (/^(studienform|studienart|typ)$/i.test(label)) {
       const full = /vollzeit|full/i.test(value)
       const part = /berufsbegleitend|teilzeit|part/i.test(value)
       facts.mode ??= full && part ? 'both' : part ? 'part-time' : full ? 'full-time' : undefined
@@ -166,7 +205,7 @@ export async function readPermitted(read: Reader, log: (s: string) => void = () 
         log(`AT ${site.key}: list ${list.url} HTTP ${res.status}`)
         continue
       }
-      listed.push(...(site.key === 'jku' ? jkuList(res.text, list.url) : grazList(res.text, list.url, list.level!)))
+      listed.push(...LIST_READERS[site.key](res.text, list.url, list.level))
     }
     let withFacts = 0
     for (const l of listed) {

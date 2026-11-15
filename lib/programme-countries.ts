@@ -7,7 +7,7 @@
 export const PROGRAMME_COUNTRIES = ['CH', 'FR', 'GB', 'NL', 'NO', 'FI', 'AU', 'KR', 'US', 'AT'] as const
 
 /** Austrian universities whose programme pages may be read, as named in lib/at-institutions.ts. */
-export const AT_READABLE = ['Johannes Kepler Universität Linz', 'Universität Graz']
+export const AT_READABLE = ['Johannes Kepler Universität Linz', 'Universität Graz', 'Universität Innsbruck']
 
 /** Whether the facts run may read this programme's page. */
 export const mayReadPage = (r: { country: string; institution?: string }) => r.country !== 'AT' || AT_READABLE.includes(r.institution ?? '')

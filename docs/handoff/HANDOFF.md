@@ -2,6 +2,13 @@
 
 Für die nächste Person oder den nächsten Agenten, die hier weiterarbeiten. Zuerst `AGENTS.md` lesen, die Regeln dort gelten (Paywall nicht umgehen, Next.js-Doku in `node_modules/next/dist/docs/`).
 
+## Österreich: Universität Innsbruck von ihrer Website (15.11.2026)
+
+- Zusage per Mail von Lisa Maria Marchl (Kommunikation): «für uns ist es in Ordnung, wenn ihr die öffentlich sichtbaren Infos/Fakten zu unseren Studien abruft und auf eurer Seite anzeigt.» Festgehalten im Outreach-Repo als Feld `reply` in `letters/2026-10-24-uibk-studiengaenge.json`. Die Antworten von JKU und Graz liegen dort entgegen dem Abschnitt vom 5.11. nicht. Frau Marchl fragt zurück, wie häufig der Fragebogen genutzt wird und wie viele Personen aus Österreich die Seite besuchen. Die Antwort steht noch aus.
+- Umsetzung: Eintrag `uibk` in `AT_PERMITTED` und `AT_READABLE`, Leser `uibkList` für `https://www.uibk.ac.at/de/studien/` (eine Seite mit einer Karte je Studium). Die Stufe kommt aus dem Präfix im Pfad (`ba-`, `ma-`, `d-`), Doktorate (`phd-`, `dr-`), Erweiterungsstudien (`es-`) und Lehramtsfächer (`uf-`) bleiben aussen vor. Die Studienseiten haben eine Infobox `#prgInfoBox` mit Abschluss, «Dauer/ECTS-AP», Studienart und Unterrichtssprache, `factPairs` und `siteFacts` lesen sie.
+- Probe am 15.11.: 109 Studien auf der Website (43 Bachelor, 63 Master, 3 Diplom), 102 im Datensatz gefunden, 7 neu. Die neuen sind Umbenennungen, die der Datensatz (Stand 2024) noch unter altem Namen führt, etwa «Europäische Ethnologie» statt «Empirische Kulturwissenschaft» oder der Master «Medien» statt «Media, Society and Communication» und «Medienkultur, Medienkommunikation, Medienpraxis».
+- Offen: Einträge des Datensatzes, die bei einer Hochschule mit Zusage nicht mehr auf der Website stehen, bleiben wie bei JKU und Graz bestehen. Für Innsbruck sind das neben Lehramt auch die alten Namen der umbenannten Studien. Ob solche Einträge entfallen sollen, entscheidet der Inhaber.
+
 ## Konzept Studiengangsseite (14.11.2026)
 
 - Konzept in `docs/handoff/KONZEPT-STUDIENGANGSSEITE-2026-11.md`. Stufe 1 ist am 14.11. umgesetzt: Kacheln, kürzere Passungskarte aus den Fächern des Studiengangs mit Abgleich gegen die Antworten im Browser, Besonderheiten als Karten, Korrekturen bei Zulassung, Berufen und Lohn. Stufe 2 seit 14.11.: Wo eine Lesung den Studiengang einschätzt, zeigt die Karte deren Typen, Schulfächer und Themen als Wörter, ohne Zahlen. Stufe 3 ist im Code (Titel und Art je Besonderheit, Semester, Praktikum, Studienbeginn), `FACTS_VERSION` steht aber noch auf 6: Vor dem Wechsel auf 7, der jede Seite neu liest, braucht es einen Testlauf (Befehl im Konzept).
