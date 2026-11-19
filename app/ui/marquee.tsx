@@ -1,5 +1,5 @@
 import { FIELDS } from '@/lib/taxonomy/fields.ts'
-import { emoji, fieldName } from '@/lib/site/labels.ts'
+import { fieldName } from '@/lib/site/labels.ts'
 import type { Locale } from '@/lib/site/config.ts'
 
 const ORDER = [...FIELDS].sort((a, b) => (a.id.length * 7) % 11 - (b.id.length * 7) % 11)
@@ -10,7 +10,6 @@ export function Marquee({ locale, color = 'var(--accent)', textColor = 'var(--ac
   const row = (copy: string) =>
     items.map((f) => (
     <span key={`${f.id}-${copy}`} className="mx-5 inline-flex items-center gap-2 whitespace-nowrap font-display text-2xl sm:text-3xl">
-      <span aria-hidden="true">{emoji(f.id)}</span>
       {fieldName(f.id, locale)}
       <span aria-hidden="true" className="ml-5 opacity-60">✦</span>
     </span>

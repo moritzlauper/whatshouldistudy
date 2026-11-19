@@ -14,7 +14,7 @@ import type { Locale, SiteProps } from '@/lib/site/config.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { Kit } from '@/lib/site/kit.ts'
 import { pageUrl } from '@/lib/site/meta.ts'
-import { countryLabel, emoji, fieldBlurb, fieldCareers, fieldName, fmtMoney, fmtNumber, groupLabel, levelLabel, townName } from '@/lib/site/labels.ts'
+import { countryLabel, fieldBlurb, fieldCareers, fieldName, fmtMoney, fmtNumber, groupLabel, levelLabel, townName } from '@/lib/site/labels.ts'
 import { FIELDS, FIELD_BY_ID, GROUP_LABELS } from '@/lib/taxonomy/fields.ts'
 import type { FieldGroup } from '@/lib/taxonomy/fields.ts'
 import { CatalogueRow, languageName } from '../ui/catalogue-row.tsx'
@@ -175,8 +175,7 @@ export async function CountryView({ site, base, locale: selectedLocale, country:
       )}
       <div className="relative mt-5">
         <Burst className="spin-slow absolute -right-2 -top-6 hidden sm:block" size={110} color="var(--lime)" />
-        <div className="text-7xl" aria-hidden="true">{flag(cc)}</div>
-        <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.h1(inC)}</h1>
+        <h1 className="hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.h1(inC)}</h1>
         <p className="mt-5 max-w-3xl text-xl text-muted">{ct.lead(fmtNumber(totals.programmes, intl), fmtNumber(totals.institutions, intl), list(sources.map((s) => s.name), intl))}</p>
         <p className="mt-2 text-sm text-muted">{ct.updated(fmtDate(meta?.updated, intl))}</p>
       </div>
@@ -242,7 +241,6 @@ export async function CountryView({ site, base, locale: selectedLocale, country:
                 .filter((f) => f.group === g)
                 .map((f) => (
                   <Link key={f.id} href={r.countryField(cc, f.id)} className="card-sm card-pop flex items-center gap-3 p-4">
-                    <span className="text-2xl" aria-hidden="true">{emoji(f.id)}</span>
                     <span className="min-w-0">
                       <span className="block hyphens-auto break-words font-bold leading-tight">{fieldName(f.id, locale)}</span>
                       <span className="text-xs text-muted">{ct.programmesShort(fmtNumber(fieldCount(meta, f.id, cc), intl))}</span>
@@ -381,8 +379,7 @@ function LinkOnlyCountry({ k, cc }: { k: Kit; cc: string }) {
       <JsonLd data={breadcrumbLd(crumbs(k, cc))} />
       <div className="relative">
         <Burst className="spin-slow absolute -right-2 -top-6 hidden sm:block" size={110} color="var(--lime)" />
-        <div className="text-7xl" aria-hidden="true">{flag(cc)}</div>
-        <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.h1(inC)}</h1>
+        <h1 className="hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.h1(inC)}</h1>
       </div>
       <div className="mt-8">
         <SourceLink title={ct.linkCountryTitle} text={ct.linkOnlyLead(inC, src.name)} href={src.home} label={ct.linkOpen(src.name)} />
@@ -395,7 +392,6 @@ function LinkOnlyCountry({ k, cc }: { k: Kit; cc: string }) {
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {FIELDS.filter((f) => f.group === g).map((f) => (
                 <Link key={f.id} href={r.countryField(cc, f.id)} className="card-sm card-pop flex items-center gap-3 p-4">
-                  <span className="text-2xl" aria-hidden="true">{emoji(f.id)}</span>
                   <span className="min-w-0 hyphens-auto break-words font-bold leading-tight">{fieldName(f.id, locale)}</span>
                 </Link>
               ))}
@@ -433,11 +429,7 @@ function LinkOnlyField({ k, cc, id }: { k: Kit; cc: string; id: string }) {
         ← {ct.allProgrammes(inC)}
       </Link>
       <div className="relative mt-5">
-        <div className="text-7xl" aria-hidden="true">
-          {emoji(id)}
-          <span className="ml-2 text-5xl">{flag(cc)}</span>
-        </div>
-        <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.fieldH1(name, inC)}</h1>
+        <h1 className="hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.fieldH1(name, inC)}</h1>
       </div>
       <div className="mt-8">
         <SourceLink title={ct.linkOnlyFieldTitle(name)} text={ct.linkOnlyFieldText(name, src.name)} href={src.search(fieldName(id, 'de-DE'))} label={ct.linkOpen(src.name)} />
@@ -460,7 +452,6 @@ function LinkOnlyField({ k, cc, id }: { k: Kit; cc: string; id: string }) {
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((x) => (
               <Link key={x.id} href={r.countryField(cc, x.id)} className="card-sm card-pop flex items-center gap-3 p-4">
-                <span className="text-2xl" aria-hidden="true">{emoji(x.id)}</span>
                 <span className="font-bold">{fieldName(x.id, locale)}</span>
               </Link>
             ))}
@@ -536,11 +527,7 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
       </Link>
       <div className="relative mt-5">
         <Burst className="spin-slow absolute -right-2 -top-6 hidden sm:block" size={110} color="var(--yellow)" />
-        <div className="text-7xl" aria-hidden="true">
-          {emoji(id)}
-          {cc !== 'CH' && <span className="ml-2 text-5xl">{flag(cc)}</span>}
-        </div>
-        <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.fieldH1(name, inC)}</h1>
+        <h1 className="hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.fieldH1(name, inC)}</h1>
         <p className="mt-5 max-w-3xl text-xl text-muted">
           {ct.fieldSummary(name, inC, fmtNumber(counted.length, intl), fmtNumber(institutionCount, intl), levelsText)}
           {degrees.length > 0 && continuing > 0 && ` ${ct.continuingSummary(fmtNumber(continuing, intl))}`}
@@ -680,7 +667,6 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((x) => (
               <Link key={x.id} href={r.countryField(cc, x.id)} className="card-sm card-pop flex items-center gap-3 p-4">
-                <span className="text-2xl" aria-hidden="true">{emoji(x.id)}</span>
                 <span>
                   <span className="block font-bold">{fieldName(x.id, locale)}</span>
                   <span className="text-xs text-muted">{ct.programmesShort(fmtNumber(fieldCount(meta, x.id, cc), intl))}</span>

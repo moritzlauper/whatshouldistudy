@@ -18,7 +18,7 @@ import type { Locale, SiteProps } from '@/lib/site/config.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { Kit } from '@/lib/site/kit.ts'
 import { pageUrl } from '@/lib/site/meta.ts'
-import { countryLabel, emoji, fieldName, fmtMoney, levelLabel, riasecLabel, subjectLabel } from '@/lib/site/labels.ts'
+import { countryLabel, fieldName, fmtMoney, levelLabel, riasecLabel, subjectLabel } from '@/lib/site/labels.ts'
 import { basicLabel } from '@/lib/site/basic-labels.ts'
 import { programmePageText } from '@/lib/site/programme-text.ts'
 import { programmeCareers } from '@/lib/site/programme-careers.ts'
@@ -153,7 +153,7 @@ function AboutProgramme({ reading, focus, topics, locale, intl, tx }: { reading:
             {topics.map((x) => (
               <li key={x.id}>
                 <Link href={x.href} className="chip hover:-translate-y-0.5">
-                  {emoji(x.id)} {fieldName(x.id, locale)}
+                  {fieldName(x.id, locale)}
                 </Link>
               </li>
             ))}
@@ -395,7 +395,7 @@ export async function ProgrammeView({ site, base, locale: selectedLocale, countr
           )}
           {p.fields.map((f) => (
             <Link key={f} href={r.countryField(cc, f)} className="chip hover:-translate-y-0.5">
-              {emoji(f)} {fieldName(f, locale)}
+              {fieldName(f, locale)}
             </Link>
           ))}
         </div>

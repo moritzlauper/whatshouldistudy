@@ -4,7 +4,7 @@ import type { FieldGroup } from '@/lib/taxonomy/fields.ts'
 import { getMeta, getStats } from '@/lib/server/data.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
-import { emoji, fieldBlurb, fieldName, fmtNumber, groupLabel } from '@/lib/site/labels.ts'
+import { fieldBlurb, fieldName, fmtNumber, groupLabel } from '@/lib/site/labels.ts'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
 
 const GROUP_COLORS = ['var(--pink)', 'var(--sky)', 'var(--lime)', 'var(--yellow)', 'var(--orange)', 'var(--violet)', 'var(--pink)', 'var(--sky)', 'var(--lime)']
@@ -47,7 +47,6 @@ export async function FieldsView({ site, base, locale: selectedLocale }: SitePro
             {FIELDS.filter((f) => f.group === g).map((f) => (
               <Link key={f.id} href={r.field(f.id)} className="card-sm card-pop flex flex-col p-5">
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl" aria-hidden="true">{emoji(f.id)}</span>
                   <span className="hyphens-auto break-words font-display text-xl leading-tight">{fieldName(f.id, locale)}</span>
                 </div>
                 <p className="mt-2 flex-1 text-sm text-muted">{fieldBlurb(f.id, locale)}</p>

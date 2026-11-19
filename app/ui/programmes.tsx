@@ -22,7 +22,7 @@ import { TYPE_LABEL, TYPE_STYLE, admissionText, typeLabel, typeShort } from '@/l
 import type { InstType } from '@/lib/institutions.ts'
 import { CONTACT, withBase } from '@/lib/site.ts'
 import { formatPrice, priceForSite } from '@/lib/pricing.ts'
-import { countryLabel, emoji, fieldName, fmtMoney, fmtNumber, levelLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
+import { countryLabel, fieldName, fmtMoney, fmtNumber, levelLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import { FACTS_COUNTRIES, PERSONAL_REQUEST, shownScore, orderByNumber, orderedFieldIds, programmeFieldMatch, type LocalFit, type LocalProfile, type PersonalFit, type ProgrammeFacts } from '@/lib/engine/programme-fit.ts'
 import { AiBlock, OwnDataPanel, PERSONAL_POOL, useFitScores, useReadings, type OwnStatus, type PersonalStatus } from './readings.tsx'
 import { officialPageOf } from '@/lib/official-pages.ts'
@@ -488,7 +488,7 @@ function Locked({ teaser, config, hideFirst, onUnlocked }: { teaser: Teaser | nu
                   .sort((a, b) => b[1] - a[1])
                   .map(([id, n]) => (
                     <span key={id} className="chip-soft">
-                      {emoji(id)} {fieldName(id, locale)} <span className="text-muted">{fmtNumber(n, intl)}</span>
+                      {fieldName(id, locale)} <span className="text-muted">{fmtNumber(n, intl)}</span>
                     </span>
                   ))}
               </div>
@@ -746,7 +746,7 @@ function ProgrammeDetails({ p, aiBlock }: { p: RankedProgramme; aiBlock?: ReactN
         <dl className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
           <Item k={d.institution} v={p.institution} />
           <Item k={d.place} v={[p.city, p.region, countryLabel(p.country, intl)].filter(Boolean).join(', ')} />
-          <Item k={d.fields} v={p.fields.map((id) => `${emoji(id)} ${fieldName(id, locale)}`).join(', ')} />
+          <Item k={d.fields} v={p.fields.map((id) => `$${fieldName(id, locale)}`).join(', ')} />
           <Item k={t.programmes.row.level} v={levelLabel(p.level as Level, locale)} />
           <Item k={cd.title} v={p.degreeTitle} />
           {p.ects ? <Item k={cd.ects} v={`${fmtNumber(p.ects, intl)} ECTS`} /> : null}
@@ -853,7 +853,7 @@ function ProgrammeRow({ p, rank, fact, fit, score, personal, personalStatus = 'o
         </div>
       </div>
       <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted">
-        <Item k={t.programmes.row.field} v={`${emoji(displayField)} ${fieldName(displayField, locale)}${fieldRank ? ` (${t.programmes.row.fieldRank(fieldRank)})` : ''}`} />
+        <Item k={t.programmes.row.field} v={`$${fieldName(displayField, locale)}${fieldRank ? ` (${t.programmes.row.fieldRank(fieldRank)})` : ''}`} />
         <Item k={t.programmes.row.level} v={levelLabel(p.level as Level, locale)} />
         {p.durationYears && <Item k={t.programmes.row.duration} v={`${p.durationYears} ${t.programmes.row.yrs}`} />}
         <Item
@@ -1165,7 +1165,7 @@ function Research({ token, fields, countries }: { token: string | null; fields: 
             {Object.entries(c.research).map(([fid, list]) => (
               <div key={fid} className="mt-3">
                 <div className="text-xs font-bold uppercase tracking-wider text-muted">
-                  {emoji(fid)} {fieldName(fid, locale)}
+                  {fieldName(fid, locale)}
                 </div>
                 {data.paid ? (
                   <ol className="mt-1 grid gap-1 text-sm">

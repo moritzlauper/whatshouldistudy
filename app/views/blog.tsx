@@ -9,7 +9,7 @@ import { regionalize } from '@/lib/site/regional.ts'
 import type { Locale, SiteId, SiteProps } from '@/lib/site/config.ts'
 import { SITES } from '@/lib/site/config.ts'
 import { pageUrl } from '@/lib/site/meta.ts'
-import { emoji, fieldName } from '@/lib/site/labels.ts'
+import { fieldName } from '@/lib/site/labels.ts'
 import { siteUrl } from '@/lib/site.ts'
 import { JsonLd } from '../ui/json-ld.tsx'
 import { Markdown } from '../ui/markdown.tsx'
@@ -102,7 +102,7 @@ export async function PostView({ site, base, locale: selectedLocale, slug }: Sit
           <div className="mt-4 flex flex-wrap gap-2">
             {post.fields.map((id) => (
               <Link key={id} href={r.field(id)} className="chip">
-                <span aria-hidden="true">{emoji(id)}</span> {fieldName(id, locale)}
+                {fieldName(id, locale)}
               </Link>
             ))}
           </div>

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { effectiveSummaries, update, useAppState } from '@/lib/store.ts'
 import { profileShape, scoreRiasec } from '@/lib/engine/questionnaire.ts'
-import { emoji, fieldCareers, riasecLabel } from '@/lib/site/labels.ts'
+import { fieldCareers, riasecLabel } from '@/lib/site/labels.ts'
 import { OCCUPATIONS } from '@/lib/work/occupations.ts'
 import { companyFit, matchOccupations, normaliseSearch, rankCompanies, rankJobs } from '@/lib/work/matching.ts'
 import { JOB_SOURCES, jobSector } from '@/lib/work/sources.ts'
@@ -14,7 +14,6 @@ import { useSite } from '../ui/site-context.tsx'
 import { Burst } from '../ui/shapes.tsx'
 
 const PAGE_SIZE = 12
-const COLORS = ['var(--lime)', 'var(--sky)', 'var(--pink)', 'var(--yellow)', 'var(--violet)', 'var(--orange)']
 
 export function WorkView({ data, unavailable }: { data: JobsData; unavailable: boolean }) {
   const { t, r, locale, intl } = useSite()
@@ -78,12 +77,11 @@ export function WorkView({ data, unavailable }: { data: JobsData; unavailable: b
         {!occupations.length ? <p className="card-sm mt-6 p-6 text-muted">{w.noProfile}</p> : (
           <>
             <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {occupations.slice(0, allIdeas ? occupations.length : 6).map((match, i) => {
+              {occupations.slice(0, allIdeas ? occupations.length : 6).map((match) => {
                 const occupation = OCCUPATIONS.find((o) => o.id === match.id)!
                 const examples = [...new Set(occupation.fields.flatMap((id) => fieldCareers(id, locale)))].slice(0, 4)
                 return (
                   <article key={match.id} className="card flex min-w-0 flex-col p-6">
-                    <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-line text-3xl" style={{ background: COLORS[i % COLORS.length] }} aria-hidden="true">{emoji(occupation.fields[0])}</span>
                     <h3 className="font-display text-2xl">{w.roles[match.id]}</h3>
                     <p className="mt-3 text-xs font-bold uppercase tracking-wider text-muted">{w.activities}</p>
                     <p className="mt-1 text-sm">{examples.join(' · ')}</p>

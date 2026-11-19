@@ -17,7 +17,7 @@ import { FIELDS, FIELD_BY_ID, RIASEC_KEYS, VALUE_KEYS } from '@/lib/taxonomy/fie
 import { BASIC_KEYS } from '@/lib/taxonomy/basic-interests.ts'
 import { basicLabel } from '@/lib/site/basic-labels.ts'
 import type { SubjectKey, ValueKey } from '@/lib/taxonomy/fields.ts'
-import { emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
+import { fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, riasecLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import { cleanGrades, feasibility } from '@/lib/engine/grades.ts'
 import { bandText, fitText } from '@/lib/site/fit-text.ts'
 import { insightText, reasonText } from '@/lib/site/explain.ts'
@@ -260,8 +260,7 @@ export function ResultsView() {
               const why = m.reasons.filter((x) => x.k !== 'hidden').slice(0, 2)
               return (
                 <Link key={m.id} href={r.field(m.id)} className="card-sm card-pop border-dashed p-5">
-                  <div className="text-3xl" aria-hidden="true">{emoji(m.id)}</div>
-                  <div className="mt-2 text-xs font-bold uppercase tracking-wider text-muted">{groupLabel(f.group, locale)}</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-muted">{groupLabel(f.group, locale)}</div>
                   <div className="mt-1 hyphens-auto break-words font-display text-xl">{fieldName(m.id, locale)}</div>
                   <div className="mt-1 text-xs font-bold text-accent">{t.results.matchPct(m.score)}</div>
                   <p className="mt-2 text-sm text-muted">{why.map((x) => reasonText(x, k)).join(' ') || fieldBlurb(m.id, locale)}</p>
@@ -351,7 +350,7 @@ export function ResultsView() {
                         <>🔒 {t.results.lockedChip}</>
                       ) : (
                         <>
-                          <span aria-hidden="true">{emoji(f.id)}</span> {fieldName(f.id, locale)}
+                          {fieldName(f.id, locale)}
                         </>
                       )}
                     </span>
@@ -539,8 +538,7 @@ function TopMatch({ m, stat, grades, sameTier }: { m: FieldMatch; stat?: FieldSt
       </div>
       <div className="grid gap-10 p-6 sm:p-10 lg:grid-cols-[1fr_20rem]">
         <div>
-          <div className="text-6xl" aria-hidden="true">{emoji(m.id)}</div>
-          <h2 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-6xl">{name}</h2>
+          <h2 className="hyphens-auto break-words font-display text-5xl sm:text-6xl">{name}</h2>
           <p className="mt-4 max-w-2xl text-lg text-muted">{fieldBlurb(m.id, locale)}</p>
           <ul className="mt-6 grid gap-2.5">
             {m.reasons.map((x) => (
@@ -754,7 +752,7 @@ function SourceInsights({ summaries, unlocked, studying }: { summaries: SourceSu
                           <li key={f.id}>
                             <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                               <span className="font-semibold">
-                                {emoji(f.id)} {fieldName(f.id, locale)}
+                                {fieldName(f.id, locale)}
                               </span>
                               <span className="text-xs text-muted">{s.share(Math.round(f.share * 100))}</span>
                             </div>
@@ -903,7 +901,6 @@ function FieldCard({ m, rank, stat, color, grades }: { m: FieldMatch; rank: numb
       </div>
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-start gap-3">
-          <span className="text-3xl" aria-hidden="true">{emoji(m.id)}</span>
           <div>
             <div className="text-xs font-bold uppercase tracking-wider text-muted">{groupLabel(f.group, locale)}</div>
             <h3 className="hyphens-auto break-words font-display text-2xl leading-tight">

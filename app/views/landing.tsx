@@ -8,7 +8,7 @@ import { kit } from '@/lib/site/kit.ts'
 import type { Kit } from '@/lib/site/kit.ts'
 import { SALES_PAUSED, isLocal } from '@/lib/site/config.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
-import { emoji, fieldName, fmtNumber } from '@/lib/site/labels.ts'
+import { fieldName, fmtNumber } from '@/lib/site/labels.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Marquee } from '../ui/marquee.tsx'
 import { Price } from '../ui/price.tsx'
@@ -191,7 +191,7 @@ export async function Landing({ site, base, locale: selectedLocale }: SiteProps)
             <span className="mt-5 flex flex-wrap gap-2" aria-hidden="true">
               {SAMPLE_FIELDS.map((id) => (
                 <span key={id} className="rounded-full border-2 border-line bg-surface px-3 py-1 text-sm font-semibold text-ink">
-                  {emoji(id)} {fieldName(id, locale)}
+                  {fieldName(id, locale)}
                 </span>
               ))}
             </span>
@@ -395,7 +395,6 @@ function HeroCard({ k }: { k: Kit }) {
             <li key={id} className="rounded-xl border-2 border-line px-3 py-2 sm:py-2.5" style={{ background: i === 0 ? 'var(--accent-soft)' : undefined }}>
               <div className="flex items-center justify-between gap-2">
                 <span className="flex min-w-0 items-center gap-2 text-sm font-bold">
-                  <span className="shrink-0 text-base" aria-hidden="true">{emoji(id)}</span>
                   {fieldName(id, locale)}
                 </span>
                 <span className="on-color shrink-0 rounded-full border-2 border-line bg-lime px-2 py-0.5 text-xs font-extrabold">{score}</span>

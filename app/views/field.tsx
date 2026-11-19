@@ -9,7 +9,7 @@ import { TYPE_STYLE, typeLabel } from '@/lib/institutions.ts'
 import type { InstType } from '@/lib/institutions.ts'
 import { kit } from '@/lib/site/kit.ts'
 import type { SiteProps } from '@/lib/site/config.ts'
-import { countryLabel, emoji, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
+import { countryLabel, fieldBlurb, fieldCareers, fieldName, fmtNumber, groupLabel, subjectLabel, valueLabel } from '@/lib/site/labels.ts'
 import { Hexagon } from '../ui/hexagon.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 import { Earnings } from '../ui/earnings.tsx'
@@ -124,8 +124,7 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
       </Link>
       <div className="relative mt-5">
         <Burst className="spin-slow absolute -right-2 -top-6 hidden sm:block" size={110} color="var(--yellow)" />
-        <div className="text-7xl" aria-hidden="true">{emoji(id)}</div>
-        <h1 className="mt-3 hyphens-auto break-words font-display text-5xl sm:text-7xl">{name}</h1>
+        <h1 className="hyphens-auto break-words font-display text-5xl sm:text-7xl">{name}</h1>
         <p className="mt-5 max-w-3xl text-xl text-muted">{fieldBlurb(id, locale)}</p>
         <Link href={r.start} className="btn btn-primary btn-lg mt-7">
           {t.fields.topCta} <span aria-hidden="true">→</span>
@@ -227,7 +226,6 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {related.map((x) => (
             <Link key={x.id} href={r.field(x.id)} className="card-sm card-pop flex items-center gap-3 p-4">
-              <span className="text-2xl" aria-hidden="true">{emoji(x.id)}</span>
               <span>
                 <span className="block font-bold">{fieldName(x.id, locale)}</span>
                 <span className="text-xs text-muted">{groupLabel(x.group, locale)}</span>
