@@ -175,7 +175,7 @@ export async function CountryView({ site, base, locale: selectedLocale, country:
       )}
       <div className="relative mt-5">
         <Burst className="spin-slow absolute -right-2 -top-6 hidden sm:block" size={110} color="var(--lime)" />
-        <h1 className="hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.h1(inC)}</h1>
+        <h1 className="hyphens-auto break-words font-display text-5xl sm:pr-28 sm:text-6xl">{ct.h1(inC)}</h1>
         <p className="mt-5 max-w-3xl text-xl text-muted">{ct.lead(fmtNumber(totals.programmes, intl), fmtNumber(totals.institutions, intl), list(sources.map((s) => s.name), intl))}</p>
         <p className="mt-2 text-sm text-muted">{ct.updated(fmtDate(meta?.updated, intl))}</p>
       </div>
@@ -379,7 +379,7 @@ function LinkOnlyCountry({ k, cc }: { k: Kit; cc: string }) {
       <JsonLd data={breadcrumbLd(crumbs(k, cc))} />
       <div className="relative">
         <Burst className="spin-slow absolute -right-2 -top-6 hidden sm:block" size={110} color="var(--lime)" />
-        <h1 className="hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.h1(inC)}</h1>
+        <h1 className="hyphens-auto break-words font-display text-5xl sm:pr-28 sm:text-6xl">{ct.h1(inC)}</h1>
       </div>
       <div className="mt-8">
         <SourceLink title={ct.linkCountryTitle} text={ct.linkOnlyLead(inC, src.name)} href={src.home} label={ct.linkOpen(src.name)} />
@@ -527,7 +527,7 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
       </Link>
       <div className="relative mt-5">
         <Burst className="spin-slow absolute -right-2 -top-6 hidden sm:block" size={110} color="var(--yellow)" />
-        <h1 className="hyphens-auto break-words font-display text-5xl sm:text-6xl">{ct.fieldH1(name, inC)}</h1>
+        <h1 className="hyphens-auto break-words font-display text-5xl sm:pr-28 sm:text-6xl">{ct.fieldH1(name, inC)}</h1>
         <p className="mt-5 max-w-3xl text-xl text-muted">
           {ct.fieldSummary(name, inC, fmtNumber(counted.length, intl), fmtNumber(institutionCount, intl), levelsText)}
           {degrees.length > 0 && continuing > 0 && ` ${ct.continuingSummary(fmtNumber(continuing, intl))}`}

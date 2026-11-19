@@ -124,7 +124,7 @@ export async function FieldView({ site, base, locale: selectedLocale, id }: Site
       </Link>
       <div className="relative mt-5">
         <Burst className="spin-slow absolute -right-2 -top-6 hidden sm:block" size={110} color="var(--yellow)" />
-        <h1 className="hyphens-auto break-words font-display text-5xl sm:text-7xl">{name}</h1>
+        <h1 className="hyphens-auto break-words font-display text-5xl sm:pr-28 sm:text-7xl">{name}</h1>
         <p className="mt-5 max-w-3xl text-xl text-muted">{fieldBlurb(id, locale)}</p>
         <Link href={r.start} className="btn btn-primary btn-lg mt-7">
           {t.fields.topCta} <span aria-hidden="true">→</span>
