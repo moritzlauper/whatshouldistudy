@@ -599,8 +599,10 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
               {l.institutions.map(([inst, ps]) => {
                 const first = ps[0]
                 const type = first.institutionType as InstType | undefined
+                // With a single programme with its own page, the whole card opens that page.
+                const single = ps.length === 1 && hasProgrammePages(cc)
                 return (
-                  <div key={inst} className="card-sm p-5">
+                  <div key={inst} className={single ? 'card-sm card-pop relative p-5' : 'card-sm p-5'}>
                     <h3 className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <span className="font-display text-xl leading-tight">{inst}</span>
                       {type && type in TYPE_STYLE && (
@@ -609,14 +611,14 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
                         </span>
                       )}
                       {first.institutionUrl && (
-                        <a href={first.institutionUrl} target="_blank" rel="noopener" className="text-xs font-bold text-accent hover:underline">
+                        <a href={first.institutionUrl} target="_blank" rel="noopener" className="relative z-10 text-xs font-bold text-accent hover:underline">
                           {ct.search.website} ↗
                         </a>
                       )}
                     </h3>
                     <ul className="mt-2">
                       {ps.slice(0, limit).map((p) => (
-                        <CatalogueRow key={p.id} p={p} country={cc} locale={locale} showLevel={false} fieldHref={(x) => r.countryField(cc, x)} href={hasProgrammePages(cc) ? r.programme(cc, p.fields[0], programmeSlug(p)) : undefined} />
+                        <CatalogueRow key={p.id} p={p} country={cc} locale={locale} showLevel={false} stretch={single} fieldHref={(x) => r.countryField(cc, x)} href={hasProgrammePages(cc) ? r.programme(cc, p.fields[0], programmeSlug(p)) : undefined} />
                       ))}
                     </ul>
                     {ps.length > limit && <MoreAt label={ct.moreAt(fmtNumber(ps.length - limit, intl))} q={inst} level={l.level} />}
