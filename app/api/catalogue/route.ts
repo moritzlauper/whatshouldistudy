@@ -23,6 +23,7 @@ export async function GET(req: Request) {
     country,
     q: (s.get('q') ?? '').slice(0, 100),
     field: field && FIELD_BY_ID[field] ? field : undefined,
+    institution: (s.get('institution') ?? '').slice(0, 200) || undefined,
     level: level && LEVEL_ORDER.includes(level as Level) ? (level as Level) : undefined,
     locale: LOCALES.includes(locale as Locale) ? (locale as Locale) : 'en',
     page: Math.min(Math.max(Number(s.get('page')) || 0, 0), 400),

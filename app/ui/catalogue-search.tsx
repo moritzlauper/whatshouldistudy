@@ -8,6 +8,7 @@ import { withBase } from '@/lib/site.ts'
 import { catalogueText } from '@/lib/site/catalogue-text.ts'
 import { fmtNumber, levelLabel } from '@/lib/site/labels.ts'
 import { CatalogueRow } from './catalogue-row.tsx'
+import { useInstitution } from './institution-filter.tsx'
 import { useSite } from './site-context.tsx'
 
 /** Sent by a «more at this institution» button to fill in the search. */
@@ -17,12 +18,14 @@ type Detail = { q: string; level?: Level }
 /**
  * Search in one country's catalogue, optionally within one field. Results show
  * only once there is a query or a level, so the page's own list stays in view.
+ * With institutions, a choice among them filters the page's list and the results.
  */
-export function CatalogueSearch({ country, field, levels, title }: { country: string; field?: string; levels: Level[]; title: string }) {
+export function CatalogueSearch({ country, field, levels, title, institutions = [] }: { country: string; field?: string; levels: Level[]; title: string; institutions?: string[] }) {
   const { locale, intl, r } = useSite()
   const ct = catalogueText(locale)
   const [q, setQ] = useState('')
   const [level, setLevel] = useState<Level | ''>('')
+  const [institution, setInstitution] = useInstitution()
   const [page, setPage] = useState(0)
   const [data, setData] = useState<CatalogueResult | null>(null)
   const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle')
@@ -52,6 +55,7 @@ export function CatalogueSearch({ country, field, levels, title }: { country: st
       const params = new URLSearchParams({ country, q: q.trim(), locale, page: String(page) })
       if (field) params.set('field', field)
       if (level) params.set('level', level)
+      if (institution) params.set('institution', institution)
       try {
         const res = await fetch(withBase(`/api/catalogue?${params}`), { signal: ctrl.signal })
         if (!res.ok) throw new Error(String(res.status))
@@ -66,7 +70,7 @@ export function CatalogueSearch({ country, field, levels, title }: { country: st
       clearTimeout(timer)
       ctrl.abort()
     }
-  }, [active, country, field, level, locale, page, q])
+  }, [active, country, field, institution, level, locale, page, q])
 
   return (
     <div ref={box} className="card scroll-mt-24 p-5 sm:p-6">
@@ -80,6 +84,16 @@ export function CatalogueSearch({ country, field, levels, title }: { country: st
           aria-label={ct.search.label}
           className="input min-w-[12rem] flex-1"
         />
+        {institutions.length > 1 && (
+          <select value={institution} onChange={(e) => (setInstitution(e.target.value), setPage(0))} aria-label={ct.search.allInstitutions} className="input w-full min-w-0 sm:w-auto sm:max-w-[18rem]">
+            <option value="">{ct.search.allInstitutions}</option>
+            {institutions.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        )}
         {levels.length > 1 && (
           <select value={level} onChange={(e) => (setLevel(e.target.value as Level | ''), setPage(0))} aria-label={ct.search.allLevels} className="input w-auto">
             <option value="">{ct.search.allLevels}</option>

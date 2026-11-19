@@ -12,6 +12,8 @@ export interface CatalogueQuery {
   q: string
   field?: string
   level?: Level
+  /** Only this institution, by its exact name. */
+  institution?: string
   locale: Locale
   page: number
 }
@@ -47,6 +49,7 @@ export async function searchCatalogue(query: CatalogueQuery): Promise<CatalogueR
   const levels: CatalogueResult['levels'] = {}
   shard.programmes.forEach((p, i) => {
     if (query.field && !p.fields.includes(query.field)) return
+    if (query.institution && p.institution !== query.institution) return
     if (!words.every((w) => text[i].includes(w))) return
     levels[p.level] = (levels[p.level] ?? 0) + 1
     if (query.level && p.level !== query.level) return

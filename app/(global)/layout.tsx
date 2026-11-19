@@ -30,7 +30,7 @@ export const viewport: Viewport = {
 
 export default function GlobalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-site="global" className={bricolage.variable}>
+    <html lang="en" data-site="global" className={bricolage.variable} data-scroll-behavior="smooth">
       <body className="flex min-h-dvh flex-col">
         <Shell site="global" base="">
           {children}

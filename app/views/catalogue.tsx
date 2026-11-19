@@ -19,6 +19,7 @@ import { FIELDS, FIELD_BY_ID, GROUP_LABELS } from '@/lib/taxonomy/fields.ts'
 import type { FieldGroup } from '@/lib/taxonomy/fields.ts'
 import { CatalogueRow, languageName } from '../ui/catalogue-row.tsx'
 import { CatalogueSearch, MoreAt } from '../ui/catalogue-search.tsx'
+import { InstitutionGate, LevelSection } from '../ui/institution-filter.tsx'
 import { JsonLd, breadcrumbLd } from '../ui/json-ld.tsx'
 import { Burst, Sparkle } from '../ui/shapes.tsx'
 
@@ -557,7 +558,7 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
             label={ct.linkOpen(linkOnly.name)}
           />
         ) : (
-          <CatalogueSearch country={cc} field={id} levels={byLevel.map((l) => l.level)} title={ct.searchIn(name)} />
+          <CatalogueSearch country={cc} field={id} levels={byLevel.map((l) => l.level)} title={ct.searchIn(name)} institutions={[...new Set(programmes.map((p) => p.institution))].sort((a, b) => a.localeCompare(b, intl))} />
         )}
       </div>
 
@@ -566,15 +567,14 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
         return (
         <Fragment key={l.level}>
         {l.level === firstContinuing && (
-          <div className="mt-16 border-t-2 border-line pt-10">
-            <h2 className="font-display text-4xl">{ct.continuingTitle}</h2>
-            <p className="mt-3 max-w-3xl text-muted">{ct.continuingText}</p>
-          </div>
+          <InstitutionGate names={programmes.filter((p) => isContinuing(p.level)).map((p) => p.institution)}>
+            <div className="mt-16 border-t-2 border-line pt-10">
+              <h2 className="font-display text-4xl">{ct.continuingTitle}</h2>
+              <p className="mt-3 max-w-3xl text-muted">{ct.continuingText}</p>
+            </div>
+          </InstitutionGate>
         )}
-        <section id={l.level} className="mt-12 scroll-mt-24">
-          <h2 className="font-display text-3xl">
-            {levelLabel(l.level, locale)} <span className="text-muted">({fmtNumber(l.n, intl)})</span>
-          </h2>
+        <LevelSection id={l.level} label={levelLabel(l.level, locale)} counts={Object.fromEntries([['', fmtNumber(l.n, intl)], ...l.institutions.map(([inst, ps]) => [inst, fmtNumber(ps.length, intl)])])}>
           {limit === 0 ? (
             <>
               <ul className="card-sm mt-5 grid gap-x-6 p-5 sm:grid-cols-2">
@@ -582,7 +582,8 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
                   .sort((a, b) => b[1].length - a[1].length)
                   .slice(0, COMPACT_MAX)
                   .map(([inst, ps]) => (
-                    <li key={inst} className="flex items-baseline justify-between gap-3 border-b border-line/15 py-2">
+                    <InstitutionGate key={inst} names={[inst]}>
+                    <li className="flex items-baseline justify-between gap-3 border-b border-line/15 py-2">
                       <span className="min-w-0 font-semibold">{inst}</span>
                       {linkOnly ? (
                         <span className="shrink-0 text-xs text-muted">{fmtNumber(ps.length, intl)}</span>
@@ -590,6 +591,7 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
                         <MoreAt label={ct.programmesShort(fmtNumber(ps.length, intl))} q={inst} level={l.level} />
                       )}
                     </li>
+                    </InstitutionGate>
                   ))}
               </ul>
               {l.institutions.length > COMPACT_MAX && !linkOnly && <p className="mt-2 text-sm text-muted">{ct.moreInstitutions(fmtNumber(l.institutions.length - COMPACT_MAX, intl))}</p>}
@@ -602,7 +604,8 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
                 // With a single programme with its own page, the whole card opens that page.
                 const single = ps.length === 1 && hasProgrammePages(cc)
                 return (
-                  <div key={inst} className={single ? 'card-sm card-pop relative p-5' : 'card-sm p-5'}>
+                  <InstitutionGate key={inst} names={[inst]}>
+                  <div className={single ? 'card-sm relative p-5 transition-colors hover:bg-surface-2' : 'card-sm p-5'}>
                     <h3 className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <span className="font-display text-xl leading-tight">{inst}</span>
                       {type && type in TYPE_STYLE && (
@@ -623,11 +626,12 @@ export async function CountryFieldView({ site, base, locale: selectedLocale, cou
                     </ul>
                     {ps.length > limit && <MoreAt label={ct.moreAt(fmtNumber(ps.length - limit, intl))} q={inst} level={l.level} />}
                   </div>
+                  </InstitutionGate>
                 )
               })}
             </div>
           )}
-        </section>
+        </LevelSection>
         </Fragment>
         )
       })}

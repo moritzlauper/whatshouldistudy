@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: '404', robots: { index: false } }
 /** Shared by both sites, so it speaks both languages. */
 export default function GlobalNotFound() {
   return (
-    <html lang="en" className={bricolage.variable}>
+    <html lang="en" className={bricolage.variable} data-scroll-behavior="smooth">
       <body className="dots flex min-h-dvh items-center justify-center px-4">
         <div className="card max-w-md p-10 text-center">
           <Burst className="spin-slow mx-auto" size={90} color="var(--yellow)" />

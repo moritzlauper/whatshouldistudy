@@ -48,7 +48,7 @@ export const viewport: Viewport = {
 export default async function CountryLayout({ children, params }: { children: React.ReactNode; params: Promise<{ mount: string }> }) {
   const { site, base, locale } = localMount((await params).mount)
   return (
-    <html lang={locale} data-site={site} className={bricolage.variable}>
+    <html lang={locale} data-site={site} className={bricolage.variable} data-scroll-behavior="smooth">
       <body className="flex min-h-dvh flex-col">
         <Shell site={site} base={base} locale={locale}>
           {children}
