@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-24T15:13:42.523Z",
+  "generatedAt": "2026-11-25T14:53:03.661Z",
   "jobs": [
     {
       "id": "SwissMedicalNetwork1:744000162705190",
@@ -14,7 +14,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-11-20T10:46:48.268Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -31,7 +31,24 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-07-02T13:22:23.778Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
+      "occupationIds": [
+        "medicine"
+      ]
+    },
+    {
+      "id": "SwissMedicalNetwork1:744000163631269",
+      "sourceId": "SwissMedicalNetwork1",
+      "title": "Allgemeinmediziner/-in (50 bis 100 %)",
+      "company": "Swiss Medical Network",
+      "city": "Bern",
+      "country": "CH",
+      "url": "https://jobs.smartrecruiters.com/SwissMedicalNetwork1/744000163631269-allgemeinmediziner-in-50-bis-100-",
+      "workplace": "onsite",
+      "entry": "unknown",
+      "employment": "Teilzeit",
+      "postedAt": "2026-11-25T08:54:34.551Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -48,26 +65,9 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-11-16T13:30:50.709Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
-      ]
-    },
-    {
-      "id": "SwissMedicalNetwork1:744000149320840",
-      "sourceId": "SwissMedicalNetwork1",
-      "title": "Allgemeinmediziner/-in (50 bis 100 %)",
-      "company": "Swiss Medical Network",
-      "city": "Bern",
-      "country": "CH",
-      "url": "https://jobs.smartrecruiters.com/SwissMedicalNetwork1/744000149320840-allgemeinmediziner-in-50-bis-100-",
-      "workplace": "onsite",
-      "entry": "unknown",
-      "employment": "Teilzeit",
-      "postedAt": "2026-09-14T12:44:17.872Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
-      "occupationIds": [
-        "medicine"
       ]
     },
     {
@@ -82,7 +82,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-07-22T12:08:56.062Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -99,7 +99,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-10-26T14:20:08.010Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -116,10 +116,27 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-10-26T14:18:53.199Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care",
         "administration"
+      ]
+    },
+    {
+      "id": "SwissMedicalNetwork1:744000163633789",
+      "sourceId": "SwissMedicalNetwork1",
+      "title": "Psychologue-psychothérapeute titré·e (H/F/D) 80-100%",
+      "company": "Swiss Medical Network",
+      "city": "Biel",
+      "country": "CH",
+      "url": "https://jobs.smartrecruiters.com/SwissMedicalNetwork1/744000163633789-psychologue-psychotherapeute-titre-e-h-f-d-80-100-",
+      "workplace": "onsite",
+      "entry": "unknown",
+      "employment": "Contrat",
+      "postedAt": "2026-11-25T09:05:39.208Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
+      "occupationIds": [
+        "therapy"
       ]
     },
     {
@@ -135,7 +152,7 @@
       "employment": "Teilzeit",
       "postedAt": "2026-11-23T09:46:05.479Z",
       "validThrough": "2027-01-21T23:00:00.000Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -153,7 +170,7 @@
       "employment": "Temps complet",
       "postedAt": "2026-11-20T09:14:51.025Z",
       "validThrough": "2027-01-18T23:00:00.000Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -170,7 +187,7 @@
       "entry": "unknown",
       "employment": "Temps partiel",
       "postedAt": "2026-08-25T13:53:45.953Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -187,7 +204,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-08-18T13:05:26.054Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine",
         "administration"
@@ -205,7 +222,7 @@
       "entry": "experienced",
       "employment": "Full-time",
       "postedAt": "2026-11-19T11:03:21.999Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "administration"
       ]
@@ -222,7 +239,7 @@
       "entry": "experienced",
       "employment": "Vollzeit",
       "postedAt": "2026-11-19T10:57:36.150Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "people",
         "administration"
@@ -240,7 +257,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-07-22T19:21:45.912Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "business"
       ]
@@ -257,7 +274,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-11-23T13:44:49.059Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -274,7 +291,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-11-23T13:43:32.721Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -291,7 +308,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-11-17T13:32:45.621Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -309,7 +326,7 @@
       "employment": "Temps complet",
       "postedAt": "2026-11-03T13:19:20.976Z",
       "validThrough": "2026-12-02T23:00:00.000Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": []
     },
     {
@@ -324,7 +341,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-10-22T09:57:08.499Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -341,7 +358,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-10-21T07:35:12.932Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -358,7 +375,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-10-12T09:06:43.190Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -375,7 +392,7 @@
       "entry": "unknown",
       "employment": "Temps partiel",
       "postedAt": "2026-11-17T12:58:21.752Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "administration"
       ]
@@ -392,7 +409,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-11-16T09:27:29.784Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "administration"
       ]
@@ -409,7 +426,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-11-12T08:27:26.624Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine",
         "care"
@@ -427,7 +444,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-10-29T13:10:59.101Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -444,7 +461,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-10-29T12:52:42.803Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "hospitality"
       ]
@@ -461,7 +478,7 @@
       "entry": "unknown",
       "employment": "Temps partiel",
       "postedAt": "2026-09-22T13:16:55.585Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -478,7 +495,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-11-23T08:32:50.934Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "hospitality"
       ]
@@ -495,7 +512,7 @@
       "entry": "unknown",
       "employment": "Full-time",
       "postedAt": "2026-11-06T12:01:21.808Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": []
     },
     {
@@ -510,7 +527,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-11-23T06:24:59.765Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine",
         "care"
@@ -528,7 +545,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-10-22T08:16:00.208Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -545,7 +562,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-08-17T13:47:01.278Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -555,14 +572,14 @@
       "sourceId": "SwissMedicalNetwork1",
       "title": "CM_ASSC",
       "company": "Swiss Medical Network",
-      "city": "lausanne",
+      "city": "Lausanne",
       "country": "CH",
       "url": "https://jobs.smartrecruiters.com/SwissMedicalNetwork1/744000161095099-cm-assc",
       "workplace": "onsite",
       "entry": "unknown",
       "employment": "Temps partiel",
       "postedAt": "2026-11-11T14:20:13.369Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": []
     },
     {
@@ -577,7 +594,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-11-10T08:49:38.302Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "administration"
       ]
@@ -594,7 +611,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-11-03T14:04:00.853Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -611,7 +628,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-08-03T04:24:19.066Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": []
     },
     {
@@ -627,7 +644,7 @@
       "employment": "Full-time",
       "postedAt": "2026-10-07T12:20:07.268Z",
       "validThrough": "2026-12-30T23:00:00.000Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "environment"
       ]
@@ -644,7 +661,24 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-07-20T13:59:58.265Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
+      "occupationIds": [
+        "medicine"
+      ]
+    },
+    {
+      "id": "SwissMedicalNetwork1:744000163624625",
+      "sourceId": "SwissMedicalNetwork1",
+      "title": "Chef/fe de clinique",
+      "company": "Swiss Medical Network",
+      "city": "Moutier",
+      "country": "CH",
+      "url": "https://jobs.smartrecruiters.com/SwissMedicalNetwork1/744000163624625-chef-fe-de-clinique-",
+      "workplace": "onsite",
+      "entry": "unknown",
+      "employment": "Contrat",
+      "postedAt": "2026-11-25T08:25:13.272Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -661,7 +695,7 @@
       "entry": "training",
       "employment": "Contrat",
       "postedAt": "2026-11-19T11:14:25.748Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "administration"
       ]
@@ -678,7 +712,7 @@
       "entry": "training",
       "employment": "Contrat",
       "postedAt": "2026-11-19T10:38:13.841Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "hospitality"
       ]
@@ -695,7 +729,7 @@
       "entry": "training",
       "employment": "Contrat",
       "postedAt": "2026-11-19T10:37:01.680Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -712,7 +746,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-11-19T08:14:07.849Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -729,7 +763,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-10-22T14:35:24.164Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -746,27 +780,10 @@
       "entry": "unknown",
       "employment": "Contrat",
       "postedAt": "2026-09-16T10:00:51.986Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine",
         "therapy"
-      ]
-    },
-    {
-      "id": "SwissMedicalNetwork1:744000149596760",
-      "sourceId": "SwissMedicalNetwork1",
-      "title": "Chef/fe de clinique",
-      "company": "Swiss Medical Network",
-      "city": "Moutier",
-      "country": "CH",
-      "url": "https://jobs.smartrecruiters.com/SwissMedicalNetwork1/744000149596760-chef-fe-de-clinique-",
-      "workplace": "onsite",
-      "entry": "unknown",
-      "employment": "Contrat",
-      "postedAt": "2026-09-15T12:57:35.838Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
-      "occupationIds": [
-        "medicine"
       ]
     },
     {
@@ -781,7 +798,7 @@
       "entry": "training",
       "employment": "Contrat",
       "postedAt": "2026-09-10T07:41:49.832Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -798,7 +815,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-08-24T07:59:39.879Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -815,7 +832,7 @@
       "entry": "unknown",
       "employment": "Temps partiel",
       "postedAt": "2026-08-10T10:29:05.161Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -832,7 +849,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-11-19T08:35:28.847Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -849,7 +866,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-11-11T10:21:33.692Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -866,7 +883,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-09-23T13:53:06.061Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -883,7 +900,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-09-21T05:54:58.360Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -900,7 +917,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-11-23T07:53:08.975Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -917,7 +934,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-11-05T15:38:32.748Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -934,7 +951,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-10-26T09:59:34.737Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "administration"
       ]
@@ -951,7 +968,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-11-24T13:52:57.973Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care",
         "administration"
@@ -969,7 +986,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-09-29T07:51:45.602Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -986,7 +1003,7 @@
       "entry": "training",
       "employment": "Contrat",
       "postedAt": "2026-11-19T10:38:02.134Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "hospitality"
       ]
@@ -1003,7 +1020,7 @@
       "entry": "training",
       "employment": "Contrat",
       "postedAt": "2026-11-19T10:37:16.566Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1020,7 +1037,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-11-19T10:15:21.099Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -1037,7 +1054,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-11-19T09:23:34.088Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -1054,7 +1071,7 @@
       "entry": "unknown",
       "employment": "Temps partiel",
       "postedAt": "2026-11-19T09:01:40.269Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -1071,7 +1088,7 @@
       "entry": "unknown",
       "employment": "Temps partiel",
       "postedAt": "2026-10-27T11:14:39.347Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -1088,26 +1105,9 @@
       "entry": "unknown",
       "employment": "Temps partiel",
       "postedAt": "2026-10-27T10:56:23.535Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
-      ]
-    },
-    {
-      "id": "SwissMedicalNetwork1:744000157095209",
-      "sourceId": "SwissMedicalNetwork1",
-      "title": "Psychologue-psychothérapeute titré·e (H/F/D) 80-100%",
-      "company": "Swiss Medical Network",
-      "city": "Saint-Imier",
-      "country": "CH",
-      "url": "https://jobs.smartrecruiters.com/SwissMedicalNetwork1/744000157095209-psychologue-psychotherapeute-titre-e-h-f-d-80-100-",
-      "workplace": "onsite",
-      "entry": "unknown",
-      "employment": "Contrat",
-      "postedAt": "2026-10-22T10:25:39.092Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
-      "occupationIds": [
-        "therapy"
       ]
     },
     {
@@ -1122,7 +1122,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-10-12T08:07:05.200Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1139,7 +1139,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-08-10T10:51:34.293Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -1156,7 +1156,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-11-23T11:01:33.323Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1173,7 +1173,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-11-23T11:01:11.645Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1190,7 +1190,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-11-17T08:40:30.695Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1207,7 +1207,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-10-26T14:18:01.860Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care",
         "administration"
@@ -1225,7 +1225,7 @@
       "entry": "unknown",
       "employment": "Temps partiel",
       "postedAt": "2026-08-10T14:18:52.503Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1243,7 +1243,7 @@
       "employment": "Teilzeit",
       "postedAt": "2026-11-24T14:15:38.179Z",
       "validThrough": "2027-02-21T23:00:00.000Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1260,7 +1260,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-11-23T15:23:52.520Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1277,7 +1277,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-11-18T06:16:19.263Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1294,7 +1294,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-10-23T06:00:12.599Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "hospitality"
       ]
@@ -1311,7 +1311,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-10-12T06:51:48.172Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1328,7 +1328,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-09-29T05:26:40.402Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1345,7 +1345,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-09-01T07:19:52.992Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -1362,7 +1362,7 @@
       "entry": "training",
       "employment": "Vollzeit",
       "postedAt": "2026-08-31T13:56:16.785Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1379,9 +1379,26 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-06-19T13:44:48.306Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
+      ]
+    },
+    {
+      "id": "SwissMedicalNetwork1:744000163634659",
+      "sourceId": "SwissMedicalNetwork1",
+      "title": "Medico Ospedaliero e/o Capo Clinica",
+      "company": "Swiss Medical Network",
+      "city": "Sorengo",
+      "country": "CH",
+      "url": "https://jobs.smartrecruiters.com/SwissMedicalNetwork1/744000163634659-medico-ospedaliero-e-o-capo-clinica",
+      "workplace": "onsite",
+      "entry": "unknown",
+      "employment": "Full-time",
+      "postedAt": "2026-11-25T09:09:50.446Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
+      "occupationIds": [
+        "medicine"
       ]
     },
     {
@@ -1396,7 +1413,7 @@
       "entry": "unknown",
       "employment": "Full-time",
       "postedAt": "2026-11-18T13:11:21.668Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -1413,7 +1430,7 @@
       "entry": "unknown",
       "employment": "Full-time",
       "postedAt": "2026-11-06T10:53:23.098Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -1430,7 +1447,7 @@
       "entry": "unknown",
       "employment": "Full-time",
       "postedAt": "2026-11-03T09:53:08.641Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
       ]
@@ -1447,27 +1464,9 @@
       "entry": "unknown",
       "employment": "Temps partiel",
       "postedAt": "2026-07-27T07:38:55.991Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine"
-      ]
-    },
-    {
-      "id": "SwissMedicalNetwork1:744000157826894",
-      "sourceId": "SwissMedicalNetwork1",
-      "title": "Medizinische Praxisassistenz für Allgemeine Innere Medizin 60 - 100%",
-      "company": "Swiss Medical Network",
-      "city": "Stein am Rhein",
-      "country": "CH",
-      "url": "https://jobs.smartrecruiters.com/SwissMedicalNetwork1/744000157826894-medizinische-praxisassistenz-fur-allgemeine-innere-medizin-60-100-",
-      "workplace": "onsite",
-      "entry": "unknown",
-      "employment": "Vollzeit",
-      "postedAt": "2026-10-26T14:16:41.815Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
-      "occupationIds": [
-        "care",
-        "administration"
       ]
     },
     {
@@ -1482,7 +1481,7 @@
       "entry": "unknown",
       "employment": "Temps complet",
       "postedAt": "2026-09-23T09:30:27.130Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1499,7 +1498,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-07-15T09:44:10.255Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "software",
         "business"
@@ -1517,7 +1516,7 @@
       "entry": "experienced",
       "employment": "Vollzeit",
       "postedAt": "2026-11-19T11:05:19.693Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "people",
         "administration"
@@ -1535,7 +1534,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-11-17T11:22:38.394Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1552,7 +1551,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-11-11T12:25:56.654Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1569,7 +1568,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-11-02T13:41:25.332Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1587,7 +1586,7 @@
       "employment": "Vollzeit",
       "postedAt": "2026-11-02T13:15:06.512Z",
       "validThrough": "2026-12-01T23:00:00.000Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "medicine",
         "care"
@@ -1605,7 +1604,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-11-02T13:09:18.335Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1622,7 +1621,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-10-26T09:48:11.883Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1639,7 +1638,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-10-15T07:12:18.206Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1656,7 +1655,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-10-01T10:42:51.493Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1673,7 +1672,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-09-30T12:11:16.330Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "hospitality"
       ]
@@ -1690,7 +1689,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-09-25T08:17:11.780Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1707,7 +1706,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-08-27T06:10:47.065Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "engineering"
       ]
@@ -1724,7 +1723,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-08-19T12:47:01.474Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1741,7 +1740,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-08-19T11:54:13.104Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1758,7 +1757,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-08-03T08:19:45.868Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1775,7 +1774,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-07-29T05:13:59.563Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -1792,7 +1791,7 @@
       "entry": "unknown",
       "employment": "Vollzeit",
       "postedAt": "2026-07-27T06:18:19.162Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "software"
       ]
@@ -1809,7 +1808,7 @@
       "entry": "unknown",
       "employment": "Teilzeit",
       "postedAt": "2026-07-02T05:34:43.046Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "occupationIds": [
         "care"
       ]
@@ -7312,26 +7311,6 @@
       ]
     },
     {
-      "id": "Bund:15484",
-      "sourceId": "Bund",
-      "title": "Logistiker/-in Vorortlager",
-      "company": "Schweizer Armee - Logistikbasis der Armee LBA",
-      "city": "Chur",
-      "country": "CH",
-      "url": "https://jobs.admin.ch/offene-stellen/logistiker-in-vorortlager/d7c1aa20-c994-406a-a243-6b99e9cb8fe7",
-      "workplace": "unknown",
-      "entry": "unknown",
-      "sector": "public",
-      "employment": "80–100%",
-      "department": "Unterhalt, Handwerk und Logistik",
-      "postedAt": "2026-10-20T22:00:00.000Z",
-      "validThrough": "2026-11-24T22:59:59.000Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
-      "occupationIds": [
-        "logistics"
-      ]
-    },
-    {
       "id": "Bund:20797",
       "sourceId": "Bund",
       "title": "ICT-System Engineer Microsoft",
@@ -7386,46 +7365,6 @@
       "validThrough": "2028-10-19T21:59:59.000Z",
       "checkedAt": "2026-11-24T15:13:42.523Z",
       "occupationIds": []
-    },
-    {
-      "id": "Bund:19587",
-      "sourceId": "Bund",
-      "title": "Panzerelektriker/-in",
-      "company": "Schweizer Armee - Logistikbasis der Armee LBA",
-      "city": "Hinwil",
-      "country": "CH",
-      "url": "https://jobs.admin.ch/offene-stellen/panzerelektriker-in/359f4264-94fc-4b5c-ab79-3de004175ef8",
-      "workplace": "unknown",
-      "entry": "unknown",
-      "sector": "public",
-      "employment": "80–100%",
-      "department": "Unterhalt, Handwerk und Logistik",
-      "postedAt": "2026-10-20T22:00:00.000Z",
-      "validThrough": "2026-11-24T22:59:59.000Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
-      "occupationIds": [
-        "engineering"
-      ]
-    },
-    {
-      "id": "Bund:17877",
-      "sourceId": "Bund",
-      "title": "Logistiker/-in Schmalganglager",
-      "company": "Schweizer Armee - Logistikbasis der Armee LBA",
-      "city": "Hinwil",
-      "country": "CH",
-      "url": "https://jobs.admin.ch/offene-stellen/logistiker-in-schmalganglager/c8b273bf-8ec3-4d86-836e-6511dca4e654",
-      "workplace": "unknown",
-      "entry": "unknown",
-      "sector": "public",
-      "employment": "80–100%",
-      "department": "Unterhalt, Handwerk und Logistik",
-      "postedAt": "2026-10-20T22:00:00.000Z",
-      "validThrough": "2026-11-24T22:59:59.000Z",
-      "checkedAt": "2026-11-24T15:13:42.523Z",
-      "occupationIds": [
-        "logistics"
-      ]
     },
     {
       "id": "Bund:20070",
@@ -9419,40 +9358,41 @@
     {
       "id": "Swissquote",
       "ok": false,
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "count": 0,
       "error": "Invalid job in career list"
     },
     {
       "id": "SwissMedicalNetwork1",
       "ok": true,
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "count": 106
     },
     {
       "id": "Nexthink",
       "ok": false,
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "count": 0,
       "error": "Invalid job in career list"
     },
     {
       "id": "Coop",
       "ok": false,
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "count": 0,
       "error": "Repeated job feed page"
     },
     {
       "id": "Bund",
-      "ok": true,
-      "checkedAt": "2026-11-24T15:13:42.523Z",
-      "count": 387
+      "ok": false,
+      "checkedAt": "2026-11-25T14:53:03.661Z",
+      "count": 384,
+      "error": "Repeated job feed page"
     },
     {
       "id": "SBB",
       "ok": false,
-      "checkedAt": "2026-11-24T15:13:42.523Z",
+      "checkedAt": "2026-11-25T14:53:03.661Z",
       "count": 0,
       "error": "Public job feed HTTP 403"
     }
