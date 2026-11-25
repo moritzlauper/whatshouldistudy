@@ -23,5 +23,6 @@ import p19 from './2026-11-13-ch-zwischenjahr-nach-der-matura-fh-einstieg-nutzen
 import p20 from './2026-11-15-ch-interesse-oder-jobaussicht-sagw-studie-geisteswissenschaften.json' with { type: 'json' }
 import p21 from './2026-11-21-ch-psychologie-studieren-schweiz-bachelor-halbe-strecke.json' with { type: 'json' }
 import p22 from './2026-11-23-ch-mappe-test-vorspiel-fristen-kunst-musikstudien-2027.json' with { type: 'json' }
+import p23 from './2026-11-25-ch-ingenieur-werden-gesucht-lohn-haengt-an-der-branche.json' with { type: 'json' }
 
-export const POSTS = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22] as Post[]
+export const POSTS = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23] as Post[]
